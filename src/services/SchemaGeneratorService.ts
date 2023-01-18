@@ -1,8 +1,8 @@
 import { NextFunction, Request, Response } from "express";
 import { DataSetSchema } from "../generators/DataSetSchema";
 import { IngestionConfig, IngestionSchema } from "../generators/IngestionSchema";
-import { ResponseHandler } from "../helpers/ResponseHandler";
-import { IConnector, IngestionSchemeRequest } from "../models/IngestionModels";
+import { ResponseHandler } from "../helpers/responseHandler";
+import { IConnector , IngestionSchemeRequest} from "../models/ingestionModels";
 const responseHandler = new ResponseHandler();
 export class SchemaGeneratorService {
     private connector: IConnector;

@@ -58,6 +58,25 @@ const routes = {
     "URL": "/obsrv/health",
     "METHOD": "GET",
     "API_ID": "obsrv.health"
+  },
+  "DATASET": {
+    "BASE_PATH": "/data",
+    "API_VERSION": "/v2",
+    "CREATE": {
+      "URL": "/create",
+      "METHOD": "POST",
+      "API_ID": "obsrv.data.create"
+    },
+    "UPDATE": {
+      "URL": "/update",
+      "METHOD": "PATCH",
+      "API_ID": "obsrv.data.update"
+    },
+    "DELETE": {
+      "URL": "/delete",
+      "METHOD": "DELETE",
+      "API_ID": "obsrv.data.remove"
+    }
   }
 }
 

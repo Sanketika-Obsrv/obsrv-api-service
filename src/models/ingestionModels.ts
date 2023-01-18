@@ -41,6 +41,6 @@ export interface ISchemaGenerator {
 
 export interface IConnector {
     connect(): any;
-    execute(sample: string): any;
+    execute(sample: string, topic?: string): any;
     close(): any
 }

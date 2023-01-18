@@ -1,5 +1,5 @@
 import axios, { AxiosInstance } from "axios";
-import { IConnector } from "../models/IngestionModels";
+import { IConnector } from "../models/ingestionModels";
 export class HTTPConnector implements IConnector {
   private url: string;
   constructor(url: string) {

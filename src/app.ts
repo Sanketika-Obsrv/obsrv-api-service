@@ -1,6 +1,6 @@
 import express, { Application } from "express";
 import { config } from "./configs/config";
-import { ResponseHandler } from "./helpers/ResponseHandler";
+import { ResponseHandler } from "./helpers/responseHandler";
 import { router } from "./routes/router";
 const app: Application = express();
 const responseHandler = new ResponseHandler();

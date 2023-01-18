@@ -28,6 +28,14 @@ export const config = {
   },
 
   "dataset_api": {
+    "kafka": {
+      "brokers": ["localhost:9092"],
+      "topics": {
+        "create": "telemetry.input",
+        "mutate": "telemetry.mutate"
+      }
+
+    }
 
   }
 }

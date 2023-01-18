@@ -1,5 +1,5 @@
 import _ from "lodash";
-import { ISchemaGenerator } from "../models/IngestionModels";
+import { ISchemaGenerator } from "../models/ingestionModels";
 
 import { inferSchema } from "@jsonhero/schema-infer";
 export class DataSetSchema implements ISchemaGenerator {

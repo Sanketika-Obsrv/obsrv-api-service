@@ -3,15 +3,18 @@ import express from "express";
 import { config } from "../configs/config";
 import { HTTPConnector } from "../connectors/HttpConnector";
 import { PostgresConnector } from "../connectors/PostgresConnector";
-import { ResponseHandler } from "../helpers/ResponseHandler";
-import { IConnector } from "../models/IngestionModels";
+import { ResponseHandler } from "../helpers/responseHandler";
+import { IConnector } from "../models/ingestionModels";
 import { QueryService } from "../services/QueryService";
 import { SchemaGeneratorService } from "../services/SchemaGeneratorService";
-import { ValidationService } from "../services/ValidationService";
+import { ValidationService } from "../services/validationService";
+import { DatasetService } from "../services/datasetService";
+
 import routes from "./routesConfig";
 
 const httpConnector: IConnector = new HTTPConnector(`${config.query_api.druid.host}:${config.query_api.druid.port}`)
-const queryService = new QueryService(httpConnector);
+const queryService = new QueryService();
+const datasetService = new DatasetService();
 
 const pgConfig = {
     host: 'localhost',
@@ -50,6 +53,11 @@ router.post(`${routes.SCHEMA.BASE_PATH}${routes.SCHEMA.API_VERSION}${routes.SCHE
  * Dataset service routers
  * 
  */
+router.post(`${routes.DATASET.BASE_PATH}${routes.DATASET.API_VERSION}${routes.DATASET.CREATE.URL}`, responseHandler.setApiId(routes.DATASET.CREATE.API_ID), datasetService.createDataset);
+router.patch(`${routes.DATASET.BASE_PATH}${routes.DATASET.API_VERSION}${routes.DATASET.UPDATE.URL}`, responseHandler.setApiId(routes.DATASET.UPDATE.API_ID), datasetService.updateDataset);
+router.delete(`${routes.DATASET.BASE_PATH}${routes.DATASET.API_VERSION}${routes.DATASET.DELETE.URL}`, responseHandler.setApiId(routes.DATASET.DELETE.API_ID), datasetService.deleteDataset);
+
+
 
 
 

@@ -21,7 +21,7 @@ class ResponseHandler {
     next({ statusCode: httpStatus.NOT_FOUND, message: constants.ERROR_MESSAGE.ROUTE_NOT_FOUND, errCode: httpStatus['404_NAME'] });
   };
 
-  public refactorResponse({ id = routes.API_ID, ver = "v2", params = { status: httpStatus[200], errmsg: "" }, responseCode = httpStatus[200], result = {} }): object {
+  public refactorResponse({ id = routes.API_ID, ver = "v2", params = { status: constants.STATUS.SUCCESS, errmsg: "" }, responseCode = httpStatus[200], result = {} }): object {
     return {
       id,
       ver,
@@ -36,7 +36,7 @@ class ResponseHandler {
     const responseHandler = new ResponseHandler();
     const { statusCode, message, errCode } = error;
     const { id } = req as any;
-    res.status(statusCode).json(responseHandler.refactorResponse({ id: id, params: { status: httpStatus[400], errmsg: message, }, responseCode: errCode || httpStatus["500_NAME"] }));
+    res.status(statusCode).json(responseHandler.refactorResponse({ id: id, params: { status: constants.STATUS.FAILURE, errmsg: message, }, responseCode: errCode || httpStatus["500_NAME"] }));
   }
 
   public setApiId = (id: string) => (req: Request, res: Response, next: NextFunction) => {

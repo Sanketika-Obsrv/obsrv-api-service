@@ -1,5 +1,5 @@
 import _ from "lodash";
-import { IngestionConfig, IngestionSpecModel, ISchemaGenerator } from "../models/IngestionModels";
+import { IngestionConfig, IngestionSpecModel, ISchemaGenerator } from "../models/ingestionModels";
 
 export class IngestionSchema implements ISchemaGenerator {
     private ingestionConfig: IngestionConfig;
