@@ -8,7 +8,7 @@ import { IConnector } from "../models/ingestionModels";
 import { QueryService } from "../services/QueryService";
 import { SchemaGeneratorService } from "../services/SchemaGeneratorService";
 import { ValidationService } from "../services/validationService";
-import { DatasetService } from "../services/datasetService";
+import { DatasetService } from "../services/DatasetService";
 
 import routes from "./routesConfig";
 
@@ -53,9 +53,9 @@ router.post(`${routes.SCHEMA.BASE_PATH}${routes.SCHEMA.API_VERSION}${routes.SCHE
  * Dataset service routers
  * 
  */
-router.post(`${routes.DATASET.BASE_PATH}${routes.DATASET.API_VERSION}${routes.DATASET.CREATE.URL}`, responseHandler.setApiId(routes.DATASET.CREATE.API_ID), datasetService.createDataset);
-router.patch(`${routes.DATASET.BASE_PATH}${routes.DATASET.API_VERSION}${routes.DATASET.UPDATE.URL}`, responseHandler.setApiId(routes.DATASET.UPDATE.API_ID), datasetService.updateDataset);
-router.delete(`${routes.DATASET.BASE_PATH}${routes.DATASET.API_VERSION}${routes.DATASET.DELETE.URL}`, responseHandler.setApiId(routes.DATASET.DELETE.API_ID), datasetService.deleteDataset);
+router.post(`${routes.DATASET.BASE_PATH}${routes.DATASET.API_VERSION}${routes.DATASET.CREATE.URL}`, responseHandler.setApiId(routes.DATASET.CREATE.API_ID), datasetService.create);
+router.patch(`${routes.DATASET.BASE_PATH}${routes.DATASET.API_VERSION}${routes.DATASET.UPDATE.URL}`, responseHandler.setApiId(routes.DATASET.UPDATE.API_ID), datasetService.update);
+router.delete(`${routes.DATASET.BASE_PATH}${routes.DATASET.API_VERSION}${routes.DATASET.DELETE.URL}`, responseHandler.setApiId(routes.DATASET.DELETE.API_ID), datasetService.delete);
 
 
 

@@ -44,3 +44,4 @@ export interface IConnector {
     execute(sample: string, topic?: string): any;
     close(): any
 }
+ 

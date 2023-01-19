@@ -1,5 +1,6 @@
 import _ from "lodash";
 import { IngestionConfig, IngestionSpecModel, ISchemaGenerator } from "../models/ingestionModels";
+let count=0
 
 export class IngestionSchema implements ISchemaGenerator {
     private ingestionConfig: IngestionConfig;
@@ -47,9 +48,8 @@ export class IngestionSchema implements ISchemaGenerator {
      * @returns - IngestionSpecModel
      */
     process(sample: Map<string, any>): IngestionSpecModel {
-
         const simplifiedSpec = this.generateExpression(sample)
-
+ 
         const metrics = this.filterMetricsCols(simplifiedSpec)
 
         const dims = this.filterDimsCols(simplifiedSpec)
@@ -91,10 +91,10 @@ export class IngestionSchema implements ISchemaGenerator {
     generateExpression(sample: Map<string, any>): Map<string, any> {
         let map = new Map();
         const recursive = (data: any, path: string) => {
-            _.forEach(data, (value, key) => {
-                if (_.isPlainObject(value)) {
+             _.forEach(data, (value, key) => {
+                 if (_.isPlainObject(value)) {
                     recursive(value, `${path}.${key}`);
-                } else if (this.getObjectType(value) === "array") {
+                 } else if (this.getObjectType(value) === "array") {
                     if (this.isComplexArray(value)) { // defines simple array or complex array
                         let mergedResult = _.assign.apply(_, value)
                         recursive(mergedResult, `${path}.${key}[*]`);
@@ -108,6 +108,7 @@ export class IngestionSchema implements ISchemaGenerator {
             })
         }
         recursive(sample, "$")
+        count=count+1
         return map
     }
 

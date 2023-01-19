@@ -8,5 +8,10 @@
   "STATUS": {
     "SUCCESS": "SUCCESS",
     "FAILURE": "FAILED"
+  },
+  "DATASET":{
+    "CREATED": "The data has been successfully ingested",
+    "UPDATED": "The request has been successfully submitted for update",
+    "DELETED": "The request has been successfully submitted for deletion"
   }
 }
