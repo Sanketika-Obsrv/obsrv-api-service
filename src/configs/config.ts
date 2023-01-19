@@ -1,7 +1,9 @@
 export const config = {
   "api_port": process.env.api_port || 3000,
+
   "validation": {
-    "request": process.env.druid_host || "http://localhost",
+    "limits": "",
+    
   },
   "query_api": {
     "druid": {
@@ -20,6 +22,7 @@ export const config = {
 
   "schema_api": {
 
+
   },
 
   "manage_api": {
@@ -37,6 +40,16 @@ export const config = {
 
     }
 
+  },
+
+  "postgres": {
+    "pg_config": {
+      host: 'localhost',
+      port: 5432,
+      database: 'postgres',
+      user: 'manjunathdavanam',
+      password: 'Manju@123',
+    }
   }
 }
 

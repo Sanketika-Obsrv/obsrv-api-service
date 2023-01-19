@@ -11,18 +11,17 @@ type extendedErrorRequestHandler = ErrorRequestHandler & {
   id?: string;
 };
 
-class ResponseHandler {
-  public successResponse(req: Request, res: Response, result: IResponse) {
-    const responseHandler = new ResponseHandler();
-    res.status(result.status).json(responseHandler.refactorResponse({ id: (req as any).id, result: result.data }));
-  }
+const ResponseHandler = {
+  successResponse: (req: Request, res: Response, result: IResponse) => {
+    res.status(result.status).json(ResponseHandler.refactorResponse({ id: (req as any).id, result: result.data }));
+  },
 
-  public routeNotFound = (req: Request, res: Response, next: NextFunction) => {
+  routeNotFound: (req: Request, res: Response, next: NextFunction) => {
     next({ statusCode: httpStatus.NOT_FOUND, message: constants.ERROR_MESSAGE.ROUTE_NOT_FOUND, errCode: httpStatus['404_NAME'] });
-  };
+  },
 
-  public refactorResponse({ id = routes.API_ID, ver = "v2", params = { status: constants.STATUS.SUCCESS, errmsg: "" }, responseCode = httpStatus[200], result = {} }): object {
-    return {
+  refactorResponse: ({ id = routes.API_ID, ver = "v2", params = { status: httpStatus[200], errmsg: "" }, responseCode = httpStatus[200], result = {} }) => {
+     return {
       id,
       ver,
       ts: Date.now(),
@@ -30,19 +29,19 @@ class ResponseHandler {
       responseCode,
       result
     };
-  }
+  },
 
-  public errorResponse(error: extendedErrorRequestHandler, req: Request, res: Response, next: NextFunction) {
-    const responseHandler = new ResponseHandler();
+  errorResponse: (error: extendedErrorRequestHandler, req: Request, res: Response, next: NextFunction) => {
     const { statusCode, message, errCode } = error;
     const { id } = req as any;
-    res.status(statusCode).json(responseHandler.refactorResponse({ id: id, params: { status: constants.STATUS.FAILURE, errmsg: message, }, responseCode: errCode || httpStatus["500_NAME"] }));
-  }
-
-  public setApiId = (id: string) => (req: Request, res: Response, next: NextFunction) => {
+ 
+    res.status(statusCode).json(ResponseHandler.refactorResponse({ id: id, params: { status: httpStatus[400], errmsg: message, }, responseCode: errCode || httpStatus["500_NAME"] }));
+  },
+ 
+  setApiId: (id: string) => (req: Request, res: Response, next: NextFunction) => {
     (req as any).id = id;
     next();
-  };
+  }
 }
 
 export { ResponseHandler };

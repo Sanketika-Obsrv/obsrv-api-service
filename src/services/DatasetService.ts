@@ -6,7 +6,7 @@ import constants from "../resources/constants.json"
 import errorResponse from "http-errors";
 import httpStatus from "http-status";
 const kafkaConnector = new KafkaConnector(config.dataset_api.kafka.brokers)
-const responseHandler = new ResponseHandler();
+const responseHandler = ResponseHandler;
 
 
 
