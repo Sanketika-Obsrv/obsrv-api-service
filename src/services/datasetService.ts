@@ -36,7 +36,6 @@ export class DatasetService {
     public deleteDataset = async (req: Request, res: Response, next: NextFunction) => {
         try {
             await kafkaConnector.connect()
-            // console.log(req.query)
             await kafkaConnector.execute(JSON.stringify(req.query), config.dataset_api.kafka.topics.mutate)
             responseHandler.successResponse(req, res, { status: 200, data: { "message": "The request has been successfully submitted for deletion", "dataset": config.dataset_api.kafka.topics.mutate} });
         }
