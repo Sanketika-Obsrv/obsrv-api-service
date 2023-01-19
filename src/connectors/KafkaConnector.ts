@@ -12,7 +12,7 @@ export class KafkaConnector implements IConnector {
             clientId: 'obsrv',
             brokers: this.url,
             retry: {
-                initialRetryTime: 1000,
+                initialRetryTime: 500,
                 retries: 3
             },
         })
