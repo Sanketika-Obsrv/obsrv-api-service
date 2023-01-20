@@ -5,7 +5,7 @@
   "main": "dist/app.js",
   "scripts": {
     "start": "tsc && ts-node ./src/app.ts",
-    "test": "nyc mocha ./src/test/druidTestService.spec.ts --exit",
+    "test": "nyc mocha ./src/test/*.spec.ts --exit",
     "build": "tsc -P ."
   },
   "author": "GayathriSrividya",

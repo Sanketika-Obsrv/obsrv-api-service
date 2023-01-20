@@ -36,10 +36,15 @@ export class DatasetService {
     }
     public delete = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            
+            req.body = {
+                "dataset": "telemetry-raw",
+                "version": "v1.0",
+                "data": [req.query]
+            }
+            console.log(req.body, "request body")
             await kafkaConnector.connect()
-            await kafkaConnector.execute(JSON.stringify(req.query), config.dataset_api.kafka.topics.mutate)
-            responseHandler.successResponse(req, res, { status: 200, data: { "message": constants.DATASET.DELETED, "dataset": config.dataset_api.kafka.topics.mutate} });
+            await kafkaConnector.execute(JSON.stringify(req.body.data[0]), config.dataset_api.kafka.topics.mutate)
+            responseHandler.successResponse(req, res, { status: 200, data: { "message": constants.DATASET.DELETED, "dataset": config.dataset_api.kafka.topics.mutate } });
         }
         catch (error: any) {
             kafkaConnector.close()

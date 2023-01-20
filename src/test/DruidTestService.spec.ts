@@ -12,26 +12,6 @@ chai.use(chaiHttp);
 
 describe("druid API", () => {
   describe("If druid service is down", () => {
-    it("should raise error while status endpoint is called", (done) => {
-      chai
-        .request(app)
-        .get(config.apiStatusEndPoint)
-        .end((err, res) => {
-          res.should.have.status(httpStatus.INTERNAL_SERVER_ERROR);
-          res.body.responseCode.should.be.eq(httpStatus["500_NAME"]);
-          done();
-        });
-    });
-    it("should raise error while health endpoint is called", (done) => {
-      chai
-        .request(app)
-        .get(config.apiHealthEndPoint)
-        .end((err, res) => {
-          res.should.have.status(httpStatus.INTERNAL_SERVER_ERROR);
-          res.body.responseCode.should.be.eq(httpStatus["500_NAME"]);
-          done();
-        });
-    });
     it("it should raise error when native query endpoint is called", (done) => {
       chai
         .request(app)
@@ -55,63 +35,7 @@ describe("druid API", () => {
         });
     });
   });
-
-  describe("GET /status/", () => {
-    beforeEach(() => {
-      nock(config.druidHost + ":" + config.druidPort)
-        .get(config.druidStatus)
-        .reply(200, {});
-    });
-    it("it should return process information", (done) => {
-      chai
-        .request(app)
-        .get(config.apiStatusEndPoint)
-        .end((err, res) => {
-          res.should.have.status(httpStatus.OK);
-          res.body.should.be.a("object");
-          res.body.result.should.be.a("object");
-          res.body.id.should.be.eq(routes.GET_STATUS.API_ID);
-          res.body.responseCode.should.be.eq(httpStatus["200_NAME"]);
-          done();
-        });
-    });
-    it("it should reject the query because of incorrect url", (done) => {
-      chai
-        .request(app)
-        .get("/invalid/endpoint")
-        .end((err, res) => {
-          res.should.have.status(httpStatus.NOT_FOUND);
-          res.body.should.be.a("object");
-          res.body.id.should.be.eq(routes.API_ID);
-          res.body.responseCode.should.be.eq(httpStatus["404_NAME"]);
-          res.body.params.status.should.be.eq(constants.STATUS.FAILURE);
-          res.body.result.should.be.empty;
-          done();
-        });
-    });
-  });
-
-  describe("GET /status/health", () => {
-    beforeEach(() => {
-      nock(config.druidHost + ":" + config.druidPort)
-        .get(config.druidHealth)
-        .reply(200);
-    });
-    it("it should return true as response for health check", (done) => {
-      chai
-        .request(app)
-        .get(config.apiHealthEndPoint)
-        .end((err, res) => {
-          res.should.have.status(httpStatus.OK);
-          res.body.should.be.a("object");
-          res.body.id.should.be.eq(routes.HEALTH_CHECK.API_ID);
-          res.body.responseCode.should.be.eq(httpStatus["200_NAME"]);
-          done();
-        });
-    });
-  });
-
-  describe("POST /", () => {
+  describe("POST /query/v2/native-query", () => {
     beforeEach(() => {
       nock(config.druidHost + ":" + config.druidPort)
         .post(config.druidEndPoint)
@@ -141,7 +65,7 @@ describe("druid API", () => {
           res.should.have.status(httpStatus.BAD_REQUEST);
           res.body.should.be.a("object");
           res.body.responseCode.should.be.eq(httpStatus["400_NAME"]);
-          res.body.params.status.should.be.eq(constants.STATUS.FAILURE);
+          res.body.params.status.should.be.eq(httpStatus[400]);
           res.body.result.should.be.empty;
           res.body.id.should.be.eq(routes.QUERY.NATIVE_QUERY.API_ID);
           done();
@@ -156,7 +80,7 @@ describe("druid API", () => {
           res.should.have.status(httpStatus.BAD_REQUEST);
           res.body.should.be.a("object");
           res.body.responseCode.should.be.eq(httpStatus["400_NAME"]);
-          res.body.params.status.should.be.eq(constants.STATUS.FAILURE);
+          res.body.params.status.should.be.eq(httpStatus[400]);
           res.body.result.should.be.empty;
           res.body.id.should.be.eq(routes.QUERY.NATIVE_QUERY.API_ID);
           done();
@@ -213,7 +137,7 @@ describe("druid API", () => {
           res.should.have.status(httpStatus.BAD_REQUEST);
           res.body.should.be.a("object");
           res.body.responseCode.should.be.eq(httpStatus["400_NAME"]);
-          res.body.params.status.should.be.eq(constants.STATUS.FAILURE);
+          res.body.params.status.should.be.eq(httpStatus[400]);
           res.body.result.should.be.empty;
           res.body.id.should.be.eq(routes.QUERY.NATIVE_QUERY.API_ID);
           done();
@@ -229,7 +153,7 @@ describe("druid API", () => {
           res.should.have.status(httpStatus.BAD_REQUEST);
           res.body.should.be.a("object");
           res.body.responseCode.should.be.eq(httpStatus["400_NAME"]);
-          res.body.params.status.should.be.eq(constants.STATUS.FAILURE);
+          res.body.params.status.should.be.eq(httpStatus[400]);
           res.body.result.should.be.empty;
           res.body.id.should.be.eq(routes.QUERY.NATIVE_QUERY.API_ID);
           done();
@@ -244,7 +168,7 @@ describe("druid API", () => {
           res.should.have.status(httpStatus.BAD_REQUEST);
           res.body.should.be.a("object");
           res.body.responseCode.should.be.eq(httpStatus["400_NAME"]);
-          res.body.params.status.should.be.eq(constants.STATUS.FAILURE);
+          res.body.params.status.should.be.eq(httpStatus[400]);
           res.body.result.should.be.empty;
           res.body.id.should.be.eq(routes.QUERY.NATIVE_QUERY.API_ID);
           done();
@@ -259,9 +183,23 @@ describe("druid API", () => {
           res.should.have.status(httpStatus.BAD_REQUEST);
           res.body.should.be.a("object");
           res.body.responseCode.should.be.eq(httpStatus["400_NAME"]);
-          res.body.params.status.should.be.eq(constants.STATUS.FAILURE);
+          res.body.params.status.should.be.eq(httpStatus[400]);
           res.body.result.should.be.empty;
           res.body.id.should.be.eq(routes.QUERY.NATIVE_QUERY.API_ID);
+          done();
+        });
+    });
+    it("it should reject the query because of incorrect url", (done) => {
+      chai
+        .request(app)
+        .get("/invalid/endpoint")
+        .end((err, res) => {
+          res.should.have.status(httpStatus.NOT_FOUND);
+          res.body.should.be.a("object");
+          res.body.id.should.be.eq(routes.API_ID);
+          res.body.responseCode.should.be.eq(httpStatus["404_NAME"]);
+          res.body.params.status.should.be.eq(httpStatus[400]);
+          res.body.result.should.be.empty;
           done();
         });
     });
@@ -282,7 +220,7 @@ describe("druid API", () => {
           res.body.should.be.a("object");
           res.body.responseCode.should.be.eq(httpStatus["200_NAME"]);
           res.body.result.length.should.be.lessThan(101);
-          res.body.id.should.be.eq(routes.QUERY.NATIVE_QUERY.API_ID);
+          res.body.id.should.be.eq(routes.QUERY.SQL_QUERY.API_ID);
           done();
         });
     });
@@ -296,7 +234,7 @@ describe("druid API", () => {
           res.body.should.be.a("object");
           res.body.responseCode.should.be.eq(httpStatus["200_NAME"]);
           res.body.result.length.should.be.lessThan(101); // default is 100
-          res.body.id.should.be.eq(routes.QUERY.NATIVE_QUERY.API_ID);
+          res.body.id.should.be.eq(routes.QUERY.SQL_QUERY.API_ID);
           done();
         });
     });
@@ -323,7 +261,7 @@ describe("druid API", () => {
           res.should.have.status(httpStatus.BAD_REQUEST);
           res.body.should.be.a("object");
           res.body.responseCode.should.be.eq(httpStatus["400_NAME"]);
-          res.body.params.status.should.be.eq(constants.STATUS.FAILURE);
+          res.body.params.status.should.be.eq(httpStatus[400]);
           res.body.result.should.be.empty;
           res.body.id.should.be.eq(routes.QUERY.SQL_QUERY.API_ID);
           done();
@@ -338,7 +276,7 @@ describe("druid API", () => {
           res.should.have.status(httpStatus.BAD_REQUEST);
           res.body.should.be.a("object");
           res.body.responseCode.should.be.eq(httpStatus["400_NAME"]);
-          res.body.params.status.should.be.eq(constants.STATUS.FAILURE);
+          res.body.params.status.should.be.eq(httpStatus[400]);
           res.body.result.should.be.empty;
           res.body.id.should.be.eq(routes.QUERY.SQL_QUERY.API_ID);
           done();
@@ -353,7 +291,7 @@ describe("druid API", () => {
           res.should.have.status(httpStatus.BAD_REQUEST);
           res.body.should.be.a("object");
           res.body.responseCode.should.be.eq(httpStatus["400_NAME"]);
-          res.body.params.status.should.be.eq(constants.STATUS.FAILURE);
+          res.body.params.status.should.be.eq(httpStatus[400]);
           res.body.result.should.be.empty;
           res.body.id.should.be.eq(routes.QUERY.SQL_QUERY.API_ID);
           done();

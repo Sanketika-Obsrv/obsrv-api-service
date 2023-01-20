@@ -7,7 +7,7 @@ export class HTTPConnector implements IConnector {
   }
   connect(): AxiosInstance {
     return axios.create({
-      url: this.url,
+      baseURL: this.url,
       timeout: 3000,
       headers: { "Content-Type": "application/json" }
     });

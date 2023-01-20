@@ -12,7 +12,7 @@ export const config = {
       "status_api": "/status",
       "health_api": "/status/health",
       "sql_query_path": "/druid/v2/sql/",
-      "native_query_path": "/druid/v2"
+      "native_query_path": "/druid/v2/"
     }
   },
   "rules": {

@@ -5,7 +5,7 @@ import { PostgresConnector } from "../connectors/PostgresConnector";
 import { ResponseHandler } from "../helpers/responseHandler";
 import { QueryService } from "../services/QueryService";
 import { SchemaGeneratorService } from "../services/SchemaGeneratorService";
-import { ValidationService } from "../services/validationService";
+import { ValidationService } from "../services/ValidationService";
 import { DatasetService } from "../services/DatasetService";
 import routes from "./routesConfig";
 
