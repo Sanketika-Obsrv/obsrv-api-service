@@ -33,4 +33,9 @@ class TestDruidQuery {
     '{"context":{"dataSource":"telemetry-events"},"querySql":{"query":"SELECT __time FROM \\"invalid-datasource\\" LIMIT 10"}}';
 }
 
-export default TestDruidQuery;
+class TestDataset {
+  public static VALID_INPUT_FORMAT ='{"data":[{"eid":"SEARCH","ver":"3.0","syncts":1595184155380,"ets":1595184155380,"number":124,"flags":{"pp_validation_processed":true,"pp_duplicate":false,"device_denorm":false,"dialcode_denorm":true,"content_denorm":false},"dialcodedata":{"identifier":"KLQ2G7","channel":"0123221617357783046602","publisher":"MHPUBLISHER","status":2},"mid":"LP.1595184155380.f7537e7a-df01-43af-8f29-8e4d7a3607fa","type":"events","tags":["kp-events"],"actor":{"id":"org.sunbird.learning.platform","type":"System"},"edata":{"topn":[{"identifier":"do_312528046917705728246886"}],"limits":"resource","size":7,"type":"content","filters":{"contentType":["TextBookUnit","Resource","TextBook","Collection","Course"],"mimeType":{},"resourceType":{},"status":["Live"],"objectType":["Content"],"dialcodes":"KLQ2G7","framework":{},"compatibilityLevel":{"max":4,"min":1},"channel":{"ne":["0124433024890224640","0124446042259128320","0124487522476933120","0125840271570288640","0124453662635048969"]}},"sort":{}},"@timestamp":"2020-07-19T18:42:41.524Z","context":{"pdata":{"ver":"1.0","id":"prod.diksha.portal","pid":"search-service"},"did":"79838ccb0ff2c7d0a9dd05f5b337fbca","env":"search","channel":"ROOT_ORG"},"@version":"1","object":{"id":"KLQ2G7","type":"DialCode"}}],"config":{"dataSet":"obsrv-telemetry-events","indexCol":"ets","granularitySpec":{"segmentGranularity":"DAY","queryGranularity":"HOUR","rollup":false},"tuningConfig":{"maxRowPerSegment":50000,"taskCount":1},"ioConfig":{"topic":"obsrv.telemetry.input","bootstrapIp":"localhost:9092","taskDuration":"PT8H"}}}'
+}
+
+
+export { TestDruidQuery, TestDataset };

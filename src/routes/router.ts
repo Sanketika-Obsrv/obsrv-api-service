@@ -7,16 +7,17 @@ import { QueryService } from "../services/QueryService";
 import { SchemaGeneratorService } from "../services/SchemaGeneratorService";
 import { ValidationService } from "../services/ValidationService";
 import { DatasetService } from "../services/DatasetService";
+import { KafkaConnector } from "../connectors/KafkaConnector";
 import routes from "./routesConfig";
-
-const datasetService = new DatasetService();
- 
+  
 const validationService = new ValidationService("/src/configs/");
 
 const queryService = new QueryService(new HTTPConnector(`${config.query_api.druid.host}:${config.query_api.druid.port}`));
 
 const schemaGeneratorService = new SchemaGeneratorService(new PostgresConnector(config.postgres.pg_config));
 
+const datasetService = new DatasetService(new KafkaConnector(config.dataset_api.kafka.config));
+ 
 const router = express.Router();
 
 
@@ -45,7 +46,9 @@ router.patch(`${routes.DATASET.BASE_PATH}${routes.DATASET.API_VERSION}${routes.D
 router.delete(`${routes.DATASET.BASE_PATH}${routes.DATASET.API_VERSION}${routes.DATASET.DELETE.URL}`, ResponseHandler.setApiId(routes.DATASET.DELETE.API_ID), datasetService.delete);
 
 
-
+/**
+ * Management Services
+ */
 
 
 export { router };

@@ -1,4 +1,3 @@
-
 import { ClientConfig, Pool, QueryResult } from "pg";
 import { IConnector } from "../models/ingestionModels";
  

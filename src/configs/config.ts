@@ -3,7 +3,7 @@ export const config = {
 
   "validation": {
     "limits": "",
-    
+
   },
   "query_api": {
     "druid": {
@@ -27,12 +27,19 @@ export const config = {
 
   "manage_api": {
 
-
   },
 
   "dataset_api": {
     "kafka": {
-      "brokers": ["localhost:9092"],
+      "config": {
+        "brokers": ["localhost:9092"],
+        "clientId": "obsrv-apis",
+         "retry": {
+          "initialRetryTime": 1000,
+          "retries": 3
+        },
+        "connectionTimeout": 1000
+      },
       "topics": {
         "create": "telemetry.input",
         "mutate": "telemetry.mutate"

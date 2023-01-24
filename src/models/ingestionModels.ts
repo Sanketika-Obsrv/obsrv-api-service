@@ -41,7 +41,6 @@ export interface ISchemaGenerator {
 
 export interface IConnector {
     connect(): any;
-    execute(sample: string, topic?: string): any;
+    execute(sample: string, ...args: Map<string, any>[]): any;
     close(): any
 }
- 

@@ -1,35 +1,33 @@
 import { Request, Response, NextFunction } from "express";
 import { ResponseHandler } from "../helpers/responseHandler";
-import { KafkaConnector } from "../connectors/KafkaConnector";
 import { config } from "../configs/config";
 import constants from "../resources/constants.json"
 import errorResponse from "http-errors";
 import httpStatus from "http-status";
-const kafkaConnector = new KafkaConnector(config.dataset_api.kafka.brokers)
+import { IConnector } from "../models/ingestionModels";
 const responseHandler = ResponseHandler;
 
-
-
 export class DatasetService {
+    private connector: any;
+    constructor(connector: IConnector) {
+        this.connector = connector;
+        connector.connect();
+    }
     public create = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            await kafkaConnector.connect()
-            await kafkaConnector.execute(JSON.stringify(req.body.data[0]), config.dataset_api.kafka.topics.create)
-            responseHandler.successResponse(req, res, { status: 200, data: { "message": constants.DATASET.CREATED, "dataset": config.dataset_api.kafka.topics.create } });
+            await this.connector.execute(config.dataset_api.kafka.topics.create, req.body.data[0])
+            responseHandler.successResponse(req, res, { status: 200, data: { "message": constants.DATASET.CREATED } });
         }
         catch (error: any) {
-            kafkaConnector.close()
             next(errorResponse(httpStatus.INTERNAL_SERVER_ERROR, error.message))
         }
     }
     public update = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            await kafkaConnector.connect()
-            await kafkaConnector.execute(JSON.stringify(req.body.data[0]), config.dataset_api.kafka.topics.mutate)
+            await this.connector.execute(config.dataset_api.kafka.topics.mutate, JSON.stringify(req.body.data[0]) )
             responseHandler.successResponse(req, res, { status: 200, data: { "message": constants.DATASET.UPDATED, "dataset": config.dataset_api.kafka.topics.mutate } });
         }
         catch (error: any) {
-            kafkaConnector.close()
             next(errorResponse(httpStatus.INTERNAL_SERVER_ERROR, error.message))
 
         }
@@ -41,13 +39,10 @@ export class DatasetService {
                 "version": "v1.0",
                 "data": [req.query]
             }
-            console.log(req.body, "request body")
-            await kafkaConnector.connect()
-            await kafkaConnector.execute(JSON.stringify(req.body.data[0]), config.dataset_api.kafka.topics.mutate)
+            await this.connector.execute(config.dataset_api.kafka.topics.mutate, JSON.stringify(req.body.data[0]))
             responseHandler.successResponse(req, res, { status: 200, data: { "message": constants.DATASET.DELETED, "dataset": config.dataset_api.kafka.topics.mutate } });
         }
         catch (error: any) {
-            kafkaConnector.close()
             next(errorResponse(httpStatus.INTERNAL_SERVER_ERROR, error.message))
 
         }

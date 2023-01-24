@@ -11,7 +11,7 @@ app.use("*", ResponseHandler.routeNotFound);
 app.use(ResponseHandler.errorResponse);
 
 app.listen(config.api_port, () => {
-  console.log(`listening on port ${config.api_port}`);
+    console.log(`listening on port ${config.api_port}`);
 });
 
 export default app;

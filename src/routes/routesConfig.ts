@@ -36,18 +36,16 @@ const routes = {
   "MANAGEMENT": {
     "BASE_PATH": "/manage",
     "API_VERSION": "/v2",
-    "HEALTH_CHECK": {
+    "HEALTH": {
       "URL": "/health",
       "METHOD": "GET",
       "API_ID": "obsrv.manage.health"
     },
-    "STATUS": {
-      "URL": "/status",
+    "USAGE": {
+      "URL": "/cluster/resource",
       "METHOD": "GET",
-      "API_ID": "obsrv.manage.status"
+      "API_ID": "obsrv.manage.cluster.resource"
     },
-
-
   },
   "GET_STATUS": {
     "URL": "/obsrv/status",
