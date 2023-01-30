@@ -27,7 +27,7 @@ describe("CREATE API", () => {
     describe("POST /data/v2/create", () => {
         beforeEach(() => {
             nock(config.kafkaHost + ":" + config.kafkaPort)
-                .post("/*")
+                .get('')
                 .reply(200);
         });
         it("it should ingest data successfully", (done) => {
@@ -45,5 +45,20 @@ describe("CREATE API", () => {
                     done();
                 });
         });
+        it("it should throw error when topic does not exists in kafka", (done)=>{
+            chai
+            .request(app)
+            .post(config.apiCreateDatasetEndPoint)
+            .send(JSON.parse(TestDataset.VALID_INPUT_FORMAT))
+            .end((err, res) => {
+                console.log(res)
+                res.should.have.status(httpStatus.OK);
+                res.body.should.be.a("object");
+                res.body.responseCode.should.be.eq(httpStatus["500_NAME"]);
+                res.body.should.have.property("result");
+                res.body.id.should.be.eq(routes.DATASET.CREATE.API_ID);
+                done();
+            });
+        })
     })
 })

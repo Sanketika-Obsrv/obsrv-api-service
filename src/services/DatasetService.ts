@@ -15,7 +15,7 @@ export class DatasetService {
     }
     public create = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            await this.connector.execute(config.dataset_api.kafka.topics.create, req.body.data[0])
+            await this.connector.execute(config.dataset_api.kafka.topics.create, { "value": JSON.stringify(req.body.data) })
             responseHandler.successResponse(req, res, { status: 200, data: { "message": constants.DATASET.CREATED } });
         }
         catch (error: any) {
@@ -24,12 +24,11 @@ export class DatasetService {
     }
     public update = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            await this.connector.execute(config.dataset_api.kafka.topics.mutate, JSON.stringify(req.body.data[0]) )
-            responseHandler.successResponse(req, res, { status: 200, data: { "message": constants.DATASET.UPDATED, "dataset": config.dataset_api.kafka.topics.mutate } });
+            await this.connector.execute(config.dataset_api.kafka.topics.mutate, { "value": JSON.stringify(req.body.data) })
+            responseHandler.successResponse(req, res, { status: 200, data: { "message": constants.DATASET.UPDATED, "dataset": req.body.dataset } });
         }
         catch (error: any) {
             next(errorResponse(httpStatus.INTERNAL_SERVER_ERROR, error.message))
-
         }
     }
     public delete = async (req: Request, res: Response, next: NextFunction) => {
@@ -39,12 +38,11 @@ export class DatasetService {
                 "version": "v1.0",
                 "data": [req.query]
             }
-            await this.connector.execute(config.dataset_api.kafka.topics.mutate, JSON.stringify(req.body.data[0]))
-            responseHandler.successResponse(req, res, { status: 200, data: { "message": constants.DATASET.DELETED, "dataset": config.dataset_api.kafka.topics.mutate } });
+            await this.connector.execute(config.dataset_api.kafka.topics.mutate, { "value": JSON.stringify(req.body.data) })
+            responseHandler.successResponse(req, res, { status: 200, data: { "message": constants.DATASET.DELETED, "dataset": req.body.dataset } });
         }
         catch (error: any) {
             next(errorResponse(httpStatus.INTERNAL_SERVER_ERROR, error.message))
-
         }
     }
 }

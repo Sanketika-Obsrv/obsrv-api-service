@@ -10,8 +10,8 @@ export class KafkaConnector implements IConnector {
             allowAutoTopicCreation: false
         })
     }
-    async connect() {
-        return await this.producer.connect()
+    async connect(): Promise<any> {
+        await this.producer.connect()
             .then(() => {
                 console.info("Kafka Connection Established...")
             })
@@ -19,16 +19,16 @@ export class KafkaConnector implements IConnector {
                 console.error("Error occured while connecting to kafka...")
             })
     }
-    async execute(topic: string, message: any) {
-        return await this.producer.send({
+    async execute(topic: string, config: any): Promise<any> {
+        await this.producer.send({
             topic: topic,
             messages: [{
-                value: message
+                value: config.value
             }]
         }).then(() => console.info("Events ingested into kafka successfully..."))
 
     }
-    async close() {
+    async close(): Promise<any> {
         await this.producer.disconnect()
         console.log("Kafka disconnected...")
     }
