@@ -36,7 +36,7 @@ export const config = {
         "clientId": "obsrv-apis",
          "retry": {
           "initialRetryTime": 1000,
-          "retries": 3
+          "retries": 1
         },
         "connectionTimeout": 1000
       },

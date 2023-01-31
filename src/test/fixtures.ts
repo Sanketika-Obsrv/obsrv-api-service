@@ -34,7 +34,7 @@ class TestDruidQuery {
 }
 
 class TestDataset {
-  public static VALID_INPUT_FORMAT = '{"dataset":"telemetry-raw","version":"v1.0","data":[{"eid":"SEARCH","ver":"3.0","syncts":1595184155380,"ets":1595184155380,"mid":"LP.1595184155380.f7537e7a-df01-43af-8f29-8e4d7a3607fa","actor":{"id":"org.sunbird.learning.platform","type":"System"},"edata":{"type":"content"},"@timestamp":"2020-07-19T18:42:41.524Z","context":{"pdata":{"ver":"1.0","id":"prod.diksha.portal","pid":"search-service"},"did":"79838ccb0ff2c7d0a9dd05f5b337fbca","env":"search","channel":"ROOT_ORG"},"@version":"1","object":{"id":"KLQ2G7","type":"DialCode"}}]}';
+  public static SAMPLE_INPUT_FORMAT = '{"dataset":"telemetry-raw","version":"v1.0","data":[{"eid":"SEARCH","ver":"3.0","syncts":1595184155380,"ets":1595184155380,"mid":"LP.1595184155380.f7537e7a-df01-43af-8f29-8e4d7a3607fa","actor":{"id":"org.sunbird.learning.platform","type":"System"},"edata":{"type":"content"},"@timestamp":"2020-07-19T18:42:41.524Z","context":{"pdata":{"ver":"1.0","id":"prod.diksha.portal","pid":"search-service"},"did":"79838ccb0ff2c7d0a9dd05f5b337fbca","env":"search","channel":"ROOT_ORG"},"@version":"1","object":{"id":"KLQ2G7","type":"DialCode"}}]}';
 }
 
 

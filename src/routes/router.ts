@@ -9,15 +9,19 @@ import { ValidationService } from "../services/ValidationService";
 import { DatasetService } from "../services/DatasetService";
 import { KafkaConnector } from "../connectors/KafkaConnector";
 import routes from "./routesConfig";
-  
+
 const validationService = new ValidationService("/src/configs/");
 
 const queryService = new QueryService(new HTTPConnector(`${config.query_api.druid.host}:${config.query_api.druid.port}`));
 
 const schemaGeneratorService = new SchemaGeneratorService(new PostgresConnector(config.postgres.pg_config));
 
-const datasetService = new DatasetService(new KafkaConnector(config.dataset_api.kafka.config));
- 
+export const kafkaConnector = new KafkaConnector(config.dataset_api.kafka.config)
+
+export const datasetService = new DatasetService(kafkaConnector);
+
+datasetService.init();
+
 const router = express.Router();
 
 
@@ -42,8 +46,8 @@ router.post(`${routes.SCHEMA.BASE_PATH}${routes.SCHEMA.API_VERSION}${routes.SCHE
  * 
  */
 router.post(`${routes.DATASET.BASE_PATH}${routes.DATASET.API_VERSION}${routes.DATASET.CREATE.URL}`, ResponseHandler.setApiId(routes.DATASET.CREATE.API_ID), datasetService.create);
-router.patch(`${routes.DATASET.BASE_PATH}${routes.DATASET.API_VERSION}${routes.DATASET.UPDATE.URL}`, ResponseHandler.setApiId(routes.DATASET.UPDATE.API_ID), datasetService.update);
-router.delete(`${routes.DATASET.BASE_PATH}${routes.DATASET.API_VERSION}${routes.DATASET.DELETE.URL}`, ResponseHandler.setApiId(routes.DATASET.DELETE.API_ID), datasetService.delete);
+// router.patch(`${routes.DATASET.BASE_PATH}${routes.DATASET.API_VERSION}${routes.DATASET.UPDATE.URL}`, ResponseHandler.setApiId(routes.DATASET.UPDATE.API_ID), datasetService.update);
+// router.delete(`${routes.DATASET.BASE_PATH}${routes.DATASET.API_VERSION}${routes.DATASET.DELETE.URL}`, ResponseHandler.setApiId(routes.DATASET.DELETE.API_ID), datasetService.delete);
 
 
 /**
