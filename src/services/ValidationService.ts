@@ -5,6 +5,7 @@ import errorResponse from "http-errors";
 import httpStatus from "http-status";
 import { isUndefined } from "lodash";
 import moment, { Moment } from "moment";
+import { queryRules } from "../configs/queryRules";
 import { ICommonRules, ILimits, IQuery, IQueryTypeRules, IRules } from "../models/QueryModels";
 import constants from "../resources/constants.json";
 import routes from "../routes/routesConfig";
@@ -21,7 +22,8 @@ export class ValidationService {
   constructor(configDir: string) {
     this.requestBodySchema = JSON.parse(fs.readFileSync(process.cwd() + `${configDir}schemas/` + "requestBody.json", "utf8"));
     this.nativeQuerySchema = JSON.parse(fs.readFileSync(process.cwd() + `${configDir}schemas/` + "nativeQuery.json", "utf8"));
-    this.limits = JSON.parse(fs.readFileSync(process.cwd() + configDir + "limits.json", "utf8"));
+    //this.limits = JSON.parse(fs.readFileSync(process.cwd() + configDir + "limits.json", "utf8"));
+    this.limits = queryRules
   }
 
   public validateRequestBody = (req: Request, res: Response, next: NextFunction) => {

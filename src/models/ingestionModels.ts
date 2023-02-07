@@ -25,8 +25,8 @@ export interface IngestionConfig {
     dataSet: string,
     indexCol: string,
     granularitySpec: GranularitySpec,
-    tuningConfig: TuningConfig,
-    ioConfig: IOConfig
+    tuningConfig?: TuningConfig,
+    ioConfig?: IOConfig
 }
 
 export interface IngestionSchemeRequest {
@@ -34,9 +34,16 @@ export interface IngestionSchemeRequest {
     config: IngestionConfig
 }
 
+export interface DataSchemeRequest {
+    data: Map<string, any>[],
+    config: IngestionConfig
+}
+
 export interface ISchemaGenerator {
-    generate(sample: Map<string, any>[]): any;
-    process(sample: Map<string, any>): any;
+    generate: ((sample: Map<string, any>) => any) |
+    ((sample: Map<string, any>[]) => any);
+    process: ((sample: Map<string, any>) => any) |
+    ((sample: Map<string, any>[]) => any);
 }
 
 export interface IConnector {

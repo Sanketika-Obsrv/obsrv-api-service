@@ -1,10 +1,14 @@
+import { queryRules } from "./queryRules";
+
 export const config = {
   "api_port": process.env.api_port || 3000,
+
 
   "validation": {
     "limits": "",
 
   },
+
   "query_api": {
     "druid": {
       "host": process.env.druid_host || "http://localhost",
@@ -34,7 +38,7 @@ export const config = {
       "config": {
         "brokers": ["localhost:9092"],
         "clientId": "obsrv-apis",
-         "retry": {
+        "retry": {
           "initialRetryTime": 1000,
           "retries": 1
         },
@@ -57,10 +61,28 @@ export const config = {
       user: 'manjunathdavanam',
       password: 'Manju@123',
     }
+  },
+
+  "datasetConfig": {
+    "ingestion": {
+      "dataSet": "observ-demo",
+      "indexCol": "ets",
+      "granularitySpec": {
+        "segmentGranularity": "DAY",
+        "queryGranularity": "hour",
+        "rollup": true
+      },
+
+    },
+    "querying": queryRules,
+    "processing": {
+      "checkpointingInterval": 6000,
+      "dedupProperty": "mid",
+      "dedupRetentionPeriod": 3600000,
+      "consumerParallelism": 1,
+      "downstreamParallelism": 1,
+      "compression": "snappy",
+      "dataSize": 1572864
+    }
   }
 }
-
-
-
-
-
