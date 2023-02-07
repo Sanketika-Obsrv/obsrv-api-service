@@ -68,4 +68,5 @@ export interface ILimits {
   common: ICommonRules;
   rules: IDataSourceRules[];
 }
+
 export type IQuery = ISqlQuery | INativeQuery;

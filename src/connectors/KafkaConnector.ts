@@ -10,18 +10,18 @@ export class KafkaConnector implements IConnector {
             allowAutoTopicCreation: false
         })
     }
-    connect() {
-       return this.producer.connect()
+    async connect() {
+       return await this.producer.connect()
     }
-    execute(topic: string, config: any) {
-        return this.producer.send({
+    async execute(topic: string, config: any) {
+        return await this.producer.send({
             topic: topic,
             messages: [{
                 value: config.value
             }]
         })
     }
-    close() {
-        this.producer.disconnect()
+    async close() {
+        return await this.producer.disconnect()
     }
 }

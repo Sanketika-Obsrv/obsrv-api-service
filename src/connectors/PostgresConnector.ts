@@ -1,9 +1,9 @@
 import { ClientConfig, Pool, QueryResult } from "pg";
 import { IConnector } from "../models/ingestionModels";
- 
+
 export class PostgresConnector implements IConnector {
     private config: ClientConfig
-    private pool: Pool
+    public pool: Pool
 
     constructor(config: ClientConfig) {
         this.config = config;
@@ -21,11 +21,6 @@ export class PostgresConnector implements IConnector {
     }
 
     async execute(query: string): Promise<QueryResult<any>> {
-        try {
-            return await this.pool.query(query)
-        } catch (err: any) {
-            console.log(err.stack)
-            return err
-        }
+        return await this.pool.query(query)
     }
 }

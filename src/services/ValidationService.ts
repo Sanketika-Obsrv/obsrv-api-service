@@ -7,22 +7,27 @@ import { isUndefined } from "lodash";
 import moment, { Moment } from "moment";
 import { ICommonRules, ILimits, IQuery, IQueryTypeRules, IRules } from "../models/QueryModels";
 import constants from "../resources/constants.json";
+import routes from "../routes/routesConfig";
 const schemaValidator = new Ajv();
-
+type ReqSchema = {
+  saveAPI: Object,
+  queryAPI: Object
+}
 export class ValidationService {
-  private requestBodySchema: Object;
+  private requestBodySchema: ReqSchema;
   private nativeQuerySchema: Object;
   private limits: ILimits;
 
   constructor(configDir: string) {
-    this.requestBodySchema = JSON.parse(fs.readFileSync(process.cwd() + `${configDir}schemas/` + "queryRequest.json", "utf8"));
+    this.requestBodySchema = JSON.parse(fs.readFileSync(process.cwd() + `${configDir}schemas/` + "requestBody.json", "utf8"));
     this.nativeQuerySchema = JSON.parse(fs.readFileSync(process.cwd() + `${configDir}schemas/` + "nativeQuery.json", "utf8"));
     this.limits = JSON.parse(fs.readFileSync(process.cwd() + configDir + "limits.json", "utf8"));
   }
 
   public validateRequestBody = (req: Request, res: Response, next: NextFunction) => {
-    const queryPayload = req.body;
-    let validRequestObj = schemaValidator.validate(this.requestBodySchema, queryPayload);
+    const payload = req.body;
+    const validSchema: any = this.getValidSchema(req)
+    let validRequestObj = schemaValidator.validate(validSchema, payload);
     if (!validRequestObj) {
       let error = schemaValidator.errors;
       let errorMessage = error![0].instancePath.replace("/", "") + " " + error![0].message;
@@ -149,4 +154,14 @@ export class ValidationService {
   private getLimit = (queryLimit: number, maxRowLimit: number) => {
     return queryLimit > maxRowLimit ? maxRowLimit : queryLimit;
   };
+
+  private getValidSchema = (requestObject: Object) => {
+    const id = (requestObject as any).id
+    if (id == routes.QUERY.NATIVE_QUERY.API_ID || id == routes.QUERY.SQL_QUERY.API_ID) {
+      return this.requestBodySchema["queryAPI"]
+    }
+    else if (id == routes.SCHEMA_OPERATIONS.SAVE.API_ID) {
+      return this.requestBodySchema["saveAPI"]
+    }
+  }
 }

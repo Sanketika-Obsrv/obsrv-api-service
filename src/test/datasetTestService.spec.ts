@@ -14,18 +14,28 @@ chai.use(chaiHttp);
 
 
 describe("CREATE API", () => {
+    it("successfully arrange connection to kafka", (done) => {
+        chai.spy.on(kafkaConnector, "connect", () => {
+            return Promise.resolve()
+        })
+        datasetService.init()
+        chai.expect(kafkaConnector.connect).to.be.called
+        chai.spy.restore(kafkaConnector, "connect")
+        done()
+    });
     it("it should not ingest data if service is down", (done) => {
-        chai.spy.on(kafkaConnector, "execute", () => {
+        chai.spy.on(kafkaConnector.producer, "connect", () => {
             return Promise.reject(new Error("error connecting kafka"))
         })
+        datasetService.init()
         chai
             .request(app)
             .post(config.apiCreateDatasetEndPoint)
-            .send(JSON.parse(TestDataset.SAMPLE_INPUT_FORMAT))
+            .send(TestDataset.SAMPLE_INPUT)
             .end((err, res) => {
                 res.should.have.status(httpStatus.INTERNAL_SERVER_ERROR);
                 res.body.responseCode.should.be.eq(httpStatus["500_NAME"]);
-                chai.spy.restore(kafkaConnector, "execute")
+                chai.spy.restore(kafkaConnector.producer, "connect")
                 done();
             });
     });
@@ -36,7 +46,7 @@ describe("CREATE API", () => {
         chai
             .request(app)
             .post(config.apiCreateDatasetEndPoint)
-            .send(JSON.parse(TestDataset.SAMPLE_INPUT_FORMAT))
+            .send(TestDataset.SAMPLE_INPUT)
             .end((err, res) => {
                 res.should.have.status(httpStatus.OK);
                 res.body.should.be.a("object");
@@ -51,7 +61,7 @@ describe("CREATE API", () => {
         chai
             .request(app)
             .post(config.apiCreateDatasetEndPoint)
-            .send(TestDataset.SAMPLE_INPUT_FORMAT)
+            .send(TestDataset.SAMPLE_INPUT)
             .end((err, res) => {
                 res.should.have.status(httpStatus.INTERNAL_SERVER_ERROR);
                 res.body.should.be.a("object");
@@ -60,23 +70,5 @@ describe("CREATE API", () => {
                 res.body.id.should.be.eq(routes.DATASET.CREATE.API_ID);
                 done();
             });
-    });
-    it("failure assertion on kafka connect", (done) => {
-        chai.spy.on(kafkaConnector, "connect", () => {
-            return Promise.reject(new Error("error connecting kafka"))
-        })
-        datasetService.init()
-        chai.expect(kafkaConnector.connect).to.be.called
-        chai.spy.restore(kafkaConnector, "connect")
-        done()
-    });
-    it("success assertion on kafka connect", (done) => {
-        chai.spy.on(kafkaConnector, "connect", () => {
-            return Promise.resolve()
-        })
-        datasetService.init()
-        chai.expect(kafkaConnector.connect).to.be.called
-        chai.spy.restore(kafkaConnector, "connect")
-        done()
     });
 })

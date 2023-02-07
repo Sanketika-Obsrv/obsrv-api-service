@@ -26,7 +26,8 @@ const routes = {
       "API_ID": "obsrv.config.ingestion.generate"
     },
 
-    "DATASET_SCHEMA": {
+    "DATASET_SCHEMA":
+    {
       "URL": "/generate",
       "METHOD": "POST",
       "API_ID": "obsrv.config.schema.generate"
@@ -74,6 +75,20 @@ const routes = {
       "URL": "/delete",
       "METHOD": "DELETE",
       "API_ID": "obsrv.data.remove"
+    }
+  },
+  "SCHEMA_OPERATIONS": {
+    "BASE_PATH": "/dataset",
+    "API_VERSION": "/v2/schema",
+    "SAVE": {
+      "URL": "/save",
+      "METHOD": "POST",
+      "API_ID": "obsrv.dataset.schema.save"
+    },
+    "READ": {
+      "URL": "/read",
+      "METHOD": "GET",
+      "API_ID": "obsrv.dataset.schema.read"
     }
   }
 }
