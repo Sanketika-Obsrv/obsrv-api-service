@@ -1,52 +1,50 @@
-export const suggestions = {
-    "CONFIG_TEMPLATE": {
-        "config": {
-                "update": {
-                    "message": "Updated the exisitng config property:(dedup), actual: did, expected:mid",
-                    "advice": {
-                        "dedup": "The chance of duplicating the data is higher",
-                        "queryRules": "The integrated query apis might misbehave",
+import _ from "lodash";
+
+export const SchemaSuggestionTemplate = {
+    TEMPLATES: {
+        "CONFIG_SUGGESTION": {
+            "MESSAGE": "Conflict in the Configurations",
+            "UPDATE": {
+                "PROCESSING": {
+                    "DEDUP_PROPERTY": {
+                        "ADVICE": "Could be the chance of duplicating higer volume of data"
                     }
                 }
-        }
-    },
-    "DATATYPE_TEMPLATE": {
-        "schema": {
-            "update": {
-                "message": "Updated the exisitng data type property:required, actual: true, expected:false",
-                "advice": {
-                    "dataType": "Might Required to reprocess the existing data",
-                    "required": "Might Required to reprocess the existing data"
+            }
+        },
+
+        "SCHEMA_SUGGESTION": {
+            "MESSAGE": "Conflict in the Schema Generation",
+            "CREATE": {
+                "REQUIRED_PROPERTY": {
+                    "ADVICE": "The Property looks to be Optional. System has Updated the Property Schema"
+                },
+                "DATATYPE_PROPERTY": {
+                    "ADVICE": "System has choosen highest occurance property value"
                 }
             },
-            "create": {
-                "message": "Object (eid) Property Conflict, property:data_type, found (int (2 nos), string (3nos))",
-                "advice": {
-                    "dataType": "System has choosen highest occurance value",
-                    "required": "System has choosen highest occurance value"
+            "UPDATE": {
+                "REQUIRED_PROPERTY": {
+                    "ADVICE": "Might Required to reprocess the existing data"
+                },
+                "DATATYPE_PROPERTY": {
+                    "ADVICE": "Might Required to reprocess the existing data"
                 }
             }
+
         }
     },
 
-    "SCHEMA_FAILURE": {
-        "schema": {
-            "update": {
-                "message": "Updated the exisitng data type property:required, actual: true, expected:false",
-                "advice": {
-                    "dataType": "Might Required to reprocess the existing data",
-                    "required": "Might Required to reprocess the existing data"
-                }
-            },
-            "create": {
-                "message": "Object (eid) Property Conflict, property:data_type, found (int (2 nos), string (3nos))",
-                "advice": {
-                    "dataType": "System has choosen highest occurance value",
-                    "required": "System has choosen highest occurance value"
-                }
-            }
-        }
+    getSchemaDataTypeMessage(conflicts:any, property:string):string{
+        const message = _.template(
+            `${this.TEMPLATES.SCHEMA_SUGGESTION.MESSAGE} at property: '${property}'. The property type <% _.forEach(conflicts, (value, key, list) => { %><%= key %>: <%= value %> time(s)<%= _.last(list) === value ? '' : ', ' %><% }); %><%= _.isEmpty(conflicts) ? '' : '' %>`)({ conflicts });
+        return message
+    },
+
+    getSchemaRequiredTypeMessage(conflicts:any, property:string):string{
+        const message = _.template(
+            `${this.TEMPLATES.SCHEMA_SUGGESTION.MESSAGE} at property: '${property}'. The property <% _.forEach(conflicts, (value, key, list) => { %><%= key %>: only <%= value %> time(s) appeared <%= _.last(list) === value ? '' : '' %><% }); %><%= _.isEmpty(conflicts) ? '' : '' %>`)({ conflicts });
+        return message
     }
-
 
 }

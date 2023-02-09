@@ -1,8 +1,7 @@
-import _ from "lodash"
-import { IngestionSpecModel, ISchemaGenerator } from "../models/ingestionModels";
-import { IngestionConfig } from "./IngestionSchema";
+import _ from "lodash";
+import { IngestionSpecModel, ISchemaGenerator,IngestionConfig } from "../models/ingestionModels";
 
-export class IngestionSchemaV2 implements ISchemaGenerator {
+export class IngestionSchemaV2 implements ISchemaGenerator{
     private regex: RegExp = /\./g;
     private ingestionConfig: IngestionConfig;
     private dataSet: string;
@@ -17,10 +16,9 @@ export class IngestionSchemaV2 implements ISchemaGenerator {
         const simplifiedSpec = this.generateExpression(sample.get("properties"))
         const generatedSpec = this.process(simplifiedSpec)
         const ingestionSpec = this.getIngestionTemplate(generatedSpec.flattenSpec, generatedSpec.dimensions, generatedSpec.metrics)
-        console.log("ingestionSpec " + JSON.stringify(ingestionSpec))
         return ingestionSpec
     }
-
+    
     process(sample: Map<string, any>): IngestionSpecModel {
         const metrics = this.filterMetricsCols(sample)
         const dims = this.filterDimsCols(sample)
@@ -30,14 +28,13 @@ export class IngestionSchemaV2 implements ISchemaGenerator {
             "metrics": this.updateMetricsCols(metrics),
             "flattenSpec": flattenSpec
         }
-
     }
 
-    getObjByKey(sample: any, key: string) {
+    private getObjByKey(sample: any, key: string) {
         return _.map(sample, (value, keys) => { return value[key] })
     }
 
-    updateMetricsCols(sample: any) {
+    private updateMetricsCols(sample: any) {
         const metricCols = _.map(sample, (value, keys) => {
             return value["dimensions"]
         })
@@ -47,17 +44,17 @@ export class IngestionSchemaV2 implements ISchemaGenerator {
         })
     }
 
-    filterMetricsCols(sample: Map<string, any>): any[] {
+    private filterMetricsCols(sample: Map<string, any>): any[] {
         const metricsType = ["doubleSum"]
         return Array.from(sample.values()).filter((item: any) => _.includes(metricsType, item["propert_type"]));
     }
 
-    filterDimsCols(sample: Map<string, any>): any[] {
+    private filterDimsCols(sample: Map<string, any>): any[] {
         const metricsType = ["doubleSum"]
         return Array.from(sample.values()).filter((item: any) => !_.includes(metricsType, item["propert_type"]));
     }
 
-    generateExpression(sample: Map<string, any>): Map<string, any> {
+    private generateExpression(sample: Map<string, any>): Map<string, any> {
         let map = new Map();
         const recursive = (data: any, path: string) => {
             _.forEach(data, (value, key) => {
@@ -71,10 +68,10 @@ export class IngestionSchemaV2 implements ISchemaGenerator {
                             } else {
                                 map.set(`${path}_${key}`, this.createSpecObj(`${path}.${key}[*]`, this.getObjectType(key, value.type), `${path}_${key}`))
                             }
-                        } else if (value.type == 'object' && (!_.has(value, 'properties'))) {
+                        }else if(value.type == 'object' && (!_.has(value, 'properties'))){
                             console.warn(`Found empty object without properties in the schema..Key: ${key}, Object: ${JSON.stringify(value)}`)
                         }
-                        else {
+                         else {
                             map.set(`${path}_${key}`, this.createSpecObj(`${path}.${key}`, this.getObjectType(key, value.type), `${path}_${key}`))
                         }
                     }
@@ -82,12 +79,11 @@ export class IngestionSchemaV2 implements ISchemaGenerator {
 
             })
         }
-        console.log("sample " + JSON.stringify(sample))
         recursive(sample, "$")
         return map
     }
 
-    createSpecObj(expr: string, objType: string, name: string): any {
+    private createSpecObj(expr: string, objType: string, name: string): any {
         return {
             "flattenSpec": {
                 "type": "path",
@@ -102,7 +98,7 @@ export class IngestionSchemaV2 implements ISchemaGenerator {
         }
     }
 
-    getObjectType(key: string, type: string): string {
+    private getObjectType(key: string, type: string): string {
         switch (type) {
             case "integer": {
                 return ((key != this.indexCol)) ? "doubleSum" : "timestamp"
@@ -113,7 +109,7 @@ export class IngestionSchemaV2 implements ISchemaGenerator {
         }
     }
 
-    getIngestionTemplate(flattenSpec: any, dims: any, metrics: any): any {
+    private getIngestionTemplate(flattenSpec: any, dims: any, metrics: any): any {
         return {
             "type": "kafka",
             "spec": {
@@ -134,7 +130,7 @@ export class IngestionSchemaV2 implements ISchemaGenerator {
         }
     }
 
-    getGranularityObj(): any {
+    private getGranularityObj(): any {
         return {
             "type": "uniform",
             "segmentGranularity": this.ingestionConfig.granularitySpec.segmentGranularity,
@@ -143,7 +139,7 @@ export class IngestionSchemaV2 implements ISchemaGenerator {
         }
     }
 
-    getIOConfigObj(flattenSpec: any): any {
+    private getIOConfigObj(flattenSpec: any): any {
         return {
             "type": "kafka",
             "topic": this.ingestionConfig.ioConfig?.topic,
@@ -158,5 +154,4 @@ export class IngestionSchemaV2 implements ISchemaGenerator {
         }
     }
 }
-
 

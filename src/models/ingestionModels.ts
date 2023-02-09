@@ -30,7 +30,7 @@ export interface IngestionConfig {
 }
 
 export interface IngestionSchemeRequest {
-    data: Map<string, any>[],
+    schema: Map<string, any>[],
     config: IngestionConfig
 }
 
