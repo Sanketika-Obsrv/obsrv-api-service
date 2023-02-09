@@ -2,7 +2,7 @@ import _ from "lodash"
 import { IngestionSpecModel, ISchemaGenerator } from "../models/ingestionModels";
 import { IngestionConfig } from "./IngestionSchema";
 
-export class IngestionSchemaV2 implements ISchemaGenerator{
+export class IngestionSchemaV2 implements ISchemaGenerator {
     private regex: RegExp = /\./g;
     private ingestionConfig: IngestionConfig;
     private dataSet: string;
@@ -20,7 +20,7 @@ export class IngestionSchemaV2 implements ISchemaGenerator{
         console.log("ingestionSpec " + JSON.stringify(ingestionSpec))
         return ingestionSpec
     }
-    
+
     process(sample: Map<string, any>): IngestionSpecModel {
         const metrics = this.filterMetricsCols(sample)
         const dims = this.filterDimsCols(sample)
@@ -71,10 +71,10 @@ export class IngestionSchemaV2 implements ISchemaGenerator{
                             } else {
                                 map.set(`${path}_${key}`, this.createSpecObj(`${path}.${key}[*]`, this.getObjectType(key, value.type), `${path}_${key}`))
                             }
-                        }else if(value.type == 'object' && (!_.has(value, 'properties'))){
+                        } else if (value.type == 'object' && (!_.has(value, 'properties'))) {
                             console.warn(`Found empty object without properties in the schema..Key: ${key}, Object: ${JSON.stringify(value)}`)
                         }
-                         else {
+                        else {
                             map.set(`${path}_${key}`, this.createSpecObj(`${path}.${key}`, this.getObjectType(key, value.type), `${path}_${key}`))
                         }
                     }

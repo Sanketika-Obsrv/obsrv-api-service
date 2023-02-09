@@ -65,7 +65,7 @@ export const config = {
 
   "datasetConfig": {
     "ingestion": {
-      "dataSet": "observ-demo",
+      "dataSet": "obsrv-demo",
       "indexCol": "ets",
       "granularitySpec": {
         "segmentGranularity": "DAY",

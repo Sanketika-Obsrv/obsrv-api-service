@@ -7,6 +7,8 @@ const config = {
   apiCreateDatasetEndPoint: `${routes.DATASET.BASE_PATH}${routes.DATASET.API_VERSION}${routes.DATASET.CREATE.URL}`,
   apiSchemaSaveEndPoint: `${routes.SCHEMA_OPERATIONS.BASE_PATH}${routes.SCHEMA_OPERATIONS.API_VERSION}${routes.SCHEMA_OPERATIONS.SAVE.URL}`,
   apiSchemaReadEndPoint: `${routes.SCHEMA_OPERATIONS.BASE_PATH}${routes.SCHEMA_OPERATIONS.API_VERSION}${routes.SCHEMA_OPERATIONS.READ.URL}`,
+  apiDatasetSchemaGenerateEndPoint: `${routes.SCHEMA.BASE_PATH}${routes.SCHEMA.API_VERSION}${routes.SCHEMA.DATASET_SCHEMA.URL}`,
+  apiIngestionSchemaGenerateEndPoint: `${routes.SCHEMA.BASE_PATH}${routes.SCHEMA.API_VERSION}${routes.SCHEMA.INGESTION_SCHEMA.URL}`,
   druidHost: "http://localhost",
   druidPort: 8888,
   druidEndPoint: "/druid/v2/",
