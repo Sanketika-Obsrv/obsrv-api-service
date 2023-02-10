@@ -34,6 +34,7 @@ export interface IngestionSchemeRequest {
     config: IngestionConfig
 }
 
+
 export interface DataSchemeRequest {
     data: Map<string, any>[],
     config: IngestionConfig

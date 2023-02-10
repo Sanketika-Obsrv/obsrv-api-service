@@ -1,5 +1,9 @@
 import axios, { AxiosInstance } from "axios";
+<<<<<<< HEAD
 import { IConnector } from "../models/ingestionModels";
+=======
+import { IConnector } from "../models/DataSetModels";
+>>>>>>> origin/ingestion-spec-generation
 export class HTTPConnector implements IConnector {
   private url: string;
   constructor(url: string) {

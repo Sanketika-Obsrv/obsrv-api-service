@@ -13,7 +13,7 @@ const routes = {
     "SQL_QUERY": {
       "URL": "/sqlquery",
       "METHOD": "POST",
-      "API_ID": "obsrv.sql.query"
+      "API_ID": "obsrv.sql.query"      
     }
   },
   "SCHEMA": {

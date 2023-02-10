@@ -9,12 +9,22 @@
     "SUCCESS": "SUCCESS",
     "FAILURE": "FAILED"
   },
-  "DATASET":{
+  "DATASET": {
     "CREATED": "The data has been successfully ingested",
     "UPDATED": "The request has been successfully submitted for update",
     "DELETED": "The request has been successfully submitted for deletion"
   },
-  "SCHEMA":{
+  "SCHEMA": {
     "SAVED": "The schema has been saved successfully"
+  },
+  "SCHEMA_RESOLUTION_TYPE": {
+    "REQUIRED_TYPE": "REQUIRED_TYPE",
+    "DATA_TYPE": "DATA_TYPE",
+    "FORMATE_TYPE": "FORMATE_TYPE"
+  },
+  "PRIORITY": {
+    "MEDIUM": "MEDIUM",
+    "HIGH": "HIGH",
+    "LOW": "LOW"
   }
 }

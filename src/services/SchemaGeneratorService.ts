@@ -1,9 +1,11 @@
 import { NextFunction, Request, Response } from "express";
 import { DataSetSchema } from "../generators/DataSetSchema";
-import { IngestionSchemaV2 } from "../generators/IngestionSchemaV2";
+import { IngestionSchemaV2 } from "../generators/IngestionSchema";
 import { ResponseHandler } from "../helpers/responseHandler";
-import { DataSchemeRequest, IConnector, IngestionConfig, IngestionSchemeRequest } from "../models/ingestionModels";
-export class SchemaGeneratorService {
+import { IConnector } from "../models/DatasetModels";
+import { IngestionConfig, IngestionSchemeRequest } from "../models/ingestionModels";
+import { DataSetSchemeRequest } from "../models/SchemaModels";
+ export class SchemaGeneratorService {
     private connector: IConnector;
     constructor(connector: IConnector) {
         this.connector = connector
@@ -18,7 +20,7 @@ export class SchemaGeneratorService {
     }
 
     public generateDataSetSchema = async (req: Request, res: Response, next: NextFunction) => {
-        const request = <DataSchemeRequest>req.body
+        const request = <DataSetSchemeRequest>req.body
         const schema = new DataSetSchema(request.config.dataSet, new Map())
         const spec = schema.generate(request.data)
         ResponseHandler.successResponse(req, res, { status: 200, data: spec });

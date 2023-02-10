@@ -2,9 +2,15 @@ import express from "express";
 import { config } from "../configs/config";
 import { HTTPConnector } from "../connectors/HttpConnector";
 import { PostgresConnector } from "../connectors/PostgresConnector";
+<<<<<<< HEAD
 import { IngestionSchemaV2 } from "../generators/IngestionSchemaV2";
 import { ResponseHandler } from "../helpers/responseHandler";
 import { IngestionConfig } from "../models/ingestionModels";
+=======
+import { IngestionSchemaV2 } from "../generators/IngestionSchema";
+import { ResponseHandler } from "../helpers/ResponseHandler";
+import { IngestionConfig } from "../models/IngestionModels";
+>>>>>>> origin/ingestion-spec-generation
 import { QueryService } from "../services/QueryService";
 import { SchemaGeneratorService } from "../services/SchemaGeneratorService";
 import { ValidationService } from "../services/ValidationService";
@@ -13,11 +19,15 @@ import { KafkaConnector } from "../connectors/KafkaConnector";
 import { SchemaService } from "../services/SchemaService";
 import routes from "./routesConfig";
 
+<<<<<<< HEAD
 export const kafkaConnector = new KafkaConnector(config.dataset_api.kafka.config)
 
 export const postgresConnector = new PostgresConnector(config.postgres.pg_config)
 
 const validationService = new ValidationService("/src/configs/");
+=======
+const validationService = new ValidationService();
+>>>>>>> origin/ingestion-spec-generation
 
 const queryService = new QueryService(new HTTPConnector(`${config.query_api.druid.host}:${config.query_api.druid.port}`));
 
@@ -41,8 +51,8 @@ router.post(`${routes.QUERY.BASE_PATH}${routes.QUERY.API_VERSION}${routes.QUERY.
 /**
  * Generator Service Routes
  */
-router.post(`${routes.SCHEMA.BASE_PATH}${routes.SCHEMA.API_VERSION}${routes.SCHEMA.INGESTION_SCHEMA.URL}`, ResponseHandler.setApiId(routes.SCHEMA.INGESTION_SCHEMA.API_ID), schemaGeneratorService.generateIngestionSchema);
-router.post(`${routes.SCHEMA.BASE_PATH}${routes.SCHEMA.API_VERSION}${routes.SCHEMA.DATASET_SCHEMA.URL}`, ResponseHandler.setApiId(routes.SCHEMA.DATASET_SCHEMA.API_ID), schemaGeneratorService.generateDataSetSchema);
+router.post(`${routes.SCHEMA.BASE_PATH}${routes.SCHEMA.API_VERSION}${routes.SCHEMA.INGESTION_SCHEMA.URL}`, ResponseHandler.setApiId(routes.SCHEMA.INGESTION_SCHEMA.API_ID), validationService.validateRequestBody, schemaGeneratorService.generateIngestionSchema);
+router.post(`${routes.SCHEMA.BASE_PATH}${routes.SCHEMA.API_VERSION}${routes.SCHEMA.DATASET_SCHEMA.URL}`, ResponseHandler.setApiId(routes.SCHEMA.DATASET_SCHEMA.API_ID), validationService.validateRequestBody, schemaGeneratorService.generateDataSetSchema);
 
 
 /**

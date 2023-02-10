@@ -1,5 +1,6 @@
 import { config } from "../configs/config";
-import { DataSetConfig } from "../models/DatasetModels";
+import { DataSetConfig } from "../models/ConfigModels";
+
 export class ConfigService {
 
     public suggestConfig(): DataSetConfig {

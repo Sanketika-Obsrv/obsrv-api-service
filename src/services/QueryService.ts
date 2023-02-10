@@ -5,10 +5,11 @@ import httpStatus from "http-status";
 import _ from "lodash";
 import { config } from "../configs/config";
 import { ResponseHandler } from "../helpers/responseHandler";
-import { IConnector } from "../models/ingestionModels";
+import { IConnector } from "../models/DatasetModels"
 
 const responseHandler = ResponseHandler;
 //const httpConnector: AxiosInstance = new HTTPConnector(`${config.query_api.druid.host}:${config.query_api.druid.port}`).connect()
+
 
 export class QueryService {
   private connector: AxiosInstance;
