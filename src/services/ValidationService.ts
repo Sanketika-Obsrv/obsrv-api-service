@@ -21,7 +21,8 @@ export class ValidationService {
     [routes.SCHEMA.INGESTION_SCHEMA.API_ID, "IngestionSchemaReq.json"],
     [routes.SCHEMA.DATASET_SCHEMA.API_ID, "DataSetSchemaReq.json"],
     [routes.QUERY.NATIVE_QUERY.API_ID, "QueryRequest.json"],
-    [routes.QUERY.SQL_QUERY.API_ID, "QueryRequest.json"]
+    [routes.QUERY.SQL_QUERY.API_ID, "QueryRequest.json"],
+    [routes.SCHEMA_OPERATIONS.SAVE.API_ID, "SchemaSaveReq.json"]
   ]);
 
 

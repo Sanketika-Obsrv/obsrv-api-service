@@ -24,6 +24,6 @@ import { DataSetSchemeRequest } from "../models/SchemaModels";
         const schema = new DataSetSchema(request.config.dataSet, new Map())
         const spec = schema.generate(request.data)
         ResponseHandler.successResponse(req, res, { status: 200, data: spec });
-    }
+     }
 
 }

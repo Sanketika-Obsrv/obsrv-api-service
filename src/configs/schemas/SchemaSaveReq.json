@@ -1,0 +1,43 @@
+{
+    "type": "object",
+    "properties": {
+        "dataset": {
+            "type": "string"
+        },
+        "version": {
+            "type": "number"
+        },
+        "dataSchema": {
+            "type": "object"
+        },
+        "ingestionSchema": {
+            "type": "object"
+        },
+        "config": {
+            "type": "object",
+            "properties": {
+                "ingestion": {
+                    "type": "object"
+                },
+                "processing": {
+                    "type": "object"
+                },
+                "querying": {
+                    "type": "object"
+                }
+            },
+            "required": [
+                "ingestion",
+                "processing",
+                "querying"
+            ]
+        }
+    },
+    "required": [
+        "dataset",
+        "version",
+        "dataSchema",
+        "ingestionSchema",
+        "config"
+    ]
+}

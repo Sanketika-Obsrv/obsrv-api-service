@@ -1,10 +1,5 @@
 import { ClientConfig, Pool, QueryResult } from "pg";
-<<<<<<< HEAD
-import { IConnector } from "../models/ingestionModels";
-
-=======
-import { IConnector } from "../models/DataSetModels";
->>>>>>> origin/ingestion-spec-generation
+import { IConnector } from "../models/DatasetModels";
 export class PostgresConnector implements IConnector {
     private config: ClientConfig
     public pool: Pool

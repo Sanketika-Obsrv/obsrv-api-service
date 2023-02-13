@@ -10,7 +10,7 @@ import constants from '../resources/constants.json';
 chai.should();
 chai.use(chaiHttp);
 
-describe("READ API", () => {
+describe("QUERY API", () => {
   describe("If service is down", () => {
     it("it should raise error when native query endpoint is called", (done) => {
       chai
@@ -62,7 +62,7 @@ describe("READ API", () => {
         .post(config.apiDruidEndPoint)
         .send(JSON.parse(TestDruidQuery.HIGH_DATE_RANGE_GIVEN_AS_LIST))
         .end((err, res) => {
-          res.should.have.status(httpStatus.BAD_REQUEST);
+           res.should.have.status(httpStatus.BAD_REQUEST);
           res.body.should.be.a("object");
           res.body.responseCode.should.be.eq(httpStatus["400_NAME"]);
           res.body.params.status.should.be.eq(constants.STATUS.FAILURE);

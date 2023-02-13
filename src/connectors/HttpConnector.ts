@@ -1,9 +1,5 @@
 import axios, { AxiosInstance } from "axios";
-<<<<<<< HEAD
-import { IConnector } from "../models/ingestionModels";
-=======
-import { IConnector } from "../models/DataSetModels";
->>>>>>> origin/ingestion-spec-generation
+import { IConnector } from "../models/DatasetModels";
 export class HTTPConnector implements IConnector {
   private url: string;
   constructor(url: string) {
@@ -23,7 +19,7 @@ export class HTTPConnector implements IConnector {
   close() {
     throw new Error("Method not implemented.");
   }
-  
+
 }
 
 

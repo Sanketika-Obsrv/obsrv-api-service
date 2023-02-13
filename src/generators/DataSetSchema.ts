@@ -45,7 +45,7 @@ export class DataSetSchema implements ISchemaGenerator {
                         break;
                 }
             }else{console.info(`Conflicts not found ${JSON.stringify(value)}`)}
-        })
+        }) 
         return schema
     }
 
