@@ -22,7 +22,7 @@ export interface GranularitySpec {
 }
 
 export interface IngestionConfig {
-    dataSet: string,
+    dataset: string,
     indexCol: string,
     granularitySpec: GranularitySpec,
     tuningConfig?: TuningConfig,

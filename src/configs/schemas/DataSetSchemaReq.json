@@ -16,7 +16,7 @@
                 }
             },
             "required": [
-                "dataSet"
+                "dataset"
             ]
         }
     },

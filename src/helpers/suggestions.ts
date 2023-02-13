@@ -18,12 +18,12 @@ export const SchemaSuggestionTemplate = {
                 REQUIRED_PROPERTY: {
                     MESSAGE: "Conflict in the Schema Generation",
                     ADVICE: "The Property looks to be Optional. System has updated the property schema to optional",
-                    PRIORITY: constants.PRIORITY.LOW
+                    PRIORITY: constants.PRIORITY.MEDIUM
                 },
                 DATATYPE_PROPERTY: {
                     MESSAGE: "Conflict in the Schema Generation",
-                    ADVICE: "System has choosen highest occurance property value",
-                    PRIORITY: constants.PRIORITY.MEDIUM
+                    ADVICE: "System can choose highest occurance property or last appeared object property",
+                    PRIORITY: constants.PRIORITY.HIGH
                 },
                 FORMAT_PROPERTY: {
                     MESSAGE: "The Property",

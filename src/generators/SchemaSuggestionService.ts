@@ -16,8 +16,8 @@ export class DataSetSuggestionService {
         return this.analyseSchema()
     }
 
-    public suggestConfig(): DataSetConfig {
-        const config: DataSetConfig = new ConfigService().suggestConfig()
+    public suggestConfig(conflicts: ConflictTypes[]): DataSetConfig {
+        const config: DataSetConfig = new ConfigService().suggestConfig(conflicts)
         return config
     }
 

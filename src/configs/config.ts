@@ -63,26 +63,51 @@ export const config = {
     }
   },
 
-  "datasetConfig": {
-    "ingestion": {
-      "dataSet": "obsrv-demo",
-      "indexCol": "ets",
-      "granularitySpec": {
-        "segmentGranularity": "DAY",
-        "queryGranularity": "hour",
-        "rollup": true
-      },
 
-    },
-    "querying": queryRules,
-    "processing": {
-      "checkpointingInterval": 6000,
-      "dedupProperty": "mid",
-      "dedupRetentionPeriod": 3600000,
-      "consumerParallelism": 1,
-      "downstreamParallelism": 1,
-      "compression": "snappy",
-      "dataSize": 1572864
-    }
-  }
+  // datasetConfig: {
+  //   ingestion: {
+  //     dataset: "observ-demo",
+  //     indexCol: "ets",
+  //     granularitySpec: {
+  //       segmentGranularity: "DAY",
+  //       queryGranularity: "hour",
+  //       rollup: true
+  //     },
+
+  //   },
+  //   querying: queryRules,
+  //   processing: {
+  //     topic: "",
+  //     extraction: {
+  //       is_batch_event: false,
+  //       extraction_key: "events",
+  //       dedup_config: {
+  //         drop_duplicates: false,
+  //         dedup_key: "",
+  //         dedup_period: 1400
+  //       }
+  //     },
+  //     dedup_config: {
+  //       drop_duplicates: false,
+  //       dedup_key: "",
+  //       dedup_period: 1400
+  //     },
+  //     validation_config: {
+  //       validate: true,
+  //       mode: ""
+  //     },
+  //     denorm_config: {
+  //       redis_db_host: "",
+  //       redis_db_port: "",
+  //       denorm_fields: {
+  //         denorm_key: "",
+  //         redis_db: 1,
+  //         denorm_out_field: "metadata"
+  //       }
+  //     },
+  //     router_config: {
+  //       topic: ""
+  //     }
+  //   }
+  // }
 }
