@@ -1,4 +1,4 @@
-import { IngestionConfig } from "./IngestionModels";
+import { IngestionConfig } from "./ingestionModels";
 import { ILimits } from "./QueryModels";
 
 export interface ProcessingConfig {
