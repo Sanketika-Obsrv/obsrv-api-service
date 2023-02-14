@@ -12,7 +12,9 @@
   "license": "ISC",
   "dependencies": {
     "@jsonhero/schema-infer": "^0.1.4",
+    "@types/knex": "^0.16.1",
     "@types/moment": "^2.13.0",
+    "@types/sequelize": "^4.28.14",
     "ajv": "^8.11.2",
     "axios": "^1.1.3",
     "deepmerge-json": "^1.5.0",
@@ -22,9 +24,13 @@
     "http-status": "^1.5.3",
     "json-merger": "^1.1.9",
     "json-schema-compare": "^0.2.2",
+    "knex": "^2.4.2",
     "lodash": "^4.17.21",
     "moment": "^2.29.4",
-    "pg": "^8.8.0"
+    "pg": "^8.9.0",
+    "pg-promise": "^11.2.0",
+    "sequelize": "^6.28.0",
+    "sqlite3": "^5.1.4"
   },
   "devDependencies": {
     "@types/chai": "^4.3.3",
