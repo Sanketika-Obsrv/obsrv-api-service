@@ -21,5 +21,5 @@ export class PostgresConnector implements IConnector {
 
     async execute(query: string): Promise<QueryResult<any>> {
         return await this.pool.query(query)
-    }
+     }
 }

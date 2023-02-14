@@ -64,6 +64,23 @@ export const config = {
   },
 
 
+  "db_connector_config": {
+    client: 'postgresql',
+    connection: {
+      host: 'localhost',
+      port: 5432,
+      database: 'postgres',
+      user: 'manjunathdavanam',
+      password: 'Manju@123',
+    },
+    pool: {
+      min: 2,
+      max: 10,
+    }
+  }
+
+
+
   // datasetConfig: {
   //   ingestion: {
   //     dataset: "observ-demo",

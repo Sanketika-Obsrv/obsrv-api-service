@@ -10,12 +10,15 @@ import { SchemaGeneratorService } from "../services/SchemaGeneratorService";
 import { ValidationService } from "../services/ValidationService";
 import { DatasetService } from "../services/DatasetService";
 import { KafkaConnector } from "../connectors/KafkaConnector";
-import { SchemaService } from "../services/SchemaService";
+import { DatasetSchemaService } from "../services/DatasetSchemaService";
 import routes from "./routesConfig";
+import { DbConnector } from "../connectors/DbConnector";
 
 export const kafkaConnector = new KafkaConnector(config.dataset_api.kafka.config)
 
 export const postgresConnector = new PostgresConnector(config.postgres.pg_config)
+
+export const dbConnector = new DbConnector(config.db_connector_config)
 
 const validationService = new ValidationService();
  
@@ -23,9 +26,11 @@ const queryService = new QueryService(new HTTPConnector(`${config.query_api.drui
 
 const schemaGeneratorService = new SchemaGeneratorService(new PostgresConnector(config.postgres.pg_config));
 
-export const schemaService = new SchemaService(postgresConnector)
+export const datasetSchemaService = new DatasetSchemaService(dbConnector)
 
 export const datasetService = new DatasetService(kafkaConnector);
+
+
 
 const router = express.Router();
 
@@ -65,8 +70,10 @@ router.post(`${routes.DATASET.BASE_PATH}${routes.DATASET.API_VERSION}${routes.DA
 /**
  * Schema Service Routes
  */
-router.post(`${routes.SCHEMA_OPERATIONS.BASE_PATH}${routes.SCHEMA_OPERATIONS.API_VERSION}${routes.SCHEMA_OPERATIONS.SAVE.URL}`, ResponseHandler.setApiId(routes.SCHEMA_OPERATIONS.SAVE.API_ID), validationService.validateRequestBody, schemaService.save)
-router.get(`${routes.SCHEMA_OPERATIONS.BASE_PATH}${routes.SCHEMA_OPERATIONS.API_VERSION}${routes.SCHEMA_OPERATIONS.READ.URL}`, ResponseHandler.setApiId(routes.SCHEMA_OPERATIONS.READ.API_ID), schemaService.read)
+// router.get(`${routes.SCHEMA_OPERATIONS.BASE_PATH}${routes.SCHEMA_OPERATIONS.API_VERSION}${routes.SCHEMA_OPERATIONS.READ.URL}`, ResponseHandler.setApiId(routes.SCHEMA_OPERATIONS.READ.API_ID), datasetSchemaService.read)
+router.post(`${routes.SCHEMA_OPERATIONS.BASE_PATH}${routes.SCHEMA_OPERATIONS.API_VERSION}${routes.SCHEMA_OPERATIONS.SAVE.URL}`, ResponseHandler.setApiId(routes.SCHEMA_OPERATIONS.SAVE.API_ID), datasetSchemaService.save)
+router.patch(`${routes.SCHEMA_OPERATIONS.BASE_PATH}${routes.SCHEMA_OPERATIONS.API_VERSION}${routes.SCHEMA_OPERATIONS.SAVE.URL}`, ResponseHandler.setApiId(routes.SCHEMA_OPERATIONS.SAVE.API_ID), validationService.validateRequestBody, datasetSchemaService.save)
+router.delete(`${routes.SCHEMA_OPERATIONS.BASE_PATH}${routes.SCHEMA_OPERATIONS.API_VERSION}${routes.SCHEMA_OPERATIONS.SAVE.URL}`, ResponseHandler.setApiId(routes.SCHEMA_OPERATIONS.SAVE.API_ID), validationService.validateRequestBody, datasetSchemaService.save)
 
  
 // const ingestionConfig = {
