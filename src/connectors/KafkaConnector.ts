@@ -1,5 +1,5 @@
 import { Kafka, Producer, KafkaConfig } from 'kafkajs'
-import { IConnector } from "../models/ingestionModels"
+import { IConnector } from "../models/IngestionModels"
 
 export class KafkaConnector implements IConnector {
     private kafka: Kafka;

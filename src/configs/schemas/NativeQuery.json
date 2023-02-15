@@ -1,8 +1,20 @@
 {
   "type": "object",
   "properties": {
-    "queryType": { "type": "string" },
-    "dataSource": { "type": "string" },
+    "queryType": {
+      "type": "string",
+      "enum": [
+        "scan",
+        "groupBy",
+        "topN",
+        "timeBoundary",
+        "search",
+        "timeSeries"
+      ]
+    },
+    "dataSource": {
+      "type": "string"
+    },
     "intervals": {
       "oneOf": [
         {
@@ -27,7 +39,10 @@
         }
       ]
     },
-    "dimension": { "type": "string", "nullable": true },
+    "dimension": {
+      "type": "string",
+      "nullable": true
+    },
     "dimensions": {
       "type": "array",
       "items": {
@@ -65,14 +80,29 @@
     },
     "limitSpec": {
       "type": "object",
-      "required": ["type", "limit"],
+      "required": [
+        "type",
+        "limit"
+      ],
       "properties": {
-        "type": { "type": "string" },
-        "limit": { "type": "number" }
+        "type": {
+          "type": "string"
+        },
+        "limit": {
+          "type": "number"
+        }
       },
       "nullable": true
     },
-    "limit": { "type": "number", "nullable": true }
+    "limit": {
+      "type": "number",
+      "nullable": true
+    }
   },
-  "required": ["queryType", "dataSource", "intervals", "granularity"]
+  "required": [
+    "queryType",
+    "dataSource",
+    "intervals",
+    "granularity"
+  ]
 }

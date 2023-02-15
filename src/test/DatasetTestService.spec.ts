@@ -3,10 +3,10 @@ import chai from "chai";
 import chaiHttp from "chai-http";
 import spies from "chai-spies";
 import httpStatus from "http-status";
-import { TestDataset } from "./fixtures";
-import { config } from "./config";
-import routes from "../routes/routesConfig";
-import { datasetService, kafkaConnector } from "../routes/router";
+import { TestDataset } from "./Fixtures";
+import { config } from "./Config";
+import routes from "../routes/RoutesConfig";
+import { datasetService, kafkaConnector } from "../routes/Router";
 
 chai.use(spies);
 chai.should();

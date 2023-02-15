@@ -19,7 +19,7 @@ export const queryRules = {
         "timeBoundary": {
           "maxDateRange": 30
         },
-        "timeseries": {
+        "timeSeries": {
           "maxDateRange": 30
         },
         "topN": {
@@ -42,7 +42,7 @@ export const queryRules = {
         "timeBoundary": {
           "maxDateRange": 30
         },
-        "timeseries": {
+        "timeSeries": {
           "maxDateRange": 30
         },
         "topN": {

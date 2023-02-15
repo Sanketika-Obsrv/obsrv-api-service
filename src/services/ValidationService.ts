@@ -1,171 +1,32 @@
-import Ajv from "ajv";
 import { NextFunction, Request, Response } from "express";
-import fs from "fs";
 import errorResponse from "http-errors";
 import httpStatus from "http-status";
-import { isUndefined } from "lodash";
-import moment, { Moment } from "moment";
-import { queryRules } from "../configs/queryRules";
-import { ICommonRules, ILimits, IQuery, IQueryTypeRules, IRules } from "../models/QueryModels";
-import constants from "../resources/constants.json";
-import routes from "../routes/routesConfig";
-const schemaValidator = new Ajv();
+import { IValidator } from "../models/DatasetModels";
+import { ValidationStatus } from "../models/ValidationModels";
+import { QueryValidator } from "../validators/QueryValidator";
+import { RequestsValidator } from "../validators/RequestsValidator";
 
 export class ValidationService {
 
-  //private requestBodySchema: Object;
-  private nativeQuerySchema: Object;
-  private limits: ILimits;
-  private schemaBasePath: string = "/src/configs/";
-  private reqSchemaMap = new Map<string, string>([
-    [routes.SCHEMA.INGESTION_SCHEMA.API_ID, "IngestionSchemaReq.json"],
-    [routes.SCHEMA.DATASET_SCHEMA.API_ID, "DataSetSchemaReq.json"],
-    [routes.QUERY.NATIVE_QUERY.API_ID, "QueryRequest.json"],
-    [routes.QUERY.SQL_QUERY.API_ID, "QueryRequest.json"],
-    [routes.SCHEMA_OPERATIONS.SAVE.API_ID, "SchemaSaveReq.json"]
-  ]);
-
-
-  constructor() {
-    this.nativeQuerySchema = JSON.parse(fs.readFileSync(process.cwd() + `${this.schemaBasePath}schemas/` + "nativeQuery.json", "utf8"));
-    this.limits = queryRules
-  }
-
-  public validateRequestBody = (req: Request, res: Response, next: NextFunction) => {
-
-    const queryPayload = req.body;
-    let validRequestObj = schemaValidator.validate(this.getReqSchema((req as any).id), queryPayload);
-    if (!validRequestObj) {
-      let error = schemaValidator.errors;
-      let errorMessage = error![0].instancePath.replace("/", "") + " " + error![0].message;
-      throw errorResponse(httpStatus.BAD_REQUEST, errorMessage, { errCode: httpStatus["400_NAME"] });
+    private request: IValidator;
+    private query: IValidator;
+    constructor() {
+        this.request = new RequestsValidator()
+        this.query = new QueryValidator()
     }
-    next();
-  };
 
-  public validateConfiguration = (req: Request, res: Response, next: NextFunction) => {
-    let dataSource: string = this.getDataSource(req.body);
-    let dataSourceLimits = this.getDataSourceLimits(dataSource);
-    if (dataSource != req.body.context.dataSource || isUndefined(dataSourceLimits)) {
-      console.warn(`Rules not found : ${dataSource}`)
-      next();
+    public validateRequestBody = (req: Request, res: Response, next: NextFunction) => {
+        const status: ValidationStatus = this.request.validate(req.body, (req as any).id)
+        status.isValid ?
+            next()
+            : next(errorResponse(httpStatus.BAD_REQUEST, status?.message || "", { errCode: httpStatus["400_NAME"] }))
+    };
+
+    public validateQuery = (req: Request, res: Response, next: NextFunction) => {
+        const status: ValidationStatus = this.query.validate(req.body, (req as any).id)
+        status.isValid ?
+            next()
+            : next(errorResponse(httpStatus.BAD_REQUEST, status?.message || "", { errCode: httpStatus["400_NAME"] }))
     }
-    next();
-  };
-
-  public validateNativeQuery = (req: Request, res: Response, next: NextFunction) => {
-    let isValidQuery = schemaValidator.validate(this.nativeQuerySchema, req.body.query);
-    if (isValidQuery) {
-      let queryObj: IQuery = req.body;
-      this.setQueryLimits(req.body, this.limits.common);
-      let dataSourceLimits = this.getDataSourceLimits(queryObj.query.dataSource);
-      try {
-        this.validateQueryRules(queryObj, dataSourceLimits.queryRules[queryObj.query.queryType as keyof IQueryTypeRules]);
-      } catch (error: any) {
-        next(errorResponse(httpStatus.BAD_REQUEST, error.message, { errCode: httpStatus["400_NAME"] }));
-      }
-    } else {
-      let error = schemaValidator.errors;
-      let errorMessage = error![0].instancePath.replace("/", "") + " " + error![0].message;
-      next(errorResponse(httpStatus.BAD_REQUEST, errorMessage, { errCode: httpStatus["400_NAME"] }));
-    }
-    next();
-  };
-
-  public validateSqlQuery = (req: Request, res: Response, next: NextFunction) => {
-    this.setQueryLimits(req.body, this.limits.common);
-    let dataSourceLimits = this.getDataSourceLimits(this.getDataSource(req.body));
-    try {
-      this.validateQueryRules(req.body, dataSourceLimits.queryRules.scan);
-    } catch (error: any) {
-      next(errorResponse(httpStatus.BAD_REQUEST, error.message, { errCode: httpStatus["400_NAME"] }));
-    }
-    next();
-  };
-
-  private validateQueryRules = (queryPayload: IQuery, limits: IRules) => {
-    let fromDate: Moment | undefined, toDate: Moment | undefined;
-    let allowedRange = limits.maxDateRange;
-    if (queryPayload.query) {
-      const dateRange = queryPayload.query.intervals;
-      const extractedDateRange = Array.isArray(dateRange) ? dateRange[0].split("/") : dateRange.toString().split("/");
-      fromDate = moment(extractedDateRange[0], "YYYY-MM-DD HH:MI:SS");
-      toDate = moment(extractedDateRange[1], "YYYY-MM-DD HH:MI:SS");
-    } else {
-      let vocabulary = queryPayload.querySql.query.split(" ");
-      let fromDateIndex = vocabulary.indexOf("TIMESTAMP");
-      let toDateIndex = vocabulary.lastIndexOf("TIMESTAMP");
-      fromDate = moment(vocabulary[fromDateIndex + 1], "YYYY-MM-DD HH:MI:SS");
-      toDate = moment(vocabulary[toDateIndex + 1], "YYYY-MM-DD HH:MI:SS");
-    }
-    if (fromDate && toDate && fromDate.isValid() && toDate.isValid()) {
-      return this.validateDateRange(fromDate, toDate, allowedRange);
-    } else {
-      throw new Error(constants.ERROR_MESSAGE.NO_DATE_RANGE);
-    }
-  };
-
-  private setQueryLimits = (queryPayload: IQuery, limits: ICommonRules) => {
-    if (queryPayload.query) {
-      if (queryPayload.query.threshold) {
-        queryPayload.query.threshold = this.getLimit(queryPayload.query.threshold, limits.maxResultThreshold);
-      } else {
-        queryPayload.query.threshold = limits.maxResultThreshold;
-      }
-      if (queryPayload.query.limit) {
-        queryPayload.query.limit = this.getLimit(queryPayload.query.limit, limits.maxResultRowLimit);
-      } else {
-        queryPayload.query.limit = limits.maxResultRowLimit;
-      }
-    } else {
-      let vocabulary = queryPayload.querySql.query.split(" ");
-      let queryLimitIndex = vocabulary.indexOf("LIMIT");
-      let queryLimit = Number(vocabulary[queryLimitIndex + 1]);
-      if (isNaN(queryLimit)) {
-        const updatedVocabulary = [...vocabulary, "LIMIT", limits.maxResultRowLimit].join(" ");
-        queryPayload.querySql.query = updatedVocabulary;
-      } else {
-        let newLimit = this.getLimit(queryLimit, limits.maxResultRowLimit);
-        vocabulary[queryLimitIndex + 1] = newLimit.toString();
-        queryPayload.querySql.query = vocabulary.join(" ");
-      }
-    }
-  };
-
-  private getDataSource = (queryPayload: IQuery): string => {
-    if (queryPayload.querySql) {
-      let query = queryPayload.querySql.query;
-      query = query.replace(/\s+/g, " ").trim();
-      let dataSource = query.substring(query.indexOf("FROM")).split(" ")[1];
-      return dataSource.replace(/"/g, "");
-    } else {
-      return queryPayload.query.dataSource;
-    }
-  };
-
-  private getDataSourceLimits = (datasource: string): any => {
-    for (var index = 0; index < this.limits.rules.length; index++) {
-      if (this.limits.rules[index].dataSource == datasource) {
-        return this.limits.rules[index];
-      }
-    }
-  };
-
-  private validateDateRange = (fromDate: moment.Moment, toDate: moment.Moment, allowedRange: number = 0) => {
-    const differenceInDays = Math.abs(fromDate.diff(toDate, "days"));
-    if (differenceInDays > allowedRange) {
-      throw new Error(constants.ERROR_MESSAGE.INVALID_DATE_RANGE.replace("${allowedRange}", allowedRange.toString()));
-    }
-  };
-
-  private getLimit = (queryLimit: number, maxRowLimit: number) => {
-    return queryLimit > maxRowLimit ? maxRowLimit : queryLimit;
-  };
-
-
-  private getReqSchema(apiId: string): Object {
-    return JSON.parse(fs.readFileSync(process.cwd() + `${this.schemaBasePath}schemas/` + `${this.reqSchemaMap.get(apiId)}`, "utf8"));
-  }
-
 
 }

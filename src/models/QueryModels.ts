@@ -12,7 +12,7 @@ export interface IQueryTypeRules {
   groupBy: IRules;
   scan: IRules;
   topN: IRules;
-  timeseries: IRules;
+  timeSeries: IRules;
   timeBoundary: IRules;
   search: IRules;
 }
@@ -27,11 +27,6 @@ export interface IFilter {
   field?: IFilter;
   dimension?: string;
   dimensions?: string[];
-}
-
-export interface IResponse {
-  data: object;
-  status: number;
 }
 
 interface ISqlQueryObject {

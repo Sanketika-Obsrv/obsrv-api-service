@@ -11,15 +11,23 @@
         "config": {
             "type": "object",
             "properties": {
-                "dataSet": {
+                "dataset": {
+                    "type": "string"
+                },
+                "isBatch": {
+                    "type": "boolean"
+                },
+                "extractionKey": {
                     "type": "string"
                 }
             },
+            "additionalProperties": false,
             "required": [
                 "dataset"
             ]
         }
     },
+    "additionalProperties": false,
     "required": [
         "data",
         "config"

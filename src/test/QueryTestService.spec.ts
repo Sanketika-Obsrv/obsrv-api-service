@@ -3,10 +3,10 @@ import chai from "chai";
 import chaiHttp from "chai-http";
 import nock from "nock";
 import httpStatus from "http-status";
-import { TestDruidQuery } from "./fixtures";
-import { config } from "./config";
-import routes from "../routes/routesConfig";
-import constants from '../resources/constants.json';
+import { TestDruidQuery } from "./Fixtures";
+import { config } from "./Config";
+import constants from "../resources/Constants.json";
+import routes from "../routes/RoutesConfig";
 chai.should();
 chai.use(chaiHttp);
 
@@ -47,7 +47,7 @@ describe("QUERY API", () => {
         .post(config.apiDruidEndPoint)
         .send(JSON.parse(TestDruidQuery.VALID_QUERY))
         .end((err, res) => {
-          res.should.have.status(httpStatus.OK);
+           res.should.have.status(httpStatus.OK);
           res.body.should.be.a("object");
           res.body.responseCode.should.be.eq(httpStatus["200_NAME"]);
           res.body.should.have.property("result");

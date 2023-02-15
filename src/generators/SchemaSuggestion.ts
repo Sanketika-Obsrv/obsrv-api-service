@@ -1,10 +1,10 @@
 import _ from "lodash";
-import { SchemaSuggestionTemplate } from "../helpers/suggestions";
+import { SchemaSuggestionTemplate } from "../helpers/Suggestions";
 import { DataSetConfig } from "../models/ConfigModels";
 import { Conflict, ConflictTypes, FlattenSchema, Occurance, Suggestion, SuggestionsTemplate } from "../models/SchemaModels";
-import constants from "../resources/constants.json";
-import { ConfigService } from "../services/ConfigService";
-export class DataSetSuggestionService {
+import constants from "../resources/Constants.json";
+import { ConfigSuggestionGenerator } from "./ConfigSuggestion";
+export class SchemaSuggestion {
     private schemas: Map<string, any>[];
     private minimumSchemas: number = 1
 
@@ -17,7 +17,7 @@ export class DataSetSuggestionService {
     }
 
     public suggestConfig(conflicts: ConflictTypes[]): DataSetConfig {
-        const config: DataSetConfig = new ConfigService().suggestConfig(conflicts)
+        const config: DataSetConfig = new ConfigSuggestionGenerator().suggestConfig(conflicts)
         return config
     }
 

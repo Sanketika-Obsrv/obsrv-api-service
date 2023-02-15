@@ -1,4 +1,4 @@
-import routes from "../routes/routesConfig"
+import routes from "../routes/RoutesConfig"
 const config = {
 
   apiDruidEndPoint: `${routes.QUERY.BASE_PATH}${routes.QUERY.API_VERSION}${routes.QUERY.NATIVE_QUERY.URL}`,
@@ -11,7 +11,7 @@ const config = {
   apiIngestionSchemaGenerateEndPoint: `${routes.SCHEMA.BASE_PATH}${routes.SCHEMA.API_VERSION}${routes.SCHEMA.INGESTION_SCHEMA.URL}`,
   druidHost: "http://localhost",
   druidPort: 8888,
-  druidEndPoint: "/druid/v2/",
+  druidEndPoint: "/druid/v2",
   druidSqlEndPoint: "/druid/v2/sql/",
   
 

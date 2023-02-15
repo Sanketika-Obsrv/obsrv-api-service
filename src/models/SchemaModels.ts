@@ -1,15 +1,20 @@
 import { DataSetConfig } from "./ConfigModels";
-import { IngestionConfig } from "./IngestionModels";
 
-export interface DataSetSchemaResponse {
+export interface DatasetSchemaResponse {
     schema: any;
     suggestions: SuggestionsTemplate[];
     configurations: DataSetConfig
 }
 
-export interface DataSetSchemeRequest {
+export interface DatasetSchemeRequest {
     data: Map<string, any>[],
-    config: IngestionConfig
+    config: DatasetSchemaConfig
+}
+
+export interface DatasetSchemaConfig {
+    dataset: string,
+    isBatch?: boolean
+    extractionKey: string,
 }
 
 export interface SuggestionsTemplate {
@@ -39,12 +44,12 @@ export interface Conflict {
 }
 
 export interface FlattenSchema {
-    property: string 
-    dataType: string 
-    isRequired: boolean 
+    property: string
+    dataType: string
+    isRequired: boolean
     path: string | any;
     absolutePath: string
-    formate: string 
+    formate: string
 }
 
 export interface Occurance {

@@ -1,4 +1,4 @@
-import constants from "../resources/constants.json";
+import constants from "../resources/Constants.json";
 import _, { constant } from "lodash";
 
 export const SchemaSuggestionTemplate = {

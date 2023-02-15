@@ -1,4 +1,4 @@
-import { queryRules } from "../queryRules";
+import { queryRules } from "../QueryRules";
 export  const datasetQueryDefaultConfig = queryRules
 export const datasetIngestionDefaultConfig = {
     dataset: "observ-demo",

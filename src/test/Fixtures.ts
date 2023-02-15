@@ -1,6 +1,6 @@
 class TestDruidQuery {
   public static VALID_QUERY =
-    '{"context":{"dataSource":"telemetry-events"},"query":{"queryType":"timeseries","dataSource":"telemetry-events","aggregations":[{"type":"count","name":"count"}],"granularity":"all","postAggregations":[],"intervals": "2021-02-19/2021-02-20"}}';
+    '{"context":{"dataSource":"telemetry-events"},"query":{"queryType":"timeSeries","dataSource":"telemetry-events","aggregations":[{"type":"count","name":"count"}],"granularity":"all","postAggregations":[],"intervals": "2021-02-19/2021-02-20"}}';
   public static HIGH_DATE_RANGE_GIVEN_AS_LIST =
     '{"context":{"dataSource":"telemetry-events"},"query":{"queryType":"groupBy","dataSource":"telemetry-events","dimensions":["actor_type","content_framework"],"limit":15, "metric":"count","granularity":"all","intervals":["2021-01-02/2021-02-05"],"aggregations":[{"type":"count","name":"count"}]}}';
   public static HIGH_DATE_RANGE_GIVEN_AS_STRING =

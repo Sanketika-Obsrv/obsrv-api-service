@@ -1,10 +1,10 @@
 import { Request, Response, NextFunction } from "express";
-import { ResponseHandler } from "../helpers/responseHandler";
-import { config } from "../configs/config";
-import constants from "../resources/constants.json"
+import { ResponseHandler } from "../helpers/ResponseHandler";
+import { config } from "../configs/Config";
+import constants from "../resources/Constants.json"
 import errorResponse from "http-errors";
 import httpStatus from "http-status";
-import { IConnector } from "../models/ingestionModels";
+import { IConnector } from "../models/IngestionModels";
 const responseHandler = ResponseHandler;
 
 export class DatasetService {
