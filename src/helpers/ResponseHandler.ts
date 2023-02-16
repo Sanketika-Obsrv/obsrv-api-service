@@ -20,7 +20,7 @@ const ResponseHandler = {
     next({ statusCode: httpStatus.NOT_FOUND, message: constants.ERROR_MESSAGE.ROUTE_NOT_FOUND, errCode: httpStatus['404_NAME'] });
   },
 
-  refactorResponse: ({ id = routes.API_ID, ver = "v2", params = { status: httpStatus[200], errmsg: "" }, responseCode = httpStatus[200], result = {} }): IResponse => {
+  refactorResponse: ({ id = routes.API_ID, ver = "v2", params = { status: constants.STATUS.SUCCESS, errmsg: "" }, responseCode = httpStatus[200], result = {} }): IResponse => {
     return <IResponse>{ id, ver, ts: Date.now(), params, responseCode, result }
   },
 
