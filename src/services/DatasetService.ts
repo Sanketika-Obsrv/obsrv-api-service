@@ -21,7 +21,7 @@ export class DatasetService {
     public create = (req: Request, res: Response, next: NextFunction) => {
         this.connector.execute(config.dataset_api.kafka.topics.create, { "value": JSON.stringify(req.body.data) })
             .then(() => {
-                responseHandler.successResponse(req, res, { status: 200, data: { "message": constants.DATASET.CREATED } })
+                responseHandler.successResponse(req, res, { status: 200, data: { "message": constants.DATASET.CREATED, "dataset_id": config.dataset_api.kafka.topics.create } })
             }).catch((error: any) => {
                 next(errorResponse(httpStatus.INTERNAL_SERVER_ERROR, error.message))
             })

@@ -7,7 +7,6 @@ export class KafkaConnector implements IConnector {
     constructor(config: KafkaConfig) {
         this.kafka = new Kafka(config)
         this.producer = this.kafka.producer({
-            allowAutoTopicCreation: false
         })
     }
     async connect() {
