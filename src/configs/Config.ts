@@ -27,12 +27,12 @@ export const config = {
         "clientId": "obsrv-apis",
         "retry": {
           "initialRetryTime": 1000,
-          "retries": 1
+          "retries": 3
         },
-        "connectionTimeout": 1000
+        "connectionTimeout": 3000
       },
       "topics": {
-        "create": "telemetry.input",
+        "create": "telemetry.ingest",
         "mutate": "telemetry.mutate"
       }
 
