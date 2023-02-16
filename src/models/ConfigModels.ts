@@ -18,7 +18,7 @@ export interface DataSetConfig {
 
 export interface DatasetProcessing {
   topic: string;
-  extraction: ExtractionConfig;
+  extraction_config: ExtractionConfig;
   dedup_config: DedupConfig;
   validation_config: ValidationConfig;
   denorm_config: DenormConfig;

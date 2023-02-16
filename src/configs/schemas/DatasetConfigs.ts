@@ -11,7 +11,7 @@ export const datasetIngestionDefaultConfig = {
 }
 export const datasetProcessingDefaultConfigs = {
     topic: "",
-    extraction: {
+    extraction_config: {
         is_batch_event: false,
         extraction_key: "events",
         dedup_config: {

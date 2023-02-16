@@ -61,3 +61,8 @@ export interface Occurance {
     format: { [key: string]: number };
 }
 
+export interface IRelation {
+    getValues(): object;
+    setValues(): object;
+    removeNullValues: object;
+}

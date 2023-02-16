@@ -14,8 +14,9 @@
     "UPDATED": "The request has been successfully submitted for update",
     "DELETED": "The request has been successfully submitted for deletion"
   },
-  "SCHEMA": {
-    "SAVED": "The schema has been saved successfully"
+  "RECORD": {
+    "SAVED": "The Record has been saved successfully",
+    "UPDATED": "The Record has been updated successfully"
   },
   "SCHEMA_RESOLUTION_TYPE": {
     "REQUIRED_TYPE": "REQUIRED_TYPE",

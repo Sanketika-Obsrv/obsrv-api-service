@@ -88,20 +88,36 @@ const routes = {
       "API_ID": "obsrv.data.remove"
     }
   },
-  "SCHEMA_OPERATIONS": {
+  "DATASET_OPERATIONS": {
     "BASE_PATH": "/dataset",
-    "API_VERSION": "/v2/schema",
+    "API_VERSION": "/v2",
     "SAVE": {
       "URL": "/save",
-      "METHOD": "POST",
-      "API_ID": "obsrv.dataset.schema.save"
+      "METHOD": ["POST", "PATCH"],
+      "API_ID": "obsrv.dataset.save"
     },
     "READ": {
       "URL": "/read",
       "METHOD": "GET",
-      "API_ID": "obsrv.dataset.schema.read"
+      "API_ID": "obsrv.dataset.read"
+    }
+  },
+
+  "DATASOURCE_OPERATIONS": {
+    "BASE_PATH": "/datasource",
+    "API_VERSION": "/v2",
+    "SAVE": {
+      "URL": "/save",
+      "METHOD": ["POST", "PATCH"],
+      "API_ID": "obsrv.datasource.save"
+    },
+    "READ": {
+      "URL": "/read",
+      "METHOD": "GET",
+      "API_ID": "obsrv.datasource.read"
     }
   }
 }
+
 
 export default routes

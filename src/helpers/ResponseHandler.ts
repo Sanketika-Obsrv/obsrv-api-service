@@ -17,6 +17,7 @@ const ResponseHandler = {
   },
 
   routeNotFound: (req: Request, res: Response, next: NextFunction) => {
+    console.log(req.baseUrl)
     next({ statusCode: httpStatus.NOT_FOUND, message: constants.ERROR_MESSAGE.ROUTE_NOT_FOUND, errCode: httpStatus['404_NAME'] });
   },
 
