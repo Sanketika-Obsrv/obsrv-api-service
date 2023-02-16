@@ -2,10 +2,6 @@ import knex, { Knex } from "knex";
 import { IConnector } from "../models/DatasetModels";
 import { DbConnectorConfig } from "../models/DatabaseOperationModels";
 
-type filter = {
-    column: string,
-    value: any
-}
 
 export class DbConnector implements IConnector {
     private config: DbConnectorConfig
@@ -34,11 +30,12 @@ export class DbConnector implements IConnector {
         await this.pool(tableName).insert(values)
     }
 
-    async updateRecord(tableName: string, filters: filter, values: object) {
-        await this.pool(tableName).where(filters.column, '=', filters.value).update(values)
+    async updateRecord(tableName: string, filterColumns: object, values: object) {
+        await this.pool(tableName).where(filterColumns).update(values)
     }
 
-    async readRecord(tableName: string, filters: filter) {
-        return await this.pool.from(tableName).select().where(filters.column, '=', filters.value)
+    async readRecord(tableName: string, filterColumns: object) {
+        return await this.pool.from(tableName).select().where(filterColumns)
+
     }
 }

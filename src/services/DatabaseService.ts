@@ -21,19 +21,19 @@ export class DatabaseService {
                 next(errorResponse(httpStatus.INTERNAL_SERVER_ERROR, error.message))
             });
     }
-    public readDataset = (req: Request, res: Response, next: NextFunction) => {
-        this.connector.readRecord('datasets', { "column": 'id', "value": req.query.id })
-            .then((data: any) => {
-                ResponseHandler.successResponse(req, res, { status: 200, data: data })
+    public updateDataset = (req: Request, res: Response, next: NextFunction) => {
+        const dataset = new Datasets(req.body)
+        this.connector.updateRecord('datasets', { "id": req.body.id }, dataset.setValues())
+            .then(() => {
+                ResponseHandler.successResponse(req, res, { status: 200, data: { "message": constants.CONFIG.DATASET_UPDATED, "dataset_id": req.body.id } })
             }).catch((error: any) => {
                 next(errorResponse(httpStatus.INTERNAL_SERVER_ERROR, error.message))
             });
     }
-    public updateDataset = (req: Request, res: Response, next: NextFunction) => {
-        const dataset = new Datasets(req.body)
-        this.connector.updateRecord('datasets', { "column": 'id', "value": req.body.id }, dataset.setValues())
-            .then(() => {
-                ResponseHandler.successResponse(req, res, { status: 200, data: { "message": constants.CONFIG.DATASET_UPDATED, "dataset_id": req.body.id } })
+    public readDataset = (req: Request, res: Response, next: NextFunction) => {
+        this.connector.readRecord('datasets', req.query)
+            .then((data: any) => {
+                ResponseHandler.successResponse(req, res, { status: 200, data: data })
             }).catch((error: any) => {
                 next(errorResponse(httpStatus.INTERNAL_SERVER_ERROR, error.message))
             });
@@ -49,7 +49,7 @@ export class DatabaseService {
     }
     public updateDatasource = (req: Request, res: Response, next: NextFunction) => {
         const datasource = new Datasources(req.body)
-        this.connector.updateRecord('datasources', { "column": 'id', "value": datasource.getDataSourceId() }, datasource.setValues())
+        this.connector.updateRecord('datasources', { "id": datasource.getDataSourceId() }, datasource.setValues())
             .then(() => {
                 ResponseHandler.successResponse(req, res, { status: 200, data: { "message": constants.CONFIG.DATASOURCE_UPDATED, "id": datasource.getDataSourceId() } })
             }).catch((error: any) => {
@@ -57,11 +57,11 @@ export class DatabaseService {
             });
     }
     public readDatasource = (req: Request, res: Response, next: NextFunction) => {
-        this.connector.readRecord('datasources', { "column": 'id', "value": `${req.query.dataset_id}_${req.query.datasource}` })
+        this.connector.readRecord('datasources', req.query)
             .then((data: any) => {
                 ResponseHandler.successResponse(req, res, { status: 200, data: data })
             }).catch((error: any) => {
                 next(errorResponse(httpStatus.INTERNAL_SERVER_ERROR, error.message))
             });
-    } 
+    }
 }
