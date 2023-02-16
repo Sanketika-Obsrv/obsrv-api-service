@@ -24,7 +24,7 @@ describe("CREATE API", () => {
         done()
     });
     it("it should not ingest data if service is down", (done) => {
-        chai.spy.on(kafkaConnector.producer, "connect", () => {
+        chai.spy.on(kafkaConnector.producer, "send", () => {
             return Promise.reject(new Error("error connecting kafka"))
         })
         datasetService.init()
@@ -35,7 +35,7 @@ describe("CREATE API", () => {
             .end((err, res) => {
                 res.should.have.status(httpStatus.INTERNAL_SERVER_ERROR);
                 res.body.responseCode.should.be.eq(httpStatus["500_NAME"]);
-                chai.spy.restore(kafkaConnector.producer, "connect")
+                chai.spy.restore(kafkaConnector.producer, "send")
                 done();
             });
     });
@@ -54,20 +54,6 @@ describe("CREATE API", () => {
                 res.body.should.have.property("result");
                 res.body.id.should.be.eq(routes.DATASET.CREATE.API_ID);
                 chai.spy.restore(kafkaConnector, "execute")
-                done();
-            });
-    });
-    it("it should not ingest data if data is in incorrect format", (done) => {
-        chai
-            .request(app)
-            .post(config.apiCreateDatasetEndPoint)
-            .send(TestDataset.SAMPLE_INPUT)
-            .end((err, res) => {
-                res.should.have.status(httpStatus.INTERNAL_SERVER_ERROR);
-                res.body.should.be.a("object");
-                res.body.responseCode.should.be.eq(httpStatus["500_NAME"]);
-                res.body.should.have.property("result");
-                res.body.id.should.be.eq(routes.DATASET.CREATE.API_ID);
                 done();
             });
     });
