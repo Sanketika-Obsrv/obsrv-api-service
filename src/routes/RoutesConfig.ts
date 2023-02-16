@@ -25,8 +25,6 @@ const routes = {
       "METHOD": "POST",
       "API_ID": "obsrv.config.ingestion.generate"
     },
-
-
     "DATASET_SCHEMA": {
       "URL": "/schema/generate",
       "METHOD": "POST",
@@ -76,45 +74,34 @@ const routes = {
       "URL": "/create",
       "METHOD": "POST",
       "API_ID": "obsrv.data.create"
-    },
-    "UPDATE": {
-      "URL": "/update",
-      "METHOD": "PATCH",
-      "API_ID": "obsrv.data.update"
-    },
-    "DELETE": {
-      "URL": "/delete",
-      "METHOD": "DELETE",
-      "API_ID": "obsrv.data.remove"
     }
   },
-  "DATASET_OPERATIONS": {
-    "BASE_PATH": "/dataset",
+  "CONFIG_OPERATIONS": {
+    "BASE_PATH": "/config",
     "API_VERSION": "/v2",
-    "SAVE": {
-      "URL": "/save",
-      "METHOD": ["POST", "PATCH"],
-      "API_ID": "obsrv.dataset.save"
+    "DATASET": {
+      "SAVE": {
+        "URL": "/dataset/save",
+        "METHOD": ["POST", "PATCH"],
+        "API_ID": "obsrv.config.dataset.save"
+      },
+      "READ": {
+        "URL": "/dataset/read",
+        "METHOD": "GET",
+        "API_ID": "obsrv.config.dataset.read"
+      }
     },
-    "READ": {
-      "URL": "/read",
-      "METHOD": "GET",
-      "API_ID": "obsrv.dataset.read"
-    }
-  },
-
-  "DATASOURCE_OPERATIONS": {
-    "BASE_PATH": "/datasource",
-    "API_VERSION": "/v2",
-    "SAVE": {
-      "URL": "/save",
-      "METHOD": ["POST", "PATCH"],
-      "API_ID": "obsrv.datasource.save"
-    },
-    "READ": {
-      "URL": "/read",
-      "METHOD": "GET",
-      "API_ID": "obsrv.datasource.read"
+    "DATASOURCE": {
+      "SAVE": {
+        "URL": "/datasource/save",
+        "METHOD": ["POST", "PATCH"],
+        "API_ID": "obsrv.config.datasource.save"
+      },
+      "READ": {
+        "URL": "/datasource/read",
+        "METHOD": "GET",
+        "API_ID": "obsrv.config.datasource.read"
+      }
     }
   }
 }
