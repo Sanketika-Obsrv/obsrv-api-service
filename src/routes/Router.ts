@@ -72,7 +72,7 @@ router.post(`${routes.DATASET_OPERATIONS.BASE_PATH}${routes.DATASET_OPERATIONS.A
 router.patch(`${routes.DATASET_OPERATIONS.BASE_PATH}${routes.DATASET_OPERATIONS.API_VERSION}${routes.DATASET_OPERATIONS.SAVE.URL}`, ResponseHandler.setApiId(routes.DATASET_OPERATIONS.SAVE.API_ID), databaseService.updateDataset);
 router.get(`${routes.DATASET_OPERATIONS.BASE_PATH}${routes.DATASET_OPERATIONS.API_VERSION}${routes.DATASET_OPERATIONS.READ.URL}`, ResponseHandler.setApiId(routes.DATASET_OPERATIONS.READ.API_ID), databaseService.readDataset);
 router.post(`${routes.DATASOURCE_OPERATIONS.BASE_PATH}${routes.DATASOURCE_OPERATIONS.API_VERSION}${routes.DATASOURCE_OPERATIONS.SAVE.URL}`, ResponseHandler.setApiId(routes.DATASOURCE_OPERATIONS.SAVE.API_ID), databaseService.saveDatasource);
-router.patch(`${routes.DATASET_OPERATIONS.BASE_PATH}${routes.DATASOURCE_OPERATIONS.API_VERSION}${routes.DATASOURCE_OPERATIONS.SAVE.URL}`, ResponseHandler.setApiId(routes.DATASOURCE_OPERATIONS.SAVE.API_ID), databaseService.updateDatasource);
+router.patch(`${routes.DATASOURCE_OPERATIONS.BASE_PATH}${routes.DATASOURCE_OPERATIONS.API_VERSION}${routes.DATASOURCE_OPERATIONS.SAVE.URL}`, ResponseHandler.setApiId(routes.DATASOURCE_OPERATIONS.SAVE.API_ID), databaseService.updateDatasource);
 router.get(`${routes.DATASOURCE_OPERATIONS.BASE_PATH}${routes.DATASOURCE_OPERATIONS.API_VERSION}${routes.DATASOURCE_OPERATIONS.READ.URL}`, ResponseHandler.setApiId(routes.DATASOURCE_OPERATIONS.READ.API_ID), databaseService.readDatasource);
 
 
