@@ -2,7 +2,6 @@ import _ from 'lodash'
 import { IRelation } from '../models/SchemaModels'
 
 export class Datasources implements IRelation {
-    private id: string
     private dataset_id: string
     private ingestion_spec: object
     private datasource: string
@@ -15,7 +14,6 @@ export class Datasources implements IRelation {
     private updated_by: string
 
     constructor(payload: any) {
-        this.id = payload.id
         this.dataset_id = payload.dataset_id
         this.ingestion_spec = payload.ingestion_spec
         this.datasource = payload.datasource
@@ -28,7 +26,7 @@ export class Datasources implements IRelation {
         this.updated_by = payload.updated_by
     }
     public getValues() {
-        return { id: this.id, dataset_id: this.dataset_id, ingestion_spec: this.ingestion_spec, datasource: this.datasource, retention_period: this.retention_period, archival_policy: this.archival_policy, purge_policy: this.purge_policy, backup_config: this.backup_config, status: this.status, created_by: this.created_by, updated_by: this.updated_by }
+        return { id: this.getDataSourceId(), dataset_id: this.dataset_id, ingestion_spec: this.ingestion_spec, datasource: this.datasource, retention_period: this.retention_period, archival_policy: this.archival_policy, purge_policy: this.purge_policy, backup_config: this.backup_config, status: this.status, created_by: this.created_by, updated_by: this.updated_by }
     }
 
     public setValues() {
@@ -40,5 +38,9 @@ export class Datasources implements IRelation {
             if (_.isEmpty(payload[value])) delete payload[value]
         })
         return payload
+    }
+    
+    public getDataSourceId() {
+        return `${this.dataset_id}_${this.datasource}`
     }
 }
