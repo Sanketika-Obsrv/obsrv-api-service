@@ -51,8 +51,7 @@ jobs:
         with:
           repository: ${{ vars.DEPLOY_REPO }}
           path: deploy
-          # ref: ${{ vars.DEPLOY_REPO_REF }}
-          ref: os-cluster
+          ref: ${{ vars.DEPLOY_REPO_REF }}
 
       - name: Fetch and update kubeconfig file
         env:
@@ -60,16 +59,15 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_REGION: ${{ vars.AWS_REGION }}
         run: |
-          # aws eks --region ${{ vars.AWS_REGION }} update-kubeconfig --name ${{ vars.KUBERNETES_CLUSTER_NAME }}
-          aws eks --region ${{ vars.AWS_REGION }} update-kubeconfig --name obsrv-action-eks-os
+          aws eks --region ${{ vars.AWS_REGION }} update-kubeconfig --name ${{ vars.KUBERNETES_CLUSTER_NAME }}
+          
 
       - name: Run terraform init and apply
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_REGION: ${{ vars.AWS_REGION }}
-          # AWS_TERRAFORM_BACKEND_BUCKET_NAME: ${{ vars.AWS_TERRAFORM_BACKEND_BUCKET_NAME }}
-          AWS_TERRAFORM_BACKEND_BUCKET_NAME: obsrv-terraform-state-action-os
+          AWS_TERRAFORM_BACKEND_BUCKET_NAME: ${{ vars.AWS_TERRAFORM_BACKEND_BUCKET_NAME }}
           AWS_TERRAFORM_BACKEND_BUCKET_REGION: ${{ vars.AWS_TERRAFORM_BACKEND_BUCKET_REGION }}
           KUBE_CONFIG_PATH: ~/.kube/config
           
@@ -80,27 +78,27 @@ jobs:
           -var dataset_api_container_registry=${{ vars.DOCKERHUB_USERNAME }} \
           -var dataset_api_image_tag=${{ github.ref_name }}
 
-  # azure-deploy:
-  #   needs: [check-tag, docker-build]
-  #   if: needs.check-tag.outputs.ALLOWED_TAG ==  'True' && vars.CLOUD_PROVIDER == 'azure'
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: Clone the terraform deployment repo
-  #       uses: actions/checkout@v3
-  #       with:
-  #         repository: ${{ vars.DEPLOY_REPO }}
-  #         path: deploy
-  #         ref: ${{ vars.DEPLOY_REPO_REF }}
+  azure-deploy:
+    needs: [check-tag, docker-build]
+    if: needs.check-tag.outputs.ALLOWED_TAG ==  'True' && vars.CLOUD_PROVIDER == 'azure'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clone the terraform deployment repo
+        uses: actions/checkout@v3
+        with:
+          repository: ${{ vars.DEPLOY_REPO }}
+          path: deploy
+          ref: ${{ vars.DEPLOY_REPO_REF }}
 
-  #     - name: Run terraform init and apply
-  #       env:
-  #         ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
-  #         ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
-  #         ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
-  #         ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
-  #       run: |
-  #         cd deploy/terraform/azure
-  #         terragrunt init
-  #         terragrunt apply -auto-approve --target=module.dataset_api \
-  #         -var dataset_api_container_registry=${{ secrets.DOCKERHUB_USERNAME }} \
-  #         -var dataset_api_image_tag=${{ github.ref_name }}
+      - name: Run terraform init and apply
+        env:
+          ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+          ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+          ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+          ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+        run: |
+          cd deploy/terraform/azure
+          terragrunt init
+          terragrunt apply -auto-approve --target=module.dataset_api \
+          -var dataset_api_container_registry=${{ secrets.DOCKERHUB_USERNAME }} \
+          -var dataset_api_image_tag=${{ github.ref_name }}
