@@ -76,7 +76,7 @@ jobs:
         run: |
           cd deploy/terraform/aws
           terragrunt init
-          terragrunt apply  --target=module.dataset_api \
+          terragrunt apply -auto-approve --target=module.dataset_api \
           -var dataset_api_container_registry=${{ vars.DOCKERHUB_USERNAME }} \
           -var dataset_api_image_tag=${{ github.ref_name }}
 
