@@ -38,6 +38,14 @@ jobs:
     runs-on: ubuntu-latest
     environment: aws-dev
     steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Setup Terragrunt
+        uses: autero1/action-terragrunt@v1.1.0
+        with:
+          terragrunt_version: v0.45.8
+      - name: Terragrunt installation
+        run: terragrunt --version
       - name: Clone the terraform deployment repo
         uses: actions/checkout@v3
         with:
