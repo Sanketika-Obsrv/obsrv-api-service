@@ -1,12 +1,7 @@
-
+import * as _ from "lodash";
 export class SchemaMerger {
 
-    mergeSchema(...schemas: any): Map<string, any> {
-        return this.getMerger().mergeObjects(schemas);
-    }
-
-    private getMerger() {
-        var jsonMerger = require("json-merger");
-        return jsonMerger
+    mergeSchema(schema: any, schema2: any): Map<string, any> {
+        return _.merge(schema, schema2);
     }
 }

@@ -20,7 +20,7 @@ const config = {
   apiExhaustEndPoint: `${routesConfig.exhaust.path}`,
   druidHost: "http://localhost",
   druidPort: 8888,
-  druidEndPoint: "/druid/v2",
+  druidEndPoint: "/druid/v2/",
   druidSqlEndPoint: "/druid/v2/sql/",
   storage_url_expiry: 3600,
   exhaustMaxDateRange: 31,

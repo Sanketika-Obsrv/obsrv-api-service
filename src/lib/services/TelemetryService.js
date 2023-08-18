@@ -1,6 +1,7 @@
 const uuidv1 = require("uuid/v1"),
-  request = require("request"),
+  // request = require("request"),
   DispatcherClass = require("../dispatcher/dispatcher").Dispatcher;
+const axios = require('axios').default;
 const config = require("../../configs/Config").config;
 const responseHandler = require("../../helpers/ResponseHandler").ResponseHandler;
 
@@ -36,15 +37,33 @@ class TelemetryService {
       } else if (this.config.localStorageEnabled === "true" && this.config.telemetryProxyEnabled === "true") {
         // Store locally and proxy to the specified URL. If the proxy fails ignore the error as the local storage is successful. Do a sync later
         const options = this.getProxyRequestObj(req, data);
-        request.post(options, (err, data) => {
-          if (err) console.error("Proxy failed:", err);
-          else console.log("Proxy successful!  Server responded with:", data.body);
+        // request.post(options, (err, data) => {
+        //   if (err) console.error("Proxy failed:", err);
+        //   else console.log("Proxy successful!  Server responded with:", data.body);
+        // });
+        // this.dispatcher.dispatch(message.mid, data, this.getRequestCallBack(req, res));
+        axios.post(options.url, options.body, {
+          headers: options.headers,
+        }).then((response) => {
+          console.log("Proxy successful!  Server responded with:", data.body);
+          this.dispatcher.dispatch(message.mid, data, () => {});
+          this.sendSuccess(req, res, { message: "the data has been successfully ingested" });
+        }).catch((err) => {
+          console.error("Proxy failed:", err);
+          this.dispatcher.dispatch(message.mid, data, () => {});
+          this.sendError(req, res, { message: err.message });
         });
-        this.dispatcher.dispatch(message.mid, data, this.getRequestCallBack(req, res));
       } else if (this.config.localStorageEnabled !== "true" && this.config.telemetryProxyEnabled === "true") {
         // Just proxy
         const options = this.getProxyRequestObj(req, data);
-        request.post(options, this.getRequestCallBack(req, res));
+        axios.post(options.url, options.body, {
+          headers: options.headers,
+        }).then(
+          this.sendSuccess(req, res, { message: "the data has been successfully ingested" })
+        ).catch((err) => 
+          this.sendError(req, res, { message: err.message })
+        )
+        // request.post(options, this.getRequestCallBack(req, res));
       }
     } else {
       this.sendError(req, res, { message: "Configuration error" });
