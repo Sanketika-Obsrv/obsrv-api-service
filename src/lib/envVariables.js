@@ -9,7 +9,7 @@ const envVariables = {
     topic:  `${process.env.system_env || 'local'}.ingest`,
     compression_type: process.env.telemetry_kafka_compression || 'none',
     filename: process.env.telemetry_file_filename || 'telemetry-%DATE%.log',
-    maxSize: process.env.telemetry_file_maxsize || '100m',
+    maxsize: process.env.telemetry_file_maxsize || 10485760,
     maxFiles: process.env.telemetry_file_maxfiles || '100',
 }
 module.exports = envVariables;
