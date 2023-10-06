@@ -2,15 +2,16 @@ const winston = require("winston");
 const { KafkaDispatcher } = require("./kafka-dispatcher");
 require("winston-daily-rotate-file");
 require("./kafka-dispatcher");
-
+const appConfig = require("../../configs/Config")
 const defaultFileOptions = {
   filename: "dispatcher-%DATE%.log",
   datePattern: "YYYY-MM-DD",
-  maxsize: 10485760,
+  maxsize: appConfig.config.telemetry_service_config.maxsize,
   maxFiles: "100",
   zippedArchive: true,
   json: true,
 };
+
 
 class Dispatcher {
   constructor(options) {
