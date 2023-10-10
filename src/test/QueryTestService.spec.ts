@@ -16,11 +16,16 @@ chai.should();
 chai.use(chaiHttp);
 
 describe("QUERY API", () => {
+
     describe("If service is down", () => {
+
         it("it should raise error when native query endpoint is called", (done) => {
             chai.spy.on(dbConnector, "readRecords", () => {
-                return [{ "datasource_ref": "sample_ref" }]
+                return [ { "datasource_ref": "sample_ref" } ]
             })
+            nock(config.druidHost + ":" + config.druidPort)
+                .get(config.druidDatasourcesEndPoint)
+                .reply(200, [ "sample_ref" ])
             nock(config.druidHost + ":" + config.druidPort)
                 .post(config.druidEndPoint)
                 .reply(500)
@@ -41,6 +46,9 @@ describe("QUERY API", () => {
                 return [{ "datasource_ref": "sample_ref" }]
             })
             nock(config.druidHost + ":" + config.druidPort)
+                .get(config.druidDatasourcesEndPoint)
+                .reply(200, [ "sample_ref" ])
+            nock(config.druidHost + ":" + config.druidPort)
                 .post(config.druidSqlEndPoint)
                 .reply(500)
             chai
@@ -57,20 +65,16 @@ describe("QUERY API", () => {
         });
     });
     describe("POST /query/v2/native-query", () => {
-        beforeEach(() => {
+        it("it should fetch information from druid data source", (done) => {
             chai.spy.on(dbConnector, "readRecords", () => {
-                return [{ "datasource_ref": "sample_ref" }]
+                return [ { "datasource_ref": "sample_ref" } ]
             })
             nock(config.druidHost + ":" + config.druidPort)
+                .get(config.druidDatasourcesEndPoint)
+                .reply(200, [ "sample_ref" ])
+            nock(config.druidHost + ":" + config.druidPort)
                 .post(config.druidEndPoint)
-                .reply(200, [{ events: [] }]);
-        });
-        afterEach(() => {
-            nock.cleanAll()
-            chai.spy.restore(dbConnector, "readRecords")
-
-        });
-        it("it should fetch information from druid data source", (done) => {
+                .reply(200, [ { events: [] } ]);
             chai
                 .request(app)
                 .post(config.apiDruidEndPoint)
@@ -82,10 +86,21 @@ describe("QUERY API", () => {
                     res.body.should.have.property("result");
                     res.body.result.length.should.be.lessThan(101);
                     res.body.id.should.be.eq(routesConfig.query.native_query.api_id);
+                    nock.cleanAll()
+                    chai.spy.restore(dbConnector, "readRecords")
                     done();
                 });
         });
         it("it should reject query, when datarange given as list is higher than limit", (done) => {
+            chai.spy.on(dbConnector, "readRecords", () => {
+                return [ { "datasource_ref": "sample_ref" } ]
+            })
+            nock(config.druidHost + ":" + config.druidPort)
+                .get(config.druidDatasourcesEndPoint)
+                .reply(200, [ "sample_ref" ])
+            nock(config.druidHost + ":" + config.druidPort)
+                .post(config.druidEndPoint)
+                .reply(200, [ { events: [] } ]);
             chai
                 .request(app)
                 .post(config.apiDruidEndPoint)
@@ -97,10 +112,21 @@ describe("QUERY API", () => {
                     res.body.params.status.should.be.eq(constants.STATUS.FAILURE);
                     res.body.result.should.be.empty;
                     res.body.id.should.be.eq(routesConfig.query.native_query.api_id);
+                    nock.cleanAll()
+                    chai.spy.restore(dbConnector, "readRecords")
                     done();
                 });
         });
         it("it should reject query, when datarange given as string is higher than limit", (done) => {
+            chai.spy.on(dbConnector, "readRecords", () => {
+                return [ { "datasource_ref": "sample_ref" } ]
+            })
+            nock(config.druidHost + ":" + config.druidPort)
+                .get(config.druidDatasourcesEndPoint)
+                .reply(200, [ "sample_ref" ])
+            nock(config.druidHost + ":" + config.druidPort)
+                .post(config.druidEndPoint)
+                .reply(200, [ { events: [] } ]);
             chai
                 .request(app)
                 .post(config.apiDruidEndPoint)
@@ -112,10 +138,21 @@ describe("QUERY API", () => {
                     res.body.params.status.should.be.eq(constants.STATUS.FAILURE);
                     res.body.result.should.be.empty;
                     res.body.id.should.be.eq(routesConfig.query.native_query.api_id);
+                    nock.cleanAll()
+                    chai.spy.restore(dbConnector, "readRecords")
                     done();
                 });
         });
         it("it should set threshold to default when given threshold is higher than limit", (done) => {
+            chai.spy.on(dbConnector, "readRecords", () => {
+                return [ { "datasource_ref": "sample_ref" } ]
+            })
+            nock(config.druidHost + ":" + config.druidPort)
+                .get(config.druidDatasourcesEndPoint)
+                .reply(200, [ "sample_ref" ])
+            nock(config.druidHost + ":" + config.druidPort)
+                .post(config.druidEndPoint)
+                .reply(200, [ { events: [] } ]);
             chai
                 .request(app)
                 .post(config.apiDruidEndPoint)
@@ -126,10 +163,21 @@ describe("QUERY API", () => {
                     res.body.responseCode.should.be.eq(httpStatus["200_NAME"]);
                     res.body.result.length.should.be.lessThan(101); // default is 100
                     res.body.id.should.be.eq(routesConfig.query.native_query.api_id);
+                    nock.cleanAll()
+                    chai.spy.restore(dbConnector, "readRecords")
                     done();
                 });
         });
         it("it should set row_limit to default when given row_limit is higher than limit", (done) => {
+            chai.spy.on(dbConnector, "readRecords", () => {
+                return [ { "datasource_ref": "sample_ref" } ]
+            })
+            nock(config.druidHost + ":" + config.druidPort)
+                .get(config.druidDatasourcesEndPoint)
+                .reply(200, [ "sample_ref" ])
+            nock(config.druidHost + ":" + config.druidPort)
+                .post(config.druidEndPoint)
+                .reply(200, [ { events: [] } ]);
             chai
                 .request(app)
                 .post(config.apiDruidEndPoint)
@@ -140,10 +188,21 @@ describe("QUERY API", () => {
                     res.body.responseCode.should.be.eq(httpStatus["200_NAME"]);
                     res.body.result.length.should.be.lessThan(101); // default is 100
                     res.body.id.should.be.eq(routesConfig.query.native_query.api_id);
+                    nock.cleanAll()
+                    chai.spy.restore(dbConnector, "readRecords")
                     done();
                 });
         });
         it("it should set threshold to default when threshold is not given", (done) => {
+            chai.spy.on(dbConnector, "readRecords", () => {
+                return [ { "datasource_ref": "sample_ref" } ]
+            })
+            nock(config.druidHost + ":" + config.druidPort)
+                .get(config.druidDatasourcesEndPoint)
+                .reply(200, [ "sample_ref" ])
+            nock(config.druidHost + ":" + config.druidPort)
+                .post(config.druidEndPoint)
+                .reply(200, [ { events: [] } ]);
             chai
                 .request(app)
                 .post(config.apiDruidEndPoint)
@@ -154,10 +213,21 @@ describe("QUERY API", () => {
                     res.body.responseCode.should.be.eq(httpStatus["200_NAME"]);
                     res.body.result.length.should.be.lessThan(101); // default is 100
                     res.body.id.should.be.eq(routesConfig.query.native_query.api_id);
+                    nock.cleanAll()
+                    chai.spy.restore(dbConnector, "readRecords")
                     done();
                 });
         });
         it("it should reject query when date range is not given", (done) => {
+            chai.spy.on(dbConnector, "readRecords", () => {
+                return [ { "datasource_ref": "sample_ref" } ]
+            })
+            nock(config.druidHost + ":" + config.druidPort)
+                .get(config.druidDatasourcesEndPoint)
+                .reply(200, [ "sample_ref" ])
+            nock(config.druidHost + ":" + config.druidPort)
+                .post(config.druidEndPoint)
+                .reply(200, [ { events: [] } ]);
             chai
                 .request(app)
                 .post(config.apiDruidEndPoint)
@@ -169,11 +239,21 @@ describe("QUERY API", () => {
                     res.body.params.status.should.be.eq(constants.STATUS.FAILURE);
                     res.body.result.should.be.empty;
                     res.body.id.should.be.eq(routesConfig.query.native_query.api_id);
+                    nock.cleanAll()
+                    chai.spy.restore(dbConnector, "readRecords")
                     done();
                 });
         });
         it("it should skip validation and allow druid for query if rules does not exist for datasource", (done) => {
-
+            chai.spy.on(dbConnector, "readRecords", () => {
+                return [ { "datasource_ref": "sample_ref" } ]
+            })
+            nock(config.druidHost + ":" + config.druidPort)
+                .get(config.druidDatasourcesEndPoint)
+                .reply(200, [ "sample_ref" ])
+            nock(config.druidHost + ":" + config.druidPort)
+                .post(config.druidEndPoint)
+                .reply(200, [ { events: [] } ]);
             chai
                 .request(app)
                 .post(config.apiDruidEndPoint)
@@ -184,10 +264,21 @@ describe("QUERY API", () => {
                     res.body.responseCode.should.be.eq(httpStatus["200_NAME"]);
                     res.body.params.status.should.be.eq(constants.STATUS.SUCCESS);
                     res.body.id.should.be.eq(routesConfig.query.native_query.api_id);
+                    nock.cleanAll()
+                    chai.spy.restore(dbConnector, "readRecords")
                     done();
                 });
         });
         it("it should skip validation", (done) => {
+            chai.spy.on(dbConnector, "readRecords", () => {
+                return [ { "datasource_ref": "sample_ref" } ]
+            })
+            nock(config.druidHost + ":" + config.druidPort)
+                .get(config.druidDatasourcesEndPoint)
+                .reply(200, [ "sample_ref" ])
+            nock(config.druidHost + ":" + config.druidPort)
+                .post(config.druidEndPoint)
+                .reply(200, [ { events: [] } ]);
             chai
                 .request(app)
                 .post(config.apiDruidEndPoint)
@@ -198,10 +289,21 @@ describe("QUERY API", () => {
                     res.body.responseCode.should.be.eq(httpStatus["200_NAME"]);
                     res.body.params.status.should.be.eq(constants.STATUS.SUCCESS);
                     res.body.id.should.be.eq(routesConfig.query.native_query.api_id);
+                    nock.cleanAll()
+                    chai.spy.restore(dbConnector, "readRecords")
                     done();
                 });
         });
         it("it should reject query with unsupported schema", (done) => {
+            chai.spy.on(dbConnector, "readRecords", () => {
+                return [ { "datasource_ref": "sample_ref" } ]
+            })
+            nock(config.druidHost + ":" + config.druidPort)
+                .get(config.druidDatasourcesEndPoint)
+                .reply(200, [ "sample_ref" ])
+            nock(config.druidHost + ":" + config.druidPort)
+                .post(config.druidEndPoint)
+                .reply(200, [ { events: [] } ]);
             chai
                 .request(app)
                 .post(config.apiDruidEndPoint)
@@ -213,10 +315,21 @@ describe("QUERY API", () => {
                     res.body.params.status.should.be.eq(constants.STATUS.FAILURE);
                     res.body.result.should.be.empty;
                     res.body.id.should.be.eq(routesConfig.query.native_query.api_id);
+                    nock.cleanAll()
+                    chai.spy.restore(dbConnector, "readRecords")
                     done();
                 });
         });
         it("it should reject the query because of incorrect url", (done) => {
+            chai.spy.on(dbConnector, "readRecords", () => {
+                return [ { "datasource_ref": "sample_ref" } ]
+            })
+            nock(config.druidHost + ":" + config.druidPort)
+                .get(config.druidDatasourcesEndPoint)
+                .reply(200, [ "sample_ref" ])
+            nock(config.druidHost + ":" + config.druidPort)
+                .post(config.druidEndPoint)
+                .reply(200, [ { events: [] } ]);
             chai
                 .request(app)
                 .get("/invalid/endpoint")
@@ -227,24 +340,23 @@ describe("QUERY API", () => {
                     res.body.responseCode.should.be.eq(httpStatus["404_NAME"]);
                     res.body.params.status.should.be.eq(constants.STATUS.FAILURE);
                     res.body.result.should.be.empty;
+                    nock.cleanAll()
+                    chai.spy.restore(dbConnector, "readRecords")
                     done();
                 });
         });
     });
     describe("POST /druid/v2/sql", () => {
-        beforeEach(() => {
+        it("it should allow druid to query when a valid sql query is given", (done) => {
             chai.spy.on(dbConnector, "readRecords", () => {
-                return [{ "datasource_ref": "sample_ref" }]
+                return [ { "datasource_ref": "sample_ref" } ]
             })
             nock(config.druidHost + ":" + config.druidPort)
+                .get(config.druidDatasourcesEndPoint)
+                .reply(200, [ "sample_ref" ])
+            nock(config.druidHost + ":" + config.druidPort)
                 .post(config.druidSqlEndPoint)
-                .reply(200, [{ events: [] }]);
-        });
-        afterEach(() => {
-            chai.spy.restore(dbConnector, "readRecords")
-            nock.cleanAll()
-        });
-        it("it should allow druid to query when a valid sql query is given", (done) => {
+                .reply(200, [ { events: [] } ]);
             chai
                 .request(app)
                 .post(config.apiDruidSqlEndPoint)
@@ -255,10 +367,21 @@ describe("QUERY API", () => {
                     res.body.responseCode.should.be.eq(httpStatus["200_NAME"]);
                     res.body.result.length.should.be.lessThan(101);
                     res.body.id.should.be.eq(routesConfig.query.sql_query.api_id);
+                    chai.spy.restore(dbConnector, "readRecords")
+                    nock.cleanAll()
                     done();
                 });
         });
         it("it should update row_limit to default when row_limit is higher than limit", (done) => {
+            chai.spy.on(dbConnector, "readRecords", () => {
+                return [ { "datasource_ref": "sample_ref" } ]
+            })
+            nock(config.druidHost + ":" + config.druidPort)
+                .get(config.druidDatasourcesEndPoint)
+                .reply(200, [ "sample_ref" ])
+            nock(config.druidHost + ":" + config.druidPort)
+                .post(config.druidSqlEndPoint)
+                .reply(200, [ { events: [] } ]);
             chai
                 .request(app)
                 .post(config.apiDruidSqlEndPoint)
@@ -269,10 +392,21 @@ describe("QUERY API", () => {
                     res.body.responseCode.should.be.eq(httpStatus["200_NAME"]);
                     res.body.result.length.should.be.lessThan(101); // default is 100
                     res.body.id.should.be.eq(routesConfig.query.sql_query.api_id);
+                    chai.spy.restore(dbConnector, "readRecords")
+                    nock.cleanAll()
                     done();
                 });
         });
         it("it should set row_limit to default when none is given", (done) => {
+            chai.spy.on(dbConnector, "readRecords", () => {
+                return [ { "datasource_ref": "sample_ref" } ]
+            })
+            nock(config.druidHost + ":" + config.druidPort)
+                .get(config.druidDatasourcesEndPoint)
+                .reply(200, [ "sample_ref" ])
+            nock(config.druidHost + ":" + config.druidPort)
+                .post(config.druidSqlEndPoint)
+                .reply(200, [ { events: [] } ]);
             chai
                 .request(app)
                 .post(config.apiDruidSqlEndPoint)
@@ -283,10 +417,21 @@ describe("QUERY API", () => {
                     res.body.responseCode.should.be.eq(httpStatus["200_NAME"]);
                     res.body.result.length.should.be.lessThan(101); // default is 100
                     res.body.id.should.be.eq(routesConfig.query.sql_query.api_id);
+                    chai.spy.restore(dbConnector, "readRecords")
+                    nock.cleanAll()
                     done();
                 });
         });
         it("it should reject the query when daterange range is higher than limit", (done) => {
+            chai.spy.on(dbConnector, "readRecords", () => {
+                return [ { "datasource_ref": "sample_ref" } ]
+            })
+            nock(config.druidHost + ":" + config.druidPort)
+                .get(config.druidDatasourcesEndPoint)
+                .reply(200, [ "sample_ref" ])
+            nock(config.druidHost + ":" + config.druidPort)
+                .post(config.druidSqlEndPoint)
+                .reply(200, [ { events: [] } ]);
             chai
                 .request(app)
                 .post(config.apiDruidSqlEndPoint)
@@ -298,10 +443,21 @@ describe("QUERY API", () => {
                     res.body.params.status.should.be.eq(constants.STATUS.FAILURE);
                     res.body.result.should.be.empty;
                     res.body.id.should.be.eq(routesConfig.query.sql_query.api_id);
+                    chai.spy.restore(dbConnector, "readRecords")
+                    nock.cleanAll()
                     done();
                 });
         });
         it("it should reject the query when no daterange is given", (done) => {
+            chai.spy.on(dbConnector, "readRecords", () => {
+                return [ { "datasource_ref": "sample_ref" } ]
+            })
+            nock(config.druidHost + ":" + config.druidPort)
+                .get(config.druidDatasourcesEndPoint)
+                .reply(200, [ "sample_ref" ])
+            nock(config.druidHost + ":" + config.druidPort)
+                .post(config.druidSqlEndPoint)
+                .reply(200, [ { events: [] } ]);
             chai
                 .request(app)
                 .post(config.apiDruidSqlEndPoint)
@@ -313,10 +469,21 @@ describe("QUERY API", () => {
                     res.body.params.status.should.be.eq(constants.STATUS.FAILURE);
                     res.body.result.should.be.empty;
                     res.body.id.should.be.eq(routesConfig.query.sql_query.api_id);
+                    chai.spy.restore(dbConnector, "readRecords")
+                    nock.cleanAll()
                     done();
                 });
         });
         it("it should skip validation and allow druid for query if rules does not exist for datasource ", (done) => {
+            chai.spy.on(dbConnector, "readRecords", () => {
+                return [ { "datasource_ref": "sample_ref" } ]
+            })
+            nock(config.druidHost + ":" + config.druidPort)
+                .get(config.druidDatasourcesEndPoint)
+                .reply(200, [ "sample_ref" ])
+            nock(config.druidHost + ":" + config.druidPort)
+                .post(config.druidSqlEndPoint)
+                .reply(200, [ { events: [] } ]);
             chai
                 .request(app)
                 .post(config.apiDruidSqlEndPoint)
@@ -327,10 +494,21 @@ describe("QUERY API", () => {
                     res.body.responseCode.should.be.eq(httpStatus["200_NAME"]);
                     res.body.params.status.should.be.eq(constants.STATUS.SUCCESS);
                     res.body.id.should.be.eq(routesConfig.query.sql_query.api_id);
+                    chai.spy.restore(dbConnector, "readRecords")
+                    nock.cleanAll()
                     done();
                 })
         })
         it("it should skip validation", (done) => {
+            chai.spy.on(dbConnector, "readRecords", () => {
+                return [ { "datasource_ref": "sample_ref" } ]
+            })
+            nock(config.druidHost + ":" + config.druidPort)
+                .get(config.druidDatasourcesEndPoint)
+                .reply(200, [ "sample_ref" ])
+            nock(config.druidHost + ":" + config.druidPort)
+                .post(config.druidSqlEndPoint)
+                .reply(200, [ { events: [] } ]);
             chai
                 .request(app)
                 .post(config.apiDruidSqlEndPoint)
@@ -341,6 +519,8 @@ describe("QUERY API", () => {
                     res.body.responseCode.should.be.eq(httpStatus["200_NAME"]);
                     res.body.params.status.should.be.eq(constants.STATUS.SUCCESS);
                     res.body.id.should.be.eq(routesConfig.query.sql_query.api_id);
+                    chai.spy.restore(dbConnector, "readRecords")
+                    nock.cleanAll()
                     done();
                 })
         })
@@ -350,6 +530,9 @@ describe("QUERY API", () => {
             chai.spy.on(dbConnector, "readRecords", () => {
                 throw new Error("error occured while fetching records")
             })
+            nock(config.druidHost + ":" + config.druidPort)
+                .get(config.druidDatasourcesEndPoint)
+                .reply(200, [ "sample_ref" ])
             nock(config.druidHost + ":" + config.druidPort)
                 .post(config.druidSqlEndPoint)
                 .reply(200, [{ events: [] }]);

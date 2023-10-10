@@ -30,7 +30,7 @@ export class DatasetSourceConfigService {
     public update = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const datasetSourceConfig = new DatasetSourceConfigs(req.body)
-            const payload = datasetSourceConfig.getValues()
+            const payload: Record<string, any> = datasetSourceConfig.setValues()
             await findAndSetExistingRecord({ dbConnector: this.dbConnector, table: this.table, request: req, filters: { "id": payload.id }, object: { id: payload.id, type: "datasetSourceConfig" } });
             await this.dbUtil.upsert(req, res, next, payload)
         }

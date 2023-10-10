@@ -62,10 +62,10 @@ export class Datasets {
 
     public getDefaults() {
         if (this.type == config.dataset_types.masterDataset) {
-            return defaultConfig.master
+            return {...defaultConfig.master}
         }
         else {
-            return defaultConfig.dataset
+            return {...defaultConfig.dataset}
         }
     }
 }

@@ -45,6 +45,6 @@ export class DatasetSourceConfigs {
     }
 
     public getDefaults() {
-        return defaultConfig.sourceConfig
+        return {...defaultConfig.sourceConfig}
     }
 }

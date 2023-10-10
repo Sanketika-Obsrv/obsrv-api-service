@@ -6,6 +6,7 @@ import { Datasets } from "../helpers/Datasets";
 import { IConnector } from "../models/IngestionModels";
 import { findAndSetExistingRecord, setAuditState } from "./telemetry";
 import { DbUtil } from "../helpers/DbUtil";
+import { refreshDatasetConfigs } from "../helpers/DatasetConfigs";
 export class DatasetService {
     private table: string
     private dbConnector: IConnector;
@@ -33,6 +34,7 @@ export class DatasetService {
             const payload = dataset.getValues()
             await findAndSetExistingRecord({ dbConnector: this.dbConnector, table: this.table, request: req, filters: { "id": payload.id }, object: { id: payload.id, type: "dataset" } });
             await this.dbUtil.update(req, res, next, payload)
+            await refreshDatasetConfigs()
          }
         catch (error: any) {
             console.log(error.message)

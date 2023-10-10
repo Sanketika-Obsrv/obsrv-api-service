@@ -1,4 +1,4 @@
-FROM node:18-alpine
+FROM --platform=linux/amd64 node:20-alpine
 RUN mkdir -p /opt/obsrv-api-service
 WORKDIR /opt/obsrv-api-service/
 COPY package*.json ./

@@ -8,7 +8,9 @@ export const config = {
       "host": process.env.druid_host || "http://localhost",
       "port": process.env.druid_port || 8888,
       "sql_query_path": "/druid/v2/sql/",
-      "native_query_path": "/druid/v2"
+      "native_query_path": "/druid/v2",
+      "list_datasources_path": "/druid/v2/datasources",
+      "submit_ingestion": "druid/indexer/v1/supervisor"
     }
   },
   "db_connector_config": {
@@ -30,7 +32,7 @@ export const config = {
     proxyAuthKey: process.env.telemetry_proxy_auth_key,
     compression_type: process.env.telemetry_kafka_compression || 'none',
     filename: process.env.telemetry_file_filename || 'telemetry-%DATE%.log',
-    maxSize: process.env.telemetry_file_maxsize || '100m',
+    maxsize: process.env.telemetry_file_maxsize || 10485760,
     maxFiles: process.env.telemetry_file_maxfiles || '100',
     "kafka": {    // The default Kafka configuration includes essential parameters such as broker IP addresses and other configuration options.
       "config": {
@@ -53,10 +55,10 @@ export const config = {
     masterDataset: "master-dataset"
   },
   "redis_config": {
-    "redis_host": process.env.redis_host || 'obsrv-redis-headless.redis.svc.cluster.local',
+    "redis_host": process.env.redis_host || 'localhost',
     "redis_port": process.env.redis_port || 6379
   },
-  "exclude_datasource_validation": process.env.exclude_datasource_validation || ["system-stats", "failed-events-summary", "masterdata-system-stats"], // list of datasource names to skip validation while calling query API
+  "exclude_datasource_validation": process.env.exclude_datasource_validation ? process.env.exclude_datasource_validation.split(",") : ["system-stats", "failed-events-summary", "masterdata-system-stats"], // list of datasource names to skip validation while calling query API
   "telemetry_dataset": process.env.telemetry_dataset || "telemetry",
   "table_names": {     // Names of all tables available for CRUD operations
     "datasets": "datasets",
@@ -76,5 +78,15 @@ export const config = {
       "primary_key": "id",
       "references": []
     }
-  }
+  },
+  "exhaust_config": {
+    "cloud_storage_provider": process.env.cloud_storage_provider || "aws", // Supported providers - AWS, GCP, Azure
+    "cloud_storage_region": process.env.cloud_storage_region || "", // Region for the cloud provider storage
+    "cloud_storage_config": process.env.cloud_storage_config ? JSON.parse(process.env.cloud_storage_config) : {}, // Respective credentials object for cloud provider. Optional if service account provided
+    "container": process.env.container || "", // Storage container/bucket name
+    "container_prefix": process.env.container_prefix || "", // Path to the folder inside container/bucket. Empty if data at root level
+    "storage_url_expiry": process.env.storage_url_expiry ? parseInt(process.env.storage_url_expiry) : 3600, // in seconds, Default 1hr of expiry for Signed URLs.
+    "maxQueryDateRange": process.env.exhaust_query_range ? parseInt(process.env.exhaust_query_range) : 31, // in days. Defines the maximum no. of days the files can be fetched
+    "exclude_exhaust_types": process.env.exclude_exhaust_types ? process.env.exclude_exhaust_types.split(",") : ["system-stats", "masterdata-system-stats", "system-events",] // list of folder type names to skip exhaust service
+  },
 }

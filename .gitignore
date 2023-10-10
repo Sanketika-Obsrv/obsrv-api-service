@@ -2,5 +2,4 @@ coverage
 node_modules
 .nyc_output
 dist
-package-lock.json
 .vscode

@@ -8,7 +8,7 @@ info:
     This OpenAPI document provides a detailed specification for the Obsrv APIs,including information about the endpoints, parameters, responses, and authentication requirements.
 
   contact:
-    name: Sanketika Obsrv
+    name: Sunbird Obsrv
     email: "example@gmail.com"
     url: "#"
   license:
@@ -34,9 +34,42 @@ tags:
     description: The Datsources APIs provide a way to interact with a database and allow you to create, read, update records in the database, as well as list multiple records based on certain criteria.
   - name: Obsrv Dataset Source Config APIs
     description: The Dataset Source Config APIs provide a way to interact with a database and allow you to create, read, update records in the database, as well as list multiple records based on certain criteria.
+  - name: Obsrv Data Exhaust APIs
+    description: Data Exhaust APIs are used for accessing Backup files from Cloud providers
 
 components:
   schemas:
+    
+    DataExhaust:
+       oneOf:
+         - type: object
+           properties:
+             type:
+               type: string
+             from:
+               type: string
+               format: date
+             to:
+               type: string
+               format: date
+           required:
+             - from
+             - to
+             - type
+         - type: object
+           properties:
+             type:
+               type: string
+             since:
+               type: string
+               pattern: ^\w{4}_\d{1,2}_\w{4}
+           required:
+             - since
+             - type
+             
+    SubmitIngestion:
+      type: object
+    
     DatasetSourceConfigCreate:
       description: dataset_id, connector_type are required
       type: object
@@ -249,40 +282,21 @@ components:
           type: string
         published_date:
           type: string
+          
     DatasetList:
       description: filters are required
       type: object
       properties:
         filters:
           type: object
-          properties:
-            status:
-              oneOf:
-                - type: string
-                - type: array
-                  items:
-                    type: string
-                  enum:
-                    - ACTIVE
-                    - DISABLED
-
+           
     DatasetSourceConfigList:
       description: filters are required
       type: object
       properties:
         filters:
           type: object
-          properties:
-            status:
-              oneOf:
-                - type: string
-                - type: array
-                  items:
-                    type: string
-                  enum:
-                    - ACTIVE
-                    - DISABLED
-
+           
     DruidNativeQuery:
       description: context parameter is required
       type: object
@@ -294,50 +308,7 @@ components:
               type: string
         query:
           type: object
-          properties:
-            queryType:
-              type: string
-              enum:
-                - scan
-                - groupBy
-                - topN
-                - timeBoundary
-                - search
-                - timeseries
-            dataSource:
-              type: string
-            dimensions:
-              type: array
-              items:
-                type: string
-            granularity:
-              type: string
-            intervals:
-              oneOf:
-                - type: string
-                - type: array
-                  items:
-                    type: string
-            filter:
-              type: object
-              properties:
-                type:
-                  type: string
-                dimension:
-                  type: string
-                value:
-                  type: string
-            aggregations:
-              type: array
-              items:
-                properties:
-                  type:
-                    type: string
-                  name:
-                    type: string
-                  fieldName:
-                    type: string
-
+            
     DruidSqlQuery:
       description: context parameter is required
       type: object
@@ -352,6 +323,7 @@ components:
           properties:
             query:
               type: string
+              
     DatasourceCreate:
       description: dataset_id, datasource parameters are required
       type: object
@@ -433,29 +405,36 @@ components:
       properties:
         filters:
           type: object
-          properties:
-            status:
-              oneOf:
-                - type: string
-                - type: array
-                  items:
-                    type: string
-                  enum:
-                    - ACTIVE
-                    - DISABLED
-
+           
+             
   examples:
+    
+    DataExhaust:
+      value:
+        from: '2023-06-01'
+        to: '2023-06-30'
+        type: transformed
+        
+  
     DatasetSourceConfigCreate:
       value:
-        dataset_id: observations
+        dataset_id: obsrv-telemetry-events
         connector_type: kafka
+        connector_config: 
+            type: kafka
+            topic: telemetry.input
+            kafkaBrokers: localhost:9092
         status: ACTIVE
         published_date: "2023-03-24 12:19:32.091544"
     DatasetSourceConfigUpdate:
       value:
-        dataset_id: observations
+        dataset_id: obsrv-telemetry-events
         connector_type: kafka
-        status: DISABLED
+        connector_config: 
+            type: kafka
+            topic: telemetry.ingest
+            kafkaBrokers: localhost:9092
+        status: ACTIVE
 
     DruidNativeQuery:
       value:
@@ -479,23 +458,26 @@ components:
           dataSource: telemetry-events
         querySql:
           query: 'SELECT object_id AS contentId, COUNT(*) AS totalRatingsCount FROM "telemetry-events"  WHERE __time >= TIMESTAMP ''2021-01-01'' AND __time < TIMESTAMP ''2021-01-02'' GROUP BY object_id LIMIT 100'
+          
     DataIngestBatch:
       value:
         data:
-          id: telemetry-raw
+          id: uuid01
           events: []
+          
     DataIngestIndividualEvents:
       value:
         data:
-          id: telemetry-raw
+          id: uuid02
           event: {}
+          
     DatasetCreate:
       value:
-        dataset_id: telemetry-raw
-        name: telemetry-raw
+        dataset_id: obsrv-telemetry-events
+        name: obsrv-telemetry-events
         type: dataset
         router_config:
-          topic: "telemetry-raw"
+          topic: "obsrv-telemetry-events"
         tags: []
         data_schema:
           type: object
@@ -523,13 +505,6 @@ components:
                   type: boolean
                 loc_denorm:
                   type: boolean
-              required:
-                - ex_processed
-                - pp_validation_processed
-                - pp_duplicate_skipped
-                - device_denorm
-                - user_denorm
-                - loc_denorm
             derivedlocationdata:
               type: object
               properties:
@@ -539,18 +514,9 @@ components:
                   type: string
                 state:
                   type: string
-              required:
-                - district
-                - from
-                - state
             mid:
               type: string
               format: uuid
-              suggestions:
-                - message: The Property 'mid' appears to be 'uuid' format type.
-                  advice: Suggest to not to index the high cardinal columns
-                  resolutionType: DEDUP
-                  severity: LOW
             type:
               type: string
             actor:
@@ -561,21 +527,11 @@ components:
                 id:
                   type: string
                   format: uuid
-                  suggestions:
-                    - message: The Property 'actor.id' appears to be 'uuid' format type.
-                      advice: Suggest to not to index the high cardinal columns
-                      resolutionType: DEDUP
-                      severity: LOW
-              required:
-                - type
-                - id
             edata:
               type: object
               properties:
                 type:
                   type: string
-              required:
-                - type
             userdata:
               type: object
               properties:
@@ -591,15 +547,6 @@ components:
                   type: string
                 state:
                   type: string
-              required:
-                - subject
-                - district
-                - usersubtype
-                - grade
-                - usersignintype
-                - usertype
-                - userlogintype
-                - state
             devicedata:
               type: object
               properties:
@@ -637,18 +584,7 @@ components:
                     edisk:
                       type: string
                     make:
-                      type: string
-                  required:
-                    - idisk
-                    - webview
-                    - os
-                    - scrn
-                    - sims
-                    - cpu
-                    - id
-                    - camera
-                    - edisk
-                    - make
+                      type: string 
                 statecode:
                   type: string
                 firstaccess:
@@ -663,23 +599,7 @@ components:
                     district:
                       type: string
                     state:
-                      type: string
-                  required:
-                    - district
-                    - state
-              required:
-                - statecustomcode
-                - country
-                - iso3166statecode
-                - city
-                - countrycode
-                - state
-                - devicespec
-                - statecode
-                - firstaccess
-                - districtcustom
-                - statecustomname
-                - userdeclared
+                      type: string 
             context:
               type: object
               properties:
@@ -692,10 +612,7 @@ components:
                         type: string
                         format: uuid
                       type:
-                        type: string
-                    required:
-                      - id
-                      - type
+                        type: string 
                 env:
                   type: string
                 channel:
@@ -708,19 +625,11 @@ components:
                     pid:
                       type: string
                     ver:
-                      type: string
-                  required:
-                    - id
-                    - pid
-                    - ver
+                      type: string 
                 sid:
                   type: string
                   format: uuid
-                  suggestions:
-                    - message: The Property 'context.sid' appears to be 'uuid' format type.
-                      advice: Suggest to not to index the high cardinal columns
-                      resolutionType: DEDUP
-                      severity: LOW
+                   
                 did:
                   type: string
                 rollup:
@@ -733,20 +642,7 @@ components:
                 items:
                   cdata:
                     properties:
-                      id:
-                        suggestions:
-                          - message: The Property 'context.cdata[*].id' appears to be 'uuid' format type.
-                            advice: Suggest to not to index the high cardinal columns
-                            resolutionType: DEDUP
-                            severity: LOW
-              required:
-                - cdata
-                - env
-                - channel
-                - pdata
-                - sid
-                - did
-                - rollup
+                      id: 
             object:
               type: object
               properties:
@@ -758,51 +654,39 @@ components:
                   type: string
                 rollup:
                   type: object
-              required:
-                - id
-                - type
-                - version
-                - rollup
-          required:
-            - eid
-            - ver
+          required: 
             - syncts
-            - ets
-            - flags
-            - derivedlocationdata
             - mid
-            - type
-            - actor
-            - edata
-            - userdata
-            - devicedata
-            - context
-            - object
         status: ACTIVE
         published_date: "2023-03-24 12:19:32.091544"
+        
     DatasetUpdate:
       value:
-        dataset_id: telemetry-raw
+        dataset_id: obsrv-telemetry-events
         type: dataset
-        name: telemetry-raw
+        name: obsrv-telemetry-events
         router_config:
-          topic: telemetry-raw
+          topic: obsrv-telemetry-events
         denorm_config:
           redis_db_host: localhost
           redis_db_port: 6379
         dataset_config:
           data_key: id
+          timestamp_key: ets
           redis_db_host: localhost
           redis_db_port: 6379
         extraction_config:
           is_batch_event: true
           extraction_key: events
+          
     DatasetList:
       value:
-        filters: ["ACTIVE", "DISABLED"]
+        filters: 
+          status: ["ACTIVE", "DISABLED"]
+          
     DatasourceCreate:
       value:
-        dataset_id: telemetry-raw
+        dataset_id: obsrv-telemetry-events
         ingestion_spec:
           type: kafka
           spec:
@@ -987,7 +871,7 @@ components:
               logParseExceptions: true
             ioConfig:
               type: kafka
-              topic: obsrv.telemetry.input
+              topic: obsrv-telemetry-events
               consumerProperties: {}
               taskCount: 1
               replicas: 1
@@ -1213,26 +1097,619 @@ components:
                       expr: $.ver
                       name: ver
               appendToExisting: false
-        datasource: telemetry-rollup
-        datasource_ref: telemetry-rollup
+        datasource: obsrv-telemetry-events
+        datasource_ref: obsrv-telemetry-events
         published_date: "2023-03-27T11:40:43.269Z"
         status: ACTIVE
 
     DatasourceUpdate:
       value:
-        dataset_id: telemetry-raw
-        datasource: telemetry-rollup
+        dataset_id: obsrv-telemetry-events
+        datasource: obsrv-telemetry-events
         backup_config:
           enabled: true
 
     DatasourceList:
       value:
-        filters: ["ACTIVE", "DISABLED"]
+        filters: 
+          status: ["ACTIVE", "DISABLED"]
+          
     DatasetSourceConfigList:
       value:
-        filters: ["ACTIVE", "DISABLED"]
-
+        filters: 
+          status: ["ACTIVE", "DISABLED"]
+          
+    SubmitIngestion: 
+      value: 
+        type: kafka
+        spec:
+          dataSchema:
+            dataSource: obsrv-telemetry-events
+            dimensionsSpec:
+              dimensions:
+                - type: string
+                  name: fromDate
+                - type: string
+                  name: toDate
+                - type: string
+                  name: tes
+                - type: string
+                  name: uid
+                - type: string
+                  name: mobile
+                - type: string
+                  name: ip
+                - type: string
+                  name: ipv6
+                - type: boolean
+                  name: flags_ex_processed
+                - type: boolean
+                  name: flags_pp_validation_processed
+                - type: boolean
+                  name: flags_pp_duplicate_skipped
+                - type: boolean
+                  name: flags_device_denorm
+                - type: boolean
+                  name: flags_user_denorm
+                - type: boolean
+                  name: flags_loc_denorm
+                - type: string
+                  name: derivedlocationdata_district
+                - type: string
+                  name: derivedlocationdata_from
+                - type: string
+                  name: derivedlocationdata_state
+                - type: string
+                  name: mid
+                - type: string
+                  name: type
+                - type: string
+                  name: actor_type
+                - type: string
+                  name: actor_id
+                - type: string
+                  name: edata_type
+                - type: string
+                  name: edata_query
+                - type: string
+                  name: edata_filters_slug
+                - type: boolean
+                  name: edata_filters_isTenant
+                - type: string
+                  name: edata_filters_make_type
+                - type: string
+                  name: edata_topn[*]_id
+                - name: edata_items
+                - type: array
+                  name: userdata_subject
+                - type: string
+                  name: userdata_district
+                - type: string
+                  name: userdata_usersubtype
+                - type: array
+                  name: userdata_grade
+                - type: string
+                  name: userdata_usersignintype
+                - type: string
+                  name: userdata_usertype
+                - type: string
+                  name: userdata_userlogintype
+                - type: string
+                  name: userdata_state
+                - type: string
+                  name: '@timestamp'
+                - type: string
+                  name: devicedata_statecustomcode
+                - type: string
+                  name: devicedata_country
+                - type: string
+                  name: devicedata_iso3166statecode
+                - type: string
+                  name: devicedata_city
+                - type: string
+                  name: devicedata_countrycode
+                - type: string
+                  name: devicedata_state
+                - type: string
+                  name: devicedata_devicespec_idisk
+                - type: string
+                  name: devicedata_devicespec_webview
+                - type: string
+                  name: devicedata_devicespec_os
+                - type: string
+                  name: devicedata_devicespec_scrn
+                - type: string
+                  name: devicedata_devicespec_sims
+                - type: string
+                  name: devicedata_devicespec_cpu
+                - type: string
+                  name: devicedata_devicespec_id
+                - type: string
+                  name: devicedata_devicespec_camera
+                - type: string
+                  name: devicedata_devicespec_edisk
+                - type: string
+                  name: devicedata_devicespec_make
+                - type: string
+                  name: devicedata_statecode
+                - type: string
+                  name: devicedata_districtcustom
+                - type: string
+                  name: devicedata_statecustomname
+                - type: string
+                  name: devicedata_userdeclared_district
+                - type: string
+                  name: devicedata_userdeclared_state
+                - type: string
+                  name: context_cdata[*]_id
+                - type: string
+                  name: context_cdata[*]_type
+                - type: string
+                  name: context_env
+                - type: string
+                  name: context_channel
+                - type: string
+                  name: context_pdata_id
+                - type: string
+                  name: context_pdata_pid
+                - type: string
+                  name: context_pdata_ver
+                - type: string
+                  name: context_sid
+                - type: string
+                  name: context_did
+                - type: string
+                  name: context_rollup_l1
+                - type: string
+                  name: object_id
+                - type: string
+                  name: object_type
+                - type: string
+                  name: object_version
+                - type: string
+                  name: ver
+            timestampSpec:
+              column: arrival-time
+              format: auto
+            metricsSpec:
+              - type: doubleSum
+                name: eid
+                fieldName: eid
+              - type: doubleSum
+                name: syncts
+                fieldName: syncts
+              - type: doubleSum
+                name: ets
+                fieldName: ets
+              - type: doubleSum
+                name: edata_duration
+                fieldName: edata_duration
+              - type: doubleSum
+                name: edata_size
+                fieldName: edata_size
+              - type: doubleSum
+                name: edata_filters_make_vers
+                fieldName: edata_filters_make_vers
+              - type: doubleSum
+                name: devicedata_firstaccess
+                fieldName: devicedata_firstaccess
+            granularitySpec:
+              type: uniform
+              segmentGranularity: DAY
+              queryGranularity: HOUR
+              rollup: false
+          tuningConfig:
+            type: kafka
+            maxRowsPerSegment: 50000
+            logParseExceptions: true
+          ioConfig:
+            type: kafka
+            topic: obsrv-telemetry-events
+            consumerProperties:
+              bootstrap.servers: 'localhost: 9092'
+            taskCount: 1
+            replicas: 1
+            taskDuration: PT8H
+            useEarliestOffset: false
+            completionTimeout: PT8H
+            inputFormat:
+              type: json
+              flattenSpec:
+                useFieldDiscovery: true
+                fields:
+                  - type: path
+                    expr: $.eid
+                    name: eid
+                  - type: path
+                    expr: $.syncts
+                    name: syncts
+                  - type: path
+                    expr: $.ets
+                    name: ets
+                  - type: path
+                    expr: $.edata.duration
+                    name: edata_duration
+                  - type: path
+                    expr: $.edata.size
+                    name: edata_size
+                  - type: path
+                    expr: $.edata.filters.make.vers
+                    name: edata_filters_make_vers
+                  - type: path
+                    expr: $.devicedata.firstaccess
+                    name: devicedata_firstaccess
+                  - type: path
+                    expr: $.flags.ex_processed
+                    name: flags_ex_processed
+                  - type: path
+                    expr: $.flags.pp_validation_processed
+                    name: flags_pp_validation_processed
+                  - type: path
+                    expr: $.flags.pp_duplicate_skipped
+                    name: flags_pp_duplicate_skipped
+                  - type: path
+                    expr: $.flags.device_denorm
+                    name: flags_device_denorm
+                  - type: path
+                    expr: $.flags.user_denorm
+                    name: flags_user_denorm
+                  - type: path
+                    expr: $.flags.loc_denorm
+                    name: flags_loc_denorm
+                  - type: path
+                    expr: $.derivedlocationdata.district
+                    name: derivedlocationdata_district
+                  - type: path
+                    expr: $.derivedlocationdata.from
+                    name: derivedlocationdata_from
+                  - type: path
+                    expr: $.derivedlocationdata.state
+                    name: derivedlocationdata_state
+                  - type: path
+                    expr: $.mid
+                    name: mid
+                  - type: path
+                    expr: $.type
+                    name: type
+                  - type: path
+                    expr: $.actor.type
+                    name: actor_type
+                  - type: path
+                    expr: $.actor.id
+                    name: actor_id
+                  - type: path
+                    expr: $.edata.type
+                    name: edata_type
+                  - type: path
+                    expr: $.edata.query
+                    name: edata_query
+                  - type: path
+                    expr: $.edata.filters.slug
+                    name: edata_filters_slug
+                  - type: path
+                    expr: $.edata.filters.isTenant
+                    name: edata_filters_isTenant
+                  - type: path
+                    expr: $.edata.filters.make.type
+                    name: edata_filters_make_type
+                  - type: path
+                    expr: $.edata.topn[*].id
+                    name: edata_topn_id
+                  - type: path
+                    expr: $.edata.items
+                    name: edata_items
+                  - type: path
+                    expr: $.userdata.subject[*]
+                    name: userdata_subject
+                  - type: path
+                    expr: $.userdata.district
+                    name: userdata_district
+                  - type: path
+                    expr: $.userdata.usersubtype
+                    name: userdata_usersubtype
+                  - type: path
+                    expr: $.userdata.grade[*]
+                    name: userdata_grade
+                  - type: path
+                    expr: $.userdata.usersignintype
+                    name: userdata_usersignintype
+                  - type: path
+                    expr: $.userdata.usertype
+                    name: userdata_usertype
+                  - type: path
+                    expr: $.userdata.userlogintype
+                    name: userdata_userlogintype
+                  - type: path
+                    expr: $.userdata.state
+                    name: userdata_state
+                  - type: path
+                    expr: $.@timestamp
+                    name: '@timestamp'
+                  - type: path
+                    expr: $.devicedata.statecustomcode
+                    name: devicedata_statecustomcode
+                  - type: path
+                    expr: $.devicedata.country
+                    name: devicedata_country
+                  - type: path
+                    expr: $.devicedata.iso3166statecode
+                    name: devicedata_iso3166statecode
+                  - type: path
+                    expr: $.devicedata.city
+                    name: devicedata_city
+                  - type: path
+                    expr: $.devicedata.countrycode
+                    name: devicedata_countrycode
+                  - type: path
+                    expr: $.devicedata.state
+                    name: devicedata_state
+                  - type: path
+                    expr: $.devicedata.devicespec.idisk
+                    name: devicedata_devicespec_idisk
+                  - type: path
+                    expr: $.devicedata.devicespec.webview
+                    name: devicedata_devicespec_webview
+                  - type: path
+                    expr: $.devicedata.devicespec.os
+                    name: devicedata_devicespec_os
+                  - type: path
+                    expr: $.devicedata.devicespec.scrn
+                    name: devicedata_devicespec_scrn
+                  - type: path
+                    expr: $.devicedata.devicespec.sims
+                    name: devicedata_devicespec_sims
+                  - type: path
+                    expr: $.devicedata.devicespec.cpu
+                    name: devicedata_devicespec_cpu
+                  - type: path
+                    expr: $.devicedata.devicespec.id
+                    name: devicedata_devicespec_id
+                  - type: path
+                    expr: $.devicedata.devicespec.camera
+                    name: devicedata_devicespec_camera
+                  - type: path
+                    expr: $.devicedata.devicespec.edisk
+                    name: devicedata_devicespec_edisk
+                  - type: path
+                    expr: $.devicedata.devicespec.make
+                    name: devicedata_devicespec_make
+                  - type: path
+                    expr: $.devicedata.statecode
+                    name: devicedata_statecode
+                  - type: path
+                    expr: $.devicedata.districtcustom
+                    name: devicedata_districtcustom
+                  - type: path
+                    expr: $.devicedata.statecustomname
+                    name: devicedata_statecustomname
+                  - type: path
+                    expr: $.devicedata.userdeclared.district
+                    name: devicedata_userdeclared_district
+                  - type: path
+                    expr: $.devicedata.userdeclared.state
+                    name: devicedata_userdeclared_state
+                  - type: path
+                    expr: $.context.cdata[*].id
+                    name: context_cdata_id
+                  - type: path
+                    expr: $.context.cdata[*].type
+                    name: context_cdata_type
+                  - type: path
+                    expr: $.context.env
+                    name: context_env
+                  - type: path
+                    expr: $.context.channel
+                    name: context_channel
+                  - type: path
+                    expr: $.context.pdata.id
+                    name: context_pdata_id
+                  - type: path
+                    expr: $.context.pdata.pid
+                    name: context_pdata_pid
+                  - type: path
+                    expr: $.context.pdata.ver
+                    name: context_pdata_ver
+                  - type: path
+                    expr: $.context.sid
+                    name: context_sid
+                  - type: path
+                    expr: $.context.did
+                    name: context_did
+                  - type: path
+                    expr: $.context.rollup.l1
+                    name: context_rollup_l1
+                  - type: path
+                    expr: $.object.id
+                    name: object_id
+                  - type: path
+                    expr: $.object.type
+                    name: object_type
+                  - type: path
+                    expr: $.object.version
+                    name: object_version
+                  - type: path
+                    expr: $.ver
+                    name: ver
+            appendToExisting: false
+          
   responses:
+    DataExhaust:
+      description: OK
+      content:
+        application/json:
+          schema:
+            type: object
+            properties: 
+              id:
+                type: string
+                example: obsrv.dataset.data.exhaust
+              ver:
+                type: string
+                example: v1
+              ts:
+                type: string
+                example: 1693891173180
+              params:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: SUCCESS
+                  errmsg:
+                    type: string
+                    example: ""
+              responseCode:
+                type: string
+                example: OK
+              result:
+                type: object
+                example:
+                  expiresAt: '2023-09-05T06:19:33.176Z'
+                  files:
+                    - file1
+                    - file2
+                  periodWiseFiles:
+                    '2023-06-15':
+                      - file1
+                      - file2
+            
+    SubmitIngestionResponseSchema:
+      description: OK
+      content:
+        application/json:
+          schema:
+            type: object
+            properties: 
+              id:
+                type: string
+                example: obsrv.submit.ingestion
+              ver:
+                type: string
+                example: v1
+              ts:
+                type: string
+                example: 1693891173180
+              params:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: SUCCESS
+                  errmsg:
+                    type: string
+                    example: ""
+              responseCode:
+                type: string
+                example: OK
+              result:
+                type: object
+                example: 
+                  message: ingestion spec has been submitted successfully
+                  
+      
+  
+    DataExhaustResponseSchema:
+      description: OK
+      content:
+        application/json:
+          schema:
+            type: object
+            properties: 
+              id:
+                type: string
+                example: obsrv.dataset.data.exhaust
+              ver:
+                type: string
+                example: v1
+              ts:
+                type: string
+                example: 1693891173180
+              params:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: SUCCESS
+                  errmsg:
+                    type: string
+                    example: ""
+              responseCode:
+                type: string
+                example: OK
+              result:
+                type: object
+                example:
+                  expiresAt: '2023-09-05T06:19:33.176Z'
+                  files:
+                    - file1
+                    - file2
+                  periodWiseFiles:
+                    '2023-06-15':
+                      - file1
+                      - file2
+      
+    SubmitIngestionBadRequestResponseSchema:
+      description: Bad Request
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              id:
+                type: string
+                example: obsrv.submit.ingestion
+              ver:
+                type: string
+                example: v1
+              ts:
+                type: string
+                example: 1672679516875
+              params:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: FAILED
+                  errmsg:
+                    type: string
+                    example: must have required property 'type'
+              responseCode:
+                type: string
+                example: BAD_REQUEST
+              result:
+                type: object
+    
+    DataExhaustBadRequestResponseSchema:
+      description: Bad Request
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              id:
+                type: string
+                example: obsrv.dataset.data.exhaust
+              ver:
+                type: string
+                example: v1
+              ts:
+                type: string
+                example: 1672679516875
+              params:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: FAILED
+                  errmsg:
+                    type: string
+                    example: property \"\" must have required property 'from'
+              responseCode:
+                type: string
+                example: BAD_REQUEST
+              result:
+                type: object
+                
     BadRequestResponseSchema:
       description: Bad Request
       content:
@@ -1496,6 +1973,7 @@ components:
                   message:
                     type: string
                     example: "The data has been successfully ingested"
+                    
     DataIngestBadRequest:
       description: Bad Request
       content:
@@ -1594,7 +2072,8 @@ components:
                     example: "The datasource configuration has been saved successfully"
                   id:
                     type: string
-                    example: "telemetry-raw_telemetry-rollup"
+                    example: "obsrv-telemetry-events_telemetry-raw"
+                    
     DatasourceUpdateResponseSchema:
       description: OK
       content:
@@ -1631,7 +2110,8 @@ components:
                     example: "The datasource configuration has been updated successfully"
                   id:
                     type: string
-                    example: "telemetry-raw_telemetry-rollup"
+                    example: "obsrv-telemetry-events_telemetry-raw"
+                    
     DatasourceCreateBadRequest:
       description: Bad Request
       content:
@@ -1662,6 +2142,7 @@ components:
                 example: BAD_REQUEST
               result:
                 type: object
+                
     DatasourceUpdateBadRequest:
       description: Bad Request
       content:
@@ -1686,12 +2167,13 @@ components:
                     example: FAILED
                   errmsg:
                     type: string
-                    example: Failed to update Record
+                    example: Failed to save Record
               responseCode:
                 type: string
                 example: BAD_REQUEST
               result:
                 type: object
+                
     DatasourceCreateDuplicate:
       description: Conflict
       content:
@@ -1722,6 +2204,7 @@ components:
                 example: CONFLICT
               result:
                 type: object
+                
     DatasourceListResponse:
       description: OK
       content:
@@ -1755,13 +2238,13 @@ components:
                 items:
                   type: object
                   example:
-                    id: telemetry-raw_telemetry-rollup
-                    dataset_id: telmetry-raw
+                    id: obsrv-telemetry-events_obsrv-telemetry-events
+                    dataset_id: obsrv-telemetry-events
                     ingestion_spec:
                       type: kafka
                       spec:
                         dataSchema:
-                          dataSource: telemetry-rollup
+                          dataSource: obsrv-telemetry-events
                           dimensionsSpec:
                             dimensions:
                               - type: string
@@ -1941,7 +2424,7 @@ components:
                           logParseExceptions: true
                         ioConfig:
                           type: kafka
-                          topic: obsrv.telemetry.input
+                          topic: obsrv-telemetry-events
                           consumerProperties: {}
                           taskCount: 1
                           replicas: 1
@@ -2167,8 +2650,8 @@ components:
                                   expr: $.ver
                                   name: ver
                           appendToExisting: false
-                    datasource: telemetry-rollup
-                    datasource_ref: telemetry-rollup
+                    datasource: obsrv-telemetry-events
+                    datasource_ref: obsrv-telemetry-events
                     retention_period: {}
                     archival_policy: {}
                     purge_policy: {}
@@ -2243,13 +2726,13 @@ components:
               result:
                 type: object
                 example:
-                  id: telemetry-raw_telemetry-rollup
-                  dataset_id: telemetry-raw
+                  id: obsrv-telemetry-events_telemetry-raw
+                  dataset_id: obsrv-telemetry-events
                   ingestion_spec:
                     type: kafka
                     spec:
                       dataSchema:
-                        dataSource: telemetry-rollup
+                        dataSource: telemetry-raw
                         dimensionsSpec:
                           dimensions:
                             - type: string
@@ -2655,8 +3138,8 @@ components:
                                 expr: $.ver
                                 name: ver
                         appendToExisting: false
-                  datasource: telemetry-rollup
-                  datasource_ref: telemetry-rollup
+                  datasource: telemetry-raw
+                  datasource_ref: telemetry-raw
                   retention_period: {}
                   archival_policy: {}
                   purge_policy: {}
@@ -2734,9 +3217,10 @@ components:
                   message:
                     type: string
                     example: "The dataset configuration has been saved successfully"
-                  dataset_id:
+                  id:
                     type: string
-                    example: "telemetry-raw"
+                    example: "obsrv-telemetry-events"
+                    
     DatasetUpdateResponseSchema:
       description: OK
       content:
@@ -2771,9 +3255,10 @@ components:
                   message:
                     type: string
                     example: "The dataset configuration has been updated successfully"
-                  dataset_id:
+                  id:
                     type: string
-                    example: "telemetry-raw"
+                    example: "obsrv-telemetry-events"
+                    
     DatasetCreateBadRequest:
       description: Bad Request
       content:
@@ -2804,6 +3289,7 @@ components:
                 example: BAD_REQUEST
               result:
                 type: object
+                
     DatasetUpdateBadRequest:
       description: Bad Request
       content:
@@ -2828,12 +3314,13 @@ components:
                     example: FAILED
                   errmsg:
                     type: string
-                    example: Failed to update Record
+                    example: Failed to save Record
               responseCode:
                 type: string
                 example: BAD_REQUEST
               result:
                 type: object
+                
     DatasetCreateDuplicate:
       description: Conflict
       content:
@@ -2864,6 +3351,7 @@ components:
                 example: CONFLICT
               result:
                 type: object
+                
     DatasetListResponse:
       description: OK
       content:
@@ -2897,8 +3385,8 @@ components:
                 items:
                   type: object
                   example:
-                    id: telemetry-raw
-                    dataset_name: telemetry-raw
+                    id: obsrv-telemetry-events
+                    dataset_name: obsrv-telemetry-events
                     type: dataset
                     validation_config:
                       validate: true
@@ -2964,11 +3452,7 @@ components:
                         mid:
                           type: string
                           format: uuid
-                          suggestions:
-                            - message: The Property 'mid' appears to be 'uuid' format type.
-                              advice: Suggest to not to index the high cardinal columns
-                              resolutionType: DEDUP
-                              severity: LOW
+                          
                         type:
                           type: string
                         actor:
@@ -2979,11 +3463,7 @@ components:
                             id:
                               type: string
                               format: uuid
-                              suggestions:
-                                - message: The Property 'actor.id' appears to be 'uuid' format type.
-                                  advice: Suggest to not to index the high cardinal columns
-                                  resolutionType: DEDUP
-                                  severity: LOW
+                               
                           required:
                             - type
                             - id
@@ -3152,11 +3632,7 @@ components:
                               cdata:
                                 properties:
                                   id:
-                                    suggestions:
-                                      - message: The Property 'context.cdata[*].id' appears to be 'uuid' format type.
-                                        advice: Suggest to not to index the high cardinal columns
-                                        resolutionType: DEDUP
-                                        severity: LOW
+                                     
                           required:
                             - cdata
                             - env
@@ -3200,7 +3676,7 @@ components:
                       redis_db_host: localhost
                       redis_db_port: 6379
                     router_config:
-                      topic: telemtry-raw
+                      topic: obsrv-telemetry-events
                     dataset_config:
                       data_key: null
                       timestamp_key: ets
@@ -3277,8 +3753,8 @@ components:
               result:
                 type: object
                 example:
-                  id: telemetry-raw
-                  dataset_id: telemetry-raw
+                  id: obsrv-telemetry-events
+                  dataset_id: obsrv-telemetry-events
                   type: dataset
                   name: telemtry-raw
                   tags: []
@@ -3346,11 +3822,7 @@ components:
                       mid:
                         type: string
                         format: uuid
-                        suggestions:
-                          - message: The Property 'mid' appears to be 'uuid' format type.
-                            advice: Suggest to not to index the high cardinal columns
-                            resolutionType: DEDUP
-                            severity: LOW
+                        
                       type:
                         type: string
                       actor:
@@ -3361,11 +3833,7 @@ components:
                           id:
                             type: string
                             format: uuid
-                            suggestions:
-                              - message: The Property 'actor.id' appears to be 'uuid' format type.
-                                advice: Suggest to not to index the high cardinal columns
-                                resolutionType: DEDUP
-                                severity: LOW
+                             
                         required:
                           - type
                           - id
@@ -3516,11 +3984,7 @@ components:
                           sid:
                             type: string
                             format: uuid
-                            suggestions:
-                              - message: The Property 'context.sid' appears to be 'uuid' format type.
-                                advice: Suggest to not to index the high cardinal columns
-                                resolutionType: DEDUP
-                                severity: LOW
+                             
                           did:
                             type: string
                           rollup:
@@ -3534,11 +3998,7 @@ components:
                             cdata:
                               properties:
                                 id:
-                                  suggestions:
-                                    - message: The Property 'context.cdata[*].id' appears to be 'uuid' format type.
-                                      advice: Suggest to not to index the high cardinal columns
-                                      resolutionType: DEDUP
-                                      severity: LOW
+                                  
                         required:
                           - cdata
                           - env
@@ -3582,7 +4042,7 @@ components:
                     redis_db_host: localhost
                     redis_db_port: 6379
                   router_config:
-                    topic: telemtry-raw
+                    topic: obsrv-telemetry-events
                   dataset_config:
                     data_key: null
                     timestamp_key: ets
@@ -3626,6 +4086,7 @@ components:
                 example: NOT_FOUND
               result:
                 type: object
+                
     DatasetSourceConfigCreateResponseSchema:
       description: OK
       content:
@@ -3662,7 +4123,8 @@ components:
                     example: "The dataset configuration has been saved successfully"
                   id:
                     type: string
-                    example: "telemetry-raw_kafka"
+                    example: "obsrv-telemetry-events_kafka"
+                    
     DatasetSourceConfigUpdateResponseSchema:
       description: OK
       content:
@@ -3699,7 +4161,8 @@ components:
                     example: "The dataset configuration has been updated successfully"
                   id:
                     type: string
-                    example: "telemetry-raw_kafka"
+                    example: "obsrv-telemetry-events_kafka"
+                    
     DatasetSourceConfigCreateBadRequest:
       description: Bad Request
       content:
@@ -3730,6 +4193,7 @@ components:
                 example: BAD_REQUEST
               result:
                 type: object
+                
     DatasetSourceConfigUpdateBadRequest:
       description: Bad Request
       content:
@@ -3754,12 +4218,13 @@ components:
                     example: FAILED
                   errmsg:
                     type: string
-                    example: Failed to update Record
+                    example: Failed to save Record
               responseCode:
                 type: string
                 example: BAD_REQUEST
               result:
                 type: object
+                
     DatasetSourceConfigCreateDuplicate:
       description: Conflict
       content:
@@ -3790,6 +4255,7 @@ components:
                 example: CONFLICT
               result:
                 type: object
+                
     DatasetSoureConfigListResponse:
       description: OK
       content:
@@ -3823,9 +4289,12 @@ components:
                 items:
                   type: object
                   example:
-                    id: telemetry-raw_kafka
+                    id: obsrv-telemetry-events_kafka
                     connector_type: kafka
-                    connector_config: {}
+                    connector_config: 
+                      type: kafka
+                      topic: local.ingest
+                      kafkaBrokers: localhost:9092
                     status: ACTIVE
                     connector_stats: {}
                     created_by: SYSTEM
@@ -3833,7 +4302,7 @@ components:
                     created_date: "2023-05-11T18:30:00.000Z"
                     updated_date: "2023-05-11T18:30:00.000Z"
                     published_date: "2023-05-11T18:30:00.000Z"
-                    dataset_id: telemetry-raw
+                    dataset_id: obsrv-telemetry-events
 
     DatasetSourceConfigReadResponse:
       description: OK
@@ -3866,9 +4335,12 @@ components:
               result:
                 type: object
                 example:
-                  id: telemetry-raw_kafka
+                  id: obsrv-telemetry-events_kafka
                   connector_type: kafka
-                  connector_config: {}
+                  connector_config: 
+                    type: kafka
+                    topic: local.ingest
+                    kafkaBrokers: localhost:9092
                   status: ACTIVE
                   connector_stats: {}
                   created_by: SYSTEM
@@ -3876,7 +4348,7 @@ components:
                   created_date: "2023-05-11T18:30:00.000Z"
                   updated_date: "2023-05-11T18:30:00.000Z"
                   published_date: "2023-05-11T18:30:00.000Z"
-                  dataset_id: telemetry-raw
+                  dataset_id: obsrv-telemetry-events
 
     DatasetSoureConfigReadNotFound:
       description: Not Found
@@ -3908,6 +4380,7 @@ components:
                 example: NOT_FOUND
               result:
                 type: object
+                
     DatasetSourceConfigListBadRequest:
       description: Bad Request
       content:
@@ -3987,9 +4460,10 @@ paths:
           $ref: "#/components/responses/BadRequestResponseSchemaSql"
 
   /obsrv/v1/data/{datasetId}:
-    post:
-      summary: The API designed for ingesting data into Kafka follows a specific convention. When processing batch events, the API expects the key to be labeled as "events." However, when dealing with individual events, the key should be identified as "event."
-      description: ""
+    post: 
+      summary: The API designed for ingesting data into Kafka. 
+      description: |
+        "When processing batch events, the API expects the key to be labeled as 'events.' However, when dealing with individual events, the key should be identified as 'event.'"
       tags: [Obsrv Data IN API]
       parameters:
         - name: datasetId
@@ -4096,7 +4570,7 @@ paths:
   /obsrv/v1/datasources:
     post:
       summary: creating datasources into postgres tables
-      description: This API allows you to create new datasource in the PostgreSQL database.
+      description: This API allows you to create new datasource in the PostgreSQL database. While saving a datasource, it is required that the datasource field in ingestion spec must match with datasource_ref.
       tags: [Obsrv Datasource APIs]
       requestBody:
         required: true
@@ -4116,7 +4590,7 @@ paths:
           $ref: "#/components/responses/DatasourceCreateDuplicate"
     patch:
       summary: API to update existing records in database
-      description: This API allows you to update existing datasource in the PostgreSQL database.
+      description: This API allows you to update existing datasource in the PostgreSQL database. While saving a datasource, it is required that the datasource field in ingestion spec must match with datasource_ref.
       tags: [Obsrv Datasource APIs]
       requestBody:
         required: true
@@ -4219,7 +4693,7 @@ paths:
           required: true
           schema:
             type: string
-            format: uuid
+            
       responses:
         200:
           $ref: "#/components/responses/DatasetSourceConfigReadResponse"
@@ -4244,3 +4718,47 @@ paths:
           $ref: "#/components/responses/DatasetSoureConfigListResponse"
         400:
           $ref: "#/components/responses/DatasetSourceConfigListBadRequest"
+  /obsrv/v1/submit/ingestion:
+    post:
+      summary: API to submit ingestion spec to analytical database
+      tags: [Obsrv Datasource APIs]
+      requestBody:
+        required: true
+        content: 
+          application/json:
+            schema: 
+              $ref: "#/components/schemas/SubmitIngestion"
+            examples: 
+              Example-1:
+                $ref: "#/components/examples/SubmitIngestion"
+      responses:
+        200:
+          $ref: "#/components/responses/SubmitIngestionResponseSchema"
+        400:
+          $ref: "#/components/responses/SubmitIngestionBadRequestResponseSchema"
+              
+  /obsrv/v1/exhaust/{datasetId}:
+    get:
+      summary: API to access backup files from Cloud providers
+      tags: [Obsrv Data Exhaust APIs]
+      parameters:
+        - name: datasetId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: request params
+          in: query
+          required: true
+          schema:
+            $ref: "#/components/schemas/DataExhaust"
+          example: 
+            from: '2023-06-01'
+            to: '2023-06-30'
+            type: transformed
+      responses:
+        200:
+          $ref: "#/components/responses/DataExhaust"
+        400:
+          $ref: "#/components/responses/DataExhaustBadRequestResponseSchema"
+            

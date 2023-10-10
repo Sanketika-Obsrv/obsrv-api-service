@@ -3,24 +3,29 @@ import chai, { expect } from "chai";
 import chaiHttp from "chai-http";
 import spies from "chai-spies";
 import httpStatus from "http-status";
-import { TestDataIngestion } from "./Fixtures";
+import { TestDataIngestion, TestSubmitIngestion } from "./Fixtures";
 import { config } from "./Config";
 import { routesConfig } from "../configs/RoutesConfig";
 import constants from "../resources/Constants.json"
 import { dbConnector, globalCache, ingestorService, kafkaConnector } from "../routes/Router";
 import { describe, it } from 'mocha';
+import nock from "nock";
 
 chai.use(spies);
 chai.should();
 chai.use(chaiHttp);
 
 describe("DATA INGEST API", () => {
+    afterEach(() => {
+        chai.spy.restore()
+    })
+
     it("it should ingest data successfully", (done) => {
         chai.spy.on(dbConnector, "listRecords", () => {
-            return Promise.resolve([{}])
+            return Promise.resolve([ {} ])
         })
         chai.spy.on(globalCache, 'get', () => {
-            return [{ "id": ":datasetId", "dataset_config": { "entry_topic": "topic" } }]
+            return [ { "id": ":datasetId", "dataset_config": { "entry_topic": "topic" } } ]
         })
         chai.spy.on(kafkaConnector.telemetryService, "dispatch", () => {
             return Promise.resolve("data ingested")
@@ -32,7 +37,7 @@ describe("DATA INGEST API", () => {
             .end((err, res) => {
                 res.should.have.status(httpStatus.OK);
                 res.body.should.be.a("object");
-                res.body.responseCode.should.be.eq(httpStatus["200_NAME"]);
+                res.body.responseCode.should.be.eq(httpStatus[ "200_NAME" ]);
                 res.body.should.have.property("result");
                 res.body.id.should.be.eq(routesConfig.data_ingest.api_id);
                 res.body.params.status.should.be.eq(constants.STATUS.SUCCESS)
@@ -44,10 +49,10 @@ describe("DATA INGEST API", () => {
     });
     it("it should not ingest data successfully", (done) => {
         chai.spy.on(dbConnector, "listRecords", () => {
-            return Promise.resolve([{}])
+            return Promise.resolve([ {} ])
         })
         chai.spy.on(globalCache, 'get', () => {
-            return [{ "id": ":datasetId", "dataset_config": { "entry_topic": "topic" } }]
+            return [ { "id": ":datasetId", "dataset_config": { "entry_topic": "topic" } } ]
         })
         chai.spy.on(kafkaConnector.telemetryService, "dispatch", () => {
             return Promise.reject("error connecting to kafka")
@@ -59,7 +64,7 @@ describe("DATA INGEST API", () => {
             .end((err, res) => {
                 res.should.have.status(httpStatus.INTERNAL_SERVER_ERROR);
                 res.body.should.be.a("object");
-                res.body.responseCode.should.be.eq(httpStatus["500_NAME"]);
+                res.body.responseCode.should.be.eq(httpStatus[ "500_NAME" ]);
                 res.body.should.have.property("result");
                 res.body.id.should.be.eq(routesConfig.data_ingest.api_id);
                 res.body.params.status.should.be.eq(constants.STATUS.FAILURE)
@@ -74,9 +79,9 @@ describe("DATA INGEST API", () => {
             return Promise.reject(new Error("error occurred while connecting to postgres"))
         })
         chai.spy.on(globalCache, 'get', () => {
-            return [{ "id": ":datasetId", "dataset_config": { "entry_topic": "topic" } }]
+            return [ { "id": "datasetId", "dataset_config": { "entry_topic": "topic" } } ]
         })
-         
+
         chai
             .request(app)
             .post(config.apiDatasetIngestEndPoint)
@@ -84,21 +89,21 @@ describe("DATA INGEST API", () => {
             .end((err, res) => {
                 res.should.have.status(httpStatus.INTERNAL_SERVER_ERROR);
                 res.body.should.be.a("object");
-                res.body.responseCode.should.be.eq(httpStatus["500_NAME"]);
+                res.body.responseCode.should.be.eq(httpStatus[ "500_NAME" ]);
                 res.body.should.have.property("result");
                 res.body.id.should.be.eq(routesConfig.data_ingest.api_id);
                 res.body.params.status.should.be.eq(constants.STATUS.FAILURE)
                 chai.spy.restore(dbConnector, "listRecords")
                 chai.spy.restore(globalCache, 'get')
-                 done()
+                done()
             })
     });
     it("it should not ingest data successfully", (done) => {
         chai.spy.on(globalCache, 'get', () => {
-            return [{}]
+            return [ {} ]
         })
         chai.spy.on(dbConnector, "listRecords", () => {
-            return Promise.resolve([{}])
+            return Promise.resolve([ {} ])
         })
 
         chai
@@ -108,7 +113,7 @@ describe("DATA INGEST API", () => {
             .end((err, res) => {
                 res.should.have.status(httpStatus.NOT_FOUND);
                 res.body.should.be.a("object");
-                res.body.responseCode.should.be.eq(httpStatus["404_NAME"]);
+                res.body.responseCode.should.be.eq(httpStatus[ "404_NAME" ]);
                 res.body.should.have.property("result");
                 res.body.id.should.be.eq(routesConfig.data_ingest.api_id);
                 res.body.params.status.should.be.eq(constants.STATUS.FAILURE)
@@ -125,7 +130,7 @@ describe("DATA INGEST API", () => {
             .end((err, res) => {
                 res.should.have.status(httpStatus.BAD_REQUEST);
                 res.body.should.be.a("object");
-                res.body.responseCode.should.be.eq(httpStatus["400_NAME"]);
+                res.body.responseCode.should.be.eq(httpStatus[ "400_NAME" ]);
                 res.body.should.have.property("result");
                 res.body.id.should.be.eq(routesConfig.data_ingest.api_id);
                 res.body.params.status.should.be.eq(constants.STATUS.FAILURE)
@@ -150,4 +155,70 @@ describe("DATA INGEST API", () => {
         chai.spy.restore(kafkaConnector.telemetryService, "health")
         done();
     });
+})
+
+describe("SUBMIT INGESTION API", () => {
+    beforeEach(() => {
+        nock(config.druidHost + ":" + config.druidPort)
+            .post(config.druidSubmitIngestionEndPoint)
+            .reply(200)
+    })
+    afterEach(() => {
+        nock.cleanAll()
+    })
+    it("should submit ingestion successfully", (done)=>{
+        chai
+        .request(app)
+        .post(config.apiSubmitIngestionEndPoint)
+        .send(TestSubmitIngestion.VALID_INGESTION_SPEC)
+        .end((err, res) => {
+            res.should.have.status(httpStatus.OK);
+            res.body.should.be.a("object");
+            res.body.responseCode.should.be.eq(httpStatus[ "200_NAME" ]);
+            res.body.should.have.property("result");
+            res.body.id.should.be.eq(routesConfig.submit_ingestion.api_id);
+            res.body.params.status.should.be.eq(constants.STATUS.SUCCESS)
+            done()
+        })
+    })
+    it("should throw error for invalid request object", (done)=>{
+        chai
+        .request(app)
+        .post(config.apiSubmitIngestionEndPoint)
+        .send(TestSubmitIngestion.INVALID_INGESTION_SPEC)
+        .end((err, res) => {
+            res.should.have.status(httpStatus.BAD_REQUEST);
+            res.body.should.be.a("object");
+            res.body.responseCode.should.be.eq(httpStatus[ "400_NAME" ]);
+            res.body.should.have.property("result");
+            res.body.id.should.be.eq(routesConfig.submit_ingestion.api_id);
+            res.body.params.status.should.be.eq(constants.STATUS.FAILURE)
+            done()
+        })
+    })
+})
+
+describe("SUBMIT INGESTION ERROR SCENARIOS", ()=>{
+        beforeEach(() => {
+            nock(config.druidHost + ":" + config.druidPort)
+                .post(config.druidSubmitIngestionEndPoint)
+                .reply(500)
+        })
+        afterEach(() => {
+            nock.cleanAll()
+        })
+        it("should handle errors", (done)=>{
+            chai
+            .request(app)
+            .post(config.apiSubmitIngestionEndPoint)
+            .send(TestSubmitIngestion.VALID_INGESTION_SPEC)
+            .end((err, res) => {
+                res.should.have.status(httpStatus.INTERNAL_SERVER_ERROR);
+                res.body.should.be.a("object");
+                res.body.should.have.property("result");
+                res.body.id.should.be.eq(routesConfig.submit_ingestion.api_id);
+                res.body.params.status.should.be.eq(constants.STATUS.FAILURE)
+                done()
+    })
+})
 })

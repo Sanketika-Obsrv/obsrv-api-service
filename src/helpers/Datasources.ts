@@ -44,7 +44,7 @@ export class Datasources {
     }
 
     public setValues() {
-        return schemaMerger.mergeSchema(this.getDefaults(), this.getValues())
+        return schemaMerger.mergeSchema(this.getDefaults(), this.getValues());
     }
 
     public removeNullValues(payload: any) {
@@ -54,6 +54,6 @@ export class Datasources {
         return payload
     }
     public getDefaults() {
-        return configDefault
+        return {...configDefault}
     }
 }
