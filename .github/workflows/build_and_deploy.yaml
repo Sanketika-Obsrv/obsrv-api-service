@@ -70,8 +70,8 @@ jobs:
         include:
           - service: api-service  
           - service: command-service 
-          - dockerfile: ./api-service/Dockerfile
-          - dockerfile: ./command-service/Dockerfile
+          - dockerfile: Dockerfile
+          - dockerfile: Dockerfile
     
     steps:
       - name: Login to Docker Hub
@@ -84,6 +84,6 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           file: ${{ matrix.dockerfile }}
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}obsrv-${{ matrix.service}}:${{ github.ref_name }}
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}obsrv-${{ matrix.service }}:${{ github.ref_name }}
 
           push: true
