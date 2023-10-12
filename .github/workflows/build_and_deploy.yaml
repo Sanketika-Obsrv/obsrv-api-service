@@ -68,6 +68,8 @@ jobs:
       fail-fast: false
       matrix:
         include:
+          - service: api-service
+          - service: command-service
           - dockerfile: api-service/Dockerfile
           - dockerfile: command-service/Dockerfile
     
