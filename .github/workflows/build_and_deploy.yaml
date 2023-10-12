@@ -120,7 +120,7 @@ jobs:
         with:
           context: api-service  # Set the context to the directory containing the API service Dockerfile
           dockerfile: Dockerfile  # Use the API service Dockerfile
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/obsrv-api-service:${{ github.ref_name }}
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}obsrv-api-service:${{ github.ref_name }}
           push: true
 
   docker-build-command-service:
@@ -139,7 +139,7 @@ jobs:
         with:
           context: command-service  # Set the context to the directory containing the Command service Dockerfile
           dockerfile: Dockerfile  # Use the Command service Dockerfile
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/obsrv-command-service:${{ github.ref_name }}
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}obsrv-command-service:${{ github.ref_name }}
           push: true
 
      
