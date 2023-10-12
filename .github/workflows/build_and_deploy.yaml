@@ -65,6 +65,7 @@ jobs:
     if: needs.check-tag.outputs.ALLOWED_TAG == 'True'
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         include:
         dockerfile: api-service/Dockerfile
