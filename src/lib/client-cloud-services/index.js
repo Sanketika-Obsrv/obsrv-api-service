@@ -7,7 +7,7 @@
  * @version     - 1.0.0
  */
 
-// const AzureStorageService = require("./AzureStorageService");
+const AzureStorageService = require("./AzureStorageService");
 const AWSStorageService = require("./AWSStorageService");
 const GCPStorageService = require("./GCPStorageService");
 
@@ -18,9 +18,9 @@ const GCPStorageService = require("./GCPStorageService");
 
 function init(provider) {
   switch (provider) {
-    // case "azure":
-    //   return AzureStorageService;
-    //   break;
+    case "azure":
+      return AzureStorageService;
+      break;
     case "aws":
       return AWSStorageService;
       break;
