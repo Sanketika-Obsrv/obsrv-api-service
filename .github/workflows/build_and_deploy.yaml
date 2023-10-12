@@ -21,7 +21,9 @@ jobs:
       matrix:
         service: ['./api-service', './command-service']
         dockerfile: ['Dockerfile', 'Dockerfile']
-    steps:
+     if: needs.check-tag.outputs.ALLOWED_TAG ==  'True' 
+     runs-on: ubuntu-latest
+     steps:
       - name: Checkout code
         uses: actions/checkout@v2s
 
