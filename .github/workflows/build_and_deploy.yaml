@@ -81,7 +81,7 @@ jobs:
         with:
           context: ./${{ matrix.service }}
           dockerfile: ./${{ matrix.service }}/${{ matrix.dockerfile }}
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/obsrv-${{ matrix.service }}:${{ github.ref_name }}
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}obsrv-${{ matrix.service }}:${{ github.ref_name }}
           push: true
 
 
