@@ -1,4 +1,47 @@
 
+# name: Obsrv api service build and deploy workflow
+# run-name: Workflow run for ${{ github.ref }}
+# on:
+#   push:
+#     tags:
+#       - '*'
+  
+
+# jobs:
+#   check-tag:
+#     runs-on: ubuntu-latest
+#     outputs:
+#       ALLOWED_TAG: ${{ steps.tag-checker.outputs.TRIGGER_ALLOWED }}
+#     steps:
+#       - name: Check if tag is one in list of current releases
+#         id: tag-checker
+#         run: |
+#           (echo -n TRIGGER_ALLOWED= && echo 'print("${{ github.ref_name }}".split("_")[0] in "${{ vars.CURRENT_RELEASE }}")' | python3) >> "$GITHUB_OUTPUT"
+#     strategy:
+#       matrix:
+#         service: ['./api-service', './command-service']
+#         dockerfile: ['Dockerfile', 'Dockerfile']
+#      needs: check-tag  
+#      if: needs.check-tag.outputs.ALLOWED_TAG ==  'True' 
+#      runs-on: ubuntu-latest
+#      steps:
+#       - name: Checkout code
+#         uses: actions/checkout@v2s
+
+#       - name: Login to Docker Hub
+#         uses: docker/login-action@v2
+#         with:
+#           username: ${{ secrets.DOCKERHUB_USERNAME }}
+#           password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+#       - name: Build and push Docker image
+#         uses: docker/build-push-action@v2
+#         with:
+#           context: ./${{ matrix.service }}
+#           dockerfile: ./${{ matrix.service }}/${{ matrix.dockerfile }}
+#           tags: ${{ secrets.DOCKERHUB_USERNAME }}/obsrv-${{ matrix.service }}:${{ github.ref_name }}
+#           push: true
+
 name: Obsrv api service build and deploy workflow
 run-name: Workflow run for ${{ github.ref }}
 on:
@@ -12,22 +55,15 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       ALLOWED_TAG: ${{ steps.tag-checker.outputs.TRIGGER_ALLOWED }}
+    strategy:
+      matrix:
+        service: ['./api-service', './command-service']
+        dockerfile: ['Dockerfile', 'Dockerfile']  
     steps:
       - name: Check if tag is one in list of current releases
         id: tag-checker
         run: |
           (echo -n TRIGGER_ALLOWED= && echo 'print("${{ github.ref_name }}".split("_")[0] in "${{ vars.CURRENT_RELEASE }}")' | python3) >> "$GITHUB_OUTPUT"
-    strategy:
-      matrix:
-        service: ['./api-service', './command-service']
-        dockerfile: ['Dockerfile', 'Dockerfile']
-     needs: check-tag  
-     if: needs.check-tag.outputs.ALLOWED_TAG ==  'True' 
-     runs-on: ubuntu-latest
-     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2s
-
       - name: Login to Docker Hub
         uses: docker/login-action@v2
         with:
@@ -41,6 +77,104 @@ jobs:
           dockerfile: ./${{ matrix.service }}/${{ matrix.dockerfile }}
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/obsrv-${{ matrix.service }}:${{ github.ref_name }}
           push: true
+        
+
+  # docker-build-commad-service:
+  #   needs: check-tag
+  #   if: needs.check-tag.outputs.ALLOWED_TAG == 'True'
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Login to Docker Hub
+  #       uses: docker/login-action@v2
+  #       with:
+  #         username: ${{ secrets.DOCKERHUB_USERNAME }}
+  #         password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+  #     - name: Build and push Commad service Docker image
+  #       uses: docker/build-push-action@v4
+  #       with:
+  #         push: true
+  #         context: ./command-service/Dockerfile # Replace with the path to your Commad service Dockerfile
+  #         tags: ${{ secrets.DOCKERHUB_USERNAME }}/obsrv-commad-service:${{ github.ref_name }}
+
+
+
+
+
+
+# aws-deploy:
+  #   needs: [check-tag, docker-build]
+  #   if: needs.check-tag.outputs.ALLOWED_TAG ==  'True'
+  #   runs-on: ubuntu-latest
+  #   environment: aws-dev
+  #   steps:
+  #     - name: Checkout
+  #       uses: actions/checkout@v2
+  #     - name: Setup Terragrunt
+  #       uses: autero1/action-terragrunt@v1.1.0
+  #       with:
+  #         terragrunt_version: v0.45.8
+  #     - name: Terragrunt installation
+  #       run: terragrunt --version
+  #     - name: Clone the terraform deployment repo
+  #       uses: actions/checkout@v3
+  #       with:
+  #         repository: ${{ vars.DEPLOY_REPO }}
+  #         path: deploy
+  #         ref: ${{ vars.DEPLOY_REPO_REF }}
+
+  #     - name: Fetch and update kubeconfig file
+  #       env:
+  #         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  #         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+  #         AWS_REGION: ${{ vars.AWS_REGION }}
+  #       run: |
+  #         aws eks --region ${{ vars.AWS_REGION }} update-kubeconfig --name ${{ vars.KUBERNETES_CLUSTER_NAME }}
+          
+
+  #     - name: Run terraform init and apply
+  #       env:
+  #         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  #         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+  #         AWS_REGION: ${{ vars.AWS_REGION }}
+  #         AWS_TERRAFORM_BACKEND_BUCKET_NAME: ${{ vars.AWS_TERRAFORM_BACKEND_BUCKET_NAME }}
+  #         AWS_TERRAFORM_BACKEND_BUCKET_REGION: ${{ vars.AWS_TERRAFORM_BACKEND_BUCKET_REGION }}
+  #         KUBE_CONFIG_PATH: ~/.kube/config
+          
+  #       run: |
+  #         cd deploy/terraform/aws
+  #         terragrunt init
+  #         terragrunt apply -auto-approve --target=module.dataset_api \
+  #         -var dataset_api_container_registry=${{ vars.DOCKERHUB_USERNAME }} \
+  #         -var dataset_api_image_tag=${{ github.ref_name }}
+
+  # azure-deploy:
+  #   needs: [check-tag, docker-build]
+  #   if: needs.check-tag.outputs.ALLOWED_TAG ==  'True' && vars.CLOUD_PROVIDER == 'azure'
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Clone the terraform deployment repo
+  #       uses: actions/checkout@v3
+  #       with:
+  #         repository: ${{ vars.DEPLOY_REPO }}
+  #         path: deploy
+  #         ref: ${{ vars.DEPLOY_REPO_REF }}
+
+  #     - name: Run terraform init and apply
+  #       env:
+  #         ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+  #         ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+  #         ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+  #         ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+  #       run: |
+  #         cd deploy/terraform/azure
+  #         terragrunt init
+  #         terragrunt apply -auto-approve --target=module.dataset_api \
+  #         -var dataset_api_container_registry=${{ secrets.DOCKERHUB_USERNAME }} \
+  #         -var dataset_api_image_tag=${{ github.ref_name }}
+
+
+
         
 
   # docker-build-commad-service:
