@@ -1,4 +1,4 @@
-FROM node:18-alpine
+FROM node:19.5.0-alpine
 RUN mkdir -p /opt/obsrv-api-service
 WORKDIR /opt/obsrv-api-service/
 COPY package*.json ./
