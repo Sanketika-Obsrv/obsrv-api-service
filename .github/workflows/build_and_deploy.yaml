@@ -66,7 +66,7 @@ jobs:
     if: needs.check-tag.outputs.ALLOWED_TAG == 'True'
     strategy:
       matrix:
-        service: ['./api-service', './command-service']
+        service: ['api-service', 'command-service']
         dockerfile: ['Dockerfile', 'Dockerfile']
     runs-on: ubuntu-latest
     steps:
