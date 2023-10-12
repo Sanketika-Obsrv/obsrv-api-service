@@ -68,8 +68,8 @@ jobs:
       fail-fast: false
       matrix:
         include:
-        dockerfile: api-service/Dockerfile
-        dockerfile: command-service/Dockerfile
+          - dockerfile: api-service/Dockerfile
+          - dockerfile: command-service/Dockerfile
     
     steps:
       - name: Login to Docker Hub
