@@ -68,8 +68,6 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - service: api-service
-          - service: command-service
           - dockerfile: api-service/Dockerfile
           - dockerfile: command-service/Dockerfile
     
@@ -85,7 +83,7 @@ jobs:
         with:
           context: .
           file: ${{ matrix.dockerfile }}
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}obsrv-${{ matrix.service }}:${{ github.ref_name }}
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}obsrv-:${{ github.ref_name }}
           push: true
 
      
