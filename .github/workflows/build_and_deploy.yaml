@@ -83,7 +83,6 @@ jobs:
       - name: Build and push Docker image
         uses: docker/build-push-action@v2
         with:
-          context: .
           file: ${{ matrix.dockerfile }}
           tags: ${{ secrets.DOCKERHUB_USERNAME }}obsrv-${{ matrix.service}}:${{ github.ref_name }}
 
