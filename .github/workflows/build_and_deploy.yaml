@@ -118,8 +118,8 @@ jobs:
       - name: Build and push API service Docker image
         uses: docker/build-push-action@v2
         with:
-          context: api-service  # Set the context to the directory containing the API service Dockerfile
-          dockerfile: Dockerfile  # Use the API service Dockerfile
+          context: . # Set the context to the directory containing the API service Dockerfile
+          dockerfile: api-service/Dockerfile  # Use the API service Dockerfile
           tags: ${{ secrets.DOCKERHUB_USERNAME }}obsrv-api-service:${{ github.ref_name }}
           push: true
 
@@ -137,8 +137,8 @@ jobs:
       - name: Build and push Command service Docker image
         uses: docker/build-push-action@v2
         with:
-          context: command-service  # Set the context to the directory containing the Command service Dockerfile
-          dockerfile: Dockerfile  # Use the Command service Dockerfile
+          context: .   # Set the context to the directory containing the Command service Dockerfile
+          dockerfile: command-service/Dockerfile  # Use the Command service Dockerfile
           tags: ${{ secrets.DOCKERHUB_USERNAME }}obsrv-command-service:${{ github.ref_name }}
           push: true
 
