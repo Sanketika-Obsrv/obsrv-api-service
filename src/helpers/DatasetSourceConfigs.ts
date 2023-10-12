@@ -1,6 +1,7 @@
 import _ from "lodash";
 import { SchemaMerger } from "../generators/SchemaMerger"
 import { defaultConfig } from '../resources/schemas/DatasetConfigDefault'
+import {v4} from 'uuid'
 const schemaMerger = new SchemaMerger()
 export class DatasetSourceConfigs {
     private id: string
@@ -17,7 +18,7 @@ export class DatasetSourceConfigs {
             this.id = payload.id
         }
         else {
-            this.id = payload.dataset_id + '_' + payload.connector_type
+            this.id = v4()
         }
         this.dataset_id = payload.dataset_id
         this.connector_type = payload.connector_type
