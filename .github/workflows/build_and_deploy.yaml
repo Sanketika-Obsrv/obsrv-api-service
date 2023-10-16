@@ -78,7 +78,8 @@ jobs:
         with:
           push: true
        # Specify the path to the directory containing Dockerfile 1
-          context: ./api-service  
+          # context: ./api-service  
+          context: ls
           file: Dockerfile
           tags: ${{ vars.DOCKERHUB_USERNAME }}/obsrv-api-service:${{ github.ref_name }}-1
 
@@ -97,6 +98,7 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           push: true
-          context: ./command-service
+          # context: ./command-service
+            context: ls
           file: Dockerfile  # Path to Dockerfile 2
           tags: ${{ vars.DOCKERHUB_USERNAME }}/obsrv-api-service:${{ github.ref_name }}-2
