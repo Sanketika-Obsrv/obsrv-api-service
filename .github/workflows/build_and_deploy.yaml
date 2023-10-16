@@ -1,12 +1,55 @@
 
 
+# # name: Obsrv api service build and deploy workflow
+# # run-name: Workflow run for ${{ github.ref }}
+# # on:
+# #   push:
+# #     tags:
+# #       - '*'
+  
+
+# # jobs:
+# #   check-tag:
+# #     runs-on: ubuntu-latest
+# #     outputs:
+# #       ALLOWED_TAG: ${{ steps.tag-checker.outputs.TRIGGER_ALLOWED }}
+# #     steps:
+# #       - name: Check if tag is one in list of current releases
+# #         id: tag-checker
+# #         run: |
+# #           (echo -n TRIGGER_ALLOWED= && echo 'print("${{ github.ref_name }}".split("_")[0] in "${{ vars.CURRENT_RELEASE }}")' | python3) >> "$GITHUB_OUTPUT"
+      
+# #   docker-build:
+# #     needs: check-tag
+# #     if: needs.check-tag.outputs.ALLOWED_TAG == 'True'
+# #     runs-on: ubuntu-latest
+# #     strategy:
+# #       fail-fast: false
+# #       matrix:
+# #         include: 
+# #           - dockerfile: ./api-service/Dockerfile
+# #           # - dockerfile: command-service/Dockerfile
+    
+# #     steps:
+# #       - name: Login to Docker Hub
+# #         uses: docker/login-action@v2
+# #         with:
+# #           username: ${{ vars.DOCKERHUB_USERNAME }}
+# #           password: ${{ secrets.DOCKERHUB_TOKEN }}
+          
+# #       - name: Build and push Docker image
+# #         uses: docker/build-push-action@v2
+# #         with:
+# #           file: ${{ matrix.dockerfile }}
+# #           tags: ${{ secrets.DOCKERHUB_USERNAME }}obsrv-service:${{ github.ref_name }}
+
+# #           push: true
 # name: Obsrv api service build and deploy workflow
 # run-name: Workflow run for ${{ github.ref }}
 # on:
 #   push:
 #     tags:
 #       - '*'
-  
 
 # jobs:
 #   check-tag:
@@ -14,42 +57,59 @@
 #     outputs:
 #       ALLOWED_TAG: ${{ steps.tag-checker.outputs.TRIGGER_ALLOWED }}
 #     steps:
-#       - name: Check if tag is one in list of current releases
+#       - name: Check if tag is one in the list of current releases
 #         id: tag-checker
 #         run: |
 #           (echo -n TRIGGER_ALLOWED= && echo 'print("${{ github.ref_name }}".split("_")[0] in "${{ vars.CURRENT_RELEASE }}")' | python3) >> "$GITHUB_OUTPUT"
-      
-#   docker-build:
+#       - name: Check Current Directory
+#         run: pwd     
+
+#   docker-build-api-service:
 #     needs: check-tag
 #     if: needs.check-tag.outputs.ALLOWED_TAG == 'True'
 #     runs-on: ubuntu-latest
-#     strategy:
-#       fail-fast: false
-#       matrix:
-#         include: 
-#           - dockerfile: ./api-service/Dockerfile
-#           # - dockerfile: command-service/Dockerfile
-    
 #     steps:
 #       - name: Login to Docker Hub
 #         uses: docker/login-action@v2
 #         with:
 #           username: ${{ vars.DOCKERHUB_USERNAME }}
 #           password: ${{ secrets.DOCKERHUB_TOKEN }}
-          
-#       - name: Build and push Docker image
-#         uses: docker/build-push-action@v2
-#         with:
-#           file: ${{ matrix.dockerfile }}
-#           tags: ${{ secrets.DOCKERHUB_USERNAME }}obsrv-service:${{ github.ref_name }}
 
+#       - name: Build Docker image and push (docker-build-api-service)
+#         uses: docker/build-push-action@v4
+#         with:
 #           push: true
-name: Obsrv api service build and deploy workflow
+#        # Specify the path to the directory containing Dockerfile 1
+#           # context: ./api-service  
+#           context: ls
+#           file: Dockerfile
+#           tags: ${{ vars.DOCKERHUB_USERNAME }}/obsrv-api-service:${{ github.ref_name }}-1
+
+#   docker-build-command-service:
+#     needs: check-tag
+#     if: needs.check-tag.outputs.ALLOWED_TAG == 'True'
+#     runs-on: ubuntu-latest
+#     steps:
+#       - name: Login to Docker Hub
+#         uses: docker/login-action@v2
+#         with:
+#           username: ${{ vars.DOCKERHUB_USERNAME }}
+#           password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+#       - name: Build Docker image and push (docker-build-command-service)
+#         uses: docker/build-push-action@v4
+#         with:
+#           push: true
+#           # context: ./command-service
+#           context: ls
+#           file: Dockerfile  # Path to Dockerfile 2
+#           tags: ${{ vars.DOCKERHUB_USERNAME }}/obsrv-api-service:${{ github.ref_name }}-2
+name: Obsrv Core service build and deploy workflow
 run-name: Workflow run for ${{ github.ref }}
 on:
   push:
     tags:
-      - '*'
+     - '*'
 
 jobs:
   check-tag:
@@ -57,50 +117,55 @@ jobs:
     outputs:
       ALLOWED_TAG: ${{ steps.tag-checker.outputs.TRIGGER_ALLOWED }}
     steps:
-      - name: Check if tag is one in the list of current releases
+      - name: Check if tag is one in list of current releases
         id: tag-checker
         run: |
-          (echo -n TRIGGER_ALLOWED= && echo 'print("${{ github.ref_name }}".split("_")[0] in "${{ vars.CURRENT_RELEASE }}")' | python3) >> "$GITHUB_OUTPUT"
-      - name: Check Current Directory
-        run: pwd     
+          (echo -n TRIGGER_ALLOWED= && echo 'print("${{ github.ref_name }}".split("_")[0]
+          in ${{ vars.CURRENT_RELEASE }})' | python3) >> "$GITHUB_OUTPUT"
 
-  docker-build-api-service:
+  docker-build:
     needs: check-tag
-    if: needs.check-tag.outputs.ALLOWED_TAG == 'True'
+    if: needs.check-tag.outputs.ALLOWED_TAG ==  'True'
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+       include:
+         - image: "api-service"
+           target: "api-service-image"
+         - image: "command-service"
+           target: "command-service-image
     steps:
-      - name: Login to Docker Hub
+
+      - name: Login to docker hub
         uses: docker/login-action@v2
         with:
-          username: ${{ vars.DOCKERHUB_USERNAME }}
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Build Docker image and push (docker-build-api-service)
+      - name: Build api-service image and push
         uses: docker/build-push-action@v4
         with:
+          platforms: linux/amd64
+          target: api-service-image
           push: true
-       # Specify the path to the directory containing Dockerfile 1
-          # context: ./api-service  
-          context: ls
-          file: Dockerfile
-          tags: ${{ vars.DOCKERHUB_USERNAME }}/obsrv-api-service:${{ github.ref_name }}-1
-
-  docker-build-command-service:
-    needs: check-tag
-    if: needs.check-tag.outputs.ALLOWED_TAG == 'True'
-    runs-on: ubuntu-latest
-    steps:
-      - name: Login to Docker Hub
-        uses: docker/login-action@v2
-        with:
-          username: ${{ vars.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-
-      - name: Build Docker image and push (docker-build-command-service)
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/api-service:${{ github.ref_name }}
+      
+      - name: Build merged-pipeline image and push
         uses: docker/build-push-action@v4
         with:
+          platforms: linux/amd64
+          target: command-service-image 
           push: true
-          # context: ./command-service
-          context: ls
-          file: Dockerfile  # Path to Dockerfile 2
-          tags: ${{ vars.DOCKERHUB_USERNAME }}/obsrv-api-service:${{ github.ref_name }}-2
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/command-service:${{ github.ref_name }}
+      
+      
+
+      - name: Build ${{matrix.image}} image and push
+        uses: docker/build-push-action@v4
+        with:
+          platforms: linux/amd64
+          target: ${{matrix.target}}
+          push: true
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/${{matrix.image}}:${{ github.ref_name }}
+
+ 
