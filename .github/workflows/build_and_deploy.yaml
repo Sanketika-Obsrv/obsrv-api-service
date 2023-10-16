@@ -77,7 +77,7 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           push: true
-          context: ./api-service   # Specify the path to the directory containing Dockerfile 1
+          context: api-service   # Specify the path to the directory containing Dockerfile 1
           file: Dockerfile
           tags: ${{ vars.DOCKERHUB_USERNAME }}/obsrv-api-service:${{ github.ref_name }}-1
 
