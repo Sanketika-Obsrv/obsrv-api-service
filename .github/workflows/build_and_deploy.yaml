@@ -73,12 +73,13 @@ jobs:
           username: ${{ vars.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Build Docker image and push (Dockerfile 1)
+      - name: Build Docker image and push (docker-build-api-service)
         uses: docker/build-push-action@v4
         with:
           push: true
        # Specify the path to the directory containing Dockerfile 1
-          file: ./api-service/Dockerfile
+          context: ./api-service   
+          file: Dockerfile
           tags: ${{ vars.DOCKERHUB_USERNAME }}/obsrv-api-service:${{ github.ref_name }}-1
 
   docker-build-command-service:
@@ -92,9 +93,10 @@ jobs:
           username: ${{ vars.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Build Docker image and push (Dockerfile 2)
+      - name: Build Docker image and push (docker-build-command-service)
         uses: docker/build-push-action@v4
         with:
           push: true
-          file: ./command-service/Dockerfile  # Path to Dockerfile 2
+          context: ./command-service
+          file: Dockerfile  # Path to Dockerfile 2
           tags: ${{ vars.DOCKERHUB_USERNAME }}/obsrv-api-service:${{ github.ref_name }}-2
