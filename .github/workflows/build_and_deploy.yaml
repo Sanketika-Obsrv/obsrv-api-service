@@ -147,7 +147,7 @@ jobs:
           platforms: linux/amd64
           target: api-service-image
           push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/api-service:${{ github.ref_name }}
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}api-service:${{ github.ref_name }}
       
       - name: Build merged-pipeline image and push
         uses: docker/build-push-action@v4
@@ -155,7 +155,7 @@ jobs:
           platforms: linux/amd64
           target: command-service-image 
           push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/command-service:${{ github.ref_name }}
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}command-service:${{ github.ref_name }}
       
       
 
