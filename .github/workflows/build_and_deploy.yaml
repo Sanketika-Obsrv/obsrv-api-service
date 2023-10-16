@@ -99,6 +99,6 @@ jobs:
         with:
           push: true
           # context: ./command-service
-            context: ls
+          context: ls
           file: Dockerfile  # Path to Dockerfile 2
           tags: ${{ vars.DOCKERHUB_USERNAME }}/obsrv-api-service:${{ github.ref_name }}-2
