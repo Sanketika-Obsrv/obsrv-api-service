@@ -133,7 +133,7 @@ jobs:
          - image: "api-service"
            target: "api-service-image"
          - image: "command-service"
-           target: "command-service-image
+           target: "command-service-image"
     steps:
 
       - name: Login to docker hub
