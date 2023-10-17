@@ -9,7 +9,7 @@ FROM --platform=linux/amd64 python:3.10-alpine
 COPY --from=ubuntu /usr/local/bin /usr/local/bin
 WORKDIR /app
 COPY . .
-WORKDIR /app/commmand-service
+WORKDIR /app/command-service
 RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 WORKDIR /app/src
