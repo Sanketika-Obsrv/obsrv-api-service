@@ -113,7 +113,6 @@ on:
   push:
     tags:
       - '*'
-
 jobs:
   check-tag:
     runs-on: ubuntu-latest
@@ -125,7 +124,8 @@ jobs:
         run: |
           (echo -n TRIGGER_ALLOWED= && echo 'print("${{ github.ref_name }}".split("_")[0] in "${{ vars.CURRENT_RELEASE }}")' | python3) >> "$GITHUB_OUTPUT"
       - name: checking Directory 
-        run: pwd  
+        run: cd .. |
+            pwd  
 
   docker-build:
     needs: check-tag
