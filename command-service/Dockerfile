@@ -10,6 +10,6 @@ COPY --from=ubuntu /usr/local/bin /usr/local/bin
 WORKDIR /app
 COPY . .
 RUN pip install --no-cache-dir -r requirements.txt
-COPY src ./src
+COPY . .
 WORKDIR /app/src
 CMD [ "uvicorn", "routes:app", "--host", "0.0.0.0" ]
