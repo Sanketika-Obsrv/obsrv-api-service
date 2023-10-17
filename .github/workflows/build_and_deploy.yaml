@@ -141,8 +141,9 @@ jobs:
       - name: Build Docker image and push
         uses: docker/build-push-action@v2
         with:
-          run: pwd
-          run: ls
+          run: |
+              pwd 
+              ls
           context: /api-service 
           file: Dockerfile
           push: true
