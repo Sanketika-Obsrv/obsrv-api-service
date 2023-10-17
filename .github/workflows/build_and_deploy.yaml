@@ -138,7 +138,7 @@ jobs:
       - name: Build Docker image and push
         uses: docker/build-push-action@v2
         with:
-          context: ./obsrv-api-service/api-service  # Corrected context path
+          file: ./obsrv-api-service/api-service  # Corrected context path
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}obsrv-api-service:${{ github.ref_name }}
 
