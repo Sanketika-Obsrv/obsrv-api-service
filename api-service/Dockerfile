@@ -1,8 +1,8 @@
 FROM node:18-alpine
 RUN mkdir -p /opt/obsrv-api-service/api-service
-WORKDIR /opt/obsrv-api-service/api-service
+WORKDIR /opt
 COPY . .
-RUN pwd && ls
+WORKDIR /opt/api-service
 RUN npm install
 EXPOSE 3000
 CMD ["npm", "run", "start"]
