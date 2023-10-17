@@ -8,8 +8,9 @@ RUN mv ./kubectl /usr/local/bin
 FROM --platform=linux/amd64 python:3.10-alpine
 COPY --from=ubuntu /usr/local/bin /usr/local/bin
 WORKDIR /app
-COPY requirements.txt .
+COPY . .
+WORKDIR /app/commmand-service
 RUN pip install --no-cache-dir -r requirements.txt
-COPY src ./src
+COPY . .
 WORKDIR /app/src
 CMD [ "uvicorn", "routes:app", "--host", "0.0.0.0" ]
