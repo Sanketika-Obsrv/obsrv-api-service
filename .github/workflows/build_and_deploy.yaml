@@ -140,7 +140,7 @@ jobs:
         with:
           context: ./obsrv-api-service/api-service  # Corrected context path
           push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/obsrv-api-service:${{ github.ref_name }}
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}obsrv-api-service:${{ github.ref_name }}
 
 
 
