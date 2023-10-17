@@ -140,6 +140,7 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       - name: list the files 
         run: |
+             cd ../
              pwd
              ls    
       - name: Build Docker image and push
