@@ -140,6 +140,6 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: ./api-service
-          file: {context}/Dockerfile
+          file: Dockerfile
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/obsrv-api-service:${{ github.ref_name }}
