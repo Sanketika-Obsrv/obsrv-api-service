@@ -108,21 +108,24 @@
       
       
 
-name: 'Obsrv API Service Build and Deploy Workflow'
+name: Obsrv Core service build and deploy workflow
+run-name: Workflow run for ${{ github.ref }}
 on:
   push:
     tags:
-      - '*'
+     - '*'
+
 jobs:
   check-tag:
     runs-on: ubuntu-latest
     outputs:
       ALLOWED_TAG: ${{ steps.tag-checker.outputs.TRIGGER_ALLOWED }}
     steps:
-      - name: Check if tag is one in the list of current releases
+      - name: Check if tag is one in list of current releases
         id: tag-checker
         run: |
-          (echo -n TRIGGER_ALLOWED= && echo 'print("${{ github.ref_name }}".split("_")[0] in "${{ vars.CURRENT_RELEASE }}")' | python3) >> "$GITHUB_OUTPUT"
+          (echo -n TRIGGER_ALLOWED= && echo 'print("${{ github.ref_name }}".split("_")[0]
+          in ${{ vars.CURRENT_RELEASE }})' | python3) >> "$GITHUB_OUTPUT"
       - name: checking Directory 
         run: |
             cd ../
