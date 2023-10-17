@@ -1,7 +1,7 @@
 FROM node:18-alpine
 RUN mkdir -p /opt/obsrv-api-service
 WORKDIR /opt/obsrv-api-service/
-RUN ls
+CMD ls
 RUN pwd
 
 # COPY package*.json ./
