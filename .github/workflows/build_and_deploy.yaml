@@ -53,7 +53,7 @@ jobs:
         with:
           file: ./command-service/Dockerfile  # Corrected context path
           push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}obsrv-api-service:${{ github.ref_name }}
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}obsrv-command-service:${{ github.ref_name }}
 
         
 
