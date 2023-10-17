@@ -141,4 +141,4 @@ jobs:
           context: ./api-service
           file: ./api-service/Dockerfile
           push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/obsrv-api-service:${{ github.ref_name }}
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}obsrv-api-service:${{ github.ref_name }}
