@@ -1,8 +1,8 @@
 FROM node:18-alpine
 RUN mkdir -p /opt/obsrv-api-service
 WORKDIR /opt/obsrv-api-service/
-CMD ls
 RUN pwd
+CMD ls
 
 # COPY package*.json ./
 # RUN npm install
