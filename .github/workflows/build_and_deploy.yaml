@@ -108,12 +108,11 @@
       
       
 
-name: Obsrv Core service build and deploy workflow
-run-name: Workflow run for ${{ github.ref }}
+name: Obsrv Core Service Build and Deploy Workflow
 on:
   push:
     tags:
-     - '*'
+      - '*'
 
 jobs:
   check-tag:
@@ -124,12 +123,7 @@ jobs:
       - name: Check if tag is one in list of current releases
         id: tag-checker
         run: |
-          (echo -n TRIGGER_ALLOWED= && echo 'print("${{ github.ref_name }}".split("_")[0]
-          in ${{ vars.CURRENT_RELEASE }})' | python3) >> "$GITHUB_OUTPUT"
-      - name: checking Directory 
-        run: |
-            cd ../
-            pwd  
+          echo "TRIGGER_ALLOWED=$(echo \"${{ github.ref }}\" | cut -d'_' -f1)" >> $GITHUB_ENV
 
   docker-build:
     needs: check-tag
@@ -141,17 +135,16 @@ jobs:
         with:
           username: ${{ vars.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-      - name: list the files 
+      - name: List the files
         run: |
-             cd ../
-             pwd
-             ls    
+          pwd
+          ls
       - name: Build Docker image and push
         uses: docker/build-push-action@v2
         with:
-          context: ./obsrv-api-service/api-service
+          context: ./obsrv-api-service/api-service  # Corrected context path
           push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}obsrv-api-service:${{ github.ref_name }}
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/obsrv-api-service:${{ github.ref_name }}
 
 
 
