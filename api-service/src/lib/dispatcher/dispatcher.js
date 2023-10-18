@@ -1,21 +1,24 @@
 const winston = require("winston");
+const { KafkaDispatcher } = require("./kafka-dispatcher");
 require("winston-daily-rotate-file");
 require("./kafka-dispatcher");
-
+const appConfig = require("../../configs/Config")
 const defaultFileOptions = {
   filename: "dispatcher-%DATE%.log",
   datePattern: "YYYY-MM-DD",
-  maxSize: "100m",
+  maxsize: appConfig.config.telemetry_service_config.maxsize,
   maxFiles: "100",
   zippedArchive: true,
   json: true,
 };
+
 
 class Dispatcher {
   constructor(options) {
     if (!options) throw new Error("Dispatcher options are required");
     this.logger = new winston.Logger({ level: "info" });
     this.options = options;
+    this.kafkaDispatcher = new KafkaDispatcher(this.options)
     if (this.options.dispatcher == "kafka") {
       this.logger.add(winston.transports.Kafka, this.options);
       console.log("Kafka transport enabled !!!");
@@ -33,7 +36,8 @@ class Dispatcher {
   }
 
   dispatch(mid, message, params, callback) {
-    this.logger.log("info", message, params, callback);
+    // this.logger.log("info", message, params, callback)
+    this.kafkaDispatcher.log("info", message, params, callback);
   }
 
   health(callback) {

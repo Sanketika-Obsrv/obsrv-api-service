@@ -32,7 +32,7 @@ export const config = {
     proxyAuthKey: process.env.telemetry_proxy_auth_key,
     compression_type: process.env.telemetry_kafka_compression || 'none',
     filename: process.env.telemetry_file_filename || 'telemetry-%DATE%.log',
-    maxSize: process.env.telemetry_file_maxsize || '100m',
+    maxsize: process.env.telemetry_file_maxsize || 10485760,
     maxFiles: process.env.telemetry_file_maxfiles || '100',
     "kafka": {    // The default Kafka configuration includes essential parameters such as broker IP addresses and other configuration options.
       "config": {
