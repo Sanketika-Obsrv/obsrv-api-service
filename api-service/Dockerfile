@@ -1,5 +1,5 @@
 FROM node:18-alpine
-RUN mkdir -p /opt/obsrv-api-service/api-service
+RUN mkdir -p /opt/api-service
 WORKDIR /opt
 COPY . .
 WORKDIR /opt/api-service
