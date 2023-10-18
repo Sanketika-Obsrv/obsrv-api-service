@@ -47,7 +47,7 @@ jobs:
         with:
           file: ./command-service/Dockerfile  
           push: true
-          tags: ${{ vars.DOCKERHUB_USERNAME }}/obsrv-command-service:${{ github.ref_name }}
+          tags: ${{ vars.DOCKERHUB_USERNAME }}/flink-command-service:${{ github.ref_name }}
 
   
   aws-deploy:

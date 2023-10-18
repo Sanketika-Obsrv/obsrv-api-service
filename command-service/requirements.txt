@@ -2,5 +2,5 @@ fastapi==0.92.0
 uvicorn==0.20.0
 dataclasses-json==0.5.7
 urllib3==1.26.14
-pyyaml==5.3.1
+pyyaml==6.0
 backoff==2.2.1
