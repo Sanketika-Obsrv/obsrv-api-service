@@ -20,7 +20,7 @@ jobs:
     if: needs.check-tag.outputs.ALLOWED_TAG ==  'True'
     runs-on: ubuntu-latest
     steps:
-      - name: Login to docker Hub
+      - name: Login to docker hub
         uses: docker/login-action@v1
         with:
           username: ${{ vars.DOCKERHUB_USERNAME }}
