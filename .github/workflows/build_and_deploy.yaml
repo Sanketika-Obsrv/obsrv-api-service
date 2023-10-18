@@ -1,9 +1,4 @@
 
-
-
-      
-      
-
 name: Obsrv api service build and deploy workflow
 run-name: Workflow run for ${{ github.ref }}
 on:
@@ -34,7 +29,7 @@ jobs:
       - name: Build Docker image and push
         uses: docker/build-push-action@v2
         with:
-          file: ./api-service/Dockerfile  # Corrected context path
+          file: ./api-service/Dockerfile  
           push: true
           tags: ${{ vars.DOCKERHUB_USERNAME }}/obsrv-api-service:${{ github.ref_name }}
 
@@ -51,7 +46,7 @@ jobs:
       - name: Build Docker image and push
         uses: docker/build-push-action@v2
         with:
-          file: ./command-service/Dockerfile  # Corrected context path
+          file: ./command-service/Dockerfile  
           push: true
           tags: ${{ vars.DOCKERHUB_USERNAME }}/obsrv-command-service:${{ github.ref_name }}
 
