@@ -4,6 +4,6 @@ WORKDIR /opt/obsrv-api-service/
 COPY api-service/package*.json ./
 RUN npm install
 COPY . .
-RUN cp
+RUN pwd 
 EXPOSE 3000
 CMD ["npm", "run", "start"]
