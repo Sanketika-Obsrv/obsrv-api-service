@@ -1,9 +1,17 @@
+# FROM node:18-alpine
+# RUN mkdir -p /opt/api-service
+# WORKDIR /opt
+# COPY api-service/package.json
+# WORKDIR /opt/api-service
+# RUN npm install
+# EXPOSE 3000
+# CMD ["npm", "run", "start"]
+
 FROM --platform=linux/amd64 node:20-alpine
 RUN mkdir -p /opt/obsrv-api-service
 WORKDIR /opt/obsrv-api-service/
 COPY api-service/package*.json ./
 RUN npm install
-COPY . .
-RUN pwd 
+COPY api-service
 EXPOSE 3000
 CMD ["npm", "run", "start"]
