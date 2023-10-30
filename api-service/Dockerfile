@@ -19,10 +19,21 @@
 # EXPOSE 3000
 # CMD ["npm", "run", "start"]
 
-FROM node:20-alpine
+FROM --platform=linux/amd64 node:20-alpine
+RUN mkdir -p /opt/api-service
 WORKDIR /opt/api-service
 COPY ./api-service/package*.json ./
 RUN npm install
-COPY ./api-service ./
+COPY . .
 EXPOSE 3000
 CMD ["npm", "run", "start"]
+
+
+# FROM --platform=linux/amd64 node:20-alpine
+# RUN mkdir -p /opt/api-service
+# WORKDIR /opt/api-service
+# COPY package*.json ./
+# RUN npm install
+# COPY . .
+# EXPOSE 3000
+# CMD ["npm", "run", "start"]
