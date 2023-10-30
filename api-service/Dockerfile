@@ -28,6 +28,7 @@ RUN cd /opt/api-service
 RUN ls
 RUN npm install
 COPY . .
+RUN ls 
 EXPOSE 3000
 CMD ["npm", "run", "start"]
 
