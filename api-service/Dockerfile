@@ -14,7 +14,9 @@ RUN pwd
 WORKDIR /opt/api-service
 RUN pwd
 COPY api-service/package*.json ./
+RUN pwd
 RUN npm install
 COPY . .
+RUN pwd
 EXPOSE 3000
 CMD ["npm", "run", "start"]
