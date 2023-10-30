@@ -32,22 +32,22 @@ jobs:
           push: true
           tags: ${{ vars.DOCKERHUB_USERNAME }}/obsrv-api-service:${{ github.ref_name }}
 
-  # docker-build-command-service:
-  #   needs: check-tag
-  #   if: needs.check-tag.outputs.ALLOWED_TAG ==  'True'
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: Login to docker hub
-  #       uses: docker/login-action@v1
-  #       with:
-  #         username: ${{ vars.DOCKERHUB_USERNAME }}
-  #         password: ${{ secrets.DOCKERHUB_TOKEN }}
-  #     - name: Build docker image and push
-  #       uses: docker/build-push-action@v2
-  #       with:
-  #         file: ./command-service/Dockerfile  
-  #         push: true
-  #         tags: ${{ vars.DOCKERHUB_USERNAME }}/flink-command-service:${{ github.ref_name }}
+  docker-build-command-service:
+    needs: check-tag
+    if: needs.check-tag.outputs.ALLOWED_TAG ==  'True'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Login to docker hub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ vars.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Build docker image and push
+        uses: docker/build-push-action@v2
+        with:
+          file: ./command-service/Dockerfile  
+          push: true
+          tags: ${{ vars.DOCKERHUB_USERNAME }}/flink-command-service:${{ github.ref_name }}
 
   # aws-deploy:
   #   needs: [check-tag, docker-build]
