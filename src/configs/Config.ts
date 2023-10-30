@@ -5,6 +5,9 @@ export const config = {
   "body_parser_limit": process.env.body_parser_limit || "100mb",
   "query_api": {
     "druid": {
+      "druid_auth_enabled": process.env.druid_auth_enabled || false,
+      "druid_user": process.env.druid_admin_username || "",
+      "druid_password": process.env.druid_admin_password || "",
       "host": process.env.druid_host || "http://localhost",
       "port": process.env.druid_port || 8888,
       "sql_query_path": "/druid/v2/sql/",

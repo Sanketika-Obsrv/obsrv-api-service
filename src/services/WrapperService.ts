@@ -22,7 +22,7 @@ export class WrapperService {
     ) => {
         try {
             // console.log("SQL Request to druid - \n" + JSON.stringify({"ts": Date.now(), body: req.body, headers: req.headers}));
-            const authorization = req?.headers?.authorization;
+            const authorization = req?.headers?.authorization
             const result = await axios.post(
                 `${config.query_api.druid.host}:${config.query_api.druid.port}${config.query_api.druid.sql_query_path}`,
                 req.body, {
@@ -95,15 +95,16 @@ export class WrapperService {
         next: NextFunction
     ) => {
         try {
+            const headers = req?.headers;
             // console.log("Native STATUS Request to druid - \n" + JSON.stringify({"ts": Date.now(), body: req.body, headers: req.headers, url: req.url}));
             const result = await axios.get(
-                `${config.query_api.druid.host}:${config.query_api.druid.port}/status`
+                `${config.query_api.druid.host}:${config.query_api.druid.port}/status`,
+                {
+                    headers
+                }
             );
             ResponseHandler.flatResponse(req, res, result);
         } catch (error: any) { this.handleError(error, next); }
     };
 
-    public submitIngestion = async (ingestionSpec: object) => {
-        return await axios.post(`${config.query_api.druid.host}:${config.query_api.druid.port}/${config.query_api.druid.submit_ingestion}`, ingestionSpec)
-     }
 }

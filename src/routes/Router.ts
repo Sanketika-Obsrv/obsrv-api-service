@@ -19,9 +19,11 @@ import { onRequest } from "../helpers/prometheus/helpers";
 import promEntities from "../helpers/prometheus/entities";
 import { metricsScrapeHandler } from "../helpers/prometheus";
 
+export const datasourceConnector = new HTTPConnector(`${config.query_api.druid.host}:${config.query_api.druid.port}`)
+
 export const validationService = new ValidationService();
 
-export const queryService = new QueryService(new HTTPConnector(`${config.query_api.druid.host}:${config.query_api.druid.port}`));
+export const queryService = new QueryService(datasourceConnector);
 
 export const kafkaConnector = new KafkaConnector()
 
@@ -30,7 +32,7 @@ export const dbConnector = new DbConnector(config.db_connector_config);
 export const datasourceService = new DataSourceService(dbConnector, config.table_names.datasources);
 export const datasetService = new DatasetService(dbConnector, config.table_names.datasets);
 export const datasetSourceConfigService = new DatasetSourceConfigService(dbConnector, config.table_names.datasetSourceConfig);
-export const ingestorService = new IngestorService(kafkaConnector, new HTTPConnector(`${config.query_api.druid.host}:${config.query_api.druid.port}`));
+export const ingestorService = new IngestorService(kafkaConnector, datasourceConnector);
 export const exhaustService = new ClientCloudService(config.exhaust_config.cloud_storage_provider, config.exhaust_config.cloud_storage_config);
 export const wrapperService = new WrapperService();
 export const globalCache: any = new Map()

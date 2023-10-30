@@ -10,7 +10,7 @@ import { dbConnector } from "../routes/Router";
 import { routesConfig } from "../configs/RoutesConfig";
 import { config } from "../configs/Config";
 import { isValidDateRange } from "../utils/common";
-import { HTTPConnector } from "../connectors/HttpConnector";
+import { datasourceConnector } from "../routes/Router";
 export class QueryValidator implements IValidator {
     private limits: ILimits;
     private momentFormat: string;
@@ -18,7 +18,7 @@ export class QueryValidator implements IValidator {
     constructor() {
         this.limits = queryRules
         this.momentFormat = "YYYY-MM-DD HH:MI:SS"
-        this.httpConnector = new HTTPConnector(`${config.query_api.druid.host}:${config.query_api.druid.port}`).connect()
+        this.httpConnector = datasourceConnector.connect()
     }
     public async validate(data: any, id: string): Promise<ValidationStatus> {
         let validationStatus

@@ -5,7 +5,7 @@ import { SchemaMerger } from "../generators/SchemaMerger";
 import constants from '../resources/Constants.json'
 import { config as appConfig } from "../configs/Config"
 import _ from 'lodash'
-import { wrapperService } from "../routes/Router";
+import { ingestorService } from "../routes/Router";
 const schemaMerger = new SchemaMerger()
 export class DbConnector implements IConnector {
     public pool: Knex
@@ -95,7 +95,7 @@ export class DbConnector implements IConnector {
 
     private async submit_ingestion(ingestion_spec: Record<string, any>, table: string) {
         if (appConfig.table_names.datasources === table) {
-            return await wrapperService.submitIngestion(ingestion_spec)
+            return await ingestorService.submitIngestionTask(ingestion_spec)
                 .catch((error: any) => {
                     console.error(constants.INGESTION_FAILED_ON_SAVE)
                     throw constants.FAILED_RECORD_UPDATE
