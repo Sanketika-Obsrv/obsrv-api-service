@@ -11,7 +11,7 @@ FROM --platform=linux/amd64 node:20-alpine
 RUN mkdir -p /opt/api-service
 COPY /api-service/package*.json ./api-service
 RUN pwd 
-RUN cd api-service
+RUN cd /opt/api-service
 RUN ls   
 RUN npm install
 COPY .  .
