@@ -9,9 +9,7 @@
 
 FROM --platform=linux/amd64 node:20-alpine
 RUN mkdir -p /opt/api-service
-WORKDIR /opt/api-service
-COPY api-service/package*.json ./
-COPY api-service/src/app.ts ./
+COPY /api-service/package*.json ./api-service
 RUN pwd 
 RUN ls    
 RUN npm install
