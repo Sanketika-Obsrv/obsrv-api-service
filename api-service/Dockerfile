@@ -8,8 +8,11 @@
 # CMD ["npm", "run", "start"]
 
 FROM --platform=linux/amd64 node:20-alpine
+RUN pwd
 RUN mkdir -p /opt/api-service
+RUN pwd
 WORKDIR /opt/api-service
+RUN pwd
 COPY api-service/package*.json ./
 RUN npm install
 COPY . .
