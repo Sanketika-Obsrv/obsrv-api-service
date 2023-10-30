@@ -8,15 +8,14 @@
 # CMD ["npm", "run", "start"]
 
 FROM --platform=linux/amd64 node:20-alpine
-RUN pwd
 RUN mkdir -p /opt/api-service
-RUN pwd
 WORKDIR /opt/api-service
-RUN pwd
 COPY api-service/package*.json ./
-RUN pwd
+COPY api-service/src/app.ts ./
+RUN pwd 
+RUN ls    
 RUN npm install
-COPY . .
+COPY .  .
 RUN pwd
 EXPOSE 3000
 CMD ["npm", "run", "start"]
