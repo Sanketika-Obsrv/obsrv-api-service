@@ -40,7 +40,8 @@ export class IngestorService {
     }
     public submitIngestion = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            await this.submitIngestionTask(req.body)
+            let headers = req?.headers
+            await this.submitIngestionTask(req.body, headers)
             ResponseHandler.successResponse(req, res, { status: 200, data: { message: constants.INGESTION_SUBMITTED } });
         }
         catch (error: any) {
@@ -80,7 +81,7 @@ export class IngestorService {
         }
     }
 
-    public async submitIngestionTask(ingestionSpec: object){
-        return await this.httpConnector.post(`${config.query_api.druid.host}:${config.query_api.druid.port}/${config.query_api.druid.submit_ingestion}`, ingestionSpec)
+    public async submitIngestionTask(ingestionSpec: object, headers?: any){
+        return await this.httpConnector.post(`${config.query_api.druid.host}:${config.query_api.druid.port}/${config.query_api.druid.submit_ingestion}`, ingestionSpec, {headers})
     }
 }

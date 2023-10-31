@@ -21,7 +21,8 @@ export class QueryService {
 
   public executeNativeQuery = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      var result = await this.connector.post(config.query_api.druid.native_query_path, req.body.query);
+      let headers = req?.headers
+      var result = await this.connector.post(config.query_api.druid.native_query_path, req.body.query, { headers });
       var mergedResult = result.data;
       if (req.body.query.queryType === "scan" && result.data) {
         mergedResult = result.data.map((item: Record<string, any>) => {
@@ -35,7 +36,8 @@ export class QueryService {
 
   public executeSqlQuery = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const result = await this.connector.post(config.query_api.druid.sql_query_path, req.body.querySql);
+      let headers = req?.headers
+      const result = await this.connector.post(config.query_api.druid.sql_query_path, req.body.querySql, { headers });
       ResponseHandler.successResponse(req, res, { status: result.status, data: result.data });
     } catch (error: any) { this.handleError(error, next); }
   }
