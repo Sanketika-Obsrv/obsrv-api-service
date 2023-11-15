@@ -35,6 +35,7 @@ export class IngestorService {
     public create = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const datasetId = this.getDatasetId(req);
+            const validData = await this.validateData(req.body.data, datasetId);
             req.body = { ...req.body.data, dataset: datasetId };
             const topic = await this.getTopic(datasetId);
             await this.kafkaConnector.execute(req, res, topic);
@@ -78,5 +79,24 @@ export class IngestorService {
         const datasetRecord = await this.getDatasetConfig(datasetId);
         if (!datasetRecord) throw constants.DATASET_ID_NOT_FOUND;
         return datasetRecord.dataset_config.entry_topic;
+    }
+
+    private async validateData(data: any, datasetId: string) {
+        const datasetRecord = await this.getDatasetConfig(datasetId);
+        if (!datasetRecord) throw constants.DATASET_ID_NOT_FOUND;
+        if(_.has(datasetRecord, "extraction_config") && _.get(datasetRecord, ["extraction_config", "is_batch_event"])) {
+            if(
+                _.has(data, _.get(datasetRecord, ["extraction_config", "extraction_key"])) &&
+                _.has(data, _.get(datasetRecord, ["extraction_config", "batch_id"]))
+            )
+                return data;
+            else if (_.has(data, "event"))
+                return data;
+            else throw constants.INVALID_DATASET_CONFIG;
+        } else {
+            if(_.has(data, "event"))
+                return data;
+            else throw constants.INVALID_DATASET_CONFIG;
+        }
     }
 }

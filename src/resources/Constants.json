@@ -55,6 +55,11 @@
     "status": 400,
     "code": "BAD_REQUEST"
   },
+  "INVALID_DATASET_CONFIG": {
+    "message": "Invalid dataset config provided for ingestion",
+    "status": 400,
+    "code": "BAD_REQUEST"
+  },
   "RECORD_SAVED": "The Record has been saved successfully",
   "RECORD_UPDATED": "The Record has been update successfully",
   "TABLE_NOT_FOUND": {
