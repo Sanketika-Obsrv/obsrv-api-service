@@ -173,7 +173,7 @@ class AWSStorageService extends BaseStorageService {
         }
         async.parallel(getBlogRequest, (err, results) => {
           if (results) {
-            results.forEach((blob) => {
+            results.map((blob) => {
               if (blob.error) {
                 responseData[_.get(blob, "error.reportname")] = blob.error;
               } else {
@@ -412,8 +412,8 @@ class AWSStorageService extends BaseStorageService {
         }))
     }
     let S3Objects = await Promise.all(promises);
-    S3Objects.forEach((S3Object) => {
-      S3Object.Contents?.forEach((content) => {
+    S3Objects.map((S3Object) => {
+      S3Object.Contents?.map((content) => {
         result.push((content.Key || ""));
       })
     });

@@ -6,15 +6,11 @@ import httpStatus from "http-status";
 import { globalCache } from "../routes/Router";
 import { refreshDatasetConfigs } from "../helpers/DatasetConfigs";
 import { IConnector } from "../models/DatasetModels";
-import { config } from '../configs/Config'
-import { AxiosInstance } from "axios";
 import { wrapperService } from "../routes/Router";
 export class IngestorService {
     private kafkaConnector: IConnector;
-    private httpConnector: AxiosInstance
-    constructor(kafkaConnector: IConnector, httpConnector: IConnector) {
+    constructor(kafkaConnector: IConnector, httpConnector: IConnector,) {
         this.kafkaConnector = kafkaConnector
-        this.httpConnector = httpConnector.connect()
         this.init()
     }
     public init() {
@@ -26,6 +22,16 @@ export class IngestorService {
                 console.log("error while connecting to kafka", error.message)
             })
     }
+
+    private handleError(req: Request, res: Response, next: NextFunction, error: any) {
+        console.error(error.message)
+        next({ 
+            statusCode: error.status || httpStatus.INTERNAL_SERVER_ERROR, 
+            message: error.message || "", 
+            errCode: error.code || httpStatus["500_NAME"] 
+        });
+    }
+
     public create = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const datasetId = this.getDatasetId(req);
@@ -33,11 +39,7 @@ export class IngestorService {
             const topic = await this.getTopic(datasetId);
             await this.kafkaConnector.execute(req, res, topic);
             ResponseHandler.successResponse(req, res, { status: 200, data: { message: constants.DATASET.CREATED } });
-        } catch (error: any) {
-            console.error(error.message)
-            next({ statusCode: error.status || httpStatus.INTERNAL_SERVER_ERROR, message: error.message || "", errCode: error.code || httpStatus["500_NAME"] });
-        }
-
+        } catch (error: any) { this.handleError(req, res, next, error) }
     }
     public submitIngestion = async (req: Request, res: Response, next: NextFunction) => {
         try {
@@ -74,11 +76,7 @@ export class IngestorService {
 
     private async getTopic(datasetId: string) {
         const datasetRecord = await this.getDatasetConfig(datasetId);
-        if (!datasetRecord) {
-            throw constants.DATASET_ID_NOT_FOUND;
-        } else {
-            return datasetRecord.dataset_config.entry_topic;
-        }
+        if (!datasetRecord) throw constants.DATASET_ID_NOT_FOUND;
+        return datasetRecord.dataset_config.entry_topic;
     }
-
 }
