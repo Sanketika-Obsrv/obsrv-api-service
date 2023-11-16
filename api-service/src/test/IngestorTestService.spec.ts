@@ -25,7 +25,7 @@ describe("DATA INGEST API", () => {
             return Promise.resolve([ {} ])
         })
         chai.spy.on(globalCache, 'get', () => {
-            return [ { "id": ":datasetId", "dataset_config": { "entry_topic": "topic" } } ]
+            return [ { "id": ":datasetId", "dataset_config": { "entry_topic": "topic" }, "extraction_config": { "is_batch_event": true, "extraction_key": "events", "batch_id": "id" } } ]
         })
         chai.spy.on(kafkaConnector.telemetryService, "dispatch", () => {
             return Promise.resolve("data ingested")
@@ -47,7 +47,34 @@ describe("DATA INGEST API", () => {
                 done()
             })
     });
-    it("it should not ingest data successfully", (done) => {
+    it("it should ingest data successfully for batch even for individual events", (done) => {
+        chai.spy.on(dbConnector, "listRecords", () => {
+            return Promise.resolve([ {} ])
+        })
+        chai.spy.on(globalCache, 'get', () => {
+            return [ { "id": ":datasetId", "dataset_config": { "entry_topic": "topic" }, "extraction_config": { "is_batch_event": true, "extraction_key": "events", "batch_id": "id" } } ]
+        })
+        chai.spy.on(kafkaConnector.telemetryService, "dispatch", () => {
+            return Promise.resolve("data ingested")
+        })
+        chai
+            .request(app)
+            .post(config.apiDatasetIngestEndPoint)
+            .send(TestDataIngestion.SAMPLE_INDIVIDUAL_EVENT)
+            .end((err, res) => {
+                res.should.have.status(httpStatus.OK);
+                res.body.should.be.a("object");
+                res.body.responseCode.should.be.eq(httpStatus[ "200_NAME" ]);
+                res.body.should.have.property("result");
+                res.body.id.should.be.eq(routesConfig.data_ingest.api_id);
+                res.body.params.status.should.be.eq(constants.STATUS.SUCCESS)
+                chai.spy.restore(dbConnector, "listRecords")
+                chai.spy.restore(globalCache, 'get')
+                chai.spy.restore(kafkaConnector.telemetryService, "dispatch")
+                done()
+            })
+    });
+    it("it should not ingest data successfully when kafka is unable to connect", (done) => {
         chai.spy.on(dbConnector, "listRecords", () => {
             return Promise.resolve([ {} ])
         })
@@ -62,9 +89,33 @@ describe("DATA INGEST API", () => {
             .post(config.apiDatasetIngestEndPoint)
             .send(TestDataIngestion.SAMPLE_INPUT)
             .end((err, res) => {
-                res.should.have.status(httpStatus.INTERNAL_SERVER_ERROR);
+                res.should.have.status(httpStatus.BAD_REQUEST);
                 res.body.should.be.a("object");
-                res.body.responseCode.should.be.eq(httpStatus[ "500_NAME" ]);
+                res.body.responseCode.should.be.eq(httpStatus[ "400_NAME" ]);
+                res.body.should.have.property("result");
+                res.body.id.should.be.eq(routesConfig.data_ingest.api_id);
+                res.body.params.status.should.be.eq(constants.STATUS.FAILURE)
+                chai.spy.restore(dbConnector, "listRecords")
+                chai.spy.restore(globalCache, 'get')
+                chai.spy.restore(kafkaConnector.telemetryService, "dispatch")
+                done()
+            })
+    });
+    it("it should not ingest data when invalid extraction config present for batch", (done) => {
+        chai.spy.on(dbConnector, "listRecords", () => {
+            return Promise.resolve([ {} ])
+        })
+        chai.spy.on(globalCache, 'get', () => {
+            return [ { "id": ":datasetId", "dataset_config": { "entry_topic": "topic" }, "extraction_config": { "is_batch_event": true, "extraction_key": "eventas", "batch_id": "ids" } } ]
+        })
+        chai
+            .request(app)
+            .post(config.apiDatasetIngestEndPoint)
+            .send(TestDataIngestion.SAMPLE_INPUT)
+            .end((err, res) => {
+                res.should.have.status(httpStatus.BAD_REQUEST);
+                res.body.should.be.a("object");
+                res.body.responseCode.should.be.eq(httpStatus[ "400_NAME" ]);
                 res.body.should.have.property("result");
                 res.body.id.should.be.eq(routesConfig.data_ingest.api_id);
                 res.body.params.status.should.be.eq(constants.STATUS.FAILURE)
