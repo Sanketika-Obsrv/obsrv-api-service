@@ -1,19 +1,15 @@
 import axios from "axios";
 import { NextFunction, Request, Response } from "express";
-import errorResponse from "http-errors";
-import httpStatus from "http-status";
 import _ from "lodash";
 import { config } from "../configs/Config";
 import { ResponseHandler } from "../helpers/ResponseHandler";
+import { ErrorResponseHandler } from "../helpers/ErrorResponseHandler";
 
 export class WrapperService {
-    constructor() { }
-
-    private handleError = (error: any, next: NextFunction) => {
-        console.error(error.message);
-        console.log(error.data);
-        next(errorResponse(httpStatus.INTERNAL_SERVER_ERROR, error.message));
-    };
+    private errorHandler: ErrorResponseHandler;
+    constructor() {
+        this.errorHandler = new ErrorResponseHandler("WrapperService");
+    }
 
     public forwardSql = async (
         req: Request,
@@ -30,7 +26,7 @@ export class WrapperService {
             }
             );
             ResponseHandler.flatResponse(req, res, result);
-        } catch (error: any) { this.handleError(error, next); }
+        } catch (error: any) { this.errorHandler.handleError(req, res, next, error, false); }
     };
 
     public forwardNative = async (
@@ -47,7 +43,7 @@ export class WrapperService {
                 req.body, { headers, }
             );
             ResponseHandler.flatResponse(req, res, result);
-        } catch (error: any) { this.handleError(error, next); }
+        } catch (error: any) { this.errorHandler.handleError(req, res, next, error); }
     };
 
     public forwardNativeDel = async (
@@ -66,7 +62,7 @@ export class WrapperService {
                 }
             );
             ResponseHandler.flatResponse(req, res, result);
-        } catch (error: any) { this.handleError(error, next); }
+        } catch (error: any) { this.errorHandler.handleError(req, res, next, error, false); }
     };
 
     public forwardNativeGet = async (
@@ -86,7 +82,7 @@ export class WrapperService {
                 }
             );
             ResponseHandler.flatResponse(req, res, result);
-        } catch (error: any) { this.handleError(error, next); }
+        } catch (error: any) { this.errorHandler.handleError(req, res, next, error, false); }
     };
 
     public nativeStatus = async (
@@ -100,10 +96,10 @@ export class WrapperService {
                 `${config.query_api.druid.host}:${config.query_api.druid.port}/status`
             );
             ResponseHandler.flatResponse(req, res, result);
-        } catch (error: any) { this.handleError(error, next); }
+        } catch (error: any) { this.errorHandler.handleError(req, res, next, error, false); }
     };
 
     public submitIngestion = async (ingestionSpec: object) => {
         return await axios.post(`${config.query_api.druid.host}:${config.query_api.druid.port}/${config.query_api.druid.submit_ingestion}`, ingestionSpec)
-     }
+    }
 }

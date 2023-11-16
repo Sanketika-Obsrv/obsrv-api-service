@@ -2,15 +2,17 @@ import { Request, Response, NextFunction } from "express";
 import constants from "../resources/Constants.json"
 import { ResponseHandler } from "../helpers/ResponseHandler";
 import _ from 'lodash'
-import httpStatus from "http-status";
 import { globalCache } from "../routes/Router";
 import { refreshDatasetConfigs } from "../helpers/DatasetConfigs";
 import { IConnector } from "../models/DatasetModels";
 import { wrapperService } from "../routes/Router";
+import { ErrorResponseHandler } from "../helpers/ErrorResponseHandler";
 export class IngestorService {
     private kafkaConnector: IConnector;
+    private errorHandler: ErrorResponseHandler;
     constructor(kafkaConnector: IConnector, httpConnector: IConnector,) {
         this.kafkaConnector = kafkaConnector
+        this.errorHandler = new ErrorResponseHandler("IngestorService");
         this.init()
     }
     public init() {
@@ -23,15 +25,6 @@ export class IngestorService {
             })
     }
 
-    private handleError(req: Request, res: Response, next: NextFunction, error: any) {
-        console.error(error.message)
-        next({ 
-            statusCode: error.status || httpStatus.INTERNAL_SERVER_ERROR, 
-            message: error.message || "", 
-            errCode: error.code || httpStatus["500_NAME"] 
-        });
-    }
-
     public create = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const datasetId = this.getDatasetId(req);
@@ -40,18 +33,14 @@ export class IngestorService {
             const topic = await this.getTopic(datasetId);
             await this.kafkaConnector.execute(req, res, topic);
             ResponseHandler.successResponse(req, res, { status: 200, data: { message: constants.DATASET.CREATED } });
-        } catch (error: any) { this.handleError(req, res, next, error) }
+        } catch (error: any) { this.errorHandler.handleError(req, res, next, error, false) }
     }
     public submitIngestion = async (req: Request, res: Response, next: NextFunction) => {
         try {
             await wrapperService.submitIngestion(req.body)
             ResponseHandler.successResponse(req, res, { status: 200, data: { message: constants.INGESTION_SUBMITTED } });
         }
-        catch (error: any) {
-            let errorMessage = error?.response?.data?.error || "Internal Server Error"
-            console.error(errorMessage)
-            next({ statusCode: error.status || httpStatus.INTERNAL_SERVER_ERROR, message: errorMessage, errCode: error.code || httpStatus[ "500_NAME" ] });
-        }
+        catch (error: any) { this.errorHandler.handleError(req, res, next, error, false) }
     }
     private getDatasetId(req: Request) {
         let datasetId = req.params.datasetId.trim()
