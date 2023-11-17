@@ -15,7 +15,7 @@ jobs:
         id: tag-checker
         run: |
           (echo -n TRIGGER_ALLOWED= && echo 'print("${{ github.ref_name }}".split("_")[0] in "${{ vars.CURRENT_RELEASE }}")' | python3) >> "$GITHUB_OUTPUT"
-  docker-build:
+  docker-build-api-service:
     needs: check-tag
     if: needs.check-tag.outputs.ALLOWED_TAG ==  'True'
     runs-on: ubuntu-latest
@@ -29,11 +29,29 @@ jobs:
       - name: Build docker image and push
         uses: docker/build-push-action@v4
         with:
+          file: ./api-service/Dockerfile  
           push: true
           tags: ${{ vars.DOCKERHUB_USERNAME }}/obsrv-api-service:${{ github.ref_name }}
 
+  docker-build-command-service:
+    needs: check-tag
+    if: needs.check-tag.outputs.ALLOWED_TAG ==  'True'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Login to docker hub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ vars.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Build docker image and push
+        uses: docker/build-push-action@v2
+        with:
+          file: ./command-service/Dockerfile  
+          push: true
+          tags: ${{ vars.DOCKERHUB_USERNAME }}/flink-command-service:${{ github.ref_name }}
+
   aws-deploy:
-    needs: [check-tag, docker-build]
+    needs: [check-tag, docker-build-api-service, docker-build-command-service]
     if: needs.check-tag.outputs.ALLOWED_TAG ==  'True'
     runs-on: ubuntu-latest
     environment: aws-dev
@@ -79,7 +97,7 @@ jobs:
           -var dataset_api_image_tag=${{ github.ref_name }}
 
   azure-deploy:
-    needs: [check-tag, docker-build]
+    needs: [check-tag, docker-build-api-service, docker-build-command-service]
     if: needs.check-tag.outputs.ALLOWED_TAG ==  'True' && vars.CLOUD_PROVIDER == 'azure'
     runs-on: ubuntu-latest
     steps:
