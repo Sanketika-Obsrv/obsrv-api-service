@@ -7,7 +7,7 @@ const register = new client.Registry();
 
 const configureRegistry = (register: client.Registry) => {
     register.setDefaultLabels({ release: 'monitoring' });
-    metrics.forEach(metric => {
+    metrics.map(metric => {
         register.registerMetric(metric);
     })
 }

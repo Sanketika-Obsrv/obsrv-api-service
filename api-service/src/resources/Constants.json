@@ -40,8 +40,23 @@
     "status": 400,
     "code": "BAD_REQUEST"
   },
+  "FAILED_RECORD_CREATE": {
+    "message": "Failed to save Record",
+    "status": 400,
+    "code": "BAD_REQUEST"
+  },
+  "FAILED_RECORD_FETCH": {
+    "message": "Failed to fetch Records",
+    "status": 400,
+    "code": "BAD_REQUEST"
+  },
   "EMPTY_DATASET_ID": {
     "message": "datasetId parameter in url cannot be empty",
+    "status": 400,
+    "code": "BAD_REQUEST"
+  },
+  "INVALID_DATASET_CONFIG": {
+    "message": "Invalid dataset config provided for ingestion",
     "status": 400,
     "code": "BAD_REQUEST"
   },

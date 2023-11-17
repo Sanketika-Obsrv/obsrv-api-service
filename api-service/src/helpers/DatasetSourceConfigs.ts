@@ -39,7 +39,7 @@ export class DatasetSourceConfigs {
     }
 
     public removeNullValues(payload: any) {
-        Object.keys(payload).forEach((value) => {
+        Object.keys(payload).map((value) => {
             if (_.isEmpty(payload[value])) delete payload[value]
         })
         return payload

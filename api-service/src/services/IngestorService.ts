@@ -2,19 +2,17 @@ import { Request, Response, NextFunction } from "express";
 import constants from "../resources/Constants.json"
 import { ResponseHandler } from "../helpers/ResponseHandler";
 import _ from 'lodash'
-import httpStatus from "http-status";
 import { globalCache } from "../routes/Router";
 import { refreshDatasetConfigs } from "../helpers/DatasetConfigs";
 import { IConnector } from "../models/DatasetModels";
-import { config } from '../configs/Config'
-import { AxiosInstance } from "axios";
 import { wrapperService } from "../routes/Router";
+import { ErrorResponseHandler } from "../helpers/ErrorResponseHandler";
 export class IngestorService {
     private kafkaConnector: IConnector;
-    private httpConnector: AxiosInstance
-    constructor(kafkaConnector: IConnector, httpConnector: IConnector) {
+    private errorHandler: ErrorResponseHandler;
+    constructor(kafkaConnector: IConnector, httpConnector: IConnector,) {
         this.kafkaConnector = kafkaConnector
-        this.httpConnector = httpConnector.connect()
+        this.errorHandler = new ErrorResponseHandler("IngestorService");
         this.init()
     }
     public init() {
@@ -26,29 +24,23 @@ export class IngestorService {
                 console.log("error while connecting to kafka", error.message)
             })
     }
+
     public create = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const datasetId = this.getDatasetId(req);
+            const validData = await this.validateData(req.body.data, datasetId);
             req.body = { ...req.body.data, dataset: datasetId };
             const topic = await this.getTopic(datasetId);
             await this.kafkaConnector.execute(req, res, topic);
             ResponseHandler.successResponse(req, res, { status: 200, data: { message: constants.DATASET.CREATED } });
-        } catch (error: any) {
-            console.error(error.message)
-            next({ statusCode: error.status || httpStatus.INTERNAL_SERVER_ERROR, message: error.message || "", errCode: error.code || httpStatus["500_NAME"] });
-        }
-
+        } catch (error: any) { this.errorHandler.handleError(req, res, next, error, false) }
     }
     public submitIngestion = async (req: Request, res: Response, next: NextFunction) => {
         try {
             await wrapperService.submitIngestion(req.body)
             ResponseHandler.successResponse(req, res, { status: 200, data: { message: constants.INGESTION_SUBMITTED } });
         }
-        catch (error: any) {
-            let errorMessage = error?.response?.data?.error || "Internal Server Error"
-            console.error(errorMessage)
-            next({ statusCode: error.status || httpStatus.INTERNAL_SERVER_ERROR, message: errorMessage, errCode: error.code || httpStatus[ "500_NAME" ] });
-        }
+        catch (error: any) { this.errorHandler.handleError(req, res, next, error, false) }
     }
     private getDatasetId(req: Request) {
         let datasetId = req.params.datasetId.trim()
@@ -74,11 +66,26 @@ export class IngestorService {
 
     private async getTopic(datasetId: string) {
         const datasetRecord = await this.getDatasetConfig(datasetId);
-        if (!datasetRecord) {
-            throw constants.DATASET_ID_NOT_FOUND;
-        } else {
-            return datasetRecord.dataset_config.entry_topic;
-        }
+        if (!datasetRecord) throw constants.DATASET_ID_NOT_FOUND;
+        return datasetRecord.dataset_config.entry_topic;
     }
 
+    private async validateData(data: any, datasetId: string) {
+        const datasetRecord = await this.getDatasetConfig(datasetId);
+        if (!datasetRecord) throw constants.DATASET_ID_NOT_FOUND;
+        if(_.has(datasetRecord, "extraction_config") && _.get(datasetRecord, ["extraction_config", "is_batch_event"])) {
+            if(
+                _.has(data, _.get(datasetRecord, ["extraction_config", "extraction_key"])) &&
+                _.has(data, _.get(datasetRecord, ["extraction_config", "batch_id"]))
+            )
+                return data;
+            else if (_.has(data, "event"))
+                return data;
+            else throw constants.INVALID_DATASET_CONFIG;
+        } else {
+            if(_.has(data, "event"))
+                return data;
+            else throw constants.INVALID_DATASET_CONFIG;
+        }
+    }
 }

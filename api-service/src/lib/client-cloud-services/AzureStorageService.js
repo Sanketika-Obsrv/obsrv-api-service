@@ -184,7 +184,7 @@ class AzureStorageService extends BaseStorageService {
         }
         async.parallel(getBlogRequest, (err, results) => {
           if (results) {
-            results.forEach((blob) => {
+            results.map((blob) => {
               if (blob.error) {
                 responseData[_.get(blob, "error.reportname")] = blob.error;
               } else {
