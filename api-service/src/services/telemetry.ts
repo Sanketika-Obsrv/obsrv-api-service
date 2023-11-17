@@ -70,7 +70,7 @@ const transformProps = (body: Record<string, any>) => {
 
 export const setAuditState = (state: string, req: Request) => {
     if (state && req) {
-        req.auditEvent.toState = state;
+       _.set(req.auditEvent, "toState", state);
     }
 }
 
