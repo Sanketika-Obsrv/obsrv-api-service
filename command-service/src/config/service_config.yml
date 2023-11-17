@@ -1,0 +1,20 @@
+flink:
+  namespace: flink
+  reinstall_sleep_time: 3
+  jobs: 
+    - name: "PipelineMergedJob"
+      release_name: merged-pipeline
+      job_manager_url: "http://localhost:8081"
+    - name: "MasterDataProcessor"
+      release_name: master-data-processor
+      job_manager_url: "http://localhost:8081"
+    # - name: "KafkaConnectorJob"
+    #   release_name: kafka-connector
+    #   job_manager_url: "http://localhost:8081"
+
+commands:
+  RESTART_PIPELINE:
+    workflow:
+      - RESTART_PIPELINE_JOBS
+
+helm_charts_base_dir: ../../helm-charts
