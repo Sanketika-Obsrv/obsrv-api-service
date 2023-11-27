@@ -26,7 +26,7 @@ export class ErrorResponseHandler {
     next({ 
         statusCode: error.status || httpStatus.INTERNAL_SERVER_ERROR, 
         message: error.message,
-        errCode: error.code || httpStatus["500_NAME"],
+        errCode: httpStatus[`${error.status}_NAME`] || httpStatus["500_NAME"],
     });
   }
 };

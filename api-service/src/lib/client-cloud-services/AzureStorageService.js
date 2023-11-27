@@ -355,6 +355,7 @@ class AzureStorageService extends BaseStorageService {
                         for await (const item of items) {
                             if (item && item.kind === "blob") resolve(item);
                             else resolve(null);
+                            return;
                         }
                     } catch (err) {
                         console.log(
@@ -362,37 +363,19 @@ class AzureStorageService extends BaseStorageService {
                         );
                         console.log(err);
                         reject(err);
+                        return;
                     }
                 })
             );
         }
-        async.parallel(getBlogRequest, (err, results) => {
-          if (results) {
-            results.map((blob) => {
-              if (blob.error) {
-                responseData[_.get(blob, "error.reportname")] = blob.error;
-              } else {
-                responseData[_.get(blob, "value.reportname")] = {
-                  lastModified: _.get(blob, "value.lastModified"),
-                  reportname: _.get(blob, "value.reportname"),
-                  statusCode: _.get(blob, "value.statusCode"),
-                  fileSize: _.get(blob, "value.contentLength"),
-                };
-              }
-            });
-            const finalResponse = {
-              responseCode: "OK",
-              params: {
-                err: null,
-                status: "success",
-                errmsg: null,
-              },
-              result: responseData,
-            };
-            res.status(200).send(this.apiResponse(finalResponse));
-          }
-        });
-        return result;
+        try {
+            result = await Promise.all(promises);
+            if(result.length > 0) result = result.map((item) => item.name);
+            return result;
+        } catch (err) {
+            console.log(err);
+            return [];
+        }
     }
 
     /**
