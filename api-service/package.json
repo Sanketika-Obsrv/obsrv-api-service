@@ -15,6 +15,7 @@
     "@aws-sdk/credential-providers": "^3.309.0",
     "@aws-sdk/lib-storage": "^3.182.0",
     "@aws-sdk/s3-request-presigner": "^3.173.0",
+    "@azure/storage-blob": "^12.16.0",
     "@google-cloud/storage": "^6.5.2",
     "@project-sunbird/logger": "^0.0.9",
     "ajv": "^8.11.2",
@@ -33,12 +34,12 @@
     "knex": "^2.4.2",
     "lodash": "^4.17.21",
     "moment": "^2.29.4",
+    "multiparty": "4.2.1",
     "pg": "^8.8.0",
     "prom-client": "^14.2.0",
-    "winston": "~2.4.3",
-    "winston-daily-rotate-file": "~3.2.1",
     "uuid": "3.1.0",
-    "multiparty": "4.2.1"
+    "winston": "~2.4.3",
+    "winston-daily-rotate-file": "~3.2.1"
   },
   "overrides": {
     "semver": "^7.5.3",
@@ -47,7 +48,6 @@
   "devDependencies": {
     "@types/chai": "^4.3.3",
     "@types/chai-as-promised": "^7.1.5",
-    "@types/moment": "^2.13.0",
     "@types/chai-spies": "^1.0.3",
     "@types/compression": "^1.7.2",
     "@types/express": "^4.17.14",
@@ -57,6 +57,7 @@
     "@types/lodash": "^4.14.190",
     "@types/mocha": "^10.0.0",
     "@types/mock-knex": "^0.4.4",
+    "@types/moment": "^2.13.0",
     "@types/node": "^18.11.9",
     "@types/pg": "^8.6.6",
     "@types/uuid": "^9.0.1",
