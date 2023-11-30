@@ -22,10 +22,13 @@
       "properties": {
         "dataSource": {
           "type": "string"
+        },
+        "granularity": {
+          "type": "string"
         }
       },
       "required": [
-        "dataSource"
+        "granularity"
       ]
     }
   },
