@@ -29,7 +29,7 @@ export class ValidationService {
     };
 
     public validateQuery = async (req: Request, res: Response, next: NextFunction) => {
-        const status: ValidationStatus = await this.query.validate(req.body, (req as any).id)
+        const status: ValidationStatus = await this.query.validateQuery(req, res)
         status.isValid ?
             next()
             : next({ statusCode: httpStatus.BAD_REQUEST, message: status.message || "", errCode: status.code })

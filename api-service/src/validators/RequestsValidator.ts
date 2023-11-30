@@ -5,6 +5,9 @@ import httpStatus from "http-status";
 import { IValidator } from "../models/DatasetModels";
 import { ValidationStatus } from "../models/ValidationModels";
 import { routesConfig } from "../configs/RoutesConfig";
+import { Request, Response } from "express";
+import { ParamsDictionary } from "express-serve-static-core";
+import { ParsedQs } from "qs";
 
 export class RequestsValidator implements IValidator {
     private schemaBasePath: string = "/src/resources/";
@@ -15,6 +18,10 @@ export class RequestsValidator implements IValidator {
         this.validator = new Ajv();
         addFormats(this.validator);
         this.loadSchemas();
+    }
+
+    validateQuery(req: Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>, res: Response<any, Record<string, any>>): ValidationStatus | Promise<ValidationStatus> {
+        return <ValidationStatus>{ isValid: false }
     }
 
     validate(data: any, id: string): ValidationStatus {

@@ -1,6 +1,7 @@
 import httpStatus from "http-status";
 import _  from "lodash";
 import moment, { Moment} from "moment";
+import { Request, Response } from "express";
 import { queryRules } from "../configs/QueryRules";
 import { IConnector, IValidator } from "../models/DatasetModels";
 import { ICommonRules, ILimits, IQuery, IQueryTypeRules, IRules } from "../models/QueryModels";
@@ -20,21 +21,27 @@ export class QueryValidator implements IValidator {
         this.momentFormat = "YYYY-MM-DD HH:MI:SS"
         this.httpConnector = new HTTPConnector(`${config.query_api.druid.host}:${config.query_api.druid.port}`).connect()
     }
-    public async validate(data: any, id: string): Promise<ValidationStatus> {
-        let validationStatus
-        let datasource
-        let shouldSkip
+    public async validate() {
+        return <ValidationStatus>{ isValid: false }
+    }
+    public async validateQuery(req: Request, res: Response): Promise<ValidationStatus> {
+        let validationStatus, dataSource, shouldSkip, datasetId, granularity;
+        const params = _.get(req, "params", null);
+        params ? datasetId = params.datasetId : null;
+        params ? granularity = params.granularity : null;
+        const data = req.body;
+        const id = (req as any).id;
         switch (id) {
             case routesConfig.query.native_query.api_id:
                 validationStatus = await this.validateNativeQuery(data)
-                datasource = this.getDataSource(data)
-                shouldSkip = _.includes(config.exclude_datasource_validation, datasource);
-                return validationStatus.isValid ? (shouldSkip ? validationStatus : this.setDatasourceRef(data)) : validationStatus
+                dataSource = this.getDataSource(data)
+                shouldSkip = _.includes(config.exclude_datasource_validation, dataSource);
+                return validationStatus.isValid ? (shouldSkip ? validationStatus : this.setDatasourceRef(dataSource, data, granularity)) : validationStatus
             case routesConfig.query.sql_query.api_id:
                 validationStatus = await this.validateSqlQuery(data)
-                datasource = this.getDataSource(data)
-                shouldSkip = _.includes(config.exclude_datasource_validation, datasource);
-                return validationStatus.isValid ? (shouldSkip ? validationStatus : this.setDatasourceRef(data)) : validationStatus
+                dataSource = this.getDataSource(data)
+                shouldSkip = _.includes(config.exclude_datasource_validation, dataSource);
+                return validationStatus.isValid ? (shouldSkip ? validationStatus : this.setDatasourceRef(dataSource, data, granularity)) : validationStatus
             default:
                 return <ValidationStatus>{ isValid: false }
         }
@@ -140,10 +147,9 @@ export class QueryValidator implements IValidator {
         }
         return
     }
-    public async setDatasourceRef(payload: any): Promise<ValidationStatus> {
+    public async setDatasourceRef(dataSource: string, payload: any, granularity: string | undefined): Promise<ValidationStatus> {
         try {
-            let dataSource = this.getDataSource(payload)
-            let dataSourceRef = await this.getDataSourceRef(dataSource)
+            let dataSourceRef = await this.getDataSourceRef(dataSource, granularity);
             await this.validateDatasource(dataSourceRef)
             if (payload.querySql) {
                 payload.querySql.query = payload.querySql.query.replace(dataSource, dataSourceRef)
@@ -158,8 +164,23 @@ export class QueryValidator implements IValidator {
         }
     }
 
-    public async getDataSourceRef(datasource: string): Promise<string> {
-        const record: any = await dbConnector.readRecords("datasources", { "filters": { "dataset_id": datasource } })
+    public async getDataSourceRef(datasource: string, granularity: string | undefined): Promise<string> {
+        const records: any = await dbConnector.readRecords("datasources", { "filters": { "dataset_id": datasource } })
+        const record = records.filter((record: any) => {
+            if(granularity)
+                return _.includes(_.toLower(record.datasource_ref), _.toLower(granularity)) && _.includes(_.toLower(record.datasource_ref), 'rollup')
+            else
+                return !_.includes(_.toLower(record.datasource_ref), 'rollup')
+        });
+
+        if (record.length == 0) {
+            const error = { ...constants.INVALID_DATASOURCE }
+            error.message = error.message.replace('${datasource}', datasource)
+            if (granularity !== undefined) {
+                error.message = `Aggregate ${error.message}`
+            }
+            throw error
+        }
         return record[0].datasource_ref
     }
 

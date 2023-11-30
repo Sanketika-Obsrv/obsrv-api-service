@@ -13,7 +13,7 @@ export const routesConfig = {
     native_query_with_params: {
       api_id: "obsrv.native.query",
       method: "post",
-      path: "/obsrv/v1/data/query/:datasourceId",
+      path: "/obsrv/v1/data/query/:datasetId",
       validation_schema: "QueryRequest.json",
     },
     sql_query: {
@@ -25,7 +25,19 @@ export const routesConfig = {
     sql_query_with_params: {
       api_id: "obsrv.sql.query",
       method: "post",
-      path: "/obsrv/v1/data/sql-query/:datasourceId",
+      path: "/obsrv/v1/data/sql-query/:datasetId",
+      validation_schema: "QueryRequest.json",
+    },
+    aggregate_query: {
+      api_id: "obsrv.aggregate.query",
+      method: "post",
+      path: "/obsrv/v1/data/query/:datasetId/:granularity",
+      validation_schema: "QueryRequest.json",
+    },
+    aggregate_query_sql: {
+      api_id: "obsrv.aggregate.query",
+      method: "post",
+      path: "/obsrv/v1/data/sql-query/:datasetId/:granularity",
       validation_schema: "QueryRequest.json",
     },
   },
