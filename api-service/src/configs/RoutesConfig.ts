@@ -28,30 +28,6 @@ export const routesConfig = {
       path: "/obsrv/v1/data/sql-query/:datasetId",
       validation_schema: "QueryRequest.json",
     },
-    aggregate_query: {
-      api_id: "obsrv.native.query",
-      method: "post",
-      path: "/obsrv/v1/data/query",
-      validation_schema: "QueryRequest.json",
-    },
-    aggregate_query_sql: {
-      api_id: "obsrv.sql.query",
-      method: "post",
-      path: "/obsrv/v1/data/sql-query",
-      validation_schema: "QueryRequest.json",
-    },
-    aggregate_query_with_params: {
-      api_id: "obsrv.native.query",
-      method: "post",
-      path: "/obsrv/v1/data/query/:datasetId",
-      validation_schema: "QueryRequest.json",
-    },
-    aggregate_query_sql_with_params: {
-      api_id: "obsrv.sql.query",
-      method: "post",
-      path: "/obsrv/v1/data/sql-query/:datasetId",
-      validation_schema: "QueryRequest.json",
-    },
   },
   config: {
     dataset: {

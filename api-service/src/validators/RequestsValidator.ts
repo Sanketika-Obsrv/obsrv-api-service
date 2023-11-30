@@ -52,8 +52,6 @@ export class RequestsValidator implements IValidator {
         return [
             routesConfig.query.native_query,
             routesConfig.query.sql_query,
-            routesConfig.query.aggregate_query,
-            routesConfig.query.aggregate_query_sql,
             routesConfig.data_ingest,
             routesConfig.config.dataset.save,
             routesConfig.config.datasource.save,
