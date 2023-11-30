@@ -24,7 +24,8 @@
           "type": "string"
         },
         "granularity": {
-          "type": "string"
+          "type": "string",
+          "enum": ["five minute", "ten minute", "fifteen minute", "thirty minute", "hour", "six hour", "quarter", "day", "week", "month", "year"]
         }
       },
       "required": [
