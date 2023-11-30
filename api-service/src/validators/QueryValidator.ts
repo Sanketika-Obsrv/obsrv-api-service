@@ -21,27 +21,19 @@ export class QueryValidator implements IValidator {
         this.momentFormat = "YYYY-MM-DD HH:MI:SS"
         this.httpConnector = new HTTPConnector(`${config.query_api.druid.host}:${config.query_api.druid.port}`).connect()
     }
-    public async validate() {
-        return <ValidationStatus>{ isValid: false }
-    }
-    public async validateQuery(req: Request, res: Response): Promise<ValidationStatus> {
-        let validationStatus, dataSource, shouldSkip, datasetId, granularity;
-        const params = _.get(req, "params", null);
-        params ? datasetId = params.datasetId : null;
-        params ? granularity = params.granularity : null;
-        const data = req.body;
-        const id = (req as any).id;
+    public async validate(data: any, id: string): Promise<ValidationStatus> {
+        let validationStatus, dataSource, shouldSkip;
         switch (id) {
             case routesConfig.query.native_query.api_id:
                 validationStatus = await this.validateNativeQuery(data)
                 dataSource = this.getDataSource(data)
                 shouldSkip = _.includes(config.exclude_datasource_validation, dataSource);
-                return validationStatus.isValid ? (shouldSkip ? validationStatus : this.setDatasourceRef(dataSource, data, granularity)) : validationStatus
+                return validationStatus.isValid ? (shouldSkip ? validationStatus : this.setDatasourceRef(dataSource, data)) : validationStatus
             case routesConfig.query.sql_query.api_id:
                 validationStatus = await this.validateSqlQuery(data)
                 dataSource = this.getDataSource(data)
                 shouldSkip = _.includes(config.exclude_datasource_validation, dataSource);
-                return validationStatus.isValid ? (shouldSkip ? validationStatus : this.setDatasourceRef(dataSource, data, granularity)) : validationStatus
+                return validationStatus.isValid ? (shouldSkip ? validationStatus : this.setDatasourceRef(dataSource, data)) : validationStatus
             default:
                 return <ValidationStatus>{ isValid: false }
         }
@@ -147,8 +139,9 @@ export class QueryValidator implements IValidator {
         }
         return
     }
-    public async setDatasourceRef(dataSource: string, payload: any, granularity: string | undefined): Promise<ValidationStatus> {
+    public async setDatasourceRef(dataSource: string, payload: any): Promise<ValidationStatus> {
         try {
+            const granularity = _.get(payload, 'context.granularity')
             let dataSourceRef = await this.getDataSourceRef(dataSource, granularity);
             await this.validateDatasource(dataSourceRef)
             if (payload.querySql) {

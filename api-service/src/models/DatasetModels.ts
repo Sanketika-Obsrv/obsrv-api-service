@@ -17,7 +17,6 @@ export interface IConnector {
 export interface IValidator {
     // Method to perform validation on the request body of a request
     validate(data: any, id?: string): ValidationStatus | Promise<ValidationStatus>;
-    validateQuery(req: Request, res: Response): ValidationStatus | Promise<ValidationStatus>;
 }
 
 // Interface with method for request params validation

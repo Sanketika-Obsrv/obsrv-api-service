@@ -32,13 +32,11 @@
   "oneOf": [
     {
       "required": [
-        "context",
         "querySql"
       ]
     },
     {
       "required": [
-        "context",
         "query"
       ]
     }
