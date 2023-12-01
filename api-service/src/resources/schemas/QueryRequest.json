@@ -22,23 +22,22 @@
       "properties": {
         "dataSource": {
           "type": "string"
+        },
+        "granularity": {
+          "type": "string",
+          "enum": ["five_minute", "ten_minute", "fifteen_minute", "thirty_minute", "hour", "six_hour", "eight_hour", "day", "week", "month", "quarter", "year"]
         }
-      },
-      "required": [
-        "dataSource"
-      ]
+      }
     }
   },
   "oneOf": [
     {
       "required": [
-        "context",
         "querySql"
       ]
     },
     {
       "required": [
-        "context",
         "query"
       ]
     }

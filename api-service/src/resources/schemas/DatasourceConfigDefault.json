@@ -13,5 +13,9 @@
     },
     "status": "ACTIVE",
     "created_by": "SYSTEM",
-    "updated_by": "SYSTEM"
+    "updated_by": "SYSTEM",
+    "metadata": {
+        "aggregated": false,
+        "granularity": "day"
+    }
 }

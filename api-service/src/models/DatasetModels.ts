@@ -1,4 +1,5 @@
 import { ValidationStatus } from "./ValidationModels";
+import { Request, Response } from "express";
 
 export interface ISchemaGenerator {
     generate: ((sample: Map<string, any>) => any) |
