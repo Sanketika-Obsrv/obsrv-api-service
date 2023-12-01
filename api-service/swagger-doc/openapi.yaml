@@ -391,6 +391,8 @@ components:
           type: string
         published_date:
           type: string
+        metadata:
+          type: object
 
     DataIngest:
       description: datasetId in request params is required
@@ -2655,6 +2657,10 @@ components:
                     retention_period: {}
                     archival_policy: {}
                     purge_policy: {}
+                    metadata: {
+                      "aggregated": false,
+                      "granularity": "day"
+                    }
                     backup_config:
                       enabled: true
                     status: ACTIVE
