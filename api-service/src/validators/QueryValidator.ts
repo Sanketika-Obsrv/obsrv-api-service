@@ -21,20 +21,18 @@ export class QueryValidator implements IValidator {
         this.httpConnector = new HTTPConnector(`${config.query_api.druid.host}:${config.query_api.druid.port}`).connect()
     }
     public async validate(data: any, id: string): Promise<ValidationStatus> {
-        let validationStatus
-        let datasource
-        let shouldSkip
+        let validationStatus, dataSource, shouldSkip;
         switch (id) {
             case routesConfig.query.native_query.api_id:
                 validationStatus = await this.validateNativeQuery(data)
-                datasource = this.getDataSource(data)
-                shouldSkip = _.includes(config.exclude_datasource_validation, datasource);
-                return validationStatus.isValid ? (shouldSkip ? validationStatus : this.setDatasourceRef(data)) : validationStatus
+                dataSource = this.getDataSource(data)
+                shouldSkip = _.includes(config.exclude_datasource_validation, dataSource);
+                return validationStatus.isValid ? (shouldSkip ? validationStatus : this.setDatasourceRef(dataSource, data)) : validationStatus
             case routesConfig.query.sql_query.api_id:
                 validationStatus = await this.validateSqlQuery(data)
-                datasource = this.getDataSource(data)
-                shouldSkip = _.includes(config.exclude_datasource_validation, datasource);
-                return validationStatus.isValid ? (shouldSkip ? validationStatus : this.setDatasourceRef(data)) : validationStatus
+                dataSource = this.getDataSource(data)
+                shouldSkip = _.includes(config.exclude_datasource_validation, dataSource);
+                return validationStatus.isValid ? (shouldSkip ? validationStatus : this.setDatasourceRef(dataSource, data)) : validationStatus
             default:
                 return <ValidationStatus>{ isValid: false }
         }
@@ -44,13 +42,21 @@ export class QueryValidator implements IValidator {
         let queryObj: IQuery = data;
         this.setQueryLimits(data, this.limits.common);
         let dataSourceLimits = this.getDataSourceLimits(this.getDataSource(data));
-        return (!_.isEmpty(dataSourceLimits)) ? this.validateQueryRules(queryObj, dataSourceLimits.queryRules[queryObj.query.queryType as keyof IQueryTypeRules]) : { isValid: true }
+        try {
+            return (!_.isEmpty(dataSourceLimits)) ? this.validateQueryRules(queryObj, dataSourceLimits.queryRules[queryObj.query.queryType as keyof IQueryTypeRules]) : { isValid: true }
+        } catch (error: any) {
+            return { isValid: false, message: error.message || "error ocuured while validating native query", code: error.code || httpStatus[ "400_NAME" ] };
+        }
     }
 
     private validateSqlQuery(data: any): ValidationStatus {
         this.setQueryLimits(data, this.limits.common);
         let dataSourceLimits = this.getDataSourceLimits(this.getDataSource(data));
-        return (!_.isEmpty(dataSourceLimits)) ? this.validateQueryRules(data, dataSourceLimits.queryRules.scan) : { isValid: true };
+        try {
+            return (!_.isEmpty(dataSourceLimits)) ? this.validateQueryRules(data, dataSourceLimits.queryRules.scan) : { isValid: true };
+        } catch (error: any) {
+            return { isValid: false, message: error.message || "error ocuured while validating native query", code: error.code || httpStatus[ "400_NAME" ] };
+        }
     }
 
     private validateQueryRules(queryPayload: IQuery, limits: IRules): ValidationStatus {
@@ -140,10 +146,10 @@ export class QueryValidator implements IValidator {
         }
         return
     }
-    public async setDatasourceRef(payload: any): Promise<ValidationStatus> {
+    public async setDatasourceRef(dataSource: string, payload: any): Promise<ValidationStatus> {
         try {
-            let dataSource = this.getDataSource(payload)
-            let dataSourceRef = await this.getDataSourceRef(dataSource)
+            const granularity = _.get(payload, 'context.granularity')
+            let dataSourceRef = await this.getDataSourceRef(dataSource, granularity);
             await this.validateDatasource(dataSourceRef)
             if (payload.querySql) {
                 payload.querySql.query = payload.querySql.query.replace(dataSource, dataSourceRef)
@@ -158,8 +164,24 @@ export class QueryValidator implements IValidator {
         }
     }
 
-    public async getDataSourceRef(datasource: string): Promise<string> {
-        const record: any = await dbConnector.readRecords("datasources", { "filters": { "dataset_id": datasource } })
+    public async getDataSourceRef(datasource: string, granularity: string | undefined): Promise<string> {
+        const records: any = await dbConnector.readRecords("datasources", { "filters": { "dataset_id": datasource } })
+        const record = records.filter((record: any) => {
+            const aggregatedRecord = _.get(record, "metadata.aggregated")
+            if(granularity)
+                return aggregatedRecord && _.get(record, "metadata.granularity") === granularity;
+            else
+                return !aggregatedRecord
+        });
+
+        if (record.length == 0) {
+            const error = { ...constants.INVALID_DATASOURCE }
+            error.message = error.message.replace('${datasource}', datasource)
+            if (granularity !== undefined) {
+                error.message = `Aggregate ${error.message}`
+            }
+            throw error
+        }
         return record[0].datasource_ref
     }
 

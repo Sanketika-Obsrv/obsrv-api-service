@@ -40,6 +40,17 @@
         },
         "published_date": {
             "type": "string"
+        },
+        "metadata": {
+            "type": "object",
+            "properties": {
+                "aggregated": {
+                    "type": "boolean"
+                },
+                "granularity": {
+                    "type": "string"
+                }
+            }
         }
     },
     "required": [
