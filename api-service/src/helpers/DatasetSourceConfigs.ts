@@ -2,13 +2,14 @@ import _ from "lodash";
 import { SchemaMerger } from "../generators/SchemaMerger"
 import { defaultConfig } from '../resources/schemas/DatasetConfigDefault'
 import {v4} from 'uuid'
+import { DatasetStatus } from "../models/DatasetModels";
 const schemaMerger = new SchemaMerger()
 export class DatasetSourceConfigs {
     private id: string
     private dataset_id: string
     private connector_type: string
     private connector_config: object
-    private status: string
+    private status: DatasetStatus
     private connector_stats: object
     private created_by: string
     private updated_by: string

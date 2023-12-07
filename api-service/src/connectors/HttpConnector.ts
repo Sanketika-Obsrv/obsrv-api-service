@@ -16,6 +16,9 @@ export class HTTPConnector implements IConnector {
   execute(sample: string) {
     throw new Error("Method not implemented.");
   }
+  executeSql(sql: string[]) {
+    throw new Error("Method not implemented.");
+  }
   close() {
     throw new Error("Method not implemented.");
   }

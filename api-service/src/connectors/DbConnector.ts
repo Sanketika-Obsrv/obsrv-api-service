@@ -15,6 +15,7 @@ const OP_TYPES = {
     READ: "read",
     LIST: "list",
     DELETE: "delete",
+    SQL: "sql",
 }
 export class DbConnector implements IConnector {
     public pool: Knex
@@ -147,6 +148,19 @@ export class DbConnector implements IConnector {
                 })
         }
         return
+    }
+
+    public async executeSql(sql: string[]) {
+        let result: any[] = [];
+        await this.pool.transaction(async (dbTransaction) => {
+            for(let query of sql)  {
+                result.push(await dbTransaction.raw(query).on('query-error', (error: any) => {
+                    this.log_error(OP_TYPES.SQL, error, JSON.stringify(query), {});
+                    throw {...constants.FAILED_SQL_QUERY, "errCode": error.code};
+                }));
+            }
+        });
+        return result;
     }
 
     private log_error(op_type: string, error: any, table: string, values: any) {

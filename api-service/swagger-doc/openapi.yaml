@@ -190,8 +190,8 @@ components:
         status:
           type: string
           enum:
-            - ACTIVE
-            - DISABLED
+            - Live
+            - Retired
         created_by:
           type: string
         updated_by:
@@ -274,8 +274,8 @@ components:
         status:
           type: string
           enum:
-            - ACTIVE
-            - DISABLED
+            - Live
+            - Retired
         created_by:
           type: string
         updated_by:
@@ -349,8 +349,8 @@ components:
         status:
           type: string
           enum:
-            - ACTIVE
-            - DISABLED
+            - Live
+            - Retired
         created_by:
           type: string
         updated_by:
@@ -383,8 +383,8 @@ components:
         status:
           type: string
           enum:
-            - ACTIVE
-            - DISABLED
+            - Live
+            - Retired
         created_by:
           type: string
         updated_by:
@@ -426,7 +426,7 @@ components:
             type: kafka
             topic: telemetry.input
             kafkaBrokers: localhost:9092
-        status: ACTIVE
+        status: Live
         published_date: "2023-03-24 12:19:32.091544"
     DatasetSourceConfigUpdate:
       value:
@@ -436,7 +436,7 @@ components:
             type: kafka
             topic: telemetry.ingest
             kafkaBrokers: localhost:9092
-        status: ACTIVE
+        status: Live
 
     DruidNativeQuery:
       value:
@@ -659,7 +659,7 @@ components:
           required: 
             - syncts
             - mid
-        status: ACTIVE
+        status: Live
         published_date: "2023-03-24 12:19:32.091544"
         
     DatasetUpdate:
@@ -684,7 +684,7 @@ components:
     DatasetList:
       value:
         filters: 
-          status: ["ACTIVE", "DISABLED"]
+          status: ["Live", "Retired"]
           
     DatasourceCreate:
       value:
@@ -1102,7 +1102,7 @@ components:
         datasource: obsrv-telemetry-events
         datasource_ref: obsrv-telemetry-events
         published_date: "2023-03-27T11:40:43.269Z"
-        status: ACTIVE
+        status: Live
 
     DatasourceUpdate:
       value:
@@ -1114,12 +1114,12 @@ components:
     DatasourceList:
       value:
         filters: 
-          status: ["ACTIVE", "DISABLED"]
+          status: ["Live", "Retired"]
           
     DatasetSourceConfigList:
       value:
         filters: 
-          status: ["ACTIVE", "DISABLED"]
+          status: ["Live", "Retired"]
           
     SubmitIngestion: 
       value: 
@@ -2663,7 +2663,7 @@ components:
                     }
                     backup_config:
                       enabled: true
-                    status: ACTIVE
+                    status: Live
                     created_by: SYSTEM
                     updated_by: SYSTEM
                     created_date: "2023-03-28T16:29:27.165Z"
@@ -3151,7 +3151,7 @@ components:
                   purge_policy: {}
                   backup_config:
                     enabled: true
-                  status: ACTIVE
+                  status: Live
                   created_by: SYSTEM
                   updated_by: SYSTEM
                   created_date: "2023-03-28T16:29:27.165Z"
@@ -3689,7 +3689,7 @@ components:
                       redis_db_host: localhost
                       redis_db_port: 6379
                       redis_db: 0
-                    status: ACTIVE
+                    status: Live
                     version: v1
                     created_by: SYSTEM
                     updated_by: SYSTEM
@@ -4055,7 +4055,7 @@ components:
                     redis_db_host: localhost
                     redis_db_port: 6379
                     redis_db: 0
-                  status: ACTIVE
+                  status: Live
                   created_by: SYSTEM
                   updated_by: SYSTEM
                   created_date: "2023-05-12T05:57:43.459Z"
@@ -4301,7 +4301,7 @@ components:
                       type: kafka
                       topic: local.ingest
                       kafkaBrokers: localhost:9092
-                    status: ACTIVE
+                    status: Live
                     connector_stats: {}
                     created_by: SYSTEM
                     updated_by: SYSTEM
@@ -4347,7 +4347,7 @@ components:
                     type: kafka
                     topic: local.ingest
                     kafkaBrokers: localhost:9092
-                  status: ACTIVE
+                  status: Live
                   connector_stats: {}
                   created_by: SYSTEM
                   updated_by: SYSTEM

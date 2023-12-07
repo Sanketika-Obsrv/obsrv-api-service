@@ -1,5 +1,20 @@
 import { routesConfig } from "../configs/RoutesConfig"
 import {config as appConfig} from "../configs/Config"
+const clientCloudConfig = {
+  "cloud_storage_provider": "aws",
+  "cloud_storage_region": "us-east-2",
+  "cloud_storage_config": {
+    identity: "AKIAA2ASD",
+    credential: "DSAAAfSzB",
+    labelContainer: "obsrv-data",
+    region: "us-east-2"
+  },
+  "container": "obsrv-data",
+  "container_prefix": "telemetry-data",
+  "storage_url_expiry": 3600, 
+  "maxQueryDateRange": 31,
+};
+
 const config = {
   apiDruidEndPoint: `${routesConfig.query.native_query.path}`,
   apiDruidSqlEndPoint: `${routesConfig.query.sql_query.path}`,
@@ -27,4 +42,4 @@ const config = {
   druidSubmitIngestionEndPoint: `/${appConfig.query_api.druid.submit_ingestion}`,
   apiSubmitIngestionEndPoint: `${routesConfig.submit_ingestion.path}`
 };
-export { config };
+export { config, clientCloudConfig };

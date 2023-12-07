@@ -18,7 +18,8 @@
     "DATASOURCE_SAVED": "The datasource configuration has been saved successfully",
     "DATASOURCE_UPDATED": "The datasource configuration has been updated successfully",
     "DATASET_PUBLISHED": "The dataset configuration has been published successfully",
-    "DATASOURCE_PUBLISHED": "The datasource configuration has been published successfully"
+    "DATASOURCE_PUBLISHED": "The datasource configuration has been published successfully",
+    "DATASET_RETIRED": "The dataset configuration has been retired successfully"
   },
   "RECORD_NOT_FOUND": {
     "message": "Record not found",
@@ -47,6 +48,11 @@
   },
   "FAILED_RECORD_FETCH": {
     "message": "Failed to fetch Records",
+    "status": 400,
+    "code": "BAD_REQUEST"
+  },
+  "FAILED_SQL_QUERY": {
+    "message": "Failed to execute the request",
     "status": 400,
     "code": "BAD_REQUEST"
   },

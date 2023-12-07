@@ -11,7 +11,7 @@
     "backup_config": {
         "enabled": "false"
     },
-    "status": "ACTIVE",
+    "status": "Live",
     "created_by": "SYSTEM",
     "updated_by": "SYSTEM",
     "metadata": {

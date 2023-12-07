@@ -11,6 +11,7 @@ import { dbConnector } from "../routes/Router";
 import { describe, it } from 'mocha';
 import { ResponseHandler } from "../helpers/ResponseHandler";
 import { ingestorService } from "../routes/Router";
+import { DatasetStatus } from "../models/DatasetModels";
 
 chai.use(spies);
 chai.should();
@@ -304,7 +305,7 @@ describe('Datasource APIS', () => {
             })
             chai
                 .request(app)
-                .get(config.apiDatasourceReadEndPoint.replace(":datasourceId", TestDataSource.SAMPLE_ID).concat('?status=ACTIVE'))
+                .get(config.apiDatasourceReadEndPoint.replace(":datasourceId", TestDataSource.SAMPLE_ID).concat(`?status=${DatasetStatus.Live}`))
                 .end((err, res) => {
                     res.should.have.status(httpStatus.OK);
                     res.body.should.be.a("object");
@@ -342,7 +343,7 @@ describe('Datasource APIS', () => {
                 })
                 chai
                     .request(app)
-                    .get(config.apiDatasourceReadEndPoint.replace(":datasourceId", TestDataSource.SAMPLE_ID).concat('?status=ACTIVE'))
+                    .get(config.apiDatasourceReadEndPoint.replace(":datasourceId", TestDataSource.SAMPLE_ID).concat(`?status=${DatasetStatus.Live}`))
                     .end((err, res) => {
                         res.should.have.status(httpStatus.NOT_FOUND);
                         res.body.should.be.a("object");
@@ -360,7 +361,7 @@ describe('Datasource APIS', () => {
                 })
                 chai
                     .request(app)
-                    .get(config.apiDatasourceReadEndPoint.replace(":datasourceId", TestDataSource.SAMPLE_ID).concat('?status=ACTIVE'))
+                    .get(config.apiDatasourceReadEndPoint.replace(":datasourceId", TestDataSource.SAMPLE_ID).concat(`?status=${DatasetStatus.Live}`))
                     .end((err, res) => {
                         res.should.have.status(httpStatus.INTERNAL_SERVER_ERROR);
                         res.body.should.be.a("object");

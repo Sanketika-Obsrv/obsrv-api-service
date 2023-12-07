@@ -10,6 +10,7 @@ import { routesConfig } from "../configs/RoutesConfig";
 import { dbConnector } from "../routes/Router";
 import { describe, it } from 'mocha';
 import { ResponseHandler } from "../helpers/ResponseHandler";
+import { DatasetStatus } from "../models/DatasetModels";
 
 chai.use(spies);
 chai.should();
@@ -189,7 +190,7 @@ describe("Dataset source config read API", () => {
         })
         chai
             .request(app)
-            .get(config.apiDatasetSourceConfigReadEndPoint.replace(":datasetId", TestDatasetSourceConfig.SAMPLE_ID).concat('?status = ACTIVE'))
+            .get(config.apiDatasetSourceConfigReadEndPoint.replace(":datasetId", TestDatasetSourceConfig.SAMPLE_ID).concat(`?status = ${DatasetStatus.Live}`))
             .end((err, res) => {
                 res.should.have.status(httpStatus.OK);
                 res.body.should.be.a("object")

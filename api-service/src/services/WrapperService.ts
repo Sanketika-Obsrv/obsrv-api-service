@@ -4,6 +4,7 @@ import _ from "lodash";
 import { config } from "../configs/Config";
 import { ResponseHandler } from "../helpers/ResponseHandler";
 import { ErrorResponseHandler } from "../helpers/ErrorResponseHandler";
+import moment from "moment";
 
 export class WrapperService {
     private errorHandler: ErrorResponseHandler;
@@ -100,6 +101,10 @@ export class WrapperService {
     };
 
     public submitIngestion = async (ingestionSpec: object) => {
-        return await axios.post(`${config.query_api.druid.host}:${config.query_api.druid.port}/${config.query_api.druid.submit_ingestion}`, ingestionSpec)
+        return axios.post(`${config.query_api.druid.host}:${config.query_api.druid.port}/${config.query_api.druid.submit_ingestion}`, ingestionSpec)
+    }
+
+    public deleteSupervisor = async (datasourceRef: string) => {
+        return axios.post(`${config.query_api.druid.host}:${config.query_api.druid.port}/druid/indexer/v1/supervisor/${datasourceRef}/terminate`)
     }
 }

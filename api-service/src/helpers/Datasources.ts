@@ -1,6 +1,7 @@
 import _ from 'lodash'
 import configDefault from '../resources/schemas/DatasourceConfigDefault.json'
 import { SchemaMerger } from '../generators/SchemaMerger'
+import { DatasetStatus } from '../models/DatasetModels'
 let schemaMerger = new SchemaMerger
 
 export class Datasources {
@@ -13,7 +14,7 @@ export class Datasources {
     private archival_policy: object
     private purge_policy: object
     private backup_config: object
-    private status: string
+    private status: DatasetStatus
     private created_by: string
     private updated_by: string
     private version: string

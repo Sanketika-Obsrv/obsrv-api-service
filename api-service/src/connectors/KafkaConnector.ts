@@ -1,4 +1,4 @@
-import { IConnector } from "../models/IngestionModels";
+import { IConnector } from "../models/DatasetModels"
 const telemetryService = require('../lib/services/TelemetryService')
 
 export class KafkaConnector implements IConnector {
@@ -13,6 +13,10 @@ export class KafkaConnector implements IConnector {
 
     async execute(req: any, res: any, topic: any) {
         await this.telemetryService.dispatch(req, res, topic)
+    }
+
+    async executeSql(sql: string[]) {
+        throw new Error("Method not implemented")
     }
 
     close() {

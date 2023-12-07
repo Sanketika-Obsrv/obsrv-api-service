@@ -18,6 +18,7 @@ import { WrapperService } from "../services/WrapperService";
 import { onRequest } from "../helpers/prometheus/helpers";
 import promEntities from "../helpers/prometheus/entities";
 import { metricsScrapeHandler } from "../helpers/prometheus";
+import { RetireService } from "../services/RetireService";
 
 export const validationService = new ValidationService();
 
@@ -30,7 +31,8 @@ export const dbConnector = new DbConnector(config.db_connector_config);
 export const datasourceService = new DataSourceService(dbConnector, config.table_names.datasources);
 export const datasetService = new DatasetService(dbConnector, config.table_names.datasets);
 export const datasetSourceConfigService = new DatasetSourceConfigService(dbConnector, config.table_names.datasetSourceConfig);
-export const ingestorService = new IngestorService(kafkaConnector, new HTTPConnector(`${config.query_api.druid.host}:${config.query_api.druid.port}`));
+export const ingestorService = new IngestorService(kafkaConnector,);
+export const retireService = new RetireService(dbConnector);
 export const exhaustService = new ClientCloudService(config.exhaust_config.cloud_storage_provider, config.exhaust_config.cloud_storage_config);
 export const wrapperService = new WrapperService();
 export const globalCache: any = new Map()
@@ -74,3 +76,6 @@ router.post(routesConfig.query_wrapper.native_post.path, ResponseHandler.setApiI
 router.get(routesConfig.query_wrapper.native_get.path, ResponseHandler.setApiId(routesConfig.query_wrapper.native_get.api_id), onRequest({ entity: promEntities.data_out }), wrapperService.forwardNativeGet)
 router.delete(routesConfig.query_wrapper.native_delete.path, ResponseHandler.setApiId(routesConfig.query_wrapper.native_delete.api_id), onRequest({ entity: promEntities.data_out }), wrapperService.forwardNativeDel)
 router.get(routesConfig.query_wrapper.druid_status.path, ResponseHandler.setApiId(routesConfig.query_wrapper.druid_status.api_id), wrapperService.nativeStatus)
+
+/** Retire API(s) */
+router.delete(`${routesConfig.config.dataset.retire.path}`, ResponseHandler.setApiId(routesConfig.config.dataset.retire.api_id), retireService.retireDataset)

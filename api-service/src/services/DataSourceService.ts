@@ -1,12 +1,12 @@
 import { Request, Response, NextFunction } from "express";
 import _ from 'lodash'
 import { Datasources } from "../helpers/Datasources";
-import { IConnector } from "../models/IngestionModels";
 import { findAndSetExistingRecord } from "./telemetry";
 import { DbUtil } from "../helpers/DbUtil";
 import constants from "../resources/Constants.json";
 import { ingestorService } from "../routes/Router";
 import { ErrorResponseHandler } from "../helpers/ErrorResponseHandler";
+import { DatasetStatus, IConnector } from "../models/DatasetModels";
 export class DataSourceService {
     private table: string
     private dbConnector: IConnector;
@@ -38,7 +38,7 @@ export class DataSourceService {
     }
     public read = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            let status: any = req.query.status || "ACTIVE"
+            let status: any = req.query.status || DatasetStatus.Live
             const id = req.params.datasourceId
             await this.dbUtil.read(req, res, next, { id, status })
         } catch (error: any) { this.errorHandler.handleError(req, res, next, error, false) }
