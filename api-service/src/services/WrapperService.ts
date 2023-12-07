@@ -4,7 +4,6 @@ import _ from "lodash";
 import { config } from "../configs/Config";
 import { ResponseHandler } from "../helpers/ResponseHandler";
 import { ErrorResponseHandler } from "../helpers/ErrorResponseHandler";
-import moment from "moment";
 
 export class WrapperService {
     private errorHandler: ErrorResponseHandler;
