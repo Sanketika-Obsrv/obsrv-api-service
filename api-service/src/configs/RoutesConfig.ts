@@ -55,12 +55,6 @@ export const routesConfig = {
         path: "/obsrv/v1/datasets/list",
         validation_schema: "DatasetListReq.json",
       },
-      retire: {
-        api_id: "obsrv.config.dataset.retire",
-        method: "delete",
-        path: "/obsrv/v1/datasets/retire/:datasetId",
-        validation_schema: null
-      }
     },
     datasource: {
       save: {
