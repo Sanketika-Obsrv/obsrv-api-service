@@ -357,6 +357,8 @@ components:
           type: string
         published_date:
           type: string
+        metadata:
+          type: object
 
     DatasourceUpdate:
       description: dataset_id, datasource parameters are required
@@ -1103,6 +1105,9 @@ components:
         datasource_ref: obsrv-telemetry-events
         published_date: "2023-03-27T11:40:43.269Z"
         status: Live
+        metadata:
+          rollup: false
+          granularity: 'day'
 
     DatasourceUpdate:
       value:
