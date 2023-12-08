@@ -16,5 +16,3 @@ commands:
   RESTART_PIPELINE:
     workflow:
       - RESTART_PIPELINE_JOBS
-
-helm_charts_base_dir: ../../helm-charts
