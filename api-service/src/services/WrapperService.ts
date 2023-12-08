@@ -103,7 +103,4 @@ export class WrapperService {
         return axios.post(`${config.query_api.druid.host}:${config.query_api.druid.port}/${config.query_api.druid.submit_ingestion}`, ingestionSpec)
     }
 
-    public deleteSupervisor = async (datasourceRef: string) => {
-        return axios.post(`${config.query_api.druid.host}:${config.query_api.druid.port}/druid/indexer/v1/supervisor/${datasourceRef}/terminate`)
-    }
 }
