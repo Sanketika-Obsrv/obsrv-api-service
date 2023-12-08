@@ -10,6 +10,8 @@ import { WrapperService } from "./WrapperService";
 import { HTTPConnector } from "../connectors/HttpConnector";
 import { config } from "../configs/Config";
 import { AxiosInstance } from "axios";
+import { v4 } from 'uuid';
+
 export class RetireService {
     private dbConnector: IConnector;
     private errorHandler: ErrorResponseHandler;
@@ -35,7 +37,12 @@ export class RetireService {
                 `UPDATE datasets SET status = '${DatasetStatus.Retired}' WHERE id = '${datasetRecord.id}' AND status = '${DatasetStatus.Live}'`,
             ];
             await this.dbConnector.executeSql(queries);
-            await this.httpService.post(`${config.command_service_config.path}`, { command: `RESTART_PIPELINE` });
+            await this.httpService.post(`${config.command_service_config.path}`, {
+                "id": v4(),
+                "data": {
+                    command: `RESTART_PIPELINE`
+                }
+            });
             let datasourceRefs = await this.dbConnector.executeSql([`SELECT * FROM datasources WHERE dataset_id = '${datasetRecord.id}' AND status = '${DatasetStatus.Retired}'`]);
             datasourceRefs = _.map(_.get(_.first(datasourceRefs), 'rows', []), 'datasource_ref');
             for (let datasourceRef of datasourceRefs) {
