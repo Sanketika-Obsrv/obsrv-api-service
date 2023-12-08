@@ -3,18 +3,16 @@ import chai from "chai";
 import chaiHttp from "chai-http";
 import httpStatus from "http-status";
 import { TestExhaust } from "./Fixtures";
-import { config, clientCloudConfig } from "./Config";
+import { config } from "./Config";
 import constants from "../resources/Constants.json";
-import {dbConnector, globalCache } from "../routes/Router";
+import { dbConnector, globalCache, exhaustService } from "../routes/Router";
 import chaiSpies from 'chai-spies'
 import { describe, it } from 'mocha';
+import { config as appConfig } from "../configs/Config";
 import moment from "moment";
-import { ClientCloudService } from "../services/ClientCloudService";
 chai.use(chaiSpies)
 chai.should();
 chai.use(chaiHttp);
-
-const exhaustService = new ClientCloudService(clientCloudConfig.cloud_storage_provider, clientCloudConfig.cloud_storage_config);
 
 describe("AWS Cloud Storage", () => {
     beforeEach(() => {
@@ -80,7 +78,7 @@ describe("AWS Cloud Storage", () => {
     it("it should return 404 when no files exist for given date range", (done) => {
         chai.spy.on(exhaustService, "getFromStorage", () => {
             return Promise.resolve({
-                expiresAt: moment().add(clientCloudConfig.storage_url_expiry, "seconds").toISOString(),
+                expiresAt: moment().add(appConfig.exhaust_config.storage_url_expiry, "seconds").toISOString(),
                 files: [],
                 periodWiseFiles: {},
             });
