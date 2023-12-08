@@ -10,6 +10,7 @@ import constants from "../resources/Constants.json"
 import { dbConnector, globalCache, ingestorService, kafkaConnector } from "../routes/Router";
 import { describe, it } from 'mocha';
 import nock from "nock";
+import { DatasetStatus } from "../models/DatasetModels";
 
 chai.use(spies);
 chai.should();
@@ -25,7 +26,7 @@ describe("DATA INGEST API", () => {
             return Promise.resolve([ {} ])
         })
         chai.spy.on(globalCache, 'get', () => {
-            return [ { "id": ":datasetId", "dataset_config": { "entry_topic": "topic" }, "extraction_config": { "is_batch_event": true, "extraction_key": "events", "batch_id": "id" } } ]
+            return [ { "id": ":datasetId", "status": DatasetStatus.Live, "dataset_config": { "entry_topic": "topic" }, "extraction_config": { "is_batch_event": true, "extraction_key": "events", "batch_id": "id" } } ]
         })
         chai.spy.on(kafkaConnector.telemetryService, "dispatch", () => {
             return Promise.resolve("data ingested")
@@ -52,7 +53,7 @@ describe("DATA INGEST API", () => {
             return Promise.resolve([ {} ])
         })
         chai.spy.on(globalCache, 'get', () => {
-            return [ { "id": ":datasetId", "dataset_config": { "entry_topic": "topic" }, "extraction_config": { "is_batch_event": true, "extraction_key": "events", "batch_id": "id" } } ]
+            return [ { "id": ":datasetId", "status": DatasetStatus.Live, "dataset_config": { "entry_topic": "topic" }, "extraction_config": { "is_batch_event": true, "extraction_key": "events", "batch_id": "id" } } ]
         })
         chai.spy.on(kafkaConnector.telemetryService, "dispatch", () => {
             return Promise.resolve("data ingested")
@@ -79,7 +80,7 @@ describe("DATA INGEST API", () => {
             return Promise.resolve([ {} ])
         })
         chai.spy.on(globalCache, 'get', () => {
-            return [ { "id": ":datasetId", "dataset_config": { "entry_topic": "topic" } } ]
+            return [ { "id": ":datasetId", "status": DatasetStatus.Live, "dataset_config": { "entry_topic": "topic" } } ]
         })
         chai.spy.on(kafkaConnector.telemetryService, "dispatch", () => {
             return Promise.reject("error connecting to kafka")
@@ -106,7 +107,7 @@ describe("DATA INGEST API", () => {
             return Promise.resolve([ {} ])
         })
         chai.spy.on(globalCache, 'get', () => {
-            return [ { "id": ":datasetId", "dataset_config": { "entry_topic": "topic" }, "extraction_config": { "is_batch_event": true, "extraction_key": "eventas", "batch_id": "ids" } } ]
+            return [ { "id": ":datasetId", "status": DatasetStatus.Live, "dataset_config": { "entry_topic": "topic" }, "extraction_config": { "is_batch_event": true, "extraction_key": "eventas", "batch_id": "ids" } } ]
         })
         chai
             .request(app)

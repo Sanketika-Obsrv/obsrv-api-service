@@ -33,9 +33,3 @@ export interface IngestionSchemeRequest {
     schema: Map<string, any>[],
     config: IngestionConfig
 }
-
-export interface IConnector {
-    connect(): any;
-    execute(sample: string, ...args: any): any;
-    close(): any
-}

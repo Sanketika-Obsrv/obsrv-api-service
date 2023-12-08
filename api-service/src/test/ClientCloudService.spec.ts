@@ -5,11 +5,12 @@ import httpStatus from "http-status";
 import { TestExhaust } from "./Fixtures";
 import { config } from "./Config";
 import constants from "../resources/Constants.json";
-import { datasetService, dbConnector, exhaustService, globalCache, ingestorService } from "../routes/Router";
-
+import { dbConnector, globalCache, exhaustService } from "../routes/Router";
 import chaiSpies from 'chai-spies'
 import { describe, it } from 'mocha';
+import { config as appConfig } from "../configs/Config";
 import moment from "moment";
+import { DatasetStatus } from "../models/DatasetModels";
 chai.use(chaiSpies)
 chai.should();
 chai.use(chaiHttp);
@@ -17,7 +18,7 @@ chai.use(chaiHttp);
 describe("AWS Cloud Storage", () => {
     beforeEach(() => {
         chai.spy.on(globalCache, "get", () => {
-            return [{ "id": ":datasetId", "dataset_config": { "entry_topic": "topic" } }]
+            return [{ "id": ":datasetId", "dataset_id": ":datasetId", "status": DatasetStatus.Live, "dataset_config": { "entry_topic": "topic" } }]
         })
     })
 
@@ -78,7 +79,7 @@ describe("AWS Cloud Storage", () => {
     it("it should return 404 when no files exist for given date range", (done) => {
         chai.spy.on(exhaustService, "getFromStorage", () => {
             return Promise.resolve({
-                expiresAt: moment().add(config.storage_url_expiry, "seconds").toISOString(),
+                expiresAt: moment().add(appConfig.exhaust_config.storage_url_expiry, "seconds").toISOString(),
                 files: [],
                 periodWiseFiles: {},
             });

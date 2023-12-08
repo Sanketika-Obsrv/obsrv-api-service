@@ -1,11 +1,11 @@
 import { Request, Response, NextFunction } from "express";
 import _ from 'lodash'
 import { Datasets } from "../helpers/Datasets";
-import { IConnector } from "../models/IngestionModels";
 import { findAndSetExistingRecord } from "./telemetry";
 import { DbUtil } from "../helpers/DbUtil";
 import { refreshDatasetConfigs } from "../helpers/DatasetConfigs";
 import { ErrorResponseHandler } from "../helpers/ErrorResponseHandler";
+import { DatasetStatus, IConnector } from "../models/DatasetModels";
 export class DatasetService {
     private table: string
     private dbConnector: IConnector;
@@ -36,8 +36,8 @@ export class DatasetService {
     }
     public read = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            let status: any = req.query.status || "ACTIVE"
-            const id = req.params.datasetId 
+            let status: any = req.query.status || DatasetStatus.Live
+            const id = req.params.datasetId
             await this.dbUtil.read(req, res, next, { id, status })
         } catch (error: any) { this.errorHandler.handleError(req, res, next, error, false) }
     }

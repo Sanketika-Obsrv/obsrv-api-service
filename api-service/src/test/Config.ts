@@ -1,5 +1,6 @@
 import { routesConfig } from "../configs/RoutesConfig"
-import {config as appConfig} from "../configs/Config"
+import { config as appConfig } from "../configs/Config";
+
 const config = {
   apiDruidEndPoint: `${routesConfig.query.native_query.path}`,
   apiDruidSqlEndPoint: `${routesConfig.query.sql_query.path}`,

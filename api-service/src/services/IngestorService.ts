@@ -4,13 +4,13 @@ import { ResponseHandler } from "../helpers/ResponseHandler";
 import _ from 'lodash'
 import { globalCache } from "../routes/Router";
 import { refreshDatasetConfigs } from "../helpers/DatasetConfigs";
-import { IConnector } from "../models/DatasetModels";
+import { DatasetStatus, IConnector } from "../models/DatasetModels";
 import { wrapperService } from "../routes/Router";
 import { ErrorResponseHandler } from "../helpers/ErrorResponseHandler";
 export class IngestorService {
     private kafkaConnector: IConnector;
     private errorHandler: ErrorResponseHandler;
-    constructor(kafkaConnector: IConnector, httpConnector: IConnector,) {
+    constructor(kafkaConnector: IConnector,) {
         this.kafkaConnector = kafkaConnector
         this.errorHandler = new ErrorResponseHandler("IngestorService");
         this.init()
@@ -53,13 +53,13 @@ export class IngestorService {
         if (!datasetConfigList) await refreshDatasetConfigs();
 
         datasetConfigList = globalCache.get("dataset-config");
-        const datasetRecord = datasetConfigList.find((record: any) => record.id === datasetId);
+        const datasetRecord = datasetConfigList.find((record: any) => record.id === datasetId && record.status === DatasetStatus.Live);
         // Return record if present in cache
         if (datasetRecord) return datasetRecord;
         else { // Refresh dataset configs cache in case record present in cache
             await refreshDatasetConfigs();
             const datasetConfigList = globalCache.get("dataset-config");
-            const datasetRecord = datasetConfigList.find((record: any) => record.id === datasetId);
+            const datasetRecord = datasetConfigList.find((record: any) => record.id === datasetId && record.status === DatasetStatus.Live);
             return datasetRecord;
         }
     }

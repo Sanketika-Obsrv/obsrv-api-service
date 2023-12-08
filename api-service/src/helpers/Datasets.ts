@@ -3,6 +3,7 @@ import { ValidationConfig, ExtractionConfig, DedupConfig, DenormConfig, RouterCo
 import { defaultConfig } from '../resources/schemas/DatasetConfigDefault'
 import { SchemaMerger } from '../generators/SchemaMerger'
 import { config } from '../configs/Config'
+import { DatasetStatus } from '../models/DatasetModels'
 let schemaMerger = new SchemaMerger()
 export class Datasets {
     private id: string
@@ -17,7 +18,7 @@ export class Datasets {
     private denorm_config: object
     private dataset_config: object
     private tags: any
-    private status: string
+    private status: DatasetStatus
     private created_by: string
     private updated_by: string
     private published_date: Date
