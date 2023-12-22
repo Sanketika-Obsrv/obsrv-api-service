@@ -1,6 +1,9 @@
 // These configurations provide settings and values for various aspects of dataset management, data ingestion, and table configurations in a system.
+
+const env = process.env.system_env || "local"
+
 export const config = {
-  "env": process.env.system_env || "local",
+  "env": env,
   "api_port": process.env.api_port || 3000,
   "body_parser_limit": process.env.body_parser_limit || "100mb",
   "version": "1.0",
@@ -60,7 +63,7 @@ export const config = {
     "redis_port": process.env.redis_port || 6379
   },
   "exclude_datasource_validation": process.env.exclude_datasource_validation ? process.env.exclude_datasource_validation.split(",") : ["system-stats", "failed-events-summary", "masterdata-system-stats", "system-events"], // list of datasource names to skip validation while calling query API
-  "telemetry_dataset": process.env.telemetry_dataset || "telemetry",
+  "telemetry_dataset": process.env.telemetry_dataset || `${env}.system.telemetry.events`,
   "table_names": {     // Names of all tables available for CRUD operations
     "datasets": "datasets",
     "datasources": "datasources",

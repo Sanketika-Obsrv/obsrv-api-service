@@ -2,9 +2,11 @@ import { Request, Response, NextFunction } from "express";
 import _ from 'lodash'
 import { DatasetSourceConfigs } from "../helpers/DatasetSourceConfigs";
 import { DbUtil } from "../helpers/DbUtil";
-import { findAndSetExistingRecord } from "./telemetry";
+import { findAndSetExistingRecord, updateTelemetryAuditEvent } from "./telemetry";
 import { ErrorResponseHandler } from "../helpers/ErrorResponseHandler";
 import { DatasetStatus, IConnector } from "../models/DatasetModels";
+
+const telemetryObject = { id: null, type: "dataset-source-config", ver: "1.0.0" };
 
 export class DatasetSourceConfigService {
     private table: string
@@ -22,6 +24,7 @@ export class DatasetSourceConfigService {
         try {
             const datasetSourceConfig = new DatasetSourceConfigs(req.body)
             const payload: any = datasetSourceConfig.setValues()
+            updateTelemetryAuditEvent({ request: req, object: { ...telemetryObject, id: _.get(payload, 'id') } });
             await this.dbUtil.save(req, res, next, payload)
         } catch (error: any) { this.errorHandler.handleError(req, res, next, error) }
     }
@@ -29,7 +32,7 @@ export class DatasetSourceConfigService {
         try {
             const datasetSourceConfig = new DatasetSourceConfigs(req.body)
             const payload: Record<string, any> = datasetSourceConfig.setValues()
-            await findAndSetExistingRecord({ dbConnector: this.dbConnector, table: this.table, request: req, filters: { "id": payload.id }, object: { id: payload.id, type: "datasetSourceConfig" } });
+            await findAndSetExistingRecord({ dbConnector: this.dbConnector, table: this.table, request: req, filters: { "id": _.get(payload, 'id') }, object: { ...telemetryObject, id: _.get(payload, 'id') } });
             await this.dbUtil.upsert(req, res, next, payload)
         } catch (error: any) { this.errorHandler.handleError(req, res, next, error) }
     }
@@ -37,6 +40,7 @@ export class DatasetSourceConfigService {
         try {
             let status: any = req.query.status || DatasetStatus.Live
             const id = req.params.datasetId
+            updateTelemetryAuditEvent({ request: req, object: { ...telemetryObject, id } });
             await this.dbUtil.read(req, res, next, { id, status })
         } catch (error: any) { this.errorHandler.handleError(req, res, next, error, false) }
     }
