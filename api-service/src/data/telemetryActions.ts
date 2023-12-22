@@ -1,12 +1,21 @@
 export default {
     "createDataset": "dataset:create",
     "updateDataset": "dataset:update",
+    "readDataset": "dataset:read",
+    "listDatasets": "dataset:list",
     "createDatasource": "datasource:create",
     "updateDatasource": "datasource:update",
+    "getDatasource": "datasource:get",
+    "listDatasource": "datasource:list",
     "createTransformation": "transformation:create",
     "updateTransformation": "transformation:update",
-    "createSystemSetting": "systemSetting: create",
-    "updateSystemSetting": "systemSetting:update",
     "createDatasetSourceConfig": "datasetSourceConfig:create",
-    "updateDatasetSourceConfig": "datasetSourceConfig:update"
+    "updateDatasetSourceConfig": "datasetSourceConfig:update",
+    "getatasetSourceConfig": "datasetSourceConfig:get",
+    "listDatasetSourceConfig": "datasetSourceConfig:list",
+    "nativeQuery": "dataset:query:native",
+    "sqlQuery": "dataset:query:sql",
+    "ingestEvents": "dataset:events:ingest",
+    "submitIngestionSpec": "datasource:ingestion:submit",
+    "datasetExhaust": "dataset:exhaust:get"
 }

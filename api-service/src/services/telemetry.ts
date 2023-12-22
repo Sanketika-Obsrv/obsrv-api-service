@@ -1,13 +1,18 @@
 import { Request, Response, NextFunction } from "express"
 import { v4 } from 'uuid';
 import _ from 'lodash';
-import { config } from "../configs/Config";
-import axios from 'axios';
+import { config as appConfig } from "../configs/Config";
+import { Kafka } from 'kafkajs';
 
-export enum OperationType {
-    CREATE = 1,
-    UPDATE
-}
+const env = _.get(appConfig, 'env')
+const telemetryTopic = _.get(appConfig, 'telemetry_dataset');
+const brokerServers = _.get(appConfig, 'telemetry_service_config.kafka.config.brokers');
+
+export enum OperationType { CREATE = 1, UPDATE, PUBLISH, RETIRE, LIST, GET }
+
+const kafka = new Kafka({ clientId: telemetryTopic, brokers: brokerServers });
+const telemetryEventsProducer = kafka.producer();
+telemetryEventsProducer.connect();
 
 const getDefaults = () => {
     return {
@@ -16,14 +21,14 @@ const getDefaults = () => {
         ver: '1.0.0',
         mid: v4(),
         actor: {
-            id: v4(),
+            id: "SYSTEM",
             type: 'User'
         },
         context: {
-            env: config.env,
+            env,
             sid: v4(),
             pdata: {
-                id: 'dev.obsrv.console',
+                id: `${env}.api.service`,
                 ver: '1.0.0'
             }
         },
@@ -31,15 +36,6 @@ const getDefaults = () => {
         edata: {}
     };
 };
-
-const sendTelemetryEvents = async (event: Record<string, any>) => {
-    try {
-        const payload = { data: { id: v4(), events: [event] } }
-        await axios.post(`http://localhost:${config.api_port}/obsrv/v1/data/${config.telemetry_dataset}`, payload, {})
-    } catch (error) {
-        console.log(error);
-    }
-}
 
 const getDefaultEdata = ({ action }: any) => ({
     startEts: Date.now(),
@@ -57,6 +53,10 @@ const getDefaultEdata = ({ action }: any) => ({
     }
 })
 
+const sendTelemetryEvents = async (event: Record<string, any>) => {
+    telemetryEventsProducer.send({ topic: telemetryTopic, messages: [{ value: JSON.stringify(event) }] }).catch(console.log)
+}
+
 const transformProps = (body: Record<string, any>) => {
     return _.map(_.entries(body), (payload) => {
         const [key, value] = payload;
@@ -68,20 +68,36 @@ const transformProps = (body: Record<string, any>) => {
     })
 }
 
-export const setAuditState = (state: string, req: Request) => {
+export const setAuditState = (state: string, req: any) => {
     if (state && req) {
-       _.set(req.auditEvent, "toState", state);
+        _.set(req.auditEvent, "toState", state);
     }
 }
 
-const setAuditEventType = (operationType: any, request: Request) => {
+const setAuditEventType = (operationType: any, request: any) => {
     switch (operationType) {
         case OperationType.CREATE: {
-            request.auditEvent.type = "create";
+            _.set(request, 'auditEvent.type', 'create');
             break;
         }
         case OperationType.UPDATE: {
-            request.auditEvent.type = "update";
+            _.set(request, 'auditEvent.type', 'update');
+            break;
+        }
+        case OperationType.PUBLISH: {
+            _.set(request, 'auditEvent.type', 'publish');
+            break;
+        }
+        case OperationType.RETIRE: {
+            _.set(request, 'auditEvent.type', 'retire');
+            break;
+        }
+        case OperationType.LIST: {
+            _.set(request, 'auditEvent.type', 'list');
+            break;
+        }
+        case OperationType.GET: {
+            _.set(request, 'auditEvent.type', 'get');
             break;
         }
         default:
@@ -90,12 +106,12 @@ const setAuditEventType = (operationType: any, request: Request) => {
 }
 
 export const telemetryAuditStart = ({ operationType, action }: any) => {
-    return async (request: Request, response: Response, next: NextFunction) => {
+    return async (request: any, response: Response, next: NextFunction) => {
         try {
-            const body = request.body || {}
+            const body = request.body || {};
             request.auditEvent = getDefaultEdata({ action });
             const props = transformProps(body);
-            request.auditEvent.edata.props = props;
+            _.set(request, 'auditEvent.edata.props', props);
             setAuditEventType(operationType, request);
         } catch (error) {
             console.log(error);
@@ -105,38 +121,56 @@ export const telemetryAuditStart = ({ operationType, action }: any) => {
     }
 }
 
-export const processTelemetryAuditEvent = () => {
+export const processAuditEvents = (request: Request, response: Response) => {
+    const auditEvent: any = _.get(request, 'auditEvent');
+    if (auditEvent) {
+        const { startEts, object = {}, edata = {}, toState, fromState }: any = auditEvent;
+        const endEts = Date.now();
+        const duration = startEts ? (endEts - startEts) : 0;
+        _.set(auditEvent, 'edata.transition.duration', duration);
+        if (toState && fromState) {
+            _.set(auditEvent, 'edata.transition.toState', toState);
+            _.set(auditEvent, 'edata.transition.fromState', fromState);
+        }
+        const telemetryEvent = getDefaults();
+        _.set(telemetryEvent, 'edata', edata);
+        _.set(telemetryEvent, 'object', { ...(object.id && object.type && { ...object, ver: '1.0.0' }) });
+        sendTelemetryEvents(telemetryEvent);
+    }
+}
+
+export const interceptAuditEvents = () => {
     return (request: Request, response: Response, next: NextFunction) => {
         response.on('finish', () => {
-            const auditEvent = _.get(request, 'auditEvent');
-            if (auditEvent) {
-                const { startEts, object = {}, edata = {}, toState, fromState } = auditEvent;
-                const endEts = Date.now();
-                const duration = startEts ? (endEts - startEts) : 0;
-                auditEvent.edata.transition.duration = duration;
-                if (toState && fromState) {
-                    auditEvent.edata.transition.toState = toState;
-                    auditEvent.edata.transition.fromState = fromState;
-                }
-                const telemetryEvent = getDefaults();
-                telemetryEvent.edata = edata;
-                telemetryEvent.object = { ...(object.id && object.type && { ...object, ver: '1.0.0' }) };
-                console.log(JSON.stringify(telemetryEvent));
-                // sendTelemetryEvents(telemetryEvent);
-            }
+            const statusCode = _.get(response, 'statusCode');
+            const isError = statusCode && statusCode >= 400;
+            !isError && processAuditEvents(request, response);
         })
         next();
     }
 }
 
+export const updateTelemetryAuditEvent = ({ currentRecord, request, object = {} }: Record<string, any>) => {
+    const auditEvent = request?.auditEvent;
+    _.set(request, 'auditEvent.object', object);
+    if (currentRecord) {
+        const props = _.get(auditEvent, 'edata.props');
+        const updatedProps = _.map(props, (prop: Record<string, any>) => {
+            const { property, nv } = prop;
+            const existingValue = _.get(currentRecord, property);
+            return { property, ov: existingValue, nv };
+        });
+        _.set(request, 'auditEvent.edata.props', updatedProps);
+    }
+}
+
 export const findAndSetExistingRecord = async ({ dbConnector, table, filters, request, object = {} }: Record<string, any>) => {
-    const auditEvent = request.auditEvent;
+    const auditEvent = request?.auditEvent;
     if (dbConnector && table && filters && _.get(auditEvent, 'type') === "update") {
         try {
-            request.auditEvent.object = object;
+            _.set(request, 'auditEvent.object', object);
             const records = await dbConnector.execute("read", { table, fields: { filters } })
             const existingRecord = _.first(records);
-
             if (existingRecord) {
                 const props = _.get(auditEvent, 'edata.props');
                 const updatedProps = _.map(props, (prop: Record<string, any>) => {
@@ -144,13 +178,10 @@ export const findAndSetExistingRecord = async ({ dbConnector, table, filters, re
                     const existingValue = _.get(existingRecord, property);
                     return { property, ov: existingValue, nv };
                 });
-                request.auditEvent.edata.props = updatedProps;
-            } else {
-                throw new Error();
+                _.set(request, 'auditEvent.edata.props', updatedProps);
             }
         } catch (error) {
             setAuditState("failed", request);
-            console.log(error);
         }
     }
 }

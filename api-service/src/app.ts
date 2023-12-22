@@ -4,7 +4,7 @@ import { ResponseHandler } from "./helpers/ResponseHandler";
 import { loadExtensions } from "./managers/Extensions";
 import { router } from "./routes/Router";
 import bodyParser from "body-parser";
-import { processTelemetryAuditEvent } from "./services/telemetry";
+import { interceptAuditEvents } from "./services/telemetry";
 import { queryService } from "./routes/Router";
 import { routesConfig } from "./configs/RoutesConfig";
 import { QueryValidator } from "./validators/QueryValidator";
@@ -25,7 +25,7 @@ app.set("queryServices", services);
 
 loadExtensions(app)
   .finally(() => {
-    // app.use(processTelemetryAuditEvent()) // uncomment if above extension is not loaded
+    app.use(interceptAuditEvents())
     app.use("/", router);
     app.use("*", ResponseHandler.routeNotFound);
     app.use(ResponseHandler.errorResponse);
