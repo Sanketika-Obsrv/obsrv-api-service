@@ -8,6 +8,7 @@ import { config as globalConfig } from '../configs/Config';
 import CloudService from '../lib/client-cloud-services';
 import moment from "moment";
 import { DateRange } from '../models/ExhaustModels';
+import { updateTelemetryAuditEvent } from './telemetry';
 
 export class ClientCloudService {
     private cloudProvider: string
@@ -40,6 +41,7 @@ export class ClientCloudService {
         const { params } = req;
         const { datasetId } = params;
         const { type } = req.query;
+        updateTelemetryAuditEvent({ request: req, object: { id: datasetId, type: "dataset", ver: "1.0.0" } });
         // Validations
         if(type && globalConfig.exhaust_config.exclude_exhaust_types.includes(type.toString())) {
             next({statusCode: 404, message: constants.RECORD_NOT_FOUND, errCode: httpStatus["404_NAME"],})
