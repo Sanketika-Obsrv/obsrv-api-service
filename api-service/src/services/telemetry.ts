@@ -12,7 +12,7 @@ export enum OperationType { CREATE = 1, UPDATE, PUBLISH, RETIRE, LIST, GET }
 
 const kafka = new Kafka({ clientId: telemetryTopic, brokers: brokerServers });
 const telemetryEventsProducer = kafka.producer();
-telemetryEventsProducer.connect();
+telemetryEventsProducer.connect().catch(err => console.error("Unable to connect to kafka", err.message));
 
 const getDefaults = () => {
     return {
