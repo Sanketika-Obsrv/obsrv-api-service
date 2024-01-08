@@ -152,7 +152,6 @@ describe("Dataset create API", () => {
             .post(config.apiDatasetSaveEndPoint)
             .send(TestDataset.VALID_DENORM_OUT_FIELD)
             .end((err, res) => {
-                console.log(res.body);
                 res.should.have.status(httpStatus.OK);
                 res.body.should.be.a("object")
                 res.body.responseCode.should.be.eq(httpStatus["200_NAME"]);
