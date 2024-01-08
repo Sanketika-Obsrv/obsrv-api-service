@@ -84,7 +84,7 @@ export class Datasets {
                 }
             );
             if(duplicatesExist) {
-                throw new Error('Duplicate denorm_out_field found in denorm_fields')
+                throw new Error('Duplicate found for denorm output key')
             }
         }
     }
