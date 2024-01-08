@@ -4,6 +4,8 @@ import { defaultConfig } from '../resources/schemas/DatasetConfigDefault'
 import { SchemaMerger } from '../generators/SchemaMerger'
 import { config } from '../configs/Config'
 import { DatasetStatus } from '../models/DatasetModels'
+import constants from "../resources/Constants.json";
+
 let schemaMerger = new SchemaMerger()
 export class Datasets {
     private id: string
@@ -84,7 +86,7 @@ export class Datasets {
                 }
             );
             if(duplicatesExist) {
-                throw new Error('Duplicate found for denorm output key')
+                throw constants.DUPLICATE_DENORM_FIELD;
             }
         }
     }
