@@ -1,4 +1,4 @@
-FROM --platform=linux/amd64 node:20-alpine
+FROM --platform=linux/amd64 node:20.10-alpine
 RUN apk add libcrypto3=3.1.4-r2 libssl3=3.1.4-r2
 RUN apk upgrade
 RUN mkdir -p /opt/obsrv-api-service
