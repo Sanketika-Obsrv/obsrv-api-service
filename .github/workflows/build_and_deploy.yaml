@@ -1,4 +1,4 @@
-name: Obsrv api service build and deployment workflow
+name: Obsrv api service build and deploy workflow
 run-name: Workflow run for ${{ github.ref }}
 on:
   push:
