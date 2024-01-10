@@ -4,6 +4,8 @@ import { defaultConfig } from '../resources/schemas/DatasetConfigDefault'
 import { SchemaMerger } from '../generators/SchemaMerger'
 import { config } from '../configs/Config'
 import { DatasetStatus } from '../models/DatasetModels'
+import constants from "../resources/Constants.json";
+
 let schemaMerger = new SchemaMerger()
 export class Datasets {
     private id: string
@@ -47,10 +49,12 @@ export class Datasets {
     }
 
     public getValues() {
+        this.validateDenormConfig();
         return Object.assign(this.removeNullValues({ id: this.id, dataset_id: this.dataset_id, type: this.type, name: this.name, validation_config: this.validation_config, extraction_config: this.extraction_config, dedup_config: this.dedup_config, data_schema: this.data_schema, router_config: this.router_config, denorm_config: this.denorm_config, dataset_config: this.dataset_config, tags: this.tags, status: this.status, created_by: this.created_by, updated_by: this.updated_by, published_date: this.published_date }), { "updated_date": new Date })
     }
 
     public setValues() {
+        this.validateDenormConfig();
         return schemaMerger.mergeSchema(this.getDefaults(), this.getValues())
     }
 
@@ -67,6 +71,23 @@ export class Datasets {
         }
         else {
             return {...defaultConfig.dataset}
+        }
+    }
+
+    private validateDenormConfig() {
+        if (this.denorm_config && _.has(this.denorm_config, 'denorm_fields')) {
+            let duplicatesExist = false;
+            let denormFields: any = _.get(this.denorm_config, 'denorm_fields', []);
+            denormFields = _.map(denormFields, (denormField: Record<string, string | number>) => _.get(denormField, 'denorm_out_field'));
+            denormFields.map(
+                (denormField: string | number) => {
+                    if(_.indexOf(denormFields, denormField) !== _.lastIndexOf(denormFields, denormField))
+                        duplicatesExist = true;
+                }
+            );
+            if(duplicatesExist) {
+                throw constants.DUPLICATE_DENORM_FIELD;
+            }
         }
     }
 }
