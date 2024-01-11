@@ -116,6 +116,12 @@ export const routesConfig = {
     path: "/obsrv/v1/data/create/:datasetId",
     validation_schema: "DataIngestionReq.json",
   },
+  tenant_ingest: {
+    api_id: "obsrv.dataset.data.in",
+    method: "post",
+    path: "/data/tenant/in/:datasetId",
+    validation_schema: "DataIngestionReq.json",
+  },
   exhaust: {
     api_id: "obsrv.dataset.data.exhaust",
     method: "get",
