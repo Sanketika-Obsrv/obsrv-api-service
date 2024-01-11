@@ -40,7 +40,7 @@ export class IngestorService {
         try {
             let datasetId = this.getDatasetId(req);
             const tenantId = _.get(req.headers, 'x-tenant-id', "default");
-            datasetId = `${datasetId}_${tenantId}`;
+            datasetId = `${datasetId}-${tenantId}`;
             const validData = await this.validateData(req.body.data, datasetId);
             req.body = { ...req.body.data, dataset: datasetId };
             const topic = await this.getTopic(datasetId);
