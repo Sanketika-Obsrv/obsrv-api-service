@@ -35,6 +35,20 @@ export class IngestorService {
             ResponseHandler.successResponse(req, res, { status: 200, data: { message: constants.DATASET.CREATED } });
         } catch (error: any) { this.errorHandler.handleError(req, res, next, error, false) }
     }
+
+    public tenant = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            let datasetId = this.getDatasetId(req);
+            const tenantId = _.get(req.headers, 'x-tenant-id', "default");
+            datasetId = `${tenantId}-${datasetId}`;
+            const validData = await this.validateData(req.body.data, datasetId);
+            req.body = { ...req.body.data, dataset: datasetId };
+            const topic = await this.getTopic(datasetId);
+            await this.kafkaConnector.execute(req, res, topic);
+            ResponseHandler.successResponse(req, res, { status: 200, data: { message: constants.DATASET.CREATED } });
+        } catch (error: any) { this.errorHandler.handleError(req, res, next, error, false) }
+    }
+
     public submitIngestion = async (req: Request, res: Response, next: NextFunction) => {
         try {
             await wrapperService.submitIngestion(req.body)

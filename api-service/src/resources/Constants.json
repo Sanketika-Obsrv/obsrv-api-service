@@ -96,6 +96,11 @@
     "status": 404,
     "code": "NOT_FOUND"
   },
+  "DUPLICATE_DENORM_FIELD": {
+    "message": "Duplicate found for denorm output key",
+    "status": 400,
+    "code": "BAD_REQUEST"
+  },
   "INGESTION_SUBMITTED": "ingestion spec has been submitted successfully",
   "INGESTION_FAILED_ON_SAVE": "Failed to submit Ingestion Spec, record is not saved"
 }
