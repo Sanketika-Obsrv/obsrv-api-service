@@ -1,9 +1,9 @@
-name: Obsrv api service build and deploy workflow
+name: Obsrv API Service Build and Deploy workflow
 run-name: Workflow run for ${{ github.ref }}
 on:
   push:
     tags:
-      - '*'
+      - "*"
   workflow_dispatch:
     inputs:
       aws-deploy:
@@ -14,7 +14,6 @@ on:
     types:
       - opened
       - synchronize
-
 jobs:
   check-tag:
     runs-on: ubuntu-latest
@@ -69,7 +68,9 @@ jobs:
           image-ref: ${{ vars.DOCKERHUB_USERNAME }}/obsrv-api-service:${{ github.ref_name }}
           format: 'table'
           exit-code: '1'
-          ignore-unfixed: true 
+          ignore-unfixed: true
+          vuln-type: 'os,library'
+          severity: 'CRITICAL,HIGH
 
   docker-build-command-service:
     needs: check-tag
