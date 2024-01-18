@@ -56,8 +56,8 @@ jobs:
           tags: ${{ vars.DOCKERHUB_USERNAME }}/flink-command-service:${{ github.ref_name }}
 
   aws-deploy:
-    needs: [ api-service, command-service]
-    if: github.event.inputs.aws-deploy == 'true'
+    needs: [ verify-tags,api-service, command-service]
+    if: github.event.inputs.aws-deploy == 'true' && needs.verify-tags.outputs.ALLOWED_TAG ==  'True'
     runs-on: ubuntu-latest
     environment: aws-dev
     steps:
