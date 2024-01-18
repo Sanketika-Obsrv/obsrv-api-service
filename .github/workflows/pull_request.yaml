@@ -1,0 +1,25 @@
+name: Pull request workflow
+on:
+  pull_request:
+    types:
+      - opened
+      - synchronize
+
+jobs:
+  run-test-cases:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.10
+
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Run test cases
+        run: |
+          cd api-service/src/test
+          npm install
+          npm run test
