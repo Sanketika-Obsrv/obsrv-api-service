@@ -108,7 +108,7 @@ describe("Dataset create API", () => {
                 res.body.params.status.should.be.eq(constants.STATUS.FAILURE)
                 done();
             });
-    })
+    });
     it("should not insert record when given invalid schema", (done) => {
         chai
             .request(app)
@@ -123,7 +123,45 @@ describe("Dataset create API", () => {
                 res.body.params.status.should.be.eq(constants.STATUS.FAILURE)
                 done();
             });
-    })
+    });
+    it("should not insert the record when there's a duplicate denorm out field", (done) => {
+        chai.spy.on(dbConnector, "execute", () => {
+            return Promise.resolve([])
+        })
+        chai
+            .request(app)
+            .post(config.apiDatasetSaveEndPoint)
+            .send(TestDataset.DUPLICATE_DENORM_OUT_FIELD)
+            .end((err, res) => {
+                res.should.have.status(httpStatus.BAD_REQUEST);
+                res.body.should.be.a("object")
+                res.body.responseCode.should.be.eq(httpStatus["400_NAME"]);
+                res.body.should.have.property("result");
+                res.body.id.should.be.eq(routesConfig.config.dataset.save.api_id);
+                res.body.params.status.should.be.eq(constants.STATUS.FAILURE);
+                chai.spy.restore(dbConnector, "execute");
+                done();
+            });
+    });
+    it("should insert the record when there's no duplicate denorm out field", (done) => {
+        chai.spy.on(dbConnector, "execute", () => {
+            return Promise.resolve([])
+        })
+        chai
+            .request(app)
+            .post(config.apiDatasetSaveEndPoint)
+            .send(TestDataset.VALID_DENORM_OUT_FIELD)
+            .end((err, res) => {
+                res.should.have.status(httpStatus.OK);
+                res.body.should.be.a("object")
+                res.body.responseCode.should.be.eq(httpStatus["200_NAME"]);
+                res.body.should.have.property("result");
+                res.body.id.should.be.eq(routesConfig.config.dataset.save.api_id);
+                res.body.params.status.should.be.eq(constants.STATUS.SUCCESS);
+                chai.spy.restore(dbConnector, "execute");
+                done();
+            });
+    });
 })
 describe("Dataset update API", () => {
     beforeEach(() => {
