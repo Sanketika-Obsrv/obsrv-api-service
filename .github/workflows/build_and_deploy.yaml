@@ -48,10 +48,11 @@ jobs:
         with:
           username: ${{ vars.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - run: cd ./command-service
       - name: Build docker image and push
         uses: docker/build-push-action@v2
         with:
-          file: ./command-service/Dockerfile  
+          file: ./Dockerfile  
           push: true
           tags: ${{ vars.DOCKERHUB_USERNAME }}/flink-command-service:${{ github.ref_name }}
 
