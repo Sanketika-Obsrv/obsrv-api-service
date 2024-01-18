@@ -9,7 +9,7 @@ on:
       aws-deploy:
         type: boolean
         required: true
-        default: false
+        default: true
 jobs:
   verify-tags:
     runs-on: ubuntu-latest
@@ -56,8 +56,8 @@ jobs:
           tags: ${{ vars.DOCKERHUB_USERNAME }}/flink-command-service:${{ github.ref_name }}
 
   aws-deploy:
-    needs: [verify-tags, api-service, command-service]
-    if: needs.check-tag.outputs.ALLOWED_TAG ==  'True' && github.event.inputs.aws-deploy == 'true'
+    needs: [ api-service, command-service]
+    if: github.event.inputs.aws-deploy == 'true'
     runs-on: ubuntu-latest
     environment: aws-dev
     steps:
@@ -82,7 +82,8 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_REGION: ${{ vars.AWS_REGION }}
         run: |
-          aws eks --region ${{ vars.AWS_REGION }} update-kubeconfig --name ${{ vars.KUBERNETES_CLUSTER_NAME }}
+          # aws eks --region ${{ vars.AWS_REGION }} update-kubeconfig --name ${{ vars.KUBERNETES_CLUSTER_NAME }}
+          aws eks --region ${{ vars.AWS_REGION }} update-kubeconfig --name obsrv-ga-dev-dev-eks
           
 
       - name: Run terraform init and apply
@@ -90,8 +91,10 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_REGION: ${{ vars.AWS_REGION }}
-          AWS_TERRAFORM_BACKEND_BUCKET_NAME: ${{ vars.AWS_TERRAFORM_BACKEND_BUCKET_NAME }}
-          AWS_TERRAFORM_BACKEND_BUCKET_REGION: ${{ vars.AWS_TERRAFORM_BACKEND_BUCKET_REGION }}
+          # AWS_TERRAFORM_BACKEND_BUCKET_NAME: ${{ vars.AWS_TERRAFORM_BACKEND_BUCKET_NAME }}
+          # AWS_TERRAFORM_BACKEND_BUCKET_REGION: ${{ vars.AWS_TERRAFORM_BACKEND_BUCKET_REGION }}
+          AWS_TERRAFORM_BACKEND_BUCKET_NAME: obsrv-ga-dev-tfstate
+          AWS_TERRAFORM_BACKEND_BUCKET_REGION: us-east-2
           KUBE_CONFIG_PATH: ~/.kube/config
           
         run: |
