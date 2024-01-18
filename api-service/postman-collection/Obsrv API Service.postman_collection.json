@@ -1,10 +1,10 @@
 {
 	"info": {
-		"_postman_id": "a3107544-5d3b-4af9-8002-74ce81357719",
+		"_postman_id": "eb1ecc94-340f-4cdb-a978-e52e1f454aab",
 		"name": "Obsrv API Service",
 		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json",
-		"_exporter_id": "23908122",
-		"_collection_link": "https://restless-water-97719.postman.co/workspace/temp-workspace~5901a80f-1ada-4758-bf49-6f0fe63041c8/collection/23908122-a3107544-5d3b-4af9-8002-74ce81357719?action=share&source=collection_link&creator=23908122"
+		"_exporter_id": "26192103",
+		"_collection_link": "https://speeding-star-177775.postman.co/workspace/sanketika-obsrv~2ce96556-12e2-48bd-8e42-9c1dba428cc8/collection/26192103-eb1ecc94-340f-4cdb-a978-e52e1f454aab?action=share&source=collection_link&creator=26192103"
 	},
 	"item": [
 		{
@@ -27,7 +27,7 @@
 								}
 							}
 						},
-						"url": "{{HOST_IP}}/obsrv/v1/datasets/list"
+						"url": "{{HOST_IP}}/datasets/v1/list"
 					},
 					"response": []
 				},
@@ -49,14 +49,13 @@
 							}
 						},
 						"url": {
-							"raw": "{{HOST_IP}}/obsrv/v1/datasets/create?status=Live",
+							"raw": "{{HOST_IP}}/datasets/v1/create?status=Live",
 							"host": [
 								"{{HOST_IP}}"
 							],
 							"path": [
-								"obsrv",
-								"v1",
 								"datasets",
+								"v1",
 								"create"
 							],
 							"query": [
@@ -86,7 +85,7 @@
 								}
 							}
 						},
-						"url": "{{HOST_IP}}/obsrv/v1/datasets/create"
+						"url": "{{HOST_IP}}/datasets/v1/create"
 					},
 					"response": []
 				},
@@ -107,7 +106,7 @@
 								}
 							}
 						},
-						"url": "{{HOST_IP}}/obsrv/v1/datasets/update"
+						"url": "{{HOST_IP}}/datasets/v1/update"
 					},
 					"response": []
 				},
@@ -120,16 +119,15 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{HOST_IP}}/obsrv/v1/datasets/get/?status=Live",
+							"raw": "{{HOST_IP}}/datasets/v1/get/dataset?status=Live",
 							"host": [
 								"{{HOST_IP}}"
 							],
 							"path": [
-								"obsrv",
-								"v1",
 								"datasets",
+								"v1",
 								"get",
-								""
+								"dataset"
 							],
 							"query": [
 								{
@@ -163,7 +161,7 @@
 								}
 							}
 						},
-						"url": "{{HOST_IP}}/obsrv/v1/datasources/list"
+						"url": "{{HOST_IP}}/datasources/v1/list"
 					},
 					"response": []
 				},
@@ -184,7 +182,7 @@
 								}
 							}
 						},
-						"url": "{{HOST_IP}}/obsrv/v1/datasources/create"
+						"url": "{{HOST_IP}}/datasources/v1/create"
 					},
 					"response": []
 				},
@@ -205,7 +203,7 @@
 								}
 							}
 						},
-						"url": "{{HOST_IP}}/obsrv/v1/datasources/update"
+						"url": "{{HOST_IP}}/datasources/v1/update"
 					},
 					"response": []
 				},
@@ -218,14 +216,13 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{HOST_IP}}/obsrv/v1/datasources/get/sb-telemetry_sb-telemetry?status=Live",
+							"raw": "{{HOST_IP}}/datasources/v1/get/sb-telemetry_sb-telemetry?status=Live",
 							"host": [
 								"{{HOST_IP}}"
 							],
 							"path": [
-								"obsrv",
-								"v1",
 								"datasources",
+								"v1",
 								"get",
 								"sb-telemetry_sb-telemetry"
 							],
@@ -261,7 +258,7 @@
 								}
 							}
 						},
-						"url": "{{HOST_IP}}/obsrv/v1/datasets/source/config/list"
+						"url": "{{HOST_IP}}/datasets/v1/source/config/list"
 					},
 					"response": []
 				},
@@ -286,14 +283,13 @@
 							}
 						},
 						"url": {
-							"raw": "{{HOST_IP}}/obsrv/v1/datasets/source/config/get/6c3fc8c2-357d-489b-b0c9-afdde6e5c6c0?status=Live",
+							"raw": "{{HOST_IP}}/datasets/v1/source/config/get/6c3fc8c2-357d-489b-b0c9-afdde6e5c6c0?status=Live",
 							"host": [
 								"{{HOST_IP}}"
 							],
 							"path": [
-								"obsrv",
-								"v1",
 								"datasets",
+								"v1",
 								"source",
 								"config",
 								"get",
@@ -326,7 +322,7 @@
 								}
 							}
 						},
-						"url": "{{HOST_IP}}/obsrv/v1/datasets/source/config/create"
+						"url": "{{HOST_IP}}/datasets/v1/source/config/create"
 					},
 					"response": []
 				},
@@ -347,7 +343,7 @@
 								}
 							}
 						},
-						"url": "{{HOST_IP}}/obsrv/v1/datasets/source/config/update"
+						"url": "{{HOST_IP}}/datasets/v1/source/config/update"
 					},
 					"response": []
 				}
@@ -357,7 +353,7 @@
 			"name": "Query (Data OUT APIs)",
 			"item": [
 				{
-					"name": "native query request",
+					"name": "native query with params",
 					"request": {
 						"auth": {
 							"type": "noauth"
@@ -373,12 +369,12 @@
 								}
 							}
 						},
-						"url": "{{HOST_IP}}/obsrv/v1/data/query/dataset-1_dataset-1.1_DAY"
+						"url": "{{HOST_IP}}/data/v1/query/dataset-1_dataset-1.1_DAY"
 					},
 					"response": []
 				},
 				{
-					"name": "sql query request",
+					"name": "sql query with params",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -405,7 +401,43 @@
 								}
 							}
 						},
-						"url": "{{HOST_IP}}/obsrv/v1/data/sql-query/dataset-1_dataset-1.1_DA"
+						"url": "{{HOST_IP}}/data/v1/sql-query/dataset-1_dataset-1.1_DA"
+					},
+					"response": []
+				},
+				{
+					"name": "native query",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"context\": {\n        \"dataSource\": \"dataset-1\"\n    },\n    \"query\": {\n        \"queryType\": \"timeseries\",\n        \"dataSource\": \"dataset-1\",\n        \"intervals\": {\n            \"type\": \"intervals\",\n            \"intervals\": [\n                \"2023-06-15/2023-07-11\"\n            ]\n        },\n        \"granularity\": \"week\",\n        \"aggregations\": [\n            {\n                \"type\": \"count\",\n                \"name\": \"total_records\"\n            }\n        ]\n    }\n}"
+						},
+						"url": "{{HOST_IP}}/data/v1/query"
+					},
+					"response": []
+				},
+				{
+					"name": "sql-query",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"context\": {\n        \"dataSource\": \"dataset-1\"\n    },\n    \"querySql\": {\n        \"query\": \"SELECT COUNT(*) AS totalRatingsCount FROM \\\"dataset-1\\\" LIMIT 100\"\n    }\n}"
+						},
+						"url": "{{HOST_IP}}/data/v1/sql-query"
 					},
 					"response": []
 				}
@@ -431,7 +463,7 @@
 								}
 							}
 						},
-						"url": "{{HOST_IP}}/obsrv/v1/data/create/sb-telemetry"
+						"url": "{{HOST_IP}}/data/v1/in/sb-telemetry"
 					},
 					"response": []
 				},
@@ -452,7 +484,7 @@
 								}
 							}
 						},
-						"url": "{{HOST_IP}}/obsrv/v1/data/create/sb-telemetry"
+						"url": "{{HOST_IP}}/data/v1/in/sb-telemetry"
 					},
 					"response": []
 				},
@@ -473,7 +505,7 @@
 								}
 							}
 						},
-						"url": "{{HOST_IP}}/obsrv/v1/data/create/sb-telemetry-user"
+						"url": "{{HOST_IP}}/data/v1/in/sb-telemetry-user"
 					},
 					"response": []
 				},
@@ -491,7 +523,7 @@
 								}
 							}
 						},
-						"url": "{{HOST_IP}}/obsrv/v1/data/submit/ingestion"
+						"url": "{{HOST_IP}}/data/v1/submit/ingestion"
 					},
 					"response": []
 				}
@@ -501,7 +533,7 @@
 			"name": "Exhaust APIs",
 			"item": [
 				{
-					"name": "New Request",
+					"name": "Dataset exhaust",
 					"request": {
 						"method": "GET",
 						"header": [
@@ -511,16 +543,15 @@
 							}
 						],
 						"url": {
-							"raw": "{{HOST_IP}}/obsrv/v1/data/exhaust/sb-telemetry?from=2023-07-01&to=2023-07-31&type=transformed",
+							"raw": "{{HOST_IP}}/data/v1/exhaust/dataset-1?from=2023-07-01&to=2023-07-31&type=transformed",
 							"host": [
 								"{{HOST_IP}}"
 							],
 							"path": [
-								"obsrv",
-								"v1",
 								"data",
+								"v1",
 								"exhaust",
-								"sb-telemetry"
+								"dataset-1"
 							],
 							"query": [
 								{
@@ -541,6 +572,33 @@
 					"response": []
 				}
 			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "HOST_IP",
+			"value": "localhost:3005",
+			"type": "string"
 		}
 	]
 }
