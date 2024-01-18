@@ -1,9 +1,10 @@
+
 name: Build and Deploy
 run-name: Workflow run for ${{ github.ref }}
 on:
   push:
     tags:
-      - '*'
+      - "*"
   workflow_dispatch:
     inputs:
       aws-deploy:
@@ -37,7 +38,6 @@ jobs:
           file: ./api-service/Dockerfile  
           push: true
           tags: ${{ vars.DOCKERHUB_USERNAME }}/obsrv-api-service:${{ github.ref_name }}
-
   command-service:
     needs: verify-tags
     if: needs.check-tag.outputs.ALLOWED_TAG ==  'True'
