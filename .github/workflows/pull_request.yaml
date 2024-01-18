@@ -6,7 +6,7 @@ on:
       - synchronize
 
 jobs:
-  run-test-cases:
+  test-cases:
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     steps:
