@@ -53,6 +53,7 @@ export class RequestsValidator implements IValidator {
             routesConfig.query.native_query,
             routesConfig.query.sql_query,
             routesConfig.data_ingest,
+            routesConfig.tenant_ingest,
             routesConfig.config.dataset.save,
             routesConfig.config.datasource.save,
             routesConfig.config.dataset.list,
