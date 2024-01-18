@@ -5,8 +5,8 @@ RUN apk update && apk add curl jq && curl -LO "https://dl.k8s.io/release/$(curl 
 RUN apk add libcrypto3=3.1.4-r4
 RUN apk upgrade
 WORKDIR /app
-COPY requirements.txt .
+COPY command-service/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
-COPY src ./src
+COPY command-service/src ./src
 WORKDIR /app/src
 CMD [ "uvicorn", "routes:app", "--host", "0.0.0.0" ]
