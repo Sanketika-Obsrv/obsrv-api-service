@@ -101,18 +101,17 @@ jobs:
           
         run: |
           cd deploy/terraform/aws
-          ls
-          # terragrunt init
-          # terragrunt apply -auto-approve --target=module.dataset_api \
-          # -var dataset_api_container_registry=${{ vars.DOCKERHUB_USERNAME }} \
-          # -var dataset_api_image_tag=develop-241-4 \
-          # -var env=dev \
-          # -var building_block=obsrv-ga-dev \
-          # -var region=us-east-2 \
-          # -var availability_zone=["us-east-2a","us-east-2b","us-east-2c"] \
-          # -var timezone=UTC \ 
-          # -var create_vpc=true -var create_velero_user=true -var create_kong_ingress=true \
-          # -var cluster_logs_enabled=true
+          terragrunt init
+          terragrunt apply -auto-approve --target=module.dataset_api \
+          -var dataset_api_container_registry=${{ vars.DOCKERHUB_USERNAME }} \
+          -var dataset_api_image_tag=develop-241-4 \
+          -var env=dev \
+          -var building_block=obsrv-ga-dev \
+          -var region=us-east-2 \
+          -var availability_zone=["us-east-2a","us-east-2b","us-east-2c"] \
+          -var timezone=UTC \ 
+          -var create_vpc=true -var create_velero_user=true -var create_kong_ingress=true \
+          -var cluster_logs_enabled=true
 
   azure-deploy:
     # needs: [verify-tags, api-service, command-service]
