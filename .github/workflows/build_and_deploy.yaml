@@ -80,17 +80,18 @@ jobs:
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_REGION: ${{ vars.AWS_REGION }}
+          # AWS_REGION: ${{ vars.AWS_REGION }}
+          AWS_REGION: us-east-2
         run: |
-          # aws eks --region ${{ vars.AWS_REGION }} update-kubeconfig --name ${{ vars.KUBERNETES_CLUSTER_NAME }}
-          aws eks --region ${{ vars.AWS_REGION }} update-kubeconfig --name obsrv-ga-dev-dev-eks
+          aws eks --region us-east-2 update-kubeconfig --name obsrv-ga-dev-dev-eks
           
 
       - name: Run terraform init and apply
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_REGION: ${{ vars.AWS_REGION }}
+          # AWS_REGION: ${{ vars.AWS_REGION }}
+          AWS_REGION: us-east-2
           # AWS_TERRAFORM_BACKEND_BUCKET_NAME: ${{ vars.AWS_TERRAFORM_BACKEND_BUCKET_NAME }}
           # AWS_TERRAFORM_BACKEND_BUCKET_REGION: ${{ vars.AWS_TERRAFORM_BACKEND_BUCKET_REGION }}
           AWS_TERRAFORM_BACKEND_BUCKET_NAME: obsrv-ga-dev-tfstate
