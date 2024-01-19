@@ -3,8 +3,8 @@ name: Build and Deploy
 run-name: Workflow run for ${{ github.ref }}
 on:
   push:
-    tags:
-      - "*"
+      branches:
+        - "*"
   workflow_dispatch:
     inputs:
       aws-deploy:
@@ -100,7 +100,6 @@ jobs:
           KUBE_CONFIG_PATH: ~/.kube/config
           
         run: |
-          ls
           cd deploy && ls
           # terragrunt init
           # terragrunt apply -auto-approve --target=module.dataset_api \
