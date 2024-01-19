@@ -72,8 +72,7 @@ jobs:
       - name: Clone the terraform deployment repo
         uses: actions/checkout@v3
         with:
-          # repository: ${{ vars.DEPLOY_REPO }}
-          repository: Sanketika-Obsrv/obsrv-automation.git
+          repository: ${{ vars.DEPLOY_REPO }}
           path: deploy
           # ref: ${{ vars.DEPLOY_REPO_REF }}
           ref: develop
@@ -102,7 +101,7 @@ jobs:
           
         run: |
           ls
-          cd deploy/obsrv-automation/terraform/aws
+          cd deploy && ls
           # terragrunt init
           # terragrunt apply -auto-approve --target=module.dataset_api \
           # -var dataset_api_container_registry=${{ vars.DOCKERHUB_USERNAME }} \
