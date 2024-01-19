@@ -100,7 +100,8 @@ jobs:
           KUBE_CONFIG_PATH: ~/.kube/config
           
         run: |
-          cd deploy && ls
+          cd deploy/terraform/aws
+          ls
           # terragrunt init
           # terragrunt apply -auto-approve --target=module.dataset_api \
           # -var dataset_api_container_registry=${{ vars.DOCKERHUB_USERNAME }} \
