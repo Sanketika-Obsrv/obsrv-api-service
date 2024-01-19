@@ -21,43 +21,43 @@ jobs:
         id: tag-checker
         run: |
           (echo -n TRIGGER_ALLOWED= && echo 'print("${{ github.ref_name }}".split("_")[0] not in "${{ vars.CURRENT_RELEASE }}")' | python3) >> "$GITHUB_OUTPUT"
-  api-service:
-    needs: verify-tags
-    if: needs.verify-tags.outputs.ALLOWED_TAG ==  'True'
-    runs-on: ubuntu-latest
-    steps:
-      - name: Login to docker hub
-        uses: docker/login-action@v3
-        with:
-          username: ${{ vars.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
+  # api-service:
+  #   needs: verify-tags
+  #   if: needs.verify-tags.outputs.ALLOWED_TAG ==  'True'
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Login to docker hub
+  #       uses: docker/login-action@v3
+  #       with:
+  #         username: ${{ vars.DOCKERHUB_USERNAME }}
+  #         password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Build docker image and push
-        uses: docker/build-push-action@v4
-        with:
-          file: ./api-service/Dockerfile  
-          push: true
-          tags: ${{ vars.DOCKERHUB_USERNAME }}/obsrv-api-service:${{ github.ref_name }}
-  command-service:
-    needs: verify-tags
-    if: needs.verify-tags.outputs.ALLOWED_TAG ==  'True'
-    runs-on: ubuntu-latest
-    steps:
-      - name: Login to docker hub
-        uses: docker/login-action@v3
-        with:
-          username: ${{ vars.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-      - name: Build docker image and push
-        uses: docker/build-push-action@v4
-        with:
-          file: ./command-service/Dockerfile  
-          push: true
-          tags: ${{ vars.DOCKERHUB_USERNAME }}/flink-command-service:${{ github.ref_name }}
+  #     - name: Build docker image and push
+  #       uses: docker/build-push-action@v4
+  #       with:
+  #         file: ./api-service/Dockerfile  
+  #         push: true
+  #         tags: ${{ vars.DOCKERHUB_USERNAME }}/obsrv-api-service:${{ github.ref_name }}
+  # command-service:
+  #   needs: verify-tags
+  #   if: needs.verify-tags.outputs.ALLOWED_TAG ==  'True'
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Login to docker hub
+  #       uses: docker/login-action@v3
+  #       with:
+  #         username: ${{ vars.DOCKERHUB_USERNAME }}
+  #         password: ${{ secrets.DOCKERHUB_TOKEN }}
+  #     - name: Build docker image and push
+  #       uses: docker/build-push-action@v4
+  #       with:
+  #         file: ./command-service/Dockerfile  
+  #         push: true
+  #         tags: ${{ vars.DOCKERHUB_USERNAME }}/flink-command-service:${{ github.ref_name }}
 
   aws-deploy:
-    needs: [ verify-tags,api-service, command-service]
-    if: github.event.inputs.aws-deploy == 'true' && needs.verify-tags.outputs.ALLOWED_TAG ==  'True'
+    # needs: [ verify-tags,api-service, command-service]
+    # if: needs.verify-tags.outputs.ALLOWED_TAG ==  'True'
     runs-on: ubuntu-latest
     environment: aws-dev
     steps:
@@ -102,10 +102,10 @@ jobs:
           terragrunt init
           terragrunt apply -auto-approve --target=module.dataset_api \
           -var dataset_api_container_registry=${{ vars.DOCKERHUB_USERNAME }} \
-          -var dataset_api_image_tag=${{ github.ref_name }}
+          -var dataset_api_image_tag=develop-241-4
 
   azure-deploy:
-    needs: [verify-tags, api-service, command-service]
+    # needs: [verify-tags, api-service, command-service]
     if: needs.verify-tags.outputs.ALLOWED_TAG ==  'True' && vars.CLOUD_PROVIDER == 'azure'
     runs-on: ubuntu-latest
     steps:
