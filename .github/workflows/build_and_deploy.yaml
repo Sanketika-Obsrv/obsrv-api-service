@@ -3,8 +3,8 @@ name: Build and Deploy
 run-name: Workflow run for ${{ github.ref }}
 on:
   push:
-      branches:
-        - "*"
+    tags:
+      - "*"
   workflow_dispatch:
     inputs:
       aws-deploy:
