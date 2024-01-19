@@ -102,7 +102,7 @@ jobs:
         run: |
           cd deploy/terraform/aws
           terragrunt init
-          terragrunt apply -auto-approve --target=module.dataset_api \
+          terragrunt apply -var-file=vars/dev.tfvars -auto-approve --target=module.dataset_api \
           -var dataset_api_container_registry=${{ vars.DOCKERHUB_USERNAME }} \
           -var dataset_api_image_tag=develop-241-4 \
           -var env=dev \
