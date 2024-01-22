@@ -63,13 +63,13 @@ jobs:
           push: true
           tags: ${{ vars.DOCKERHUB_USERNAME }}/obsrv-api-service:${{ github.ref_name }}
 
-  build-command-service:
+  build-command-service-image:
     needs: verify-tag
     if: needs.verify-tag.outputs.ALLOWED_TAG ==  'True' && github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     steps:
       - name: Login to docker hub
-        uses: docker/login-action@v1
+        uses: docker/login-action@v2
         with:
           username: ${{ vars.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
@@ -81,7 +81,7 @@ jobs:
           tags: ${{ vars.DOCKERHUB_USERNAME }}/flink-command-service:${{ github.ref_name }}
 
   aws-deploy:
-    needs: [verify-tag, docker-build-api-service, docker-build-command-service]
+    needs: [verify-tag, build-api-service-image, build-command-service-image]
     if: needs.verify-tag.outputs.ALLOWED_TAG ==  'True' && github.event.inputs.aws-deploy == 'true'
     runs-on: ubuntu-latest
     environment: aws-dev
@@ -127,7 +127,7 @@ jobs:
           -var dataset_api_image_tag=${{ github.ref_name }}
 
   azure-deploy:
-    needs: [verify-tag, docker-build-api-service, docker-build-command-service]
+    needs: [verify-tag, build-api-service-image, build-command-service-image]
     if: needs.verify-tag.outputs.ALLOWED_TAG ==  'True' && vars.CLOUD_PROVIDER == 'azure'
     runs-on: ubuntu-latest
     steps:
