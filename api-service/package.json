@@ -6,6 +6,7 @@
   "scripts": {
     "start": "ts-node ./src/app.ts",
     "test": "source .env.test && nyc mocha ./src/test/*.spec.ts --exit",
+    "actions:test": "nyc mocha ./src/test/*.spec.ts --exit",
     "build": "tsc -P ."
   },
   "author": "GayathriSrividya",

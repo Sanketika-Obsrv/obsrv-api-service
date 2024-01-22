@@ -27,7 +27,7 @@ jobs:
 
   run-test-cases:
     needs: verify-tag
-    if: needs.verify-tag.outputs.ALLOWED_TAG ==  'True' && github.event_name == 'pull_request'
+    if: needs.verify-tag.outputs.ALLOWED_TAG ==  'True'
     runs-on: ubuntu-latest
     steps:
       - name: Set up Node.js
@@ -38,21 +38,11 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Print env
-        env: 
-          FOO: 'BAZ'
+      - name: Install dependencies and run tests
         run: |
-          echo $FOO
-          echo ${{ env.FOO }}
-          echo $HOME
-
-      - name: Run test cases
-        shell: bash
-        run: |
-          source ../.env.test
-          cd api-service/src/test
+          cd api-service
           npm install
-          npm run test
+          npm run actions:test
 
   build-api-service-image:
     needs: verify-tag
