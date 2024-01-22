@@ -38,10 +38,10 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - run: echo $HOME
+      - name: Print env
         env: 
           FOO: 'BAZ'
-      - run: |
+        run: |
           echo $FOO
           echo ${{ env.FOO }}
 
@@ -49,6 +49,7 @@ jobs:
       - name: Run test cases
         shell: bash
         run: |
+          source ../../.env.test
           cd api-service/src/test
           npm install
           npm run test
