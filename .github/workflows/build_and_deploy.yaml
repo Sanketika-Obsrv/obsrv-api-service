@@ -1,5 +1,5 @@
 
-name: Build and Deploy
+name: Build and Deploy API-Service
 run-name: Workflow run for ${{ github.ref }}
 on:
   push:
@@ -48,15 +48,12 @@ jobs:
         with:
           # username: ${{ vars.DOCKERHUB_USERNAME }}
           # password: ${{ secrets.DOCKERHUB_TOKEN }}
-          username: sanketikahub
-          password: mxP17gAtFOOn
       - name: Build docker image and push
         uses: docker/build-push-action@v4
         with:
           file: ./command-service/Dockerfile  
           push: true
           # tags: ${{ vars.DOCKERHUB_USERNAME }}/obsrv-command-service:${{ github.ref_name }}
-          tags: sanketikahub/obsrv-command-service:1.0
 
   aws-deploy:
     needs: [ verify-tags,api-service, command-service]
