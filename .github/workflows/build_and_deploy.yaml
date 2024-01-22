@@ -39,11 +39,11 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Run test cases
+        shell: bash
         run: |
           cd api-service/src/test
           npm install
           npm run test
-        shell: bash
 
   build-api-service-image:
     needs: verify-tag
