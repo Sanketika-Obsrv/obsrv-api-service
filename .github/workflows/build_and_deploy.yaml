@@ -44,7 +44,7 @@ jobs:
         run: |
           echo $FOO
           echo ${{ env.FOO }}
-
+          echo $HOME
 
       - name: Run test cases
         shell: bash
