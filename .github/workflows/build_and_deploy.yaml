@@ -38,6 +38,14 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
+      - run: echo $HOME
+        env: 
+          FOO: 'BAZ'
+      - run: |
+          echo $FOO
+          echo ${{ env.FOO }}
+
+
       - name: Run test cases
         shell: bash
         run: |
