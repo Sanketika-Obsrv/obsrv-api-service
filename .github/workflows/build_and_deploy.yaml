@@ -27,7 +27,7 @@ jobs:
 
   run-test-cases:
     needs: verify-tag
-    if: needs.verify-tag.outputs.ALLOWED_TAG ==  'True'
+    if: needs.verify-tag.outputs.ALLOWED_TAG ==  'True' && github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     steps:
       - name: Set up Node.js
