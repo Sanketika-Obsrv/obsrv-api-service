@@ -13,13 +13,13 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20.10
+          node-version: 'latest'
 
       - name: Checkout code
         uses: actions/checkout@v2
 
       - name: Run test cases
         run: |
-          cd api-service/src/test
+          cd api-service
           npm install
           npm run test
