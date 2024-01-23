@@ -1,12 +1,18 @@
-name: Obsrv api service build and deploy workflow
+name: API Service
 run-name: Workflow run for ${{ github.ref }}
 on:
   push:
     tags:
       - '*'
+  workflow_dispatch:
+    inputs:
+      aws-deploy:
+        type: boolean
+        required: true
+        default: false
 
 jobs:
-  check-tag:
+  verify-tag:
     runs-on: ubuntu-latest
     outputs:
       ALLOWED_TAG: ${{ steps.tag-checker.outputs.TRIGGER_ALLOWED }}
@@ -15,9 +21,10 @@ jobs:
         id: tag-checker
         run: |
           (echo -n TRIGGER_ALLOWED= && echo 'print("${{ github.ref_name }}".split("_")[0] not in "${{ vars.CURRENT_RELEASE }}")' | python3) >> "$GITHUB_OUTPUT"
-  docker-build-api-service:
-    needs: check-tag
-    if: needs.check-tag.outputs.ALLOWED_TAG ==  'True'
+ 
+   build-api-service-image:
+    needs: verify-tag
+    if: needs.verify-tag.outputs.ALLOWED_TAG ==  'True'
     runs-on: ubuntu-latest
     steps:
       - name: Login to docker hub
@@ -33,26 +40,29 @@ jobs:
           push: true
           tags: ${{ vars.DOCKERHUB_USERNAME }}/obsrv-api-service:${{ github.ref_name }}
 
-  docker-build-command-service:
-    needs: check-tag
-    if: needs.check-tag.outputs.ALLOWED_TAG ==  'True'
+  build-command-service-image:
+    needs: verify-tag
+    if: needs.verify-tag.outputs.ALLOWED_TAG ==  'True'
     runs-on: ubuntu-latest
     steps:
       - name: Login to docker hub
-        uses: docker/login-action@v1
+        uses: docker/login-action@v2
         with:
           username: ${{ vars.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Checkout code
+        uses: actions/checkout@v4
       - name: Build docker image and push
-        uses: docker/build-push-action@v2
+        uses: docker/build-push-action@v4
         with:
-          file: ./command-service/Dockerfile  
+          context: ./command-service
+          platforms: linux/amd64  
           push: true
           tags: ${{ vars.DOCKERHUB_USERNAME }}/flink-command-service:${{ github.ref_name }}
 
   aws-deploy:
-    needs: [check-tag, docker-build-api-service, docker-build-command-service]
-    if: needs.check-tag.outputs.ALLOWED_TAG ==  'True'
+    needs: [verify-tag, build-api-service-image, build-command-service-image]
+    if: needs.verify-tag.outputs.ALLOWED_TAG ==  'True' && github.event.inputs.aws-deploy == 'true'
     runs-on: ubuntu-latest
     environment: aws-dev
     steps:
@@ -79,7 +89,6 @@ jobs:
         run: |
           aws eks --region ${{ vars.AWS_REGION }} update-kubeconfig --name ${{ vars.KUBERNETES_CLUSTER_NAME }}
           
-
       - name: Run terraform init and apply
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
@@ -97,8 +106,8 @@ jobs:
           -var dataset_api_image_tag=${{ github.ref_name }}
 
   azure-deploy:
-    needs: [check-tag, docker-build-api-service, docker-build-command-service]
-    if: needs.check-tag.outputs.ALLOWED_TAG ==  'True' && vars.CLOUD_PROVIDER == 'azure'
+    needs: [verify-tag, build-api-service-image, build-command-service-image]
+    if: needs.verify-tag.outputs.ALLOWED_TAG ==  'True' && vars.CLOUD_PROVIDER == 'azure'
     runs-on: ubuntu-latest
     steps:
       - name: Clone the terraform deployment repo
