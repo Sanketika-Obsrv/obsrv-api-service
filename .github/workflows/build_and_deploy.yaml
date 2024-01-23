@@ -19,7 +19,7 @@ jobs:
       - name: Check if tag is one in list of current releases
         id: tag-checker
         run: |
-          (echo -n TRIGGER_ALLOWED= && echo 'print("${{ github.ref_name }}") >> "$GITHUB_OUTPUT"
+          (echo -n TRIGGER_ALLOWED= && echo 'print("${{ github.ref_name }}")) >> "$GITHUB_OUTPUT"
 
   build-api-service-image:
     needs: verify-tag
