@@ -11,15 +11,25 @@ on:
         required: true
         default: false
 jobs:
+  # verify-tag:
+  #   runs-on: ubuntu-latest
+  #   outputs:
+  #     ALLOWED_TAG: ${{ steps.tag-checker.outputs.TRIGGER_ALLOWED }}
+  #   steps:
+  #     - name: Check if tag is one in list of current releases
+  #       id: tag-checker
+  #       run: |
+  #         (echo -n TRIGGER_ALLOWED= && echo 'print("${{ github.ref_name }}".split("_")[0] not in "${{ vars.CURRENT_RELEASE }}")' | python3) >> "$GITHUB_OUTPUT" 
   verify-tag:
     runs-on: ubuntu-latest
-    outputs:
-      ALLOWED_TAG: ${{ steps.tag-checker.outputs.TRIGGER_ALLOWED }}
     steps:
-      - name: Check if tag is one in list of current releases
-        id: tag-checker
-        run: |
-          (echo -n TRIGGER_ALLOWED= && echo 'print("${{ github.ref_name }}".split("_")[0] not in "${{ vars.CURRENT_RELEASE }}")' | python3) >> "$GITHUB_OUTPUT" 
+      - uses: mukunku/tag-exists-action@v1.5.0
+        id: check-tag
+        with: 
+        tag: ${{ github.ref_name }}
+
+      - run: echo "Tag exists!"
+        if: ${{ steps.check-tag.outputs.exists == 'true' }}
 
   build-api-service-image:
     needs: verify-tag
