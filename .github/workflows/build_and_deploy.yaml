@@ -3,14 +3,13 @@ run-name: Workflow run for ${{ github.ref }}
 on:
   push:
     tags:
-      - '*'
+      - "*"
   workflow_dispatch:
     inputs:
       aws-deploy:
         type: boolean
         required: true
         default: false
-
 jobs:
   verify-tag:
     runs-on: ubuntu-latest
@@ -21,8 +20,8 @@ jobs:
         id: tag-checker
         run: |
           (echo -n TRIGGER_ALLOWED= && echo 'print("${{ github.ref_name }}".split("_")[0] not in "${{ vars.CURRENT_RELEASE }}")' | python3) >> "$GITHUB_OUTPUT" 
- 
-   build-api-service-image:
+
+  build-api-service-image:
     needs: verify-tag
     if: needs.verify-tag.outputs.ALLOWED_TAG ==  'True'
     runs-on: ubuntu-latest
