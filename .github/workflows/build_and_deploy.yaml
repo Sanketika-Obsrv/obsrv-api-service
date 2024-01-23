@@ -20,6 +20,7 @@ jobs:
         id: tag-checker
         run: |
           (echo -n TRIGGER_ALLOWED= && echo 'print("${{ github.ref_name }}")') >> "$GITHUB_OUTPUT"
+          echo $GITHUB_OUTPUT
 
   build-api-service-image:
     needs: verify-tag
