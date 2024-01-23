@@ -1,4 +1,4 @@
-name: API Service Pull request workflow
+name: API Service
 on:
   pull_request:
     types:
