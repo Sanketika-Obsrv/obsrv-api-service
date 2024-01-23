@@ -22,4 +22,4 @@ jobs:
         run: |
           cd api-service
           npm install
-          npm run test
+          npm run actions:test
