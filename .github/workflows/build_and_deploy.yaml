@@ -26,7 +26,7 @@ jobs:
       - uses: mukunku/tag-exists-action@v1.5.0
         id: check-tag
         with: 
-        tag: ${{ github.ref_name }}
+        ref: ${{ github.ref_name }}
 
       - run: echo "Tag exists!"
         if: ${{ steps.check-tag.outputs.exists == 'true' }}
