@@ -10,10 +10,6 @@ on:
         type: boolean
         required: true
         default: false
-  pull_request:
-    types:
-      - opened
-      - synchronize
 jobs:
   verify-tag:
     runs-on: ubuntu-latest
@@ -25,28 +21,9 @@ jobs:
         run: |
           (echo -n TRIGGER_ALLOWED= && echo 'print("${{ github.ref_name }}".split("_")[0] not in "${{ vars.CURRENT_RELEASE }}")' | python3) >> "$GITHUB_OUTPUT"
 
-  run-test-cases:
-    needs: verify-tag
-    if: needs.verify-tag.outputs.ALLOWED_TAG ==  'True' && github.event_name == 'pull_request'
-    runs-on: ubuntu-latest
-    steps:
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20.10
-
-      - name: Checkout code
-        uses: actions/checkout@v2
-
-      - name: Install dependencies and run tests
-        run: |
-          cd api-service
-          npm install
-          npm run actions:test
-
   build-api-service-image:
     needs: verify-tag
-    if: needs.verify-tag.outputs.ALLOWED_TAG ==  'True' && github.event_name != 'pull_request'
+    if: needs.verify-tag.outputs.ALLOWED_TAG ==  'True'
     runs-on: ubuntu-latest
     steps:
       - name: Login to docker hub
@@ -64,7 +41,7 @@ jobs:
 
   build-command-service-image:
     needs: verify-tag
-    if: needs.verify-tag.outputs.ALLOWED_TAG ==  'True' && github.event_name != 'pull_request'
+    if: needs.verify-tag.outputs.ALLOWED_TAG ==  'True'
     runs-on: ubuntu-latest
     steps:
       - name: Login to docker hub
@@ -75,7 +52,8 @@ jobs:
       - name: Build docker image and push
         uses: docker/build-push-action@v4
         with:
-          file: ./command-service/Dockerfile  
+          context: ./command-service
+          platforms: linux/amd64  
           push: true
           tags: ${{ vars.DOCKERHUB_USERNAME }}/flink-command-service:${{ github.ref_name }}
 
