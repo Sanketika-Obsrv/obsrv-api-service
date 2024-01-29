@@ -18,9 +18,11 @@ import { WrapperService } from "../services/WrapperService";
 import { onRequest } from "../helpers/prometheus/helpers";
 import promEntities from "../helpers/prometheus/entities";
 import { metricsScrapeHandler } from "../helpers/prometheus";
+import { HealthService } from "../services/HealthService";
 
 export const validationService = new ValidationService();
-export const queryService = new QueryService(new HTTPConnector(`${config.query_api.druid.host}:${config.query_api.druid.port}`));
+const httpDruidConnector = new HTTPConnector(`${config.query_api.druid.host}:${config.query_api.druid.port}`)
+export const queryService = new QueryService(httpDruidConnector);
 export const kafkaConnector = new KafkaConnector()
 export const dbConnector = new DbConnector(config.db_connector_config);
 export const datasourceService = new DataSourceService(dbConnector, config.table_names.datasources);
@@ -30,6 +32,7 @@ export const ingestorService = new IngestorService(kafkaConnector,);
 export const exhaustService = new ClientCloudService(config.exhaust_config.cloud_storage_provider, config.exhaust_config.cloud_storage_config);
 export const wrapperService = new WrapperService();
 export const globalCache: any = new Map()
+export const healthService = new HealthService(dbConnector, kafkaConnector, httpDruidConnector)
 export const router = express.Router()
 dbConnector.init()
 /** Query API(s) */
@@ -72,3 +75,4 @@ router.post(routesConfig.query_wrapper.native_post.path, ResponseHandler.setApiI
 router.get(routesConfig.query_wrapper.native_get.path, ResponseHandler.setApiId(routesConfig.query_wrapper.native_get.api_id), onRequest({ entity: promEntities.data_out }), wrapperService.forwardNativeGet)
 router.delete(routesConfig.query_wrapper.native_delete.path, ResponseHandler.setApiId(routesConfig.query_wrapper.native_delete.api_id), onRequest({ entity: promEntities.data_out }), wrapperService.forwardNativeDel)
 router.get(routesConfig.query_wrapper.druid_status.path, ResponseHandler.setApiId(routesConfig.query_wrapper.druid_status.api_id), wrapperService.nativeStatus)
+router.get(routesConfig.health.path, ResponseHandler.setApiId(routesConfig.health.api_id), healthService.checkHealth.bind(healthService))
