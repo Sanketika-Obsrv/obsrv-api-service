@@ -15,10 +15,10 @@ export class ErrorResponseHandler {
       "headers": req.headers,
       "url": req.url,
       "error": {
-        "message": error.message,
-        "stack": error.stack,
-        "data": error.data,
-        "code": error.code,
+        "message": error?.message,
+        "stack": error?.stack,
+        "data": error?.data,
+        "code": error?.code,
         "error": error,
       }
     }));

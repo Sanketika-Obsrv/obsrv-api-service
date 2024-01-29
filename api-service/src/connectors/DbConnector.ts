@@ -45,6 +45,11 @@ export class DbConnector implements IConnector {
         return await this.pool.destroy()
     }
 
+    async health() {
+        await this.connect()
+        await this.pool.select(1)
+    }
+
     execute(type: keyof typeof this.typeToMethod, property: any) {
         this.method = this.typeToMethod[ type ]
         return this.method(property[ "table" ], property[ "fields" ])

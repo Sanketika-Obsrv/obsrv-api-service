@@ -165,6 +165,11 @@ export const routesConfig = {
       method: "get",
       path: "/status"
     }
+  },
+  health: {
+    api_id: "api.health",
+    method: "get",
+    path: "/health"
   }
 }
 
