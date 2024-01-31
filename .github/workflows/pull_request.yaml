@@ -1,4 +1,4 @@
-name: API Service
+name: API Service Demo
 on:
   pull_request:
     types:
