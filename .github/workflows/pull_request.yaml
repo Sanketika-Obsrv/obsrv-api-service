@@ -1,3 +1,4 @@
+name: Pull Request
 run-name: Workflow run for pull request- ${{ github.event.pull_request.title }}
 on:
   pull_request:

@@ -1,3 +1,4 @@
+name: Build and Deployment
 run-name: Workflow run for ${{ github.ref }}
 on:
   push:
