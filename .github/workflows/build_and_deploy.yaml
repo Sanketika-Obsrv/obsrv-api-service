@@ -1,4 +1,3 @@
-name: API Service
 run-name: Workflow run for ${{ github.ref }}
 on:
   push:

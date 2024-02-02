@@ -1,4 +1,4 @@
-name: API Service
+run-name: Workflow run for ${{ github.event.pull_request.title }}
 on:
   pull_request:
     types:
