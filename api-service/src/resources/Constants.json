@@ -98,7 +98,7 @@
   },
   "DUPLICATE_DENORM_FIELD": {
     "message": "Duplicate found for denorm output key",
-    "status": 408,
+    "status": 400,
     "code": "BAD_REQUEST"
   },
   "INGESTION_SUBMITTED": "ingestion spec has been submitted successfully",
