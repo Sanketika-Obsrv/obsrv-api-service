@@ -1,4 +1,4 @@
-name: Build and Deployment
+name: Build and Deploy
 run-name: Workflow run for ${{ github.ref }}
 on:
   push:
@@ -11,19 +11,7 @@ on:
         required: true
         default: false
 jobs:
-  verify-tag:
-    runs-on: ubuntu-latest
-    outputs:
-      ALLOWED_TAG: ${{ steps.tag-checker.outputs.TRIGGER_ALLOWED }}
-    steps:
-      - name: Check if tag is one in list of current releases
-        id: tag-checker
-        run: |
-          (echo -n TRIGGER_ALLOWED= && echo 'print("${{ github.ref_name }}".split("_")[0] not in "${{ vars.CURRENT_RELEASE }}")' | python3) >> "$GITHUB_OUTPUT" 
-
   build-api-service-image:
-    needs: verify-tag
-    if: needs.verify-tag.outputs.ALLOWED_TAG ==  'True'
     runs-on: ubuntu-latest
     steps:
       - name: Login to docker hub
@@ -40,8 +28,6 @@ jobs:
           tags: ${{ vars.DOCKERHUB_USERNAME }}/obsrv-api-service:${{ github.ref_name }}
 
   build-command-service-image:
-    needs: verify-tag
-    if: needs.verify-tag.outputs.ALLOWED_TAG ==  'True'
     runs-on: ubuntu-latest
     steps:
       - name: Login to docker hub
@@ -60,8 +46,8 @@ jobs:
           tags: ${{ vars.DOCKERHUB_USERNAME }}/flink-command-service:${{ github.ref_name }}
 
   aws-deploy:
-    needs: [verify-tag, build-api-service-image, build-command-service-image]
-    if: needs.verify-tag.outputs.ALLOWED_TAG ==  'True' && github.event.inputs.aws-deploy == 'true'
+    needs: [build-api-service-image, build-command-service-image]
+    if: github.event.inputs.aws-deploy == 'true'
     runs-on: ubuntu-latest
     environment: aws-dev
     steps:
@@ -106,8 +92,8 @@ jobs:
           -var dataset_api_image_tag=${{ github.ref_name }}
 
   azure-deploy:
-    needs: [verify-tag, build-api-service-image, build-command-service-image]
-    if: needs.verify-tag.outputs.ALLOWED_TAG ==  'True' && vars.CLOUD_PROVIDER == 'azure'
+    needs: [build-api-service-image, build-command-service-image]
+    if: vars.CLOUD_PROVIDER == 'azure'
     runs-on: ubuntu-latest
     steps:
       - name: Clone the terraform deployment repo
