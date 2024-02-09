@@ -5,3 +5,7 @@ RUN apk add libcrypto3=3.1.4-r5
 RUN apk upgrade
 WORKDIR /app
 COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+COPY src ./src
+WORKDIR /app/src
+CMD [ "uvicorn", "routes:app", "--host", "0.0.0.0" ]
