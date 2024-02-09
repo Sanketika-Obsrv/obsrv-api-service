@@ -1,4 +1,5 @@
-name: API Service
+name: Pull Request
+run-name: Workflow run for pull request- ${{ github.event.pull_request.title }}
 on:
   pull_request:
     types:
@@ -16,7 +17,7 @@ jobs:
           node-version: 'latest'
 
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Run test cases
         run: |
