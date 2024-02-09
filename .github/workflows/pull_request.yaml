@@ -1,0 +1,26 @@
+name: Pull Request
+run-name: Workflow run for pull request- ${{ github.event.pull_request.title }}
+on:
+  pull_request:
+    types:
+      - opened
+      - synchronize
+
+jobs:
+  test-cases:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.10'
+
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run test cases
+        run: |
+          cd api-service
+          npm install
+          npm run actions:test
