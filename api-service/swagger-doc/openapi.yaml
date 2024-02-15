@@ -7,36 +7,23 @@ info:
 
     This OpenAPI document provides a detailed specification for the Obsrv APIs,including information about the endpoints, parameters, responses, and authentication requirements.
 
-  contact:
-    name: Sunbird Obsrv
-    email: "example@gmail.com"
-    url: "#"
-  license:
-    name: All rights reserved
-    url: none
 servers:
-  - description: dev
-    url: "https://example.com"
-  - description: uat
-    url: "https://example.com"
-  - description: qa
-    url: "https://example.com"
-  - description: prod
-    url: "https://example.com"
+  - description: Obsrv API service
+    url: "<Your-Host-IP>:3000"
 tags:
-  - name: Obsrv Query APIs
-    description: The Query API provides the the ability to query various type of events from the underlying data sources.
-  - name: Obsrv Data IN API
-    description: Ingests data from the request body into a Kafka topic.
   - name: Obsrv Dataset APIs
-    description: The Dataset APIs provide a way to interact with a database and   allow you to create, read, update records in the database, as well as list multiple records based on certain criteria.
+    description: The Dataset APIs allow you to manage the datasets, such as creating new datasets, updating and list existing datasets and retrieving specific dataset metadata.
   - name: Obsrv Datasource APIs
-    description: The Datsources APIs provide a way to interact with a database and allow you to create, read, update records in the database, as well as list multiple records based on certain criteria.
+    description: The Datsources APIs enable you to manage datasources. You can add new datasources, retrieve information about existing datasources, update and list all existing data sources.
   - name: Obsrv Dataset Source Config APIs
-    description: The Dataset Source Config APIs provide a way to interact with a database and allow you to create, read, update records in the database, as well as list multiple records based on certain criteria.
+    description: The Dataset Source Config APIs allow you to configure the sources for a dataset. You can add sources, update, list and retrieve the existing source configuration for a dataset.
+  - name: Obsrv Data IN API
+    description: Data IN API provides an interface to ingest data into the Obsrv system. You can use this API to send events to be stored and processed by Obsrv.
+  - name: Obsrv Query APIs
+    description: The Query APIs allow you to query on different datasources. You can perform various types of queries, filter the results based on specific criteria, and retrieve the desired information.
   - name: Obsrv Data Exhaust APIs
-    description: Data Exhaust APIs are used for accessing Backup files from Cloud providers
-
+    description: Data Exhaust APIs are used for accessing data files from different stages of Obsrv such as **raw** - data ingested, **unique** - data after removing duplicates, **denormalised** - data after enhancements, **transformed** - final data with transformations and also **failed** - events which are failed.
+  
 components:
   schemas:
     
@@ -4426,11 +4413,9 @@ components:
 paths:
   /data/v1/query:
     post:
-      summary: Perform a native query to fetch data from analytical data source
+      summary: API used to fetch data using native JSON query.
       description: |
-        This endpoint of the READ API provides a way to construction of the queries to read data such as a Native 
-        JSON query. The READ API also allows filters on the date ranges within which the query will be applied to. 
-        The context information in the READ API is required.
+        This API provides secure and convenient way to execute native JSON queries against Obsrv database along with filter options such as filters on the date ranges, required fields etc.
       tags: [Obsrv Query APIs]
       requestBody:
         required: true
@@ -4449,11 +4434,9 @@ paths:
 
   /data/v1/sql-query:
     post:
-      summary: Perform a sql query to fetch data from analytical data source
+      summary: API used to fetch data using a sql query.
       description: |
-        This endpoint of the READ API provides a way to construction of the queries to read data such as a Native 
-        JSON query. The READ API also allows filters on the date ranges within which the query will be applied to. 
-        The context information in the READ API is optional.
+        This API provides secure and convenient way to execute SQL queries against Obsrv database
       tags: [Obsrv Query APIs]
       requestBody:
         required: true
@@ -4472,9 +4455,9 @@ paths:
 
   /data/v1/in/{datasetId}:
     post: 
-      summary: The API designed for ingesting data into Kafka. 
+      summary: The API to ingest data on to the Obsrv. 
       description: |
-        "When processing batch events, the API expects the key to be labeled as 'events.' However, when dealing with individual events, the key should be identified as 'event.'"
+        This API allows user to ingest data of either batch type or individual events based on dataset configuration. For batch type data, API expects **events** as key and for individual data type it expects **event** as key under request payload.
       tags: [Obsrv Data IN API]
       parameters:
         - name: datasetId
@@ -4503,8 +4486,7 @@ paths:
 
   /datasets/v1/create:
     post:
-      summary: creating datasets into postgres tables
-      description: This API allows you to create new datasets in the PostgreSQL database used by the analytical data source.
+      summary: API to create a new dataset.
       tags: [Obsrv Dataset APIs]
       requestBody:
         required: true
@@ -4525,8 +4507,7 @@ paths:
           
   /datasets/v1/update:
     patch:
-      summary: API to update existing records in database
-      description: This API allows you to update existing datasets in the PostgreSQL database used by the analytical data source.
+      summary: API to update any changes to an existing dataset.
       tags: [Obsrv Dataset APIs]
       requestBody:
         required: true
@@ -4545,8 +4526,7 @@ paths:
           
   /datasets/v1/get/{datasetId}:
     get:
-      summary: API to read records from database
-      description: This API allows you to retrieve records from a dataset in the PostgreSQL. A successful response will return a status code of 200. If the dataset does not exist, a status code of 404 will be returned.
+      summary: API to get details of a specific dataset.
       tags:
         - Obsrv Dataset APIs
       parameters:
@@ -4563,8 +4543,7 @@ paths:
           $ref: "#/components/responses/DatasetReadNotFound"
   /datasets/v1/list:
     post:
-      summary: API to list records from database
-      description: This API allows you to retrieve a list of records from a dataset in the PostgreSQL database used by the analytical data source. You can specify filters to narrow down the results.
+      summary: API to list the datasets avaliable with some filters.
       tags: [Obsrv Dataset APIs]
       requestBody:
         required: true
@@ -4583,8 +4562,7 @@ paths:
 
   /datasources/v1/create:
     post:
-      summary: creating datasources into postgres tables
-      description: This API allows you to create new datasource in the PostgreSQL database. While saving a datasource, it is required that the datasource field in ingestion spec must match with datasource_ref.
+      summary: API to create a new datasource for an existing dataset.
       tags: [Obsrv Datasource APIs]
       requestBody:
         required: true
@@ -4605,8 +4583,7 @@ paths:
           
   /datasources/v1/update:
     patch:
-      summary: API to update existing records in database
-      description: This API allows you to update existing datasource in the PostgreSQL database. While saving a datasource, it is required that the datasource field in ingestion spec must match with datasource_ref.
+      summary: API to update any changes to an existing datasource.
       tags: [Obsrv Datasource APIs]
       requestBody:
         required: true
@@ -4624,8 +4601,7 @@ paths:
           $ref: "#/components/responses/DatasourceUpdateBadRequest"
   /datasources/v1/get/{datasourceId}:
     get:
-      summary: API to read records from database
-      description: This API allows you to retrieve records from a datasource in the PostgreSQL. A successful response will return a status code of 200. If the datasource does not exist, a status code of 404 will be returned
+      summary: API to get details on a specific datasource.
       tags: [Obsrv Datasource APIs]
       parameters:
         - name: datasourceId
@@ -4641,8 +4617,7 @@ paths:
           $ref: "#/components/responses/DatasourceReadNotFound"
   /datasources/v1/list:
     post:
-      summary: API to list records from database
-      description: This API allows you to retrieve a list of records from a dataset in the PostgreSQL database used by the analytical data source. You can specify filters to narrow down the results.
+      summary: API to list the datasources available on Obsrv with some filters.
       tags: [Obsrv Datasource APIs]
       requestBody:
         required: true
@@ -4660,8 +4635,7 @@ paths:
           $ref: "#/components/responses/DatasourceListBadRequest"
   /datasets/v1/source/config/create:
     post:
-      summary: creating datasets into postgres tables
-      description: This API allows you to create new datasets in the PostgreSQL database used by the analytical data source.
+      summary: API to configure a new connector/source for a dataset.
       tags: [Obsrv Dataset Source Config APIs]
       requestBody:
         required: true
@@ -4682,8 +4656,7 @@ paths:
           
   /datasets/v1/source/config/update:
     patch:
-      summary: API to update existing records in database
-      description: This API allows you to update existing datasets in the PostgreSQL database used by the analytical data source.
+      summary: API to update any changes with respect to existing sources for a dataset.
       tags: [Obsrv Dataset Source Config APIs]
       requestBody:
         required: true
@@ -4701,8 +4674,7 @@ paths:
           $ref: "#/components/responses/DatasetSourceConfigUpdateBadRequest"
   /datasets/v1/source/config/get/{datasetId}:
     get:
-      summary: API to read records from database
-      description: This API allows you to retrieve records from a dataset in the PostgreSQL. A successful response will return a status code of 200. If the dataset does not exist, a status code of 404 will be returned.
+      summary: API to get details on the sources configured for a specific dataset
       tags:
         - Obsrv Dataset Source Config APIs
       parameters:
@@ -4719,8 +4691,7 @@ paths:
           $ref: "#/components/responses/DatasetSoureConfigReadNotFound"
   /datasets/v1/source/config/list:
     post:
-      summary: API to list records from database
-      description: This API allows you to retrieve a list of records from a dataset in the PostgreSQL database used by the analytical data source. You can specify filters to narrow down the results.
+      summary: API to list all the sources configured within Obsrv.
       tags: [Obsrv Dataset Source Config APIs]
       requestBody:
         required: true
@@ -4738,7 +4709,7 @@ paths:
           $ref: "#/components/responses/DatasetSourceConfigListBadRequest"
   /data/v1/submit/ingestion:
     post:
-      summary: API to submit ingestion spec to analytical database
+      summary: Optional API to enable any custom data ingestion into analytical database
       tags: [Obsrv Datasource APIs]
       requestBody:
         required: true
@@ -4757,7 +4728,7 @@ paths:
               
   /data/v1/exhaust/{datasetId}:
     get:
-      summary: API to access backup files from Cloud providers
+      summary: API to access data files from different stages of processing.
       tags: [Obsrv Data Exhaust APIs]
       parameters:
         - name: datasetId
