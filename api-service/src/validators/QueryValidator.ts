@@ -61,7 +61,11 @@ export class QueryValidator implements IValidator {
             const fromClause = /\bFROM\b/i;
             const isFromClausePresent = fromClause.test(query)
             if (!isFromClausePresent) {
-                return { isValid: false, message: "FROM clause is missing in the SQL Query", code: httpStatus["400_NAME"] };
+                return { isValid: false, message: "Invalid SQL Query", code: httpStatus["400_NAME"] };
+            }
+            const dataSource = query.substring(query.indexOf("FROM")).split(" ")[1].replace(/\\/g, "");
+            if (_.isEmpty(dataSource)) {
+                return { isValid: false, message: "Table name must be present in the SQL Query", code: httpStatus["400_NAME"] };
             }
             this.setQueryLimits(data, this.limits.common);
             let datasource = this.getDataSource(data);
