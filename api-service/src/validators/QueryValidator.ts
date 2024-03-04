@@ -63,16 +63,16 @@ export class QueryValidator implements IValidator {
             if (!isFromClausePresent) {
                 return { isValid: false, message: "Invalid SQL Query", code: httpStatus["400_NAME"] };
             }
-            const dataSource = query.substring(query.indexOf("FROM")).split(" ")[1].replace(/\\/g, "");
-            if (_.isEmpty(dataSource)) {
-                return { isValid: false, message: "Table name must be present in the SQL Query", code: httpStatus["400_NAME"] };
+            const dataset = query.substring(query.indexOf("FROM")).split(" ")[1].replace(/\\/g, "");
+            if (_.isEmpty(dataset)) {
+                return { isValid: false, message: "Dataset name must be present in the SQL Query", code: httpStatus["400_NAME"] };
             }
             this.setQueryLimits(data, this.limits.common);
             let datasource = this.getDataSource(data);
             let dataSourceLimits = this.getDataSourceLimits(datasource);
             return (!_.isEmpty(dataSourceLimits)) ? this.validateQueryRules(data, dataSourceLimits.queryRules.scan) : { isValid: true };
         } catch (error: any) {
-            return { isValid: false, message: error.message || "error ocuured while validating native query", code: error.code || httpStatus["400_NAME"] };
+            return { isValid: false, message: error.message || "error ocuured while validating SQL query", code: error.code || httpStatus[ "500_NAME" ] };
         }
     }
 
@@ -177,7 +177,7 @@ export class QueryValidator implements IValidator {
             return { isValid: true };
         } catch (error: any) {
             console.log(error?.message)
-            return { isValid: false, message: error.message || "error ocuured while fetching datasource record", code: error.code || httpStatus["400_NAME"] };
+            return { isValid: false, message: error.message || "error ocuured while fetching datasource record", code: error.code || httpStatus[ "400_NAME" ] };
         }
     }
 
@@ -185,7 +185,7 @@ export class QueryValidator implements IValidator {
         const records: any = await dbConnector.readRecords("datasources", { "filters": { "dataset_id": datasource } })
         const record = records.filter((record: any) => {
             const aggregatedRecord = _.get(record, "metadata.aggregated")
-            if (granularity)
+            if(granularity)
                 return aggregatedRecord && _.get(record, "metadata.granularity") === granularity;
             else
                 return !aggregatedRecord
