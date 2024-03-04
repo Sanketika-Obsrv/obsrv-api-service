@@ -524,6 +524,56 @@ describe("QUERY API", () => {
                     done();
                 })
         })
+        it("should throw error for invalid sql query", (done) => {
+            chai.spy.on(dbConnector, "readRecords", () => {
+                return [{ "datasource_ref": "sample_ref" }]
+            })
+            nock(config.druidHost + ":" + config.druidPort)
+                .get(config.druidDatasourcesEndPoint)
+                .reply(200, ["sample_ref"])
+            nock(config.druidHost + ":" + config.druidPort)
+                .post(config.druidSqlEndPoint)
+                .reply(200, [{ events: [] }]);
+            chai.
+                request(app)
+                .post(config.apiDruidSqlEndPoint)
+                .send(JSON.parse(TestDruidQuery.INVALID_SQL_QUERY))
+                .end((err, res) => {
+                    res.should.have.status(httpStatus.BAD_REQUEST);
+                    res.body.should.be.a("object");
+                    res.body.responseCode.should.be.eq(httpStatus["400_NAME"]);
+                    res.body.params.status.should.be.eq(constants.STATUS.FAILURE);
+                    res.body.id.should.be.eq(routesConfig.query.sql_query.api_id);
+                    chai.spy.restore(dbConnector, "readRecords");
+                    nock.cleanAll();
+                    done();
+                })
+        })
+        it("should throw error is table name is missing from the SQL Query", (done) => {
+            chai.spy.on(dbConnector, "readRecords", () => {
+                return [{ "datasource_ref": "sample_ref" }]
+            })
+            nock(config.druidHost + ":" + config.druidPort)
+                .get(config.druidDatasourcesEndPoint)
+                .reply(200, ["sample_ref"])
+            nock(config.druidHost + ":" + config.druidPort)
+                .post(config.druidSqlEndPoint)
+                .reply(200, [{ events: [] }]);
+            chai.
+                request(app)
+                .post(config.apiDruidSqlEndPoint)
+                .send(JSON.parse(TestDruidQuery.MISSING_TABLE_NAME))
+                .end((err, res) => {
+                    res.should.have.status(httpStatus.BAD_REQUEST);
+                    res.body.should.be.a("object");
+                    res.body.responseCode.should.be.eq(httpStatus["400_NAME"]);
+                    res.body.params.status.should.be.eq(constants.STATUS.FAILURE);
+                    res.body.id.should.be.eq(routesConfig.query.sql_query.api_id);
+                    chai.spy.restore(dbConnector, "readRecords");
+                    nock.cleanAll();
+                    done();
+                })
+        })
     })
     describe("error scenarios", () => {
         it("should handle the error", (done) => {
