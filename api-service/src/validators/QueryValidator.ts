@@ -10,7 +10,7 @@ import { dbConnector } from "../routes/Router";
 import { routesConfig } from "../configs/RoutesConfig";
 import { config } from "../configs/Config";
 import { isValidDateRange } from "../utils/common";
-import { HTTPConnector } from "../connectors/HttpConnector";
+import { HTTPConnector } from "../connections/HttpConnector";
 export class QueryValidator implements IValidator {
     private limits: ILimits;
     private momentFormat: string;

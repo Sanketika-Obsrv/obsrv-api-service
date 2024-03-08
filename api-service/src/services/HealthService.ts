@@ -4,8 +4,8 @@ import _ from "lodash";
 import { ResponseHandler } from "../helpers/ResponseHandler";
 import { ErrorResponseHandler } from "../helpers/ErrorResponseHandler";
 import { IConnector } from "../models/DatasetModels";
-import { DbConnector } from "../connectors/DbConnector";
-import { KafkaConnector } from "../connectors/KafkaConnector";
+import { DbConnector } from "../connections/database";
+import { KafkaConnector } from "../connections/KafkaConnector";
 
 
 
