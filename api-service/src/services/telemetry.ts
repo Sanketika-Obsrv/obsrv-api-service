@@ -121,7 +121,7 @@ export const telemetryAuditStart = ({ operationType, action }: any) => {
     }
 }
 
-export const processAuditEvents = (request: Request, response: Response) => {
+export const processAuditEvents = (request: Request) => {
     const auditEvent: any = _.get(request, 'auditEvent');
     if (auditEvent) {
         const { startEts, object = {}, edata = {}, toState, fromState }: any = auditEvent;
@@ -144,7 +144,7 @@ export const interceptAuditEvents = () => {
         response.on('finish', () => {
             const statusCode = _.get(response, 'statusCode');
             const isError = statusCode && statusCode >= 400;
-            !isError && processAuditEvents(request, response);
+            !isError && processAuditEvents(request);
         })
         next();
     }

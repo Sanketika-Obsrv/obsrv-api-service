@@ -1,4 +1,4 @@
-const Prometheus = require('prom-client');
+import Prometheus from 'prom-client';
 
 // Create a new Prometheus Gauge for query response time
 const queryResponseTimeMetric = new Prometheus.Gauge({

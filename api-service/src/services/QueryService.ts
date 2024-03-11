@@ -20,8 +20,8 @@ export class QueryService {
   public executeNativeQuery = async (req: Request, res: Response, next: NextFunction) => {
     try {
       updateTelemetryAuditEvent({ request: req, object: { ...telemetryObject, id: _.get(req, 'body.context.dataSource')} });
-      var result = await this.connector.post(config.query_api.druid.native_query_path, req.body.query);
-      var mergedResult = result.data;
+      const result = await this.connector.post(config.query_api.druid.native_query_path, req.body.query);
+      let mergedResult = result.data;
       if (req.body.query.queryType === "scan" && result.data) {
         mergedResult = result.data.map((item: Record<string, any>) => {
           return item.events;

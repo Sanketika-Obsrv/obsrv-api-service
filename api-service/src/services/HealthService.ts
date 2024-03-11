@@ -1,25 +1,24 @@
 import { AxiosInstance } from "axios";
 import { NextFunction, Request, Response } from "express";
-import _ from "lodash";
 import { ResponseHandler } from "../helpers/ResponseHandler";
 import { ErrorResponseHandler } from "../helpers/ErrorResponseHandler";
 import { IConnector } from "../types/DatasetModels";
-import { DbConnector } from "../connections/databaseConnection";
-import { KafkaConnector } from "../connections/kafkaConnection";
+// import { DbConnector } from "../connections/databaseConnection";
+// import { KafkaConnector } from "../connections/kafkaConnection";
 
 
 
 
 export class HealthService {
-  private dbConnector: DbConnector;
-  private kafkaConnector: KafkaConnector;
+  // private dbConnector: DbConnector;
+  // private kafkaConnector: KafkaConnector;
   private httpDruidConnector: AxiosInstance;
   private errorHandler: ErrorResponseHandler;
-  constructor(dbConnector: DbConnector, kafkaConnector: KafkaConnector, httpDruidConnector: IConnector) {
+  constructor(dbConnector: any, kafkaConnector:any, httpDruidConnector: IConnector) {
     this.errorHandler = new ErrorResponseHandler("HealthService");
     this.httpDruidConnector = httpDruidConnector.connect()
-    this.dbConnector = dbConnector;
-    this.kafkaConnector = kafkaConnector;
+    // this.dbConnector = dbConnector;
+    // this.kafkaConnector = kafkaConnector;
   }
 
   checkHealth(req: Request, res: Response, next: NextFunction) {
@@ -36,11 +35,11 @@ export class HealthService {
   }
 
   private async checkKafkaHealth() {
-    await this.kafkaConnector.connect()
+    // await this.kafkaConnector.connect()
   }
 
   private async checkPostgresHealth() {
-    await this.dbConnector.health()
+    // await this.dbConnector.health()
   }
   
 }

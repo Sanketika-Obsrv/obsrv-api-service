@@ -12,10 +12,10 @@ export class HTTPConnector  {
     });
   }
 
-  execute(sample: string) {
+  execute() {
     throw new Error("Method not implemented.");
   }
-  executeSql(sql: string[]) {
+  executeSql() {
     throw new Error("Method not implemented.");
   }
   close() {

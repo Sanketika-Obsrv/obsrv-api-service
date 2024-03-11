@@ -2,11 +2,11 @@ import httpStatus from "http-status";
 import _ from "lodash";
 import moment, { Moment } from "moment";
 import { queryRules } from "../configs/QueryRules";
-import { IConnector, IValidator } from "../types/DatasetModels";
+import { IValidator } from "../types/DatasetModels";
 import { ICommonRules, ILimits, IQuery, IQueryTypeRules, IRules } from "../types/QueryModels";
 import { ValidationStatus } from "../types/ValidationModels";
 import constants from "../resources/Constants.json";
-import { dbConnector } from "../routes/Router";
+// import { dbConnector } from "../routes/Router";
 import { routesConfig } from "../configs/RoutesConfig";
 import { config } from "../configs/Config";
 import { isValidDateRange } from "../utils/common";
@@ -42,9 +42,9 @@ export class QueryValidator implements IValidator {
     }
 
     private validateNativeQuery(data: any): ValidationStatus {
-        let queryObj: IQuery = data;
+        const queryObj: IQuery = data;
         this.setQueryLimits(data, this.limits.common);
-        let dataSourceLimits = this.getDataSourceLimits(this.getDataSource(data));
+        const dataSourceLimits = this.getDataSourceLimits(this.getDataSource(data));
         try {
             return (!_.isEmpty(dataSourceLimits)) ? this.validateQueryRules(queryObj, dataSourceLimits.queryRules[queryObj.query.queryType as keyof IQueryTypeRules]) : { isValid: true }
         } catch (error: any) {
@@ -54,7 +54,7 @@ export class QueryValidator implements IValidator {
 
     private validateSqlQuery(data: IQuery): ValidationStatus {
         try {
-            let query = data.querySql.query;
+            const query = data.querySql.query;
             if (_.isEmpty(query)) {
                 return { isValid: false, message: "Query must not be empty", code: httpStatus["400_NAME"] };
             }
@@ -68,8 +68,8 @@ export class QueryValidator implements IValidator {
                 return { isValid: false, message: "Dataset name must be present in the SQL Query", code: httpStatus["400_NAME"] };
             }
             this.setQueryLimits(data, this.limits.common);
-            let datasource = this.getDataSource(data);
-            let dataSourceLimits = this.getDataSourceLimits(datasource);
+            const datasource = this.getDataSource(data);
+            const dataSourceLimits = this.getDataSourceLimits(datasource);
             return (!_.isEmpty(dataSourceLimits)) ? this.validateQueryRules(data, dataSourceLimits.queryRules.scan) : { isValid: true };
         } catch (error: any) {
             return { isValid: false, message: error.message || "error ocuured while validating SQL query", code: error.code || httpStatus[ "500_NAME" ] };
@@ -78,55 +78,55 @@ export class QueryValidator implements IValidator {
 
     private validateQueryRules(queryPayload: IQuery, limits: IRules): ValidationStatus {
         let fromDate: Moment | undefined, toDate: Moment | undefined;
-        let allowedRange = limits.maxDateRange;
+        const allowedRange = limits.maxDateRange;
         if (queryPayload.query) {
             const dateRange = this.getIntervals(queryPayload.query);
             const extractedDateRange = Array.isArray(dateRange) ? dateRange[0].split("/") : dateRange.toString().split("/");
             fromDate = moment(extractedDateRange[0], this.momentFormat);
             toDate = moment(extractedDateRange[1], this.momentFormat);
         } else {
-            let vocabulary = queryPayload.querySql.query.split(" ");
-            let fromDateIndex = vocabulary.indexOf("TIMESTAMP");
-            let toDateIndex = vocabulary.lastIndexOf("TIMESTAMP");
+            const vocabulary = queryPayload.querySql.query.split(" ");
+            const fromDateIndex = vocabulary.indexOf("TIMESTAMP");
+            const toDateIndex = vocabulary.lastIndexOf("TIMESTAMP");
             fromDate = moment(vocabulary[fromDateIndex + 1], this.momentFormat);
             toDate = moment(vocabulary[toDateIndex + 1], this.momentFormat);
         }
         const isValidDates = fromDate && toDate && fromDate.isValid() && toDate.isValid()
         return isValidDates ? this.validateDateRange(fromDate, toDate, allowedRange)
             : { isValid: false, message: constants.ERROR_MESSAGE.NO_DATE_RANGE, code: httpStatus["400_NAME"] };
-    };
+    }
 
     private getDataSource(queryPayload: IQuery): string {
         if (queryPayload.querySql) {
             let query = queryPayload.querySql.query;
             query = query.replace(/\s+/g, " ").trim();
-            let dataSource = query.substring(query.indexOf("FROM")).split(" ")[1].replace(/\\/g, "");
+            const dataSource = query.substring(query.indexOf("FROM")).split(" ")[1].replace(/\\/g, "");
             return dataSource.replace(/"/g, "");
         } else {
             const dataSourceField: any = queryPayload.query.dataSource
             if (typeof dataSourceField == 'object') { return dataSourceField.name }
             return dataSourceField
         }
-    };
+    }
 
     private getDataSourceLimits(datasource: string): any {
-        for (var index = 0; index < this.limits.rules.length; index++) {
+        for (let index = 0; index < this.limits.rules.length; index++) {
             if (this.limits.rules[index].dataset == datasource) {
                 return this.limits.rules[index];
             }
         }
-    };
+    }
 
     private validateDateRange(fromDate: moment.Moment, toDate: moment.Moment, allowedRange: number = 0): ValidationStatus {
         const isValidDates = isValidDateRange(fromDate, toDate, allowedRange);
         return isValidDates
             ? { isValid: true, code: httpStatus[200] }
             : { isValid: false, message: constants.ERROR_MESSAGE.INVALID_DATE_RANGE.replace("${allowedRange}", allowedRange.toString()), code: httpStatus["400_NAME"] };
-    };
+    }
 
     private getLimit(queryLimit: number, maxRowLimit: number) {
         return queryLimit > maxRowLimit ? maxRowLimit : queryLimit;
-    };
+    }
 
     private setQueryLimits(queryPayload: IQuery, limits: ICommonRules) {
         if (queryPayload.query) {
@@ -141,23 +141,23 @@ export class QueryValidator implements IValidator {
                 queryPayload.query.limit = limits.maxResultRowLimit;
             }
         } else {
-            let vocabulary = queryPayload.querySql.query.split(" ");
-            let queryLimitIndex = vocabulary.indexOf("LIMIT");
-            let queryLimit = Number(vocabulary[queryLimitIndex + 1]);
+            const vocabulary = queryPayload.querySql.query.split(" ");
+            const queryLimitIndex = vocabulary.indexOf("LIMIT");
+            const queryLimit = Number(vocabulary[queryLimitIndex + 1]);
             if (isNaN(queryLimit)) {
                 const updatedVocabulary = [...vocabulary, "LIMIT", limits.maxResultRowLimit].join(" ");
                 queryPayload.querySql.query = updatedVocabulary;
             } else {
-                let newLimit = this.getLimit(queryLimit, limits.maxResultRowLimit);
+                const newLimit = this.getLimit(queryLimit, limits.maxResultRowLimit);
                 vocabulary[queryLimitIndex + 1] = newLimit.toString();
                 queryPayload.querySql.query = vocabulary.join(" ");
             }
         }
     }
     public async validateDatasource(datasource: any) {
-        let existingDatasources = await this.httpConnector(config.query_api.druid.list_datasources_path, {})
+        const existingDatasources = await this.httpConnector(config.query_api.druid.list_datasources_path, {})
         if (!_.includes(existingDatasources.data, datasource)) {
-            let error = constants.INVALID_DATASOURCE
+            const error = constants.INVALID_DATASOURCE
             error.message = error.message.replace('${datasource}', datasource)
             throw error
         }
@@ -166,7 +166,7 @@ export class QueryValidator implements IValidator {
     public async setDatasourceRef(dataSource: string, payload: any): Promise<ValidationStatus> {
         try {
             const granularity = _.get(payload, 'context.granularity')
-            let dataSourceRef = await this.getDataSourceRef(dataSource, granularity);
+            const dataSourceRef = await this.getDataSourceRef(dataSource, granularity);
             await this.validateDatasource(dataSourceRef)
             if (payload.querySql) {
                 payload.querySql.query = payload.querySql.query.replace(dataSource, dataSourceRef)
@@ -182,7 +182,7 @@ export class QueryValidator implements IValidator {
     }
 
     public async getDataSourceRef(datasource: string, granularity: string | undefined): Promise<string> {
-        const records: any = await dbConnector.readRecords("datasources", { "filters": { "dataset_id": datasource } })
+        const records: any = ""
         const record = records.filter((record: any) => {
             const aggregatedRecord = _.get(record, "metadata.aggregated")
             if(granularity)

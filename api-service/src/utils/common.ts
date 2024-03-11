@@ -1,9 +1,9 @@
 import { DateRange } from "../types/ExhaustModels";
 import moment from "moment";
 import * as _ from "lodash";
-import { Request, Response } from "express";
+import { Request } from "express";
 
-export const getPeriodInterval = (since: String): DateRange => {
+export const getPeriodInterval = (since: string): DateRange => {
     const period = since.toLowerCase().split("_")[1];
     return {
         from: moment().subtract(period, "days").format("yyyy-MM-DD"),
@@ -11,7 +11,7 @@ export const getPeriodInterval = (since: String): DateRange => {
     };
 };
 
-export const getDateRange = (request: Request, response: Response) => {
+export const getDateRange = (request: Request) => {
     const { from, to, since } = request.query;
     let period;
     if (!_.isUndefined(since)) {
@@ -25,7 +25,7 @@ export const getDateRange = (request: Request, response: Response) => {
 };
 
 export const getFileKey = (key: string): string => {
-    let keyArray: string[] = key.split("/");
+    const keyArray: string[] = key.split("/");
     return keyArray[keyArray.length - 1].slice(0, 10);
 };
 

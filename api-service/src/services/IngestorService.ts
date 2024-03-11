@@ -2,10 +2,10 @@ import { Request, Response, NextFunction } from "express";
 import constants from "../resources/Constants.json"
 import { ResponseHandler } from "../helpers/ResponseHandler";
 import _ from 'lodash'
-import { globalCache } from "../routes/Router";
-import { refreshDatasetConfigs } from "../helpers/DatasetConfigs";
-import { DatasetStatus, IConnector } from "../types/DatasetModels";
-import { wrapperService } from "../routes/Router";
+// import { globalCache } from "../routes/Router";
+// import { refreshDatasetConfigs } from "../helpers/DatasetConfigs";
+import { IConnector } from "../types/DatasetModels";
+// import { wrapperService } from "../routes/Router";
 import { ErrorResponseHandler } from "../helpers/ErrorResponseHandler";
 export class IngestorService {
     private kafkaConnector: IConnector;
@@ -28,9 +28,9 @@ export class IngestorService {
     public create = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const datasetId = this.getDatasetId(req);
-            const validData = await this.validateData(req.body.data, datasetId);
+            await this.validateData(req.body.data);
             req.body = { ...req.body.data, dataset: datasetId };
-            const topic = await this.getTopic(datasetId);
+            const topic = await this.getTopic();
             await this.kafkaConnector.execute(req, res, topic);
             ResponseHandler.successResponse(req, res, { status: 200, data: { message: constants.DATASET.CREATED } });
         } catch (error: any) { this.errorHandler.handleError(req, res, next, error, false) }
@@ -41,9 +41,9 @@ export class IngestorService {
             let datasetId = this.getDatasetId(req);
             const tenantId = _.get(req.headers, 'x-tenant-id', "default");
             datasetId = `${tenantId}-${datasetId}`;
-            const validData = await this.validateData(req.body.data, datasetId);
+            await this.validateData(req.body.data);
             req.body = { ...req.body.data, dataset: datasetId };
-            const topic = await this.getTopic(datasetId);
+            const topic = await this.getTopic();
             await this.kafkaConnector.execute(req, res, topic);
             ResponseHandler.successResponse(req, res, { status: 200, data: { message: constants.DATASET.CREATED } });
         } catch (error: any) { this.errorHandler.handleError(req, res, next, error, false) }
@@ -51,42 +51,42 @@ export class IngestorService {
 
     public submitIngestion = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            await wrapperService.submitIngestion(req.body)
+            // await wrapperService.submitIngestion(req.body)
             ResponseHandler.successResponse(req, res, { status: 200, data: { message: constants.INGESTION_SUBMITTED } });
         }
         catch (error: any) { this.errorHandler.handleError(req, res, next, error, false) }
     }
     private getDatasetId(req: Request) {
-        let datasetId = req.params.datasetId.trim()
+        const datasetId = req.params.datasetId.trim()
         if (!_.isEmpty(datasetId)) return datasetId
         throw constants.EMPTY_DATASET_ID
     }
 
-    public async getDatasetConfig(datasetId: string) {
-        let datasetConfigList = globalCache.get("dataset-config");
-        if (!datasetConfigList) await refreshDatasetConfigs();
+    public async getDatasetConfig() {
+        // let datasetConfigList = globalCache.get("dataset-config");
+        // if (!datasetConfigList) await refreshDatasetConfigs();
 
-        datasetConfigList = globalCache.get("dataset-config");
-        const datasetRecord = datasetConfigList.find((record: any) => record.id === datasetId && record.status === DatasetStatus.Live);
+        // datasetConfigList = globalCache.get("dataset-config");
+        // const datasetRecord = datasetConfigList.find((record: any) => record.id === datasetId && record.status === DatasetStatus.Live);
         // Return record if present in cache
-        if (datasetRecord) return datasetRecord;
-        else { // Refresh dataset configs cache in case record present in cache
-            await refreshDatasetConfigs();
-            const datasetConfigList = globalCache.get("dataset-config");
-            const datasetRecord = datasetConfigList.find((record: any) => record.id === datasetId && record.status === DatasetStatus.Live);
-            return datasetRecord;
-        }
+        // if (datasetRecord) return datasetRecord;
+        // else { // Refresh dataset configs cache in case record present in cache
+        //     await refreshDatasetConfigs();
+        //     const datasetConfigList = globalCache.get("dataset-config");
+        //     const datasetRecord = datasetConfigList.find((record: any) => record.id === datasetId && record.status === DatasetStatus.Live);
+        //     return datasetRecord;
+        // }
     }
 
-    private async getTopic(datasetId: string) {
-        const datasetRecord = await this.getDatasetConfig(datasetId);
-        if (!datasetRecord) throw constants.DATASET_ID_NOT_FOUND;
-        return datasetRecord.dataset_config.entry_topic;
+    private async getTopic() {
+        await this.getDatasetConfig();
+        // if (!datasetRecord) throw constants.DATASET_ID_NOT_FOUND;
+        // return datasetRecord.dataset_config.entry_topic;
     }
 
-    private async validateData(data: any, datasetId: string) {
-        const datasetRecord = await this.getDatasetConfig(datasetId);
-        if (!datasetRecord) throw constants.DATASET_ID_NOT_FOUND;
+    private async validateData(data: any) {
+        const datasetRecord = await this.getDatasetConfig();
+        // if (!datasetRecord) throw constants.DATASET_ID_NOT_FOUND;
         if(_.has(datasetRecord, "extraction_config") && _.get(datasetRecord, ["extraction_config", "is_batch_event"])) {
             if(
                 _.has(data, _.get(datasetRecord, ["extraction_config", "extraction_key"])) &&
