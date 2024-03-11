@@ -5,7 +5,7 @@ import { ResponseHandler } from "../helpers/ResponseHandler";
 import { QueryService } from "../services/QueryService";
 import { ValidationService } from "../services/ValidationService";
 import { DatasetService } from "../services/DatasetService";
-import { KafkaConnector } from "../connections/kafkaConnect";
+import { KafkaConnector } from "../connections/kafkaConnection";
 import { DataSourceService } from "../services/DataSourceService";
 import { DatasetSourceConfigService } from "../services/DatasetSourceConfigService";
 import { routesConfig } from "../configs/RoutesConfig";

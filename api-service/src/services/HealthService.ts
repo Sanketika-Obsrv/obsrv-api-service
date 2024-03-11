@@ -5,7 +5,7 @@ import { ResponseHandler } from "../helpers/ResponseHandler";
 import { ErrorResponseHandler } from "../helpers/ErrorResponseHandler";
 import { IConnector } from "../types/DatasetModels";
 import { DbConnector } from "../connections/databaseConnection";
-import { KafkaConnector } from "../connections/kafkaConnect";
+import { KafkaConnector } from "../connections/kafkaConnection";
 
 
 

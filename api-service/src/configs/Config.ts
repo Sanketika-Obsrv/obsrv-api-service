@@ -17,16 +17,6 @@ export const config = {
       "submit_ingestion": "druid/indexer/v1/supervisor"
     }
   },
-  "db_connector_config": {
-    client: "postgresql",
-    connection: {
-      host: process.env.postgres_host || 'localhost',
-      port: process.env.postgres_port || 5432,
-      database: process.env.postgres_database || 'sb-obsrv',
-      user: process.env.postgres_username || 'obsrv',
-      password: process.env.postgres_password || '5b-0b5rv',
-    }
-  },
   "telemetry_service_config": {
     level: process.env.telemetry_log_level || 'info',
     localStorageEnabled: process.env.telemetry_local_storage_enabled || 'true',
