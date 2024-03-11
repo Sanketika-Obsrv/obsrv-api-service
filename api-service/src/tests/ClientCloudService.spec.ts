@@ -10,7 +10,7 @@ import chaiSpies from 'chai-spies'
 import { describe, it } from 'mocha';
 import { config as appConfig } from "../configs/Config";
 import moment from "moment";
-import { DatasetStatus } from "../models/DatasetModels";
+import { DatasetStatus } from "../types/DatasetModels";
 chai.use(chaiSpies)
 chai.should();
 chai.use(chaiHttp);

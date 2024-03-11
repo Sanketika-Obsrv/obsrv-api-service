@@ -7,7 +7,7 @@ import { getDateRange, isValidDateRange } from '../utils/common';
 import { config as globalConfig } from '../configs/Config';
 import CloudService from '../lib/client-cloud-services';
 import moment from "moment";
-import { DateRange } from '../models/ExhaustModels';
+import { DateRange } from '../types/ExhaustModels';
 import { updateTelemetryAuditEvent } from './telemetry';
 
 export class ClientCloudService {

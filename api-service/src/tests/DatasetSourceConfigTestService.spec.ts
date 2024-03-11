@@ -10,7 +10,7 @@ import { routesConfig } from "../configs/RoutesConfig";
 import { dbConnector } from "../routes/Router";
 import { describe, it } from 'mocha';
 import { ResponseHandler } from "../helpers/ResponseHandler";
-import { DatasetStatus } from "../models/DatasetModels";
+import { DatasetStatus } from "../types/DatasetModels";
 
 chai.use(spies);
 chai.should();

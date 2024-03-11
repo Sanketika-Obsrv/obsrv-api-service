@@ -1,14 +1,13 @@
 import express from "express";
 import { config } from "../configs/Config";
-import { HTTPConnector } from "../connections/HttpConnector";
+import { HTTPConnector } from "../connections/commandServiceConnection";
 import { ResponseHandler } from "../helpers/ResponseHandler";
 import { QueryService } from "../services/QueryService";
 import { ValidationService } from "../services/ValidationService";
 import { DatasetService } from "../services/DatasetService";
-import { KafkaConnector } from "../connections/KafkaConnector";
+import { KafkaConnector } from "../connections/kafkaConnect";
 import { DataSourceService } from "../services/DataSourceService";
 import { DatasetSourceConfigService } from "../services/DatasetSourceConfigService";
-import { DbConnector } from "../connections/database";
 import { routesConfig } from "../configs/RoutesConfig";
 import { IngestorService } from "../services/IngestorService";
 import { OperationType, telemetryAuditStart } from "../services/telemetry";
@@ -24,7 +23,6 @@ export const validationService = new ValidationService();
 const httpDruidConnector = new HTTPConnector(`${config.query_api.druid.host}:${config.query_api.druid.port}`)
 export const queryService = new QueryService(httpDruidConnector);
 export const kafkaConnector = new KafkaConnector()
-export const dbConnector = new DbConnector(config.db_connector_config);
 export const datasourceService = new DataSourceService(dbConnector, config.table_names.datasources);
 export const datasetService = new DatasetService(dbConnector, config.table_names.datasets);
 export const datasetSourceConfigService = new DatasetSourceConfigService(dbConnector, config.table_names.datasetSourceConfig);
@@ -34,7 +32,6 @@ export const wrapperService = new WrapperService();
 export const globalCache: any = new Map()
 export const healthService = new HealthService(dbConnector, kafkaConnector, httpDruidConnector)
 export const router = express.Router()
-dbConnector.init()
 /** Query API(s) */
 
 router.post([`${routesConfig.query.native_query.path}`, `${routesConfig.query.native_query_with_params.path}`,], ResponseHandler.setApiId(routesConfig.query.native_query.api_id), telemetryAuditStart({ action: telemetryActions.nativeQuery, operationType: OperationType.GET }), onRequest({ entity: promEntities.data_out }), validationService.validateRequestBody, validationService.validateQuery, queryService.executeNativeQuery);

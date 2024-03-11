@@ -2,8 +2,8 @@ import Ajv from "ajv";
 import addFormats from "ajv-formats";
 import fs from "fs";
 import httpStatus from "http-status";
-import { IValidator } from "../models/DatasetModels";
-import { ValidationStatus } from "../models/ValidationModels";
+import { IValidator } from "../types/DatasetModels";
+import { ValidationStatus } from "../types/ValidationModels";
 import { routesConfig } from "../configs/RoutesConfig";
 
 export class RequestsValidator implements IValidator {

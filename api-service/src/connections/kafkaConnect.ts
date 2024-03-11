@@ -1,4 +1,4 @@
-import { IConnector } from "../models/DatasetModels"
+import { IConnector } from "../types/DatasetModels"
 const telemetryService = require('../lib/services/TelemetryService')
 
 export class KafkaConnector implements IConnector {

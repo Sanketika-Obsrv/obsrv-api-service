@@ -10,7 +10,7 @@ import constants from "../resources/Constants.json"
 import { dbConnector, globalCache, ingestorService, kafkaConnector } from "../routes/Router";
 import { describe, it } from 'mocha';
 import nock from "nock";
-import { DatasetStatus } from "../models/DatasetModels";
+import { DatasetStatus } from "../types/DatasetModels";
 
 chai.use(spies);
 chai.should();

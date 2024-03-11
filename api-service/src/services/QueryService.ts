@@ -3,7 +3,7 @@ import { NextFunction, Request, Response } from "express";
 import _ from "lodash";
 import { config } from "../configs/Config";
 import { ResponseHandler } from "../helpers/ResponseHandler";
-import { IConnector } from "../models/DatasetModels";
+import { IConnector } from "../types/DatasetModels";
 import { ErrorResponseHandler } from "../helpers/ErrorResponseHandler";
 import { updateTelemetryAuditEvent } from "./telemetry";
 

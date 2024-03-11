@@ -1,4 +1,4 @@
-import { DatasetStatus } from "../models/DatasetModels";
+import { DatasetStatus } from "../types/DatasetModels";
 
 class TestDruidQuery {
   public static VALID_QUERY =

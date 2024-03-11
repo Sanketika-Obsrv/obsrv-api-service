@@ -1,4 +1,4 @@
-import { DateRange } from "../models/ExhaustModels";
+import { DateRange } from "../types/ExhaustModels";
 import moment from "moment";
 import * as _ from "lodash";
 import { Request, Response } from "express";

@@ -3,9 +3,9 @@ import { NextFunction, Request, Response } from "express";
 import _ from "lodash";
 import { ResponseHandler } from "../helpers/ResponseHandler";
 import { ErrorResponseHandler } from "../helpers/ErrorResponseHandler";
-import { IConnector } from "../models/DatasetModels";
-import { DbConnector } from "../connections/database";
-import { KafkaConnector } from "../connections/KafkaConnector";
+import { IConnector } from "../types/DatasetModels";
+import { DbConnector } from "../connections/databaseConnection";
+import { KafkaConnector } from "../connections/kafkaConnect";
 
 
 

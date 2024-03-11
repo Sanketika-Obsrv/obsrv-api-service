@@ -4,7 +4,7 @@ import { ResponseHandler } from "../helpers/ResponseHandler";
 import _ from 'lodash'
 import { globalCache } from "../routes/Router";
 import { refreshDatasetConfigs } from "../helpers/DatasetConfigs";
-import { DatasetStatus, IConnector } from "../models/DatasetModels";
+import { DatasetStatus, IConnector } from "../types/DatasetModels";
 import { wrapperService } from "../routes/Router";
 import { ErrorResponseHandler } from "../helpers/ErrorResponseHandler";
 export class IngestorService {

@@ -11,7 +11,7 @@ import { dbConnector } from "../routes/Router";
 import { describe, it } from 'mocha';
 import { ResponseHandler } from "../helpers/ResponseHandler";
 import { ingestorService } from "../routes/Router";
-import { DatasetStatus } from "../models/DatasetModels";
+import { DatasetStatus } from "../types/DatasetModels";
 
 chai.use(spies);
 chai.should();

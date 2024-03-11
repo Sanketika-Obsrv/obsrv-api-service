@@ -6,7 +6,7 @@ import { DbUtil } from "../helpers/DbUtil";
 import constants from "../resources/Constants.json";
 import { ingestorService } from "../routes/Router";
 import { ErrorResponseHandler } from "../helpers/ErrorResponseHandler";
-import { DatasetStatus, IConnector } from "../models/DatasetModels";
+import { DatasetStatus, IConnector } from "../types/DatasetModels";
 
 const telemetryObject = { id: null, type: "datasource", ver: "1.0.0" };
 

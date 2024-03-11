@@ -1,6 +1,6 @@
 import { ErrorRequestHandler, NextFunction, Request, Response } from "express";
 import httpStatus from "http-status";
-import { IResponse, Result } from "../models/DatasetModels";
+import { IResponse, Result } from "../types/DatasetModels";
 import constants from "../resources/Constants.json";
 import { routesConfig } from "../configs/RoutesConfig";
 import { onFailure, onSuccess } from "../metrics/prometheus/helpers";

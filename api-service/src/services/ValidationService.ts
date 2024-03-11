@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import httpStatus from "http-status";
-import { IValidator, QValidator } from "../models/DatasetModels";
-import { ValidationStatus } from "../models/ValidationModels";
+import { IValidator, QValidator } from "../types/DatasetModels";
+import { ValidationStatus } from "../types/ValidationModels";
 import { QueryValidator } from "../validators/QueryValidator";
 import { RequestsValidator } from "../validators/RequestsValidator";
 

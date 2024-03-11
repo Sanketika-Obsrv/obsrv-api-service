@@ -4,7 +4,7 @@ import { DatasetSourceConfigs } from "../helpers/DatasetSourceConfigs";
 import { DbUtil } from "../helpers/DbUtil";
 import { findAndSetExistingRecord, updateTelemetryAuditEvent } from "./telemetry";
 import { ErrorResponseHandler } from "../helpers/ErrorResponseHandler";
-import { DatasetStatus, IConnector } from "../models/DatasetModels";
+import { DatasetStatus, IConnector } from "../types/DatasetModels";
 
 const telemetryObject = { id: null, type: "dataset-source-config", ver: "1.0.0" };
 

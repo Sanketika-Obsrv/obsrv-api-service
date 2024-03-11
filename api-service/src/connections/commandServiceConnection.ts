@@ -1,6 +1,5 @@
 import axios, { AxiosInstance } from "axios";
-import { IConnector } from "../models/DatasetModels";
-export class HTTPConnector implements IConnector {
+export class HTTPConnector  {
   private url: string;
   constructor(url: string) {
     this.url = url

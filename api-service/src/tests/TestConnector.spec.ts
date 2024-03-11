@@ -1,6 +1,6 @@
-import { DbConnector } from "../connections/database";
-import { KafkaConnector } from "../connections/KafkaConnector";
-import { HTTPConnector } from "../connections/HttpConnector";
+import { DbConnector } from "../connections/databaseConnection";
+import { KafkaConnector } from "../connections/kafkaConnect";
+import { HTTPConnector } from "../connections/commandServiceConnection";
 import chai from "chai";
 import chaiHttp from "chai-http";
 import spies from "chai-spies";
