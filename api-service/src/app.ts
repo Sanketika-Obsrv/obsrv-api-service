@@ -31,5 +31,4 @@ app.listen(config.api_port, () => {
   logger.info(`listening on port ${config.api_port}`);
 });
 
-
 export default app;
