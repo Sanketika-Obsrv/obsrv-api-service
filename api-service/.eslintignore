@@ -1,0 +1,7 @@
+node_modules
+postman-collection
+docs
+coverage
+@types
+.nyc_output
+src/tests

@@ -1,6 +1,5 @@
 import axios from "axios";
 import { NextFunction, Request, Response } from "express";
-import _ from "lodash";
 import { config } from "../configs/Config";
 import { ResponseHandler } from "../helpers/ResponseHandler";
 import { ErrorResponseHandler } from "../helpers/ErrorResponseHandler";

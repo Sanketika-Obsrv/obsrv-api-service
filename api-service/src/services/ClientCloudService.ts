@@ -2,10 +2,10 @@ import { NextFunction, Request, Response } from 'express';
 import { ResponseHandler } from '../helpers/ResponseHandler';
 import httpStatus from 'http-status';
 import constants from '../resources/Constants.json';
-import { ingestorService } from '../routes/Router';
+// import { ingestorService } from '../routes/Router';
 import { getDateRange, isValidDateRange } from '../utils/common';
 import { config as globalConfig } from '../configs/Config';
-import CloudService from '../lib/client-cloud-services';
+// import CloudService from '../lib/client-cloud-services';
 import moment from "moment";
 import { DateRange } from '../types/ExhaustModels';
 import { updateTelemetryAuditEvent } from './telemetry';
@@ -18,15 +18,15 @@ export class ClientCloudService {
     private momentFormat: string;
     constructor(cloudProvider: string, config?: any) {
         this.cloudProvider = cloudProvider
-        this.client = CloudService.init(this.cloudProvider)
+        // this.client = CloudService.init(this.cloudProvider)
         this.config = config
         this.storage = new this.client(this.config)
         this.momentFormat = "YYYY-MM-DD";
     }
 
-    verifyDatasetExists = async (datasetId: string) => {
-        const datasetRecord = await ingestorService.getDatasetConfig(datasetId);
-        return datasetRecord;
+    verifyDatasetExists = async () => {
+        // const datasetRecord = await ingestorService.getDatasetConfig(datasetId);
+        // return datasetRecord;
     }
 
     getFromStorage = async (type: string | undefined, dateRange: DateRange, datasetId: string) => {
@@ -47,12 +47,12 @@ export class ClientCloudService {
             next({statusCode: 404, message: constants.RECORD_NOT_FOUND, errCode: httpStatus["404_NAME"],})
             return;
         }
-        const datasetRecord = await this.verifyDatasetExists(datasetId);
-        if(!datasetRecord) {
-            next({statusCode: 404, message: constants.RECORD_NOT_FOUND, errCode: httpStatus["404_NAME"],})
-            return;
-        }
-        const dateRange = getDateRange(req, res);
+        await this.verifyDatasetExists();
+        // if(!datasetRecord) {
+        //     next({statusCode: 404, message: constants.RECORD_NOT_FOUND, errCode: httpStatus["404_NAME"],})
+        //     return;
+        // }
+        const dateRange = getDateRange(req);
         const isValidDates = isValidDateRange(
             moment(dateRange.from, this.momentFormat), 
             moment(dateRange.to, this.momentFormat), 

@@ -14,7 +14,7 @@ type extendedErrorRequestHandler = ErrorRequestHandler & {
 const ResponseHandler = {
   successResponse: (req: Request, res: Response, result: Result) => {
     const { entity } = req as any;
-    entity && onSuccess(req, res)
+    entity && onSuccess(req)
     res.status(result.status || 200).json(ResponseHandler.refactorResponse({ id: (req as any).id, result: result.data }));
   },
 
@@ -26,10 +26,10 @@ const ResponseHandler = {
     return <IResponse>{ id, ver, ts: Date.now(), params, responseCode, result }
   },
 
-  errorResponse: (error: extendedErrorRequestHandler, req: Request, res: Response, next: NextFunction) => {
+  errorResponse: (error: extendedErrorRequestHandler, req: Request, res: Response) => {
     const { statusCode, message, errCode } = error;
     const { id, entity } = req as any;
-    entity && onFailure(req, res)
+    entity && onFailure(req)
     res.status(statusCode || httpStatus.INTERNAL_SERVER_ERROR).json(ResponseHandler.refactorResponse({ id: id, params: { status: constants.STATUS.FAILURE, errmsg: message, }, responseCode: errCode || httpStatus["500_NAME"] }));
   },
 
@@ -40,7 +40,7 @@ const ResponseHandler = {
 
   flatResponse: (req: Request, res: Response, result: Result) => {
     const { entity } = req as any;
-    entity && onSuccess(req, res)
+    entity && onSuccess(req)
     res.status(result.status).send(result.data);
   },
 }

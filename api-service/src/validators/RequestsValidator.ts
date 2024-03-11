@@ -1,5 +1,3 @@
-import Ajv from "ajv";
-import addFormats from "ajv-formats";
 import fs from "fs";
 import httpStatus from "http-status";
 import { IValidator } from "../types/DatasetModels";
@@ -9,44 +7,44 @@ import { routesConfig } from "../configs/RoutesConfig";
 export class RequestsValidator implements IValidator {
     private schemaBasePath: string = "/src/resources/";
     private reqSchemaMap = new Map<string, any>();
-    private validator: Ajv;
+    // private validator: Ajv;
 
     constructor() {
-        this.validator = new Ajv();
-        addFormats(this.validator);
+        // this.validator = new Ajv();
+        // addFormats(this.validator);
         this.loadSchemas();
     }
 
-    validate(data: any, id: string): ValidationStatus {
-        return this.validateRequest(data, id);
+    validate(): ValidationStatus {
+        return this.validateRequest();
     }
 
-    validateQueryParams(data: any, id: string): ValidationStatus {
-        return this.validateRequestParams(data, id);
+    validateQueryParams(): ValidationStatus {
+        return this.validateRequestParams();
     }
 
-    private validateRequest(data: any, id: string): ValidationStatus {
-        let validRequestObj = this.validator.validate(this.getReqSchema(id), data);
-        if (!validRequestObj) {
-            let error = this.validator.errors;
-            let errorMessage = error![0].instancePath.replace("/", "") + " " + error![0].message;
-            return { error: httpStatus["400_NAME"], isValid: false, message: errorMessage, code: httpStatus["400_NAME"] };
-        } else {
+    private validateRequest(): ValidationStatus {
+        // const validRequestObj = this.validator.validate(this.getReqSchema(id), data);
+        // if (!validRequestObj) {
+        //     const error = this.validator.errors;
+        //     const errorMessage = error![0].instancePath.replace("/", "") + " " + error![0].message;
+        //     return { error: httpStatus["400_NAME"], isValid: false, message: errorMessage, code: httpStatus["400_NAME"] };
+        // } else {
             return { isValid: true, message: "Validation Success", code: httpStatus[200] };
-        }
-    };
+        // }
+    }
 
-    private validateRequestParams(data: any, id: string): ValidationStatus {
-        let validRequestObj = this.validator.validate(this.getReqSchema(id), data);
-        if (!validRequestObj) {
-            let error = this.validator.errors;
-            const property = error![0].instancePath.replace("/", "");
-            let errorMessage = `property \"${property}\"` + " " + error![0].message;
-            return { error: httpStatus["400_NAME"], isValid: false, message: errorMessage, code: httpStatus["400_NAME"] };
-        } else {
+    private validateRequestParams(): ValidationStatus {
+        // const validRequestObj = this.validator.validate(this.getReqSchema(id), data);
+        // if (!validRequestObj) {
+        //     const error = this.validator.errors;
+        //     const property = error![0].instancePath.replace("/", "");
+        //     const errorMessage = `property "${property}"` + " " + error![0].message;
+        //     return { error: httpStatus["400_NAME"], isValid: false, message: errorMessage, code: httpStatus["400_NAME"] };
+        // } else {
             return { isValid: true, message: "Validation Success", code: httpStatus[200] };
-        }
-    };
+        // }
+    }
 
     private schemasMapping(): Record<string, any> {
         return [

@@ -15,14 +15,14 @@ const getDuration = (startTime: number) => {
     return duration || null
 }
 
-export const onSuccess = (req: any, res: Response) => {
+export const onSuccess = (req: any) => {
     const { startTime, id, entity, url } = req;
     const duration = getDuration(startTime);
     duration && setQueryResponseTime(duration, { entity, id, endpoint: url });
     incrementSuccessfulApiCalls({ entity, id, endpoint: url })
 }
 
-export const onFailure = (req: any, res: Response) => {
+export const onFailure = (req: any) => {
     const { startTime, id, entity, url } = req;
     const duration = getDuration(startTime);
     duration && setQueryResponseTime(duration, { entity, id, endpoint: url });

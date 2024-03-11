@@ -19,8 +19,9 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Run test cases
+      - name: Run test cases and lint
         run: |
           cd api-service
           npm install
           npm run actions:test
+          npm run lint

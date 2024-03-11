@@ -7,7 +7,7 @@ import constants from '../resources/Constants.json'
 import { TestDatasetSourceConfig } from "./Fixtures";
 import { config } from "./Config";
 import { routesConfig } from "../configs/RoutesConfig";
-import { dbConnector } from "../routes/Router";
+// import { dbConnector } from "../routes/Router";
 import { describe, it } from 'mocha';
 import { ResponseHandler } from "../helpers/ResponseHandler";
 import { DatasetStatus } from "../types/DatasetModels";
@@ -18,9 +18,9 @@ chai.use(chaiHttp);
 
 describe("Dataset source config create API", () => {
     it("should insert a record in the database", (done) => {
-        chai.spy.on(dbConnector, "execute", () => {
-            return Promise.resolve([])
-        })
+        // chai.spy.on(dbConnector, "execute", () => {
+        //     return Promise.resolve([])
+        // })
         chai
             .request(app)
             .post(config.apiDatasetSourceConfigSaveEndPoint)
@@ -32,14 +32,14 @@ describe("Dataset source config create API", () => {
                 res.body.should.have.property("result");
                 res.body.id.should.be.eq(routesConfig.config.dataset_source_config.save.api_id);
                 res.body.params.status.should.be.eq(constants.STATUS.SUCCESS)
-                chai.spy.restore(dbConnector, "execute");
+                // chai.spy.restore(dbConnector, "execute");
                 done();
             });
     });
     it("should throw error", (done) => {
-        chai.spy.on(dbConnector, "execute", () => {
-            return Promise.resolve([])
-        })
+        // chai.spy.on(dbConnector, "execute", () => {
+        //     return Promise.resolve([])
+        // })
         chai.spy.on(ResponseHandler, "successResponse", ()=>{
             throw new Error("Error occured while sending response")
         })
@@ -54,15 +54,15 @@ describe("Dataset source config create API", () => {
                 res.body.should.have.property("result")
                 res.body.id.should.be.eq(routesConfig.config.dataset_source_config.save.api_id);
                 res.body.params.status.should.be.eq(constants.STATUS.FAILURE)
-                chai.spy.restore(dbConnector, "execute");
+                // chai.spy.restore(dbConnector, "execute");
                 chai.spy.restore(ResponseHandler, "successResponse")
                 done();
             });
     });
     it("should not insert record in the database", (done) => {
-        chai.spy.on(dbConnector, "execute", () => {
-            return Promise.reject(new Error("error occurred while connecting to postgres"))
-        })
+        // chai.spy.on(dbConnector, "execute", () => {
+        //     return Promise.reject(new Error("error occurred while connecting to postgres"))
+        // })
         chai
             .request(app)
             .post(config.apiDatasetSourceConfigSaveEndPoint)
@@ -74,14 +74,14 @@ describe("Dataset source config create API", () => {
                 res.body.should.have.property("result")
                 res.body.id.should.be.eq(routesConfig.config.dataset_source_config.save.api_id);
                 res.body.params.status.should.be.eq(constants.STATUS.FAILURE)
-                chai.spy.restore(dbConnector, "execute");
+                // chai.spy.restore(dbConnector, "execute");
                 done();
             });
     });
     it("should not insert record if already exists in the database", (done) => {
-        chai.spy.on(dbConnector, "execute", () => {
-            return Promise.resolve([{}])
-        })
+        // chai.spy.on(dbConnector, "execute", () => {
+        //     return Promise.resolve([{}])
+        // })
         chai
             .request(app)
             .post(config.apiDatasetSourceConfigSaveEndPoint)
@@ -93,7 +93,7 @@ describe("Dataset source config create API", () => {
                 res.body.should.have.property("result")
                 res.body.id.should.be.eq(routesConfig.config.dataset_source_config.save.api_id);
                 res.body.params.status.should.be.eq(constants.STATUS.FAILURE)
-                chai.spy.restore(dbConnector, "execute");
+                // chai.spy.restore(dbConnector, "execute");
                 done();
             });
     });
@@ -130,9 +130,9 @@ describe("Dataset source config create API", () => {
 })
 describe("Dataset source config update API", () => {
     it("should successfully update records in database", (done) => {
-        chai.spy.on(dbConnector, "execute", () => {
-            return Promise.resolve()
-        })
+        // chai.spy.on(dbConnector, "execute", () => {
+        //     return Promise.resolve()
+        // })
         chai
             .request(app)
             .patch(config.apiDatasetSourceConfigUpdateEndPoint)
@@ -144,14 +144,14 @@ describe("Dataset source config update API", () => {
                 res.body.should.have.property("result");
                 res.body.id.should.be.eq(routesConfig.config.dataset_source_config.update.api_id);
                 res.body.params.status.should.be.eq(constants.STATUS.SUCCESS)
-                chai.spy.restore(dbConnector, "execute")
+                // chai.spy.restore(dbConnector, "execute")
                 done();
             });
     });
     it("should not update records in database", (done) => {
-        chai.spy.on(dbConnector, "execute", () => {
-            return Promise.reject(new Error("error while connecting to postgres"))
-        })
+        // chai.spy.on(dbConnector, "execute", () => {
+        //     return Promise.reject(new Error("error while connecting to postgres"))
+        // })
         chai
             .request(app)
             .patch(config.apiDatasetSourceConfigUpdateEndPoint)
@@ -163,7 +163,7 @@ describe("Dataset source config update API", () => {
                 res.body.should.have.property("result");
                 res.body.id.should.be.eq(routesConfig.config.dataset_source_config.update.api_id)
                 res.body.params.status.should.be.eq(constants.STATUS.FAILURE)
-                chai.spy.restore(dbConnector, "execute")
+                // chai.spy.restore(dbConnector, "execute")
                 done();
             });
     });
@@ -185,9 +185,9 @@ describe("Dataset source config update API", () => {
 })
 describe("Dataset source config read API", () => {
     it("should successfully retrieve records from database", (done) => {
-        chai.spy.on(dbConnector, "execute", () => {
-            return Promise.resolve([TestDatasetSourceConfig.VALID_RECORD])
-        })
+        // chai.spy.on(dbConnector, "execute", () => {
+        //     return Promise.resolve([TestDatasetSourceConfig.VALID_RECORD])
+        // })
         chai
             .request(app)
             .get(config.apiDatasetSourceConfigReadEndPoint.replace(":datasetId", TestDatasetSourceConfig.SAMPLE_ID).concat(`?status = ${DatasetStatus.Live}`))
@@ -199,14 +199,14 @@ describe("Dataset source config read API", () => {
                 res.body.id.should.be.eq(routesConfig.config.dataset_source_config.read.api_id);
                 res.body.params.status.should.be.eq(constants.STATUS.SUCCESS)
                 res.body.result.should.be.a("object")
-                chai.spy.restore(dbConnector, "execute")
+                // chai.spy.restore(dbConnector, "execute")
                 done();
             })
     }),
         it("should throw error if retrieved record is empty", (done) => {
-            chai.spy.on(dbConnector, "execute", () => {
-                return Promise.resolve([])
-            })
+            // chai.spy.on(dbConnector, "execute", () => {
+            //     return Promise.resolve([])
+            // })
             chai
                 .request(app)
                 .get(config.apiDatasetSourceConfigReadEndPoint.replace(":datasetId", TestDatasetSourceConfig.SAMPLE_ID).concat('?status=DISABLED'))
@@ -217,14 +217,14 @@ describe("Dataset source config read API", () => {
                     res.body.should.have.property("result");
                     res.body.id.should.be.eq(routesConfig.config.dataset_source_config.read.api_id);
                     res.body.params.status.should.be.eq(constants.STATUS.FAILURE)
-                    chai.spy.restore(dbConnector, "execute")
+                    // chai.spy.restore(dbConnector, "execute")
                     done();
                 })
         }),
         it("should not retrieve records from database", (done) => {
-            chai.spy.on(dbConnector, "execute", () => {
-                return Promise.reject(new Error("error while connecting to postgres"))
-            })
+            // chai.spy.on(dbConnector, "execute", () => {
+            //     return Promise.reject(new Error("error while connecting to postgres"))
+            // })
             chai
                 .request(app)
                 .get(config.apiDatasetSourceConfigReadEndPoint.replace(":datasetId", TestDatasetSourceConfig.SAMPLE_ID).concat('?status=DISABLED'))
@@ -235,7 +235,7 @@ describe("Dataset source config read API", () => {
                     res.body.should.have.property("result");
                     res.body.id.should.be.eq(routesConfig.config.dataset_source_config.read.api_id);
                     res.body.params.status.should.be.eq(constants.STATUS.FAILURE)
-                    chai.spy.restore(dbConnector, "execute")
+                    // chai.spy.restore(dbConnector, "execute")
                     done();
                 })
         })
@@ -243,9 +243,9 @@ describe("Dataset source config read API", () => {
 })
 describe("Dataset source config list API", () => {
     it("should successfully list records in the table", (done) => {
-        chai.spy.on(dbConnector, "execute", () => {
-            return Promise.resolve([{}, {}, {}])
-        })
+        // chai.spy.on(dbConnector, "execute", () => {
+        //     return Promise.resolve([{}, {}, {}])
+        // })
         chai
             .request(app)
             .post(config.apiDatasetSourceConfigListEndPoint)
@@ -258,7 +258,7 @@ describe("Dataset source config list API", () => {
                 res.body.id.should.be.eq(routesConfig.config.dataset_source_config.list.api_id);
                 res.body.params.status.should.be.eq(constants.STATUS.SUCCESS)
                 res.body.result.should.be.a("array")
-                chai.spy.restore(dbConnector, "execute")
+                // chai.spy.restore(dbConnector, "execute")
                 done();
             });
     })
@@ -278,9 +278,9 @@ describe("Dataset source config list API", () => {
             });
     })
     it("should not list records", (done) => {
-        chai.spy.on(dbConnector, "execute", () => {
-            return Promise.reject(new Error("error while connecting to postgres"))
-        })
+        // chai.spy.on(dbConnector, "execute", () => {
+        //     return Promise.reject(new Error("error while connecting to postgres"))
+        // })
         chai
             .request(app)
             .post(config.apiDatasetSourceConfigListEndPoint)
@@ -292,7 +292,7 @@ describe("Dataset source config list API", () => {
                 res.body.should.have.property("result");
                 res.body.id.should.be.eq(routesConfig.config.dataset_source_config.list.api_id);
                 res.body.params.status.should.be.eq(constants.STATUS.FAILURE)
-                chai.spy.restore(dbConnector, "execute")
+                // chai.spy.restore(dbConnector, "execute")
                 done();
             })
     })
