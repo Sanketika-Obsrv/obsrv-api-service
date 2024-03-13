@@ -3,16 +3,6 @@ import { DatasetStatus, ValidationMode } from "../../types/DatasetModels";
 
 export const defaultConfig = {
     "master": {
-        "dataset_config": {
-            "data_key": "",
-            "timestamp_key": "",
-            "exclude_fields": [],
-            "entry_topic": config.telemetry_service_config.kafka.topics.createMasterDataset,
-            "redis_db_host": config.redis_config.redis_host,
-            "redis_db_port": config.redis_config.redis_port,
-            "index_data": true,
-            "redis_db": 3    
-        },
         "validation_config": {
             "validate": true,
             "mode": ValidationMode.Strict,
@@ -21,8 +11,8 @@ export const defaultConfig = {
             "is_batch_event": false,
             "extraction_key": "",
             "dedup_config": {
-                "drop_duplicates": false,
-                "dedup_key": "",
+                "drop_duplicates": true,
+                "dedup_key": "id",
                 "dedup_period": 604800, // 7 days
             }
         },
@@ -31,11 +21,27 @@ export const defaultConfig = {
             "dedup_key": "id",
             "dedup_period": 604800, // 7 days
         },
+        "denorm_config": {
+            "redis_db_host": config.redis_config.redis_host,
+            "redis_db_port": config.redis_config.redis_port,
+            "denorm_fields": []
+        },
         "router_config": {
             "topic": ""
         },
         "tags": [],
-        "status": DatasetStatus.Live,
+        "dataset_config": {
+            "data_key": "",
+            "timestamp_key": "",
+            "exclude_fields": [],
+            "entry_topic": "",
+            "redis_db_host": config.redis_config.redis_host,
+            "redis_db_port": config.redis_config.redis_port,
+            "index_data": true,
+            "redis_db": 0           	// The default Redis database index.
+        },
+        "status": "Draft",
+        "version": 1,
         "created_by": "SYSTEM",
         "updated_by": "SYSTEM"
     },
@@ -58,6 +64,11 @@ export const defaultConfig = {
             "dedup_key": "id",
             "dedup_period": 604800, // 7 days
         },
+        "denorm_config": {
+            "redis_db_host": config.redis_config.redis_host,
+            "redis_db_port": config.redis_config.redis_port,
+            "denorm_fields": []
+        },
         "router_config": {
             "topic": ""
         },
@@ -66,22 +77,15 @@ export const defaultConfig = {
             "data_key": "",
             "timestamp_key": "",
             "exclude_fields": [],
-            "entry_topic": config.telemetry_service_config.kafka.topics.createDataset,
+            "entry_topic": "",
             "redis_db_host": config.redis_config.redis_host,
             "redis_db_port": config.redis_config.redis_port,
             "index_data": true,
-            "redis_db": 0               // The default Redis database index.
+            "redis_db": 0           	// The default Redis database index.
         },
-        "status": DatasetStatus.Live,
+        "status": DatasetStatus.Draft,
+        "version": 1,
         "created_by": "SYSTEM",
         "updated_by": "SYSTEM"
-    },
-    "sourceConfig": {
-        "connector_type": '',
-        "connector_config": {},
-        "status": DatasetStatus.Live,
-        "connector_stats": {},
-        "created_by": 'SYSTEM',
-        "updated_by": 'SYSTEM'
     }
 }
