@@ -4,14 +4,17 @@ import _ from "lodash";
 import { Request } from "express";
 
 export const schemaValidation = async (payload: Record<string, any>, schema: Record<string, any>) => {
-    const validator = new Ajv();
-    const isValid = validator.validate(schema, payload)
-    if (!isValid) {
-        const error: any = validator.errors;
-        logger.error(error)
-        throw new Error(error?.message)
-    }
-    return isValid;
+    return new Promise((resolve, reject) => {
+        const validator = new Ajv();
+        const isValid = validator.validate(schema, payload)
+        if (!isValid) {
+            const error: any = validator.errors;
+            const errorMessage = error[0]?.schemaPath?.replace("/", "") + " " + error[0]?.message || "Invalid Request Body";
+            logger.error(errorMessage)
+            reject(errorMessage)
+        }
+        resolve(isValid)
+    })
 }
 
 export const setApiId = async (req: Request) => {

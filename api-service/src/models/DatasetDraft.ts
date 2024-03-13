@@ -1,7 +1,7 @@
 import { sequelize } from "../connections/databaseConnection";
 import { DataTypes } from 'sequelize';
 
-export const datasets_draft = sequelize.define('datasets_draft', {
+export const DatasetDraft = sequelize.define('datasets_draft', {
   id: {
     type: DataTypes.STRING,
     primaryKey: true,
