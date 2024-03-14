@@ -1,6 +1,7 @@
 import { sequelize } from "../connections/databaseConnection";
 import { DataTypes } from 'sequelize';
 import moment from "moment";
+import { DatasetStatus } from "../types/DatasetModels";
 
 export const DatasetDraft = sequelize.define('datasets_draft', {
   id: {
@@ -14,11 +15,11 @@ export const DatasetDraft = sequelize.define('datasets_draft', {
   },
   name: {
     type: DataTypes.STRING,
-    allowNull: true
+    allowNull: false
   },
   type: {
     type: DataTypes.STRING,
-    allowNull: true
+    allowNull: false
   },
   extraction_config: {
     type: DataTypes.JSON,
@@ -56,13 +57,14 @@ export const DatasetDraft = sequelize.define('datasets_draft', {
     defaultValue: {}
   },
   tags: {
-    type: DataTypes.ARRAY(DataTypes.STRING),
-    allowNull: true
+    type: DataTypes.ARRAY(DataTypes.TEXT),
+    allowNull: true,
+    defaultValue: []
   },
   status: {
     type: DataTypes.ENUM('Draft'),
     allowNull: true,
-    defaultValue: "Draft"
+    defaultValue: DatasetStatus.Draft
   },
   version: {
     type: DataTypes.INTEGER,
@@ -71,12 +73,12 @@ export const DatasetDraft = sequelize.define('datasets_draft', {
   },
   created_by: {
     type: DataTypes.STRING,
-    allowNull: true,
+    allowNull: false,
     defaultValue: "SYSTEM",
   },
   updated_by: {
     type: DataTypes.STRING,
-    allowNull: true,
+    allowNull: false,
     defaultValue: "SYSTEM",
   },
   created_date: {

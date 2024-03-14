@@ -38,7 +38,7 @@ export const defaultConfig = {
             "redis_db_host": config.redis_config.redis_host,
             "redis_db_port": config.redis_config.redis_port,
             "index_data": true,
-            "redis_db": 0           	// The default Redis database index.
+            "redis_db": 0  // The default Redis database index.
         },
         "status": "Draft",
         "version": 1,
@@ -81,7 +81,7 @@ export const defaultConfig = {
             "redis_db_host": config.redis_config.redis_host,
             "redis_db_port": config.redis_config.redis_port,
             "index_data": true,
-            "redis_db": 0           	// The default Redis database index.
+            "redis_db": 0   // The default Redis database index.
         },
         "status": DatasetStatus.Draft,
         "version": 1,
