@@ -16,15 +16,13 @@ export const connect = async () => {
 
 export const send = async (payload: Record<string, any>, topic: string) => {
   try {
-    // Add necessary metadata to the payload
-    const now = Date.now();
-    // Produce message to Kafka topic
-    await producer.send({
+    await connect();
+    const response = await producer.send({
       topic: topic,
       messages: [{ value: JSON.stringify(payload) }]
     });
-    console.log("Event ingested successfully into Kafka topic:", topic);
-  } catch (error: any) {
-    console.error("Error ingesting event into Kafka:", error.message);
+    return response
+  } catch (error) {
+    throw error
   }
 }

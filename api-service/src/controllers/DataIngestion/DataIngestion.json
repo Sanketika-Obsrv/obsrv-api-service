@@ -1,0 +1,30 @@
+{
+    "type": "object",
+    "properties": {
+      "data": {
+        "type": "object",
+        "oneOf": [
+          {
+            "required": ["id", "events"],
+            "properties": {
+              "id": { "type": "string" },
+              "events": {
+                "type": "array",
+                "items": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          {
+            "required": ["event"],
+            "properties": {
+              "event": {
+                "type": "object"
+              }
+            }
+          }
+        ]
+      }
+    }
+  }
