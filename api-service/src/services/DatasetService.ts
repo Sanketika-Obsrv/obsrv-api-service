@@ -3,6 +3,7 @@ import { DatasetType } from "../types/DatasetModels";
 import { defaultConfig } from "../configs/DatasetConfigDefault"
 import { DatasetDraft } from "../models/DatasetDraft";
 import { QueryTypes } from 'sequelize';
+import logger from "../logger";
 
 const isUniqueDenormKey = (value: any, index: any, array: any) => {
     return array.indexOf(value) === array.lastIndexOf(value);
@@ -43,7 +44,8 @@ const modifyMasterDatasetConfig = async (datasetConfig: Record<string, any>) => 
             nextRedisDB = parseInt(rows[0].nextval);
         })
         .catch(error => {
-            throw { message: error?.message }
+            logger.error(error)
+            throw { error }
         });
     return _.assign(datasetConfig, { "redis_db": nextRedisDB })
 }
