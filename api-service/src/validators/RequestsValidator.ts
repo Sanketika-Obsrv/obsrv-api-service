@@ -1,4 +1,3 @@
-import fs from "fs";
 import httpStatus from "http-status";
 import { IValidator } from "../types/DatasetModels";
 import { ValidationStatus } from "../types/ValidationModels";
