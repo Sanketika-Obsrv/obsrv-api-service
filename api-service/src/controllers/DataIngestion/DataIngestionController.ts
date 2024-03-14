@@ -3,9 +3,7 @@ import * as _ from 'lodash';
 import dataIngestorSchema from "./DataIngestion.json";
 import { schemaValidation } from "../../services";
 import { ResponseHandler } from "../../helpers/ResponseHandler";
-import { DatasetDraft } from "../../models/DatasetDraft";
 import { send } from "../../connections/kafkaConnection";
-import { DatasetStatus } from "../../types/DatasetModels";
 import { Dataset } from "../../models/Dataset";
 
 const dataIn = async (req: Request, res: Response) => {

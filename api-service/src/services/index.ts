@@ -1,7 +1,5 @@
 import Ajv from "ajv";
 import logger from "../logger";
-import * as _ from "lodash";
-import { Request } from "express";
 
 export const schemaValidation = (payload: Record<string, any>, schema: Record<string, any>) => {
     const validator = new Ajv();

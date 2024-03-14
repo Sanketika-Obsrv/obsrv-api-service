@@ -15,14 +15,9 @@ export const connect = async () => {
 }
 
 export const send = async (payload: Record<string, any>, topic: string) => {
-  try {
-    await connect();
-    const response = await producer.send({
+  await connect();
+  return producer.send({
       topic: topic,
       messages: [{ value: JSON.stringify(payload) }]
-    });
-    return response
-  } catch (error) {
-    throw error
-  }
+  });
 }

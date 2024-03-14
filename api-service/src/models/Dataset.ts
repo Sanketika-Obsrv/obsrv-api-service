@@ -1,6 +1,5 @@
 import { DataTypes } from "sequelize";
 import { sequelize } from "../connections/databaseConnection";
-import { v4 as uuidv4 } from 'uuid';
 
 export const Dataset = sequelize.define("datasets", {
     id: {
