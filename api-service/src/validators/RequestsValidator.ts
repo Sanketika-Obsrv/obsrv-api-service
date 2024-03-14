@@ -11,7 +11,7 @@ export class RequestsValidator implements IValidator {
     constructor() {
         // this.validator = new Ajv();
         // addFormats(this.validator);
-        this.loadSchemas();
+        // this.loadSchemas();
     }
 
     validate(): ValidationStatus {
