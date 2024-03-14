@@ -1,9 +1,0 @@
-{
-    "type": "object",
-    "properties": {
-        "filters": {
-            "type": "object"
-        }
-    },
-    "required": ["filters"]
-}
