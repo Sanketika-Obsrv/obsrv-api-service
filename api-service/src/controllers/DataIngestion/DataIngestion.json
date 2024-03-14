@@ -1,20 +1,14 @@
 {
     "type": "object",
+    "required":["data"],
     "properties": {
       "data": {
         "type": "object",
         "oneOf": [
           {
-            "required": ["id", "events"],
-            "properties": {
-              "id": { "type": "string" },
-              "events": {
-                "type": "array",
-                "items": {
-                  "type": "object"
-                }
-              }
-            }
+            "type": "object",
+            "minProperties": 2,
+            "maxProperties": 2
           },
           {
             "required": ["event"],
