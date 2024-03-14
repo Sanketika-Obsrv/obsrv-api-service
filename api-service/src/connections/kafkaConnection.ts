@@ -1,23 +1,29 @@
 import { Kafka } from "kafkajs";
 import { connectionConfig } from '../configs/ConnectionsConfig'
+import logger from "../logger";
 
 const kafka = new Kafka(connectionConfig.kafka.config);
 const producer = kafka.producer();
 
+let isConnected = false;
+
 export const connect = async () => {
   await producer.connect()
     .then(() => {
-      console.log("kafka dispatcher is ready");
+      isConnected = true;
+      logger.info("kafka dispatcher is ready");
     })
     .catch((err) => {
-      console.error("Unable to connect to kafka", err.message);
+      logger.info("Unable to connect to kafka", err.message);
     });
 }
 
 export const send = async (payload: Record<string, any>, topic: string) => {
-  await connect();
+  if (!isConnected) {
+    await connect()
+  }
   return producer.send({
-      topic: topic,
-      messages: [{ value: JSON.stringify(payload) }]
+    topic: topic,
+    messages: [{ value: JSON.stringify(payload) }]
   });
 }
