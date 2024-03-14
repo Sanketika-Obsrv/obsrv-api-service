@@ -2,7 +2,6 @@ import { ErrorRequestHandler, NextFunction, Request, Response } from "express";
 import httpStatus from "http-status";
 import { IResponse, Result } from "../types/DatasetModels";
 import constants from "../resources/Constants.json";
-import { routesConfig } from "../configs/RoutesConfig";
 import { onFailure, onSuccess } from "../metrics/prometheus/helpers";
 type extendedErrorRequestHandler = ErrorRequestHandler & {
   statusCode: number;
@@ -22,7 +21,7 @@ const ResponseHandler = {
     next({ statusCode: httpStatus.NOT_FOUND, message: constants.ERROR_MESSAGE.ROUTE_NOT_FOUND, errCode: httpStatus["404_NAME"] });
   },
 
-  refactorResponse: ({ id = routesConfig.default.api_id, ver = "v1", params = { status: constants.STATUS.SUCCESS, errmsg: "" }, responseCode = httpStatus["200_NAME"], result = {} }): IResponse => {
+  refactorResponse: ({ id = "api", ver = "v1", params = { status: constants.STATUS.SUCCESS, errmsg: "" }, responseCode = httpStatus["200_NAME"], result = {} }): IResponse => {
     return <IResponse>{ id, ver, ts: Date.now(), params, responseCode, result }
   },
 
