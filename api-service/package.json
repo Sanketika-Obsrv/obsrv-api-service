@@ -7,7 +7,7 @@
     "start": "ts-node ./src/app.ts",
     "test": "source .env.test && nyc mocha ./src/tests/*.spec.ts --exit",
     "actions:test": "nyc mocha ./src/tests/*.spec.ts --exit",
-    "build": "tsc -P .",
+    "build": "tsc -P . --declaration",
     "lint": "eslint . --ext .ts",
     "lint-fix": "eslint . --ext .ts --fix"
   },
