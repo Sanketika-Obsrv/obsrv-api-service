@@ -1,7 +1,8 @@
 import _ from "lodash";
 import { DatasetType } from "../types/DatasetModels";
-import { defaultConfig } from "../resources/schemas/DatasetConfigDefault"
+import { defaultConfig } from "../configs/DatasetConfigDefault"
 import { DatasetDraft } from "../models/DatasetDraft";
+import { QueryTypes } from 'sequelize';
 
 const isUniqueDenormKey = (value: any, index: any, array: any) => {
     return array.indexOf(value) === array.lastIndexOf(value);
@@ -35,17 +36,31 @@ const mergeConfigs = (defaultConfig: Record<string, any>, requestPayload: Record
 }
 
 
-const getDatasetDefaults = (payload: Record<string, any>) => {
+const modifyMasterDatasetConfig = async (datasetConfig: Record<string, any>) => {
+    let nextRedisDB = datasetConfig.redis_db;
+    await DatasetDraft.sequelize?.query("SELECT nextval('redis_db_index')", { type: QueryTypes.SELECT })
+        .then((rows: any) => {
+            nextRedisDB = parseInt(rows[0].nextval);
+        })
+        .catch(error => {
+            throw { message: error?.message }
+        });
+    return _.assign(datasetConfig, { "redis_db": nextRedisDB })
+}
+
+const getDatasetDefaults = async (payload: Record<string, any>) => {
     validateDenormConfig(_.get(payload, "denorm_config"))
     const getDefaults = defaultConfig.dataset
     const datasetPayload = mergeConfigs(getDefaults, payload)
     return datasetPayload
 }
 
-const getMasterDatasetDefaults = (payload: Record<string, any>) => {
+const getMasterDatasetDefaults = async (payload: Record<string, any>) => {
     const getDefaults = defaultConfig.master
     const masterDatasetPayload = mergeConfigs(getDefaults, payload)
-    return masterDatasetPayload;
+    let datasetConfig = masterDatasetPayload.dataset_config
+    datasetConfig = await modifyMasterDatasetConfig(datasetConfig);
+    return _.assign(masterDatasetPayload, datasetConfig);
 }
 
 export const getDefaultHandler = (datasetType: string) => {
@@ -61,10 +76,10 @@ export const getDefaultHandler = (datasetType: string) => {
     }
 }
 
-export const getDefaultValue = (payload: Record<string, any>) => {
+export const getDefaultValue = async (payload: Record<string, any>) => {
     const datasetType = _.get(payload, "type");
     const getDatasetDefaults = getDefaultHandler(datasetType)
-    return getDatasetDefaults(payload)
+    return await getDatasetDefaults(payload)
 }
 
 export const getDraftDatasetRecord = async (dataset_id: string) => {

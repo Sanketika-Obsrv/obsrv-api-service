@@ -1,5 +1,5 @@
-import { config } from "../../configs/Config";
-import { DatasetStatus, ValidationMode } from "../../types/DatasetModels";
+import { config } from "./Config";
+import { DatasetStatus, ValidationMode } from "../types/DatasetModels";
 
 export const defaultConfig = {
     "master": {
