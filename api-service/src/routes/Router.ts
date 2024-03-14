@@ -1,5 +1,5 @@
 import express from "express";
-import dataIn from "../controllers/DataIngestor/DataIngestorService";
+import dataIn from "../controllers/DataIngestion/DataIngestionController";
 
 export const router = express.Router();
 export const queryService=""
