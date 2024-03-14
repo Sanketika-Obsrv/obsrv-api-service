@@ -1,7 +1,6 @@
 import { ErrorRequestHandler, NextFunction, Request, Response } from "express";
 import httpStatus from "http-status";
 import { IResponse, Result } from "../types/DatasetModels";
-import constants from "../resources/Constants.json";
 import { onFailure, onSuccess } from "../metrics/prometheus/helpers";
 type extendedErrorRequestHandler = ErrorRequestHandler & {
   statusCode: number;
@@ -18,10 +17,10 @@ const ResponseHandler = {
   },
 
   routeNotFound: (req: Request, res: Response, next: NextFunction) => {
-    next({ statusCode: httpStatus.NOT_FOUND, message: constants.ERROR_MESSAGE.ROUTE_NOT_FOUND, errCode: httpStatus["404_NAME"] });
+    next({ statusCode: httpStatus.NOT_FOUND, message: httpStatus["404"], errCode: httpStatus["404_NAME"] });
   },
 
-  refactorResponse: ({ id = "api", ver = "v1", params = { status: constants.STATUS.SUCCESS, errmsg: "" }, responseCode = httpStatus["200_NAME"], result = {} }): IResponse => {
+  refactorResponse: ({ id = "api", ver = "v1", params = { status: httpStatus["200_NAME"], errmsg: "" }, responseCode = httpStatus["200_NAME"], result = {} }): IResponse => {
     return <IResponse>{ id, ver, ts: Date.now(), params, responseCode, result }
   },
 
@@ -29,7 +28,7 @@ const ResponseHandler = {
     const { statusCode, message, errCode } = error;
     const { id, entity } = req as any;
     entity && onFailure(req)
-    res.status(statusCode || httpStatus.INTERNAL_SERVER_ERROR).json(ResponseHandler.refactorResponse({ id: id, params: { status: constants.STATUS.FAILURE, errmsg: message, }, responseCode: errCode || httpStatus["500_NAME"] }));
+    res.status(statusCode || httpStatus.INTERNAL_SERVER_ERROR).json(ResponseHandler.refactorResponse({ id: id, params: { status: httpStatus["500"], errmsg: message, }, responseCode: errCode || httpStatus["500_NAME"] }));
   },
 
   setApiId: (id: string) => (req: Request, res: Response, next: NextFunction) => {
