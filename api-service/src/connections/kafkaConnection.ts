@@ -14,7 +14,7 @@ export const connect = async () => {
       logger.info("kafka dispatcher is ready");
     })
     .catch((err) => {
-      logger.error("Unable to connect to kafka", err.message);
+      logger.error("Unable to connect to kafka", err?.message);
     });
 }
 
