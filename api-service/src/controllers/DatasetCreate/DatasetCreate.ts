@@ -29,8 +29,8 @@ const datasetCreate = async (req: Request, res: Response) => {
         if (isDataSetExists) {
             return ResponseHandler.errorResponse({
                 message: "Dataset Already exists",
-                statusCode: 400,
-                errCode: "BAD_REQUEST"
+                statusCode: 409,
+                errCode: "CONFLICT"
             } as ErrorObject, req, res);
         }
 
