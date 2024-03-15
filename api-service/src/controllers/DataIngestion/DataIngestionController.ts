@@ -46,7 +46,7 @@ const dataIn = async (req: Request, res: Response) => {
             logger.error("Entry topic not found")
             return ResponseHandler.errorResponse(errorObject.topicNotFound, req, res);
         }
-        await send(addMetadataToEvents(validData), _.get(dataset, "dataValues.dataset_config.entry_topic"))
+        await send(addMetadataToEvents(validData, datasetId), _.get(dataset, "dataValues.dataset_config.entry_topic"))
         ResponseHandler.successResponse(req, res, { status: 200, data: { message: "Data ingested successfully" } });
     }
     catch (err: any) {
@@ -73,9 +73,10 @@ export const validation = async (data: any, datasetId: string) => {
     throw errorObject.invalidRequestBody;
 }
 
-const addMetadataToEvents = (payload: any) => {
+const addMetadataToEvents = (payload: any, datasetId: string) => {
     const now = Date.now();
     _.set(payload, 'syncts', now);
+    _.set(payload, 'dataset', datasetId);
     if (!payload?.mid) _.set(payload, 'mid', v4());
     const source = { meta: { id: "", connector_type: "api", version: config?.version, entry_source: "api" }, trace_id: v4() };
     const obsrvMeta = { syncts: now, processingStartTime: now, flags: {}, timespans: {}, error: {}, source: source };
