@@ -10,10 +10,10 @@ import httpStatus from "http-status";
 
 const Create = async (req: Request, res: Response) => {
     try {
-        const alertBody = req.body;
-        schemaValidation(alertBody, DatasetCreate)
+        const datasetBody = req.body;
+        schemaValidation(datasetBody, DatasetCreate)
         await checkDatasetExists(_.get(req, ["body", "dataset_id"]));
-        const datasetPayload: any = await getDefaultValue(alertBody);
+        const datasetPayload: any = await getDefaultValue(datasetBody);
         const response = await DatasetDraft.create(datasetPayload)
         logger.info("Dataset Record Created Successfully")
         ResponseHandler.successResponse(req, res, { status: httpStatus.OK, data: { id: _.get(response, ["dataValues", "id"]) || "" } });
