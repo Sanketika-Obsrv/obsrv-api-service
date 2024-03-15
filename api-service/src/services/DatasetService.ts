@@ -1,19 +1,10 @@
 import { Dataset } from "../models/Dataset";
 
-export const getDataset = async (datasetId: string) => {
+export const getDataset = async (datasetId: string): Promise<any> => {
     const dataset = await Dataset.findOne({
         where: {
             id: datasetId,
         },
     });
-    if (dataset !== null) {
-        return dataset
-    }
-    else {
-        throw {
-            "message": "Dataset with id not found",
-            "statusCode": 404,
-            "errCode": "BAD_REQUEST"
-        }
-    }
+    return dataset
 }

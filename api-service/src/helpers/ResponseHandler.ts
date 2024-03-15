@@ -24,7 +24,7 @@ const ResponseHandler = {
     return <IResponse>{ id, ver, ts: Date.now(), params, responseCode, result }
   },
 
-  errorResponse: (error: extendedErrorRequestHandler, req: Request, res: Response) => {
+  errorResponse: (error: Record<string, any>, req: Request, res: Response) => {
     const { statusCode, message, errCode } = error;
     const { id, entity } = req as any;
     entity && onFailure(req)
