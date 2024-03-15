@@ -40,7 +40,7 @@ const dataIn = async (req: Request, res: Response) => {
             logger.error(`Dataset with id ${datasetId} not found in live table`)
             return ResponseHandler.errorResponse(errorObject.datasetNotFound, req, res);
         }
-        const validData = await validation(req.body?.data, datasetId);
+        const validData = validation(req.body?.data, dataset);
         const entryTopic = _.get(dataset, "dataValues.dataset_config.entry_topic")
         if (!entryTopic) {
             logger.error("Entry topic not found")
@@ -55,20 +55,16 @@ const dataIn = async (req: Request, res: Response) => {
     }
 }
 
-export const validation = async (data: any, datasetId: string) => {
-    const dataset: any = await getDataset(datasetId);
+export const validation = (data: any, dataset: Record<string, any>) => {
     const extractionKey = _.get(dataset?.dataValues, "extraction_config.extraction_key");
     const isBatchEvent = _.get(dataset?.dataValues, "extraction_config.is_batch_event");
     const batchIdentifier = _.get(dataset?.dataValues, "extraction_config.batch_id")
 
-    if (isBatchEvent && ((_.has(data, extractionKey) && _.has(data, batchIdentifier)) ||
-        _.has(data, "event"))) {
+    if (!_.isArray(_.get(data, "event"))) {
         return data;
     }
-    else {
-        if (_.has(data, "event")) {
-            return data;
-        }
+    if (isBatchEvent && (_.has(data, extractionKey) && _.has(data, batchIdentifier))) {
+        return data;
     }
     throw errorObject.invalidRequestBody;
 }
