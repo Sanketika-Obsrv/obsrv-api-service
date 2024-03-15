@@ -44,7 +44,6 @@ const dataIn = async (req: Request, res: Response) => {
             return ResponseHandler.errorResponse(errorObject.topicNotFound, req, res);
         }
         await send(validData, _.get(dataset, "dataValues.dataset_config.entry_topic"))
-        logger.info("Data ingested successfully");
         ResponseHandler.successResponse(req, res, { status: 200, data: { message: "Data ingested successfully" } });
     }
     catch (err: any) {
