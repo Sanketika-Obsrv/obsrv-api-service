@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import logger from "../../logger";
-import { getDraftDataset, setRedisDBConfig, validateDenormConfig } from "../../services/DatasetService";
+import { getDraftDataset, getDuplicateDenormKey } from "../../services/DatasetService";
 import _ from "lodash";
 import DatasetCreate from "./DatasetCreateValidationSchema.json";
 import { schemaValidation } from "../../services/ValidationService";
@@ -9,6 +9,8 @@ import { ResponseHandler } from "../../helpers/ResponseHandler";
 import httpStatus from "http-status";
 import { defaultDatasetConfig, defaultMasterConfig } from "../../configs/DatasetConfigDefault";
 import { DatasetType } from "../../types/DatasetModels";
+import { query } from "../../connections/databaseConnection";
+import { ErrorObject } from "../../types/ResponseModel";
 
 const Create = async (req: Request, res: Response) => {
     try {
@@ -16,17 +18,17 @@ const Create = async (req: Request, res: Response) => {
         const isRequestValid: Record<string, any> = schemaValidation(datasetBody, DatasetCreate)
 
         if (!isRequestValid.isValid) {
-            return ResponseHandler.errorResponse({ message: isRequestValid.message, statusCode: 400, errCode: "BAD_REQUEST" }, req, res);
+            return ResponseHandler.errorResponse({ message: isRequestValid.message, statusCode: 400, errCode: "BAD_REQUEST" } as ErrorObject, req, res);
         }
 
         const isDataSetExists = await checkDatasetExists(_.get(req, ["body", "dataset_id"]));
         if (isDataSetExists) {
-            return ResponseHandler.errorResponse({ message: "Dataset Record Already exists", statusCode: 400, errCode: "BAD_REQUEST" }, req, res);
+            return ResponseHandler.errorResponse({ message: "Dataset Already exists", statusCode: 400, errCode: "BAD_REQUEST" } as ErrorObject, req, res);
         }
 
         const datasetPayload: any = await getDefaultValue(datasetBody);
         const response = await DatasetDraft.create(datasetPayload)
-        logger.info("Dataset Record Created Successfully")
+        logger.info(`Dataset Created Successfully with id:${_.get(response, ["dataValues", "id"])}`)
         ResponseHandler.successResponse(req, res, { status: httpStatus.OK, data: { id: _.get(response, ["dataValues", "id"]) || "" } });
     } catch (error: any) {
         logger.error(error)
@@ -37,7 +39,7 @@ const Create = async (req: Request, res: Response) => {
 const checkDatasetExists = async (dataset_id: string): Promise<boolean> => {
     const datasetExists = await getDraftDataset(dataset_id)
     if (datasetExists) {
-        logger.error("Dataset Record Already exists")
+        logger.error(`Dataset Already exists with id:${_.get(datasetExists, "id")}`)
         return true;
     } else {
         return false
@@ -53,20 +55,27 @@ const mergeDatasetConfigs = (defaultConfig: Record<string, any>, requestPayload:
 }
 
 const getDatasetDefaults = async (payload: Record<string, any>): Promise<Record<string, any>> => {
-    const isUniqDenormKeys = validateDenormConfig(_.get(payload, "denorm_config"))
-    if (!isUniqDenormKeys) {
-        logger.error("Duplicate denorm output fields found")
-        throw { statusCode: 400, message: "Duplicate denorm output fields found", errCode: "BAD_REQUEST" }
+    const duplicateDenormKeys = getDuplicateDenormKey(_.get(payload, "denorm_config"))
+    if (!_.isEmpty(duplicateDenormKeys)) {
+        logger.error(`Duplicate denorm output fields found. Duplicate Denorm out fields are [${duplicateDenormKeys}]`)
+        throw { statusCode: 400, message: "Duplicate denorm output fields found", errCode: "BAD_REQUEST" } as ErrorObject
     }
     const datasetPayload = mergeDatasetConfigs(defaultDatasetConfig, payload)
     return datasetPayload
 }
 
+const setRedisDBConfig = async (datasetConfig: Record<string, any>): Promise<Record<string, any>> => {
+    let nextRedisDB = datasetConfig.redis_db;
+    const { results }: any = await query("SELECT nextval('redis_db_index')")
+    if (!_.isEmpty(results)) nextRedisDB = parseInt(_.get(results, "[0].nextval"));
+    return _.assign(datasetConfig, { "redis_db": nextRedisDB })
+}
+
 const getMasterDatasetDefaults = async (payload: Record<string, any>): Promise<Record<string, any>> => {
-    const isUniqDenormKeys = validateDenormConfig(_.get(payload, "denorm_config"))
-    if (!isUniqDenormKeys) {
-        logger.error("Duplicate denorm output fields found")
-        throw { statusCode: 400, message: "Duplicate denorm output fields found", errCode: "BAD_REQUEST" }
+    const duplicateDenormKeys = getDuplicateDenormKey(_.get(payload, "denorm_config"))
+    if (!_.isEmpty(duplicateDenormKeys)) {
+        logger.error(`Duplicate denorm output fields found. Duplicate Denorm out fields are [${duplicateDenormKeys}]`)
+        throw { statusCode: 400, message: "Duplicate denorm output fields found", errCode: "BAD_REQUEST" } as ErrorObject
     }
     const masterDatasetPayload = mergeDatasetConfigs(defaultMasterConfig, payload)
     let datasetConfig = masterDatasetPayload.dataset_config
