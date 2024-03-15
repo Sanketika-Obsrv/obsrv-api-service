@@ -2,8 +2,7 @@ import _ from "lodash";
 import { DatasetType } from "../types/DatasetModels";
 import { defaultConfig } from "../configs/DatasetConfigDefault"
 import { DatasetDraft } from "../models/DatasetDraft";
-import { QueryTypes } from 'sequelize';
-import logger from "../logger";
+import { query } from "../connections/databaseConnection";
 
 const isUniqueDenormKey = (value: any, index: any, array: any) => {
     return array.indexOf(value) === array.lastIndexOf(value);
@@ -39,14 +38,8 @@ const mergeConfigs = (defaultConfig: Record<string, any>, requestPayload: Record
 
 const modifyMasterDatasetConfig = async (datasetConfig: Record<string, any>) => {
     let nextRedisDB = datasetConfig.redis_db;
-    await DatasetDraft.sequelize?.query("SELECT nextval('redis_db_index')", { type: QueryTypes.SELECT })
-        .then((rows: any) => {
-            nextRedisDB = parseInt(rows[0].nextval);
-        })
-        .catch(error => {
-            logger.error(error)
-            throw { error }
-        });
+    const { results }: any = await query("SELECT nextval('redis_db_index')")
+    if (!_.isEmpty(results)) nextRedisDB = parseInt(_.get(results, "[0].nextval"));
     return _.assign(datasetConfig, { "redis_db": nextRedisDB })
 }
 
