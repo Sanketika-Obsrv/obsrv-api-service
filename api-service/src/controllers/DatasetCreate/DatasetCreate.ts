@@ -13,8 +13,8 @@ const Create = async (req: Request, res: Response) => {
         const alertBody = req.body;
         schemaValidation(alertBody, DatasetCreate)
         await checkDatasetExists(_.get(req, ["body", "dataset_id"]));
-        const alertPayload: any = await getDefaultValue(alertBody);
-        const response = await DatasetDraft.create(alertPayload)
+        const datasetPayload: any = await getDefaultValue(alertBody);
+        const response = await DatasetDraft.create(datasetPayload)
         logger.info("Dataset Record Created Successfully")
         ResponseHandler.successResponse(req, res, { status: httpStatus.OK, data: { id: _.get(response, ["dataValues", "id"]) || "" } });
     } catch (error: any) {
