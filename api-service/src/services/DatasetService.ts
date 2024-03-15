@@ -12,7 +12,7 @@ export const validateDenormConfig = (denormConfig: Record<string, any>): boolean
     return true
 }
 
-export const setConfigRedisDB = async (datasetConfig: Record<string, any>): Promise<Record<string, any>> => {
+export const setRedisDBConfig = async (datasetConfig: Record<string, any>): Promise<Record<string, any>> => {
     let nextRedisDB = datasetConfig.redis_db;
     const { results }: any = await query("SELECT nextval('redis_db_index')")
     if (!_.isEmpty(results)) nextRedisDB = parseInt(_.get(results, "[0].nextval"));

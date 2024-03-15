@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import logger from "../../logger";
-import { getDraftDataset, setConfigRedisDB, validateDenormConfig } from "../../services/DatasetService";
+import { getDraftDataset, setRedisDBConfig, validateDenormConfig } from "../../services/DatasetService";
 import _ from "lodash";
 import DatasetCreate from "./DatasetCreateValidationSchema.json";
 import { schemaValidation } from "../../services/ValidationService";
@@ -70,7 +70,7 @@ const getMasterDatasetDefaults = async (payload: Record<string, any>): Promise<R
     }
     const masterDatasetPayload = mergeDatasetConfigs(defaultMasterConfig, payload)
     let datasetConfig = masterDatasetPayload.dataset_config
-    datasetConfig = await setConfigRedisDB(datasetConfig);
+    datasetConfig = await setRedisDBConfig(datasetConfig);
     return _.assign(masterDatasetPayload, datasetConfig);
 }
 
