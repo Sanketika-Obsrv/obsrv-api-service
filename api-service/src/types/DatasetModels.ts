@@ -44,7 +44,7 @@ export interface Result {
 }
 
 export enum DatasetStatus {
-    Live = 'Live', Retired = 'Retired',
+    Live = 'Live', Retired = 'Retired', Draft = 'Draft'
 }
 
 export enum TransformationMode {
@@ -53,4 +53,8 @@ export enum TransformationMode {
 
 export enum ValidationMode {
     Strict = 'Strict', IgnoreNewFields = 'IgnoreNewFields', DiscardNewFields = 'DiscardNewFields',
+}
+
+export enum DatasetType {
+    Dataset = "dataset", MasterDataset = "master-dataset"
 }

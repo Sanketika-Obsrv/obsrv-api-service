@@ -1,13 +1,7 @@
-import { ErrorRequestHandler, NextFunction, Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import httpStatus from "http-status";
 import { IResponse, Result } from "../types/DatasetModels";
 import { onFailure, onSuccess } from "../metrics/prometheus/helpers";
-type extendedErrorRequestHandler = ErrorRequestHandler & {
-  statusCode: number;
-  message: string;
-  errCode: string;
-  id?: string;
-};
 
 const ResponseHandler = {
   successResponse: (req: Request, res: Response, result: Result) => {
@@ -24,7 +18,7 @@ const ResponseHandler = {
     return <IResponse>{ id, ver, ts: Date.now(), params, responseCode, result }
   },
 
-  errorResponse: (error: extendedErrorRequestHandler, req: Request, res: Response) => {
+  errorResponse: (error: Record<string, any>, req: Request, res: Response) => {
     const { statusCode, message, errCode } = error;
     const { id, entity } = req as any;
     entity && onFailure(req)
