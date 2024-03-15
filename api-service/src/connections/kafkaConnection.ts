@@ -1,9 +1,6 @@
 import { Kafka } from "kafkajs";
 import { connectionConfig } from '../configs/ConnectionsConfig'
 import logger from "../logger";
-import * as _ from "lodash";
-import { config } from "../configs/Config";
-import { v4 } from "uuid";
 
 const kafka = new Kafka(connectionConfig.kafka.config);
 const producer = kafka.producer();
