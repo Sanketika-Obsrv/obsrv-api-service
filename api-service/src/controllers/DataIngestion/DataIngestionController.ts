@@ -32,7 +32,6 @@ const dataIn = async (req: Request, res: Response) => {
         const datasetId = req.params.datasetId.trim();
         const isValidSchema = schemaValidation(req.body, validationSchema)
         if (!isValidSchema?.isValid) {
-            logger.error(isValidSchema?.message);
             return ResponseHandler.errorResponse({ message: isValidSchema?.message, statusCode: 400, errCode: "BAD_REQUEST" }, req, res);
         }
         const dataset = await getDataset(datasetId)
