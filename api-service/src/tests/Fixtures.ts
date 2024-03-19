@@ -141,15 +141,6 @@ export const DATASET_REQUEST_WITH_DUPLICATE_DENORM_KEY = {
   "dataset_id": "sb-ddd",
   "type": "dataset",
   "name": "sb-telemetry2",
-  "validation_config": {
-    "validate": true,
-    "mode": "Strict"
-  },
-  "dedup_config": {
-    "drop_duplicates": true,
-    "dedup_key": "mid",
-    "dedup_period": 1036800
-  },
   "data_schema": {
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
@@ -177,14 +168,7 @@ export const DATASET_REQUEST_WITH_DUPLICATE_DENORM_KEY = {
         "denorm_out_field": "userdata"
       }
     ]
-  },
-  "dataset_config": {
-    "data_key": "",
-    "timestamp_key": "ets"
-  },
-  "created_by": "SYSTEM",
-  "updated_by": "SYSTEM",
-  "tags": []
+  }
 }
 
 export const DATASET_REQUEST_WITH_NO_DENORM_CONFIG = {
@@ -192,15 +176,6 @@ export const DATASET_REQUEST_WITH_NO_DENORM_CONFIG = {
   "dataset_id": "sb-ddd",
   "type": "dataset",
   "name": "sb-telemetry2",
-  "validation_config": {
-    "validate": true,
-    "mode": "Strict"
-  },
-  "dedup_config": {
-    "drop_duplicates": true,
-    "dedup_key": "mid",
-    "dedup_period": 1036800
-  },
   "data_schema": {
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
@@ -216,14 +191,7 @@ export const DATASET_REQUEST_WITH_NO_DENORM_CONFIG = {
       ]
     },
     "additionalProperties": true
-  },
-  "dataset_config": {
-    "data_key": "",
-    "timestamp_key": "ets"
-  },
-  "created_by": "SYSTEM",
-  "updated_by": "SYSTEM",
-  "tags": []
+  }
 }
 
 class TestDataIngestion {
