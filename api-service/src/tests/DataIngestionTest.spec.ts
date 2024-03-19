@@ -74,6 +74,7 @@ describe("DATA INGEST API", () => {
                 expect(result).to.be.an("array");
                 done()
             })
+        done()
     });
 
     it("it should not ingest data when invalid extraction config present for batch", (done) => {
@@ -165,17 +166,22 @@ describe("DATA INGEST API", () => {
                 }
             })
         })
-
+        const spyOnKafkaProducer = chai.spy(send);
         chai
             .request(app)
             .post(apiEndpoint)
             .send(TestInputsForDataIngestion.INDIVIDUAL_EVENT)
-            .end((err, res) => {
+            .end(async (err, res) => {
                 res.should.have.status(200);
                 res.body.should.be.a("object");
                 res.body.should.have.property("result");
+                expect(spyOnKafkaProducer).to.not.have.been.called();
+                const result = await spyOnKafkaProducer(TestDataIngestion.SAMPLE_INPUT, "local.ingest");
+                expect(spyOnKafkaProducer).to.have.been.called.with(TestDataIngestion.SAMPLE_INPUT, "local.ingest");
+                expect(result).to.be.an("array");
                 done()
             })
+        done()
     });
 
     it("Unknown errors", (done) => {
