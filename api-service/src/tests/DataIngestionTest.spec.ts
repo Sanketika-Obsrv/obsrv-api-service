@@ -64,20 +64,15 @@ describe("DATA INGEST API", () => {
             .post(apiEndpoint)
             .send(TestInputsForDataIngestion.SAMPLE_INPUT)
             .end(async (err, res) => {
-                try {
-                    res.should.have.status(200);
-                    res.body.should.be.a("object");
-                    res.body.responseCode.should.be.eq("OK");
-                    res.body.should.have.property("result");
-                    expect(spyOnKafkaProducer).to.not.have.been.called();
-                    const result = await spyOnKafkaProducer(TestDataIngestion.SAMPLE_INPUT, "local.ingest");
-                    expect(spyOnKafkaProducer).to.have.been.called.with(TestDataIngestion.SAMPLE_INPUT, "local.ingest");
-                    expect(result).to.be.an("array");
-                    done()
-                }
-                catch (err) {
-                    done(err)
-                }
+                res.should.have.status(200);
+                res.body.should.be.a("object");
+                res.body.responseCode.should.be.eq("OK");
+                res.body.should.have.property("result");
+                expect(spyOnKafkaProducer).to.not.have.been.called();
+                const result = await spyOnKafkaProducer(TestDataIngestion.SAMPLE_INPUT, "local.ingest");
+                expect(spyOnKafkaProducer).to.have.been.called.with(TestDataIngestion.SAMPLE_INPUT, "local.ingest");
+                expect(result).to.be.an("array");
+                done()
             })
     });
 
