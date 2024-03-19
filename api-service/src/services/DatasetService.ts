@@ -1,5 +1,15 @@
+import { Dataset } from "../models/Dataset";
 import _ from "lodash";
 import { DatasetDraft } from "../models/DatasetDraft";
+
+export const getDataset = async (datasetId: string): Promise<any> => {
+    const dataset = await Dataset.findOne({
+        where: {
+            id: datasetId,
+        },
+    });
+    return dataset
+}
 
 export const getDuplicateDenormKey = (denormConfig: Record<string, any>): Array<string> => {
     if (denormConfig && _.isArray(_.get(denormConfig, 'denorm_fields'))) {

@@ -1,0 +1,24 @@
+{
+    "type": "object",
+    "required":["data"],
+    "properties": {
+      "data": {
+        "type": "object",
+        "oneOf": [
+          {
+            "type": "object",
+            "minProperties": 2,
+            "maxProperties": 2
+          },
+          {
+            "required": ["event"],
+            "properties": {
+              "event": {
+                "type": "object"
+              }
+            }
+          }
+        ]
+      }
+    }
+  }
