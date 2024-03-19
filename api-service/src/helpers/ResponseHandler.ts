@@ -22,7 +22,7 @@ const ResponseHandler = {
     const { statusCode, message, errCode } = error;
     const { id, entity } = req as any;
     entity && onFailure(req)
-    res.status(statusCode || httpStatus.INTERNAL_SERVER_ERROR).json(ResponseHandler.refactorResponse({ id: id, params: { status: httpStatus["500"], errmsg: message, }, responseCode: errCode || httpStatus["500_NAME"] }));
+    res.status(statusCode || httpStatus.INTERNAL_SERVER_ERROR).json(ResponseHandler.refactorResponse({ id: id, params: { status: statusCode || httpStatus["500"], errmsg: message, }, responseCode: errCode || httpStatus["500_NAME"] }));
   },
 
   setApiId: (id: string) => (req: Request, res: Response, next: NextFunction) => {
