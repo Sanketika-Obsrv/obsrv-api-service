@@ -261,7 +261,6 @@ describe("DATA INGEST API", () => {
             .post(apiEndpoint)
             .send(TestInputsForDataIngestion.SAMPLE_INPUT)
             .end((err, res) => {
-                console.log({ res })
                 res.should.have.status(500);
                 res.body.should.be.a("object")
                 res.body.id.should.be.eq("api.data.in");
