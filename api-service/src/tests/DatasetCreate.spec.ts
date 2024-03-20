@@ -30,6 +30,7 @@ describe("Dataset create API", () => {
             chai.spy.on(DatasetDraft, "create", () => {
                 return Promise.resolve({ dataValues: { id: "" } })
             })
+            
             chai
                 .request(app)
                 .post("/v1/datasets/create")
@@ -65,7 +66,7 @@ describe("Dataset create API", () => {
         });
     }
 
-    it("Dataset creation failed due to request body schema validation failure", (done) => {
+    it("Dataset creation failure: Invalid request payload provided", (done) => {
         chai
             .request(app)
             .post("/v1/datasets/create")
@@ -79,7 +80,7 @@ describe("Dataset create API", () => {
             });
     });
 
-    it("Dataset creation failed as the dataset with given dataset_id already exists", (done) => {
+    it("Dataset creation failure: Dataset with given dataset_id already exists", (done) => {
         chai.spy.on(DatasetDraft, "findOne", () => {
             return Promise.resolve({ datavalues: [] })
         })
@@ -92,12 +93,12 @@ describe("Dataset create API", () => {
                 res.body.should.be.a("object")
                 res.body.id.should.be.eq("api");
                 res.body.params.status.should.be.eq("FAILED")
-                res.body.params.errmsg.should.be.eq("Dataset Already exists")
+                res.body.params.errmsg.should.be.eq("Dataset already exists")
                 done();
             });
     });
 
-    it("Dataset creation failed due to database connection failure", (done) => {
+    it("Dataset creation failure: Connection to the database failed", (done) => {
         chai.spy.on(DatasetDraft, "findOne", () => {
             return Promise.reject({})
         })

@@ -329,13 +329,13 @@ export const DATASET_CREATE_SUCCESS_FIXTURES = [
 
 export const DATASET_FAILURE_DUPLICATE_DENORM_FIXTURES = [
   {
-    "title": "Dataset creation failed as the dataset contained duplicate denorm out field",
+    "title": "Dataset creation failure: Dataset contains duplicate denorm out field",
     "requestPayload": DATASET_WITH_DUPLICATE_DENORM_KEY,
     "httpStatus": httpStatus.BAD_REQUEST,
     "status": "FAILED"
   },
   {
-    "title": "Master Dataset creation failed as the dataset contained duplicate denorm out field",
+    "title": "Master Dataset creation failure: Dataset contains duplicate denorm out field",
     "requestPayload": { ...DATASET_WITH_DUPLICATE_DENORM_KEY, type: "master-dataset" },
     "httpStatus": httpStatus.BAD_REQUEST,
     "status": "FAILED"

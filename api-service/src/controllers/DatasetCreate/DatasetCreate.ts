@@ -28,9 +28,19 @@ const datasetCreate = async (req: Request, res: Response) => {
         const isDataSetExists = await checkDatasetExists(_.get(req, ["body", "dataset_id"]));
         if (isDataSetExists) {
             return ResponseHandler.errorResponse({
-                message: "Dataset Already exists",
+                message: "Dataset already exists",
                 statusCode: 409,
                 errCode: "CONFLICT"
+            } as ErrorObject, req, res);
+        }
+
+        const duplicateDenormKeys = getDuplicateDenormKey(_.get(datasetBody, "denorm_config"))
+        if (!_.isEmpty(duplicateDenormKeys)) {
+            logger.error(`Duplicate denorm output fields found. Duplicate Denorm out fields are [${duplicateDenormKeys}]`)
+            return ResponseHandler.errorResponse({
+                statusCode: 400,
+                message: "Duplicate denorm output fields found",
+                errCode: "BAD_REQUEST"
             } as ErrorObject, req, res);
         }
 
@@ -63,15 +73,6 @@ const mergeDatasetConfigs = (defaultConfig: Record<string, any>, requestPayload:
 }
 
 const getDatasetDefaults = async (payload: Record<string, any>): Promise<Record<string, any>> => {
-    const duplicateDenormKeys = getDuplicateDenormKey(_.get(payload, "denorm_config"))
-    if (!_.isEmpty(duplicateDenormKeys)) {
-        logger.error(`Duplicate denorm output fields found. Duplicate Denorm out fields are [${duplicateDenormKeys}]`)
-        throw {
-            statusCode: 400,
-            message: "Duplicate denorm output fields found",
-            errCode: "BAD_REQUEST"
-        } as ErrorObject
-    }
     const datasetPayload = mergeDatasetConfigs(defaultDatasetConfig, payload)
     return datasetPayload
 }
@@ -84,15 +85,6 @@ const setRedisDBConfig = async (datasetConfig: Record<string, any>): Promise<Rec
 }
 
 const getMasterDatasetDefaults = async (payload: Record<string, any>): Promise<Record<string, any>> => {
-    const duplicateDenormKeys = getDuplicateDenormKey(_.get(payload, "denorm_config"))
-    if (!_.isEmpty(duplicateDenormKeys)) {
-        logger.error(`Duplicate denorm output fields found. Duplicate Denorm out fields are [${duplicateDenormKeys}]`)
-        throw {
-            statusCode: 400,
-            message: "Duplicate denorm output fields found",
-            errCode: "BAD_REQUEST"
-        } as ErrorObject
-    }
     const masterDatasetPayload = mergeDatasetConfigs(defaultMasterConfig, payload)
     let datasetConfig = masterDatasetPayload.dataset_config
     datasetConfig = await setRedisDBConfig(datasetConfig);
@@ -100,15 +92,10 @@ const getMasterDatasetDefaults = async (payload: Record<string, any>): Promise<R
 }
 
 const getDefaultHandler = (datasetType: string) => {
-    switch (datasetType) {
-        case DatasetType.Dataset: {
-            return getDatasetDefaults;
-        }
-        case DatasetType.MasterDataset: {
-            return getMasterDatasetDefaults;
-        }
-        default:
-            return () => { };
+    if (datasetType == DatasetType.Dataset) {
+        return getDatasetDefaults;
+    } else {
+        return getMasterDatasetDefaults;
     }
 }
 
