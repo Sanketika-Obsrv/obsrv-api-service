@@ -176,7 +176,7 @@ describe("DATA INGEST API", () => {
                 }
             })
         })
-        let connectionStub = sinon.stub(producer, "connect").rejects({})
+        let connectionStub = sinon.stub(producer, "connect").rejects()
         chai
             .request(app)
             .post(apiEndpoint)
