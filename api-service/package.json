@@ -29,6 +29,7 @@
     "pg-hstore": "^2.3.4",
     "prom-client": "^14.2.0",
     "sequelize": "^6.37.1",
+    "sinon": "^17.0.1",
     "uuid": "3.1.0",
     "winston": "^3.12.0",
     "winston-daily-rotate-file": "~3.2.1"
@@ -52,6 +53,7 @@
     "@types/moment": "^2.13.0",
     "@types/node": "^18.11.9",
     "@types/pg": "^8.6.6",
+    "@types/sinon": "^17.0.3",
     "@types/uuid": "^9.0.1",
     "@typescript-eslint/eslint-plugin": "^7.1.1",
     "@typescript-eslint/parser": "^7.1.1",
