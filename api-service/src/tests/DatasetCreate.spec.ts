@@ -74,7 +74,7 @@ describe("Dataset create API", () => {
                 res.should.have.status(httpStatus.BAD_REQUEST);
                 res.body.should.be.a("object")
                 res.body.id.should.be.eq("api");
-                res.body.params.status.should.be.eq(400)
+                res.body.params.status.should.be.eq("FAILED")
                 done();
             });
     });
@@ -91,7 +91,7 @@ describe("Dataset create API", () => {
                 res.should.have.status(httpStatus.CONFLICT);
                 res.body.should.be.a("object")
                 res.body.id.should.be.eq("api");
-                res.body.params.status.should.be.eq(409)
+                res.body.params.status.should.be.eq("FAILED")
                 res.body.params.errmsg.should.be.eq("Dataset Already exists")
                 done();
             });
@@ -109,7 +109,7 @@ describe("Dataset create API", () => {
                 res.should.have.status(httpStatus.INTERNAL_SERVER_ERROR);
                 res.body.should.be.a("object")
                 res.body.id.should.be.eq("api");
-                res.body.params.status.should.be.eq("Internal Server Error")
+                res.body.params.status.should.be.eq("FAILED")
                 done();
             });
     });

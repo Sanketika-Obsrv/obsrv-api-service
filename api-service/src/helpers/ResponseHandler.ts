@@ -14,7 +14,7 @@ const ResponseHandler = {
     next({ statusCode: httpStatus.NOT_FOUND, message: httpStatus["404"], errCode: httpStatus["404_NAME"] });
   },
 
-  refactorResponse: ({ id = "api", ver = "v1", params = { status: httpStatus["200_NAME"], errmsg: "" }, responseCode = httpStatus["200_NAME"], result = {} }): IResponse => {
+  refactorResponse: ({ id = "api", ver = "v1", params = { status: "SUCCESS", errmsg: "" }, responseCode = httpStatus["200_NAME"], result = {} }): IResponse => {
     return <IResponse>{ id, ver, ts: Date.now(), params, responseCode, result }
   },
 
@@ -22,7 +22,7 @@ const ResponseHandler = {
     const { statusCode, message, errCode } = error;
     const { id, entity } = req as any;
     entity && onFailure(req)
-    res.status(statusCode || httpStatus.INTERNAL_SERVER_ERROR).json(ResponseHandler.refactorResponse({ id: id, params: { status: statusCode || httpStatus["500"], errmsg: message, }, responseCode: errCode || httpStatus["500_NAME"] }));
+    res.status(statusCode || httpStatus.INTERNAL_SERVER_ERROR).json(ResponseHandler.refactorResponse({ id: id, params: { status: "FAILED", errmsg: message, }, responseCode: errCode || httpStatus["500_NAME"] }));
   },
 
   setApiId: (id: string) => (req: Request, res: Response, next: NextFunction) => {
