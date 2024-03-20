@@ -7,23 +7,32 @@ const producer = kafka.producer();
 
 let isConnected = false;
 
-export const connect = async () => {
-  await producer.connect()
-    .then(() => {
-      isConnected = true;
-      logger.info("kafka dispatcher is ready");
-    })
-    .catch((err) => {
-      logger.error("Unable to connect to kafka", err?.message);
-    });
+const connect = async () => {
+  try {
+    await producer.connect();
+    logger.info("kafka dispatcher is ready");
+    isConnected = true;
+    return true;
+  } catch (err: any) {
+    logger.error("Unable to connect to kafka", err?.message);
+    throw err;
+  }
 }
 
-export const send = async (payload: Record<string, any>, topic: string) => {
-  if (!isConnected) {
-    await connect()
+const send = async (payload: Record<string, any>, topic: string) => {
+  try {
+    if (!isConnected) {
+      await connect();
+    }
+    const result = await producer.send({
+      topic: topic,
+      messages: [{ value: JSON.stringify(payload) }]
+    });
+    return result;
+  } catch (error) {
+    logger.error("Error sending message to Kafka:", error);
+    throw error;
   }
-  return producer.send({
-    topic: topic,
-    messages: [{ value: JSON.stringify(payload) }]
-  });
 }
+
+export { connect, send }

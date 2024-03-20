@@ -4,7 +4,7 @@ import validationSchema from "./validationSchema.json";
 import { schemaValidation } from "../../services/ValidationService";
 import { ResponseHandler } from "../../helpers/ResponseHandler";
 import { send } from "../../connections/kafkaConnection";
-import { getDataset } from "../../services/DatasetService";
+import { getDataset, setApiId } from "../../services/DatasetService";
 import logger from "../../logger";
 import { v4 } from "uuid";
 import { config } from "../../configs/Config";
@@ -29,6 +29,7 @@ const errorObject = {
 
 const dataIn = async (req: Request, res: Response) => {
     try {
+        setApiId(req, "api.data.in")
         const datasetId = req.params.datasetId.trim();
         const isValidSchema = schemaValidation(req.body, validationSchema)
         if (!isValidSchema?.isValid) {
@@ -39,7 +40,7 @@ const dataIn = async (req: Request, res: Response) => {
             logger.error(`Dataset with id ${datasetId} not found in live table`)
             return ResponseHandler.errorResponse(errorObject.datasetNotFound, req, res);
         }
-        const validData = validation(req.body?.data, dataset);
+        const validData = validation(req.body, dataset);
         const entryTopic = _.get(dataset, "dataValues.dataset_config.entry_topic")
         if (!entryTopic) {
             logger.error("Entry topic not found")
@@ -54,18 +55,18 @@ const dataIn = async (req: Request, res: Response) => {
     }
 }
 
-export const validation = (data: any, dataset: Record<string, any>) => {
+export const validation = (requestBody: any, dataset: Record<string, any>) => {
+    const data = requestBody?.data;
     const extractionKey = _.get(dataset?.dataValues, "extraction_config.extraction_key");
     const isBatchEvent = _.get(dataset?.dataValues, "extraction_config.is_batch_event");
     const batchIdentifier = _.get(dataset?.dataValues, "extraction_config.batch_id")
 
-    if (!_.isArray(_.get(data, "event"))) {
-        return data;
-    }
     if (isBatchEvent && (_.has(data, extractionKey) && _.has(data, batchIdentifier))) {
         return data;
     }
-    throw errorObject.invalidRequestBody;
+    if (!_.isArray(_.get(data, "event"))) {
+        return data;
+    }
 }
 
 const addMetadataToEvents = (payload: any, datasetId: string) => {
