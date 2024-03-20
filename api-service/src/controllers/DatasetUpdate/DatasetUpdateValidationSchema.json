@@ -1,0 +1,226 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "dataset_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1
+    },
+    "validation_config": {
+      "type": "object",
+      "properties": {
+        "validate": {
+          "type": "boolean"
+        },
+        "mode": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "additionalProperties": false,
+      "required": ["validate"],
+      "if": {
+        "properties": {
+          "validate": {
+            "const": true
+          }
+        }
+      },
+      "then": {
+        "required": ["mode"]
+      }
+    },
+    "extraction_config": {
+      "type": "object",
+      "properties": {
+        "is_batch_event": {
+          "type": "boolean"
+        },
+        "extraction_key": {
+          "type": "string",
+          "minLength": 1
+        },
+        "dedup_config": {
+          "type": "object",
+          "properties": {
+            "drop_duplicates": {
+              "type": "boolean"
+            },
+            "dedup_key": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "required": ["dedup_key"],
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false,
+      "required": ["is_batch_event"],
+      "if": {
+        "properties": {
+          "is_batch_event": {
+            "const": true
+          }
+        }
+      },
+      "then": {
+        "required": ["extraction_key", "dedup_config"]
+      }
+    },
+    "dedup_config": {
+      "type": "object",
+      "properties": {
+        "drop_duplicates": {
+          "type": "boolean"
+        },
+        "dedup_key": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "required": ["drop_duplicates"],
+      "if": {
+        "properties": {
+          "drop_duplicates": {
+            "const": true
+          }
+        }
+      },
+      "then": {
+        "required": ["dedup_key"]
+      }
+    },
+    "data_schema": {
+      "type": "object",
+      "properties": {
+        "$schema": {
+          "type": "string",
+          "minLength": 1
+        },
+        "type": {
+          "type": "string",
+          "minLength": 1
+        },
+        "properties": {
+          "type": "object",
+          "minProperties": 1
+        },
+        "additionalProperties": {
+          "type": "boolean",
+          "default": true
+        }
+      },
+      "required": ["$schema", "type", "properties", "additionalProperties"],
+      "additionalProperties": false
+    },
+    "dataset_config": {
+      "type": "object",
+      "properties": {
+        "data_key": {
+          "type": "string"
+        },
+        "timestamp_key": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "additionalProperties": false
+    },
+    "transformation_config": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "values": {
+            "type": "object",
+            "properties": {
+              "field_key": {
+                "type": "string",
+                "minLength": 1
+              },
+              "transformation_function": {
+                "type": "string",
+                "minLength": 1
+              },
+              "mode": {
+                "type": "string",
+                "minLength": 1
+              },
+              "metadata": {
+                "type": "object"
+              }
+            },
+            "additionalProperties": false,
+            "required": ["field_key"]
+          },
+          "action": {
+            "type": "string",
+            "enum": ["add", "remove", "update"]
+          }
+        },
+        "additionalProperties": false,
+        "required": ["values", "action"]
+      },
+      "tags": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "values": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "action": {
+              "type": "string",
+              "enum": ["add", "remove"]
+            }
+          },
+          "additionalProperties": false,
+          "required": ["values", "action"]
+        }
+      }
+    },
+    "denorm_config": {
+      "type": "object",
+      "properties": {
+        "denorm_fields": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "values": {
+                "type": "object",
+                "properties": {
+                  "denorm_key": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "denorm_out_field": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                },
+                "required": ["denorm_key", "denorm_out_field"]
+              },
+              "action": {
+                "type": "string",
+                "enum": ["add", "remove"]
+              }
+            },
+            "additionalProperties": false,
+            "required": ["values", "action"]
+          }
+        }
+      }
+    },
+    "required": ["dataset_id"]
+  }
+}
