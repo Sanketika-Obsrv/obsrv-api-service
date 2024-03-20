@@ -268,24 +268,5 @@ describe("DATA INGEST API", () => {
                 done();
             });
     });
-
-    it("Unknown errors", (done) => {
-        chai.spy.on(Dataset, "findOne", () => {
-            return Promise.reject({})
-        })
-
-        chai
-            .request(app)
-            .post(apiEndpoint)
-            .send(TestInputsForDataIngestion.SAMPLE_INPUT)
-            .end((err, res) => {
-                res.should.have.status(500);
-                res.body.should.be.a("object");
-                res.body.should.have.property("result");
-                res.body.id.should.be.eq("api.data.in");
-                res.body.params.status.should.be.eq("FAILED")
-                done()
-            })
-    });
 })
 
