@@ -97,7 +97,7 @@ describe("Dataset create API", () => {
             });
     });
 
-    it("Dataset creation failure due to database connection failure", (done) => {
+    it("Dataset creation failed due to database connection failure", (done) => {
         chai.spy.on(DatasetDraft, "findOne", () => {
             return Promise.reject({})
         })

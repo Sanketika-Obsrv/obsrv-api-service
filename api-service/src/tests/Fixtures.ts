@@ -319,6 +319,12 @@ export const DATASET_CREATE_SUCCESS_FIXTURES = [
     "httpStatus": httpStatus.OK,
     "status": "OK"
   },
+  {
+    "title": "Dataset creation success: When id is not present in request payload and is generated using dataset_id",
+    "requestPayload": VALID_MORE_THAN_MINIMAL_DATASET,
+    "httpStatus": httpStatus.OK,
+    "status": "OK"
+  },
 ]
 
 export const DATASET_FAILURE_DUPLICATE_DENORM_FIXTURES = [
