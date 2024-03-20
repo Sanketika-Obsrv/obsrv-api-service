@@ -1,3 +1,4 @@
+import httpStatus from "http-status";
 import { DatasetStatus } from "../types/DatasetModels";
 
 class TestDruidQuery {
@@ -38,6 +39,308 @@ class TestDruidQuery {
   public static INVALID_SQL_QUERY = '{\"context\":{\"dataSource\":\"system-events\",\"granularity\":\"day\"},\"querySql\":{\"query\":\"SELECT *  \"}}';
   public static MISSING_TABLE_NAME = '{\"context\":{\"dataSource\":\"system-events\",\"granularity\":\"day\"},\"querySql\":{\"query\":\"SELECT * FROM  \"}}';
 }
+
+export const VALID_DATASET = {
+  "dataset_id": "sb-ddd",
+  "type": "dataset",
+  "name": "sb-telemetry2",
+  "validation_config": {
+    "validate": true,
+    "mode": "Strict"
+  },
+  "dedup_config": {
+    "drop_duplicates": true,
+    "dedup_key": "mid",
+    "dedup_period": 1036800
+  },
+  "data_schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "eid": {
+        "type": "string"
+      },
+      "ver": {
+        "type": "string"
+      },
+      "required": [
+        "eid"
+      ]
+    },
+    "additionalProperties": true
+  },
+  "denorm_config": {
+    "denorm_fields": [
+      {
+        "denorm_key": "actor.id",
+        "denorm_out_field": "userdata"
+      }
+    ]
+  },
+  "dataset_config": {
+    "data_key": "",
+    "timestamp_key": "ets"
+  },
+  "created_by": "SYSTEM",
+  "updated_by": "SYSTEM",
+  "tags": []
+}
+
+export const VALID_MINIMAL_DATASET = {
+  "dataset_id": "sb-ddd",
+  "type": "dataset",
+  "name": "sb-telemetry2",
+  "data_schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "eid": {
+        "type": "string"
+      },
+      "ver": {
+        "type": "string"
+      },
+      "required": [
+        "eid"
+      ]
+    },
+    "additionalProperties": true
+  }
+}
+
+export const VALID_MINIMAL_MASTER_DATASET = {
+  "dataset_id": "sb-ddd",
+  "type": "master-dataset",
+  "name": "sb-telemetry2",
+  "data_schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "eid": {
+        "type": "string"
+      },
+      "ver": {
+        "type": "string"
+      },
+      "required": [
+        "eid"
+      ]
+    },
+    "additionalProperties": true
+  }
+}
+
+export const VALID_MORE_THAN_MINIMAL_DATASET = {
+  "dataset_id": "sb-ddd",
+  "type": "dataset",
+  "name": "sb-telemetry2",
+  "data_schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "eid": {
+        "type": "string"
+      },
+      "ver": {
+        "type": "string"
+      },
+      "required": [
+        "eid"
+      ]
+    },
+    "additionalProperties": true
+  }, "denorm_config": {
+    "denorm_fields": [
+      {
+        "denorm_key": "actor.id",
+        "denorm_out_field": "userdata"
+      }
+    ]
+  },
+  "dataset_config": {
+    "data_key": "",
+    "timestamp_key": "ets"
+  },
+}
+
+export const VALID_MORE_THAN_MINIMAL_MASTER_DATASET = {
+  "dataset_id": "sb-ddd",
+  "type": "master-dataset",
+  "name": "sb-telemetry2",
+  "data_schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "eid": {
+        "type": "string"
+      },
+      "ver": {
+        "type": "string"
+      },
+      "required": [
+        "eid"
+      ]
+    },
+    "additionalProperties": true
+  }, "denorm_config": {
+    "denorm_fields": [
+      {
+        "denorm_key": "actor.id",
+        "denorm_out_field": "userdata"
+      }
+    ]
+  },
+  "dataset_config": {
+    "data_key": "",
+    "timestamp_key": "ets"
+  },
+}
+
+export const VALID_MASTER_DATASET = {
+  "id": "sb-telemetry2",
+  "dataset_id": "sb-ddd",
+  "type": "master-dataset",
+  "name": "sb-telemetry2",
+  "validation_config": {
+    "validate": true,
+    "mode": "Strict"
+  },
+  "dedup_config": {
+    "drop_duplicates": true,
+    "dedup_key": "mid",
+    "dedup_period": 1036800
+  },
+  "data_schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "eid": {
+        "type": "string"
+      },
+      "ver": {
+        "type": "string"
+      },
+      "required": [
+        "eid"
+      ]
+    },
+    "additionalProperties": true
+  },
+  "denorm_config": {
+    "denorm_fields": [
+      {
+        "denorm_key": "actor.id",
+        "denorm_out_field": "userdata"
+      }
+    ]
+  },
+  "dataset_config": {
+    "data_key": "",
+    "timestamp_key": "ets"
+  },
+  "created_by": "SYSTEM",
+  "updated_by": "SYSTEM",
+  "tags": []
+}
+
+export const SCHEMA_VALIDATION_ERROR_DATASET = {
+  "dataset_id": 7
+}
+
+export const DATASET_WITH_DUPLICATE_DENORM_KEY = {
+  "id": "sb-telemetry2",
+  "dataset_id": "sb-ddd",
+  "type": "dataset",
+  "name": "sb-telemetry2",
+  "data_schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "eid": {
+        "type": "string"
+      },
+      "ver": {
+        "type": "string"
+      },
+      "required": [
+        "eid"
+      ]
+    },
+    "additionalProperties": true
+  },
+  "denorm_config": {
+    "denorm_fields": [
+      {
+        "denorm_key": "actor.id",
+        "denorm_out_field": "userdata"
+      },
+      {
+        "denorm_key": "actor.id",
+        "denorm_out_field": "userdata"
+      }
+    ]
+  }
+}
+
+export const DATASET_CREATE_SUCCESS_FIXTURES = [
+  {
+    "title": "Dataset creation success: When all the request payload configs provided",
+    "requestPayload": VALID_DATASET,
+    "httpStatus": httpStatus.OK,
+    "status": "SUCCESS"
+  },
+  {
+    "title": "Master Dataset creation success: When all the request payload configs provided",
+    "requestPayload": VALID_MASTER_DATASET,
+    "httpStatus": httpStatus.OK,
+    "status": "SUCCESS"
+  },
+  {
+    "title": "Dataset creation success: When minimal request payload configs provided",
+    "requestPayload": VALID_MINIMAL_DATASET,
+    "httpStatus": httpStatus.OK,
+    "status": "SUCCESS"
+  },
+  {
+    "title": "Master Dataset creation success: When minimal request paylod configs provided",
+    "requestPayload": VALID_MINIMAL_MASTER_DATASET,
+    "httpStatus": httpStatus.OK,
+    "status": "SUCCESS"
+  },
+  {
+    "title": "Dataset creation success: When more than minimal request payload configs provided",
+    "requestPayload": VALID_MORE_THAN_MINIMAL_DATASET,
+    "httpStatus": httpStatus.OK,
+    "status": "SUCCESS"
+  },
+  {
+    "title": "Master Dataset creation success: When more than minimal request payload configs provided",
+    "requestPayload": VALID_MORE_THAN_MINIMAL_MASTER_DATASET,
+    "httpStatus": httpStatus.OK,
+    "status": "SUCCESS"
+  },
+  {
+    "title": "Dataset creation success: When id is not present in request payload and is generated using dataset_id",
+    "requestPayload": VALID_MORE_THAN_MINIMAL_DATASET,
+    "httpStatus": httpStatus.OK,
+    "status": "SUCCESS"
+  },
+]
+
+export const DATASET_FAILURE_DUPLICATE_DENORM_FIXTURES = [
+  {
+    "title": "Dataset creation failure: Dataset contains duplicate denorm out field",
+    "requestPayload": DATASET_WITH_DUPLICATE_DENORM_KEY,
+    "httpStatus": httpStatus.BAD_REQUEST,
+    "status": "FAILED"
+  },
+  {
+    "title": "Master Dataset creation failure: Dataset contains duplicate denorm out field",
+    "requestPayload": { ...DATASET_WITH_DUPLICATE_DENORM_KEY, type: "master-dataset" },
+    "httpStatus": httpStatus.BAD_REQUEST,
+    "status": "FAILED"
+  }
+]
 
 class TestDataIngestion {
   public static SAMPLE_INDIVIDUAL_EVENT = { "data": { "event": { "context": { "transaction_id": "3d3bac46-d252-4da0-9290-afdd524d0214", "country": "IND", "bpp_id": "becknify.humbhionline.in.mobility.BPP/beckn_open/app1-succinct-in", "city": "std:080", "message_id": "52dcf5a9-8986-47ff-a9d0-f380b23e3dfe", "core_version": "0.9.1", "ttl": "PT1M", "bap_id": "mobilityreferencebap.becknprotocol.io", "domain": "nic2004:60221", "bpp_uri": "https://becknify.humbhionline.in/mobility/beckn_open/app1-succinct-in/bpp", "action": "on_status", "bap_uri": "https://mobilityreferencebap.becknprotocol.io", "timestamp": "2023-02-22T19:06:27.887Z" }, "message": { "order": { "quote": { "breakup": [ { "price": { "currency": "INR", "value": "58.2936244525222" }, "type": "item", "title": "Fare" }, { "price": { "currency": "INR", "value": "10.492852401453995" }, "type": "item", "title": "Tax" } ], "price": { "currency": "INR", "value": "68.7864768539762" } }, "provider": { "locations": [ { "gps": "12.973437,77.608771", "id": "./mobility/ind.blr/17@taxi.becknprotocol.io.provider_location" } ], "id": "./mobility/ind.blr/7@taxi.becknprotocol.io.provider", "descriptor": { "images": [ "https://taxi.becknprotocol.io/companies/view/7" ], "name": "Best Taxies" }, "categories": [ { "id": "./mobility/ind.blr/1@taxi.becknprotocol.io.category", "descriptor": { "name": "Premium Taxi" } } ], "items": [ { "category_id": "./mobility/ind.blr/1@taxi.becknprotocol.io.category", "price": { "currency": "INR", "value": "68.7864768539762" }, "descriptor": { "images": [ "https://taxi.becknprotocol.io/resources/images/car.png" ], "code": "Premium Taxi-FuelType:Diesel,Make:Maruti,NameOfModel:Brezza,VehicleType:Premium Taxi", "name": "Premium Taxi-FuelType:Diesel,Make:Maruti,NameOfModel:Brezza,VehicleType:Premium Taxi" }, "id": "./mobility/ind.blr/17@taxi.becknprotocol.io.item", "fulfillment_id": "./mobility/ind.blr/6285@taxi.becknprotocol.io.fulfillment", "tags": { "NameOfModel": "Brezza", "VehicleType": "Premium Taxi", "Make": "Maruti", "FuelType": "Diesel" } } ] }, "id": "./mobility/ind.blr/6285@taxi.becknprotocol.io.order", "state": "Awaiting Driver acceptance", "fulfillment": { "agent": { "phone": "+919082233441", "name": "Michel MJ" }, "start": { "location": { "gps": "12.973437,77.608771" } }, "end": { "location": { "gps": "12.935193,77.624481" } }, "id": "./mobility/ind.blr/6285@taxi.becknprotocol.io.fulfillment", "vehicle": { "registration": "KA 05 3456" }, "customer": { "person": { "name": "./Rajat/Mr./Rajat/ /Kumar/" }, "contact": { "phone": "+919867654322", "email": "er.rjtkumar@gmail.com" } } }, "items": [ { "category_id": "./mobility/ind.blr/1@taxi.becknprotocol.io.category", "price": { "currency": "INR", "value": "68.7864768539762" }, "descriptor": { "images": [ "https://taxi.becknprotocol.io/resources/images/car.png" ], "code": "Premium Taxi-FuelType:Diesel,Make:Maruti,NameOfModel:Brezza,VehicleType:Premium Taxi", "name": "Premium Taxi-FuelType:Diesel,Make:Maruti,NameOfModel:Brezza,VehicleType:Premium Taxi" }, "id": "./mobility/ind.blr/17@taxi.becknprotocol.io.item", "fulfillment_id": "./mobility/ind.blr/6285@taxi.becknprotocol.io.fulfillment", "tags": { "NameOfModel": "Brezza", "VehicleType": "Premium Taxi", "Make": "Maruti", "FuelType": "Diesel" } } ], "billing": { "address": { "country": "IND", "door": "MBT", "city": "std:080", "area_code": "560078", "name": "RajatKumar", "locality": "", "building": ",A33" }, "phone": "+919867654322", "name": "./Rajat/Mr./Rajat/ /Kumar/", "email": "er.rjtkumar@gmail.com" } } } } }}

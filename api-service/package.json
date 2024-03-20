@@ -4,7 +4,7 @@
   "description": "API service for the obsrv api's",
   "scripts": {
     "start": "ts-node ./src/app.ts",
-    "test": "source .env.test && nyc mocha ./src/tests/*.spec.ts --exit",
+    "test": "nyc mocha ./src/tests/*.spec.ts --exit",
     "actions:test": "nyc mocha ./src/tests/*.spec.ts --exit",
     "build": "tsc -P . --declaration",
     "build-package": "tsc -P . --declaration && node scripts/buildPackage.js",
