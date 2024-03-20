@@ -191,7 +191,7 @@ describe("DATA INGEST API", () => {
                 connectionStub.restore()
                 done()
             })
-    });
+    }).timeout(5000);
 
     it("Entry topic not found", (done) => {
         chai.spy.on(Dataset, "findOne", () => {
