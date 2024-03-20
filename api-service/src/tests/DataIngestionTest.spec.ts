@@ -60,7 +60,7 @@ describe("DATA INGEST API", () => {
                 res.should.have.status(200);
                 res.body.should.be.a("object");
                 res.body.should.have.property("result");
-                res.body.id.should.be.eq("api");
+                res.body.id.should.be.eq("api.data.in");
                 chai.spy.restore(Dataset, "findOne");
                 res.body.result.message.should.be.eq("Data ingested successfully")
                 connectionStub.restore()
@@ -89,7 +89,7 @@ describe("DATA INGEST API", () => {
                 res.should.have.status(200);
                 res.body.should.be.a("object");
                 res.body.should.have.property("result");
-                res.body.id.should.be.eq("api");
+                res.body.id.should.be.eq("api.data.in");
                 res.body.result.message.should.be.eq("Data ingested successfully")
                 connectionStub.restore()
                 sendStub.restore()
@@ -123,7 +123,7 @@ describe("DATA INGEST API", () => {
                 res.should.have.status(400);
                 res.body.should.be.a("object");
                 res.body.should.have.property("result");
-                res.body.id.should.be.eq("api");
+                res.body.id.should.be.eq("api.data.in");
                 res.body.params.status.should.be.eq("FAILED");
                 res.body.responseCode.should.be.eq("BAD_REQUEST");
                 connectionStub.restore()
@@ -157,7 +157,7 @@ describe("DATA INGEST API", () => {
                 res.should.have.status(200);
                 res.body.should.be.a("object");
                 res.body.should.have.property("result");
-                res.body.id.should.be.eq("api");
+                res.body.id.should.be.eq("api.data.in");
                 res.body.params.status.should.be.eq("SUCCESS");
                 res.body.result.message.should.be.eq("Data ingested successfully");
                 connectionStub.restore()
@@ -185,7 +185,7 @@ describe("DATA INGEST API", () => {
                 res.should.have.status(500);
                 res.body.should.be.a("object");
                 res.body.should.have.property("result");
-                res.body.id.should.be.eq("api");
+                res.body.id.should.be.eq("api.data.in");
                 res.body.params.status.should.be.eq("FAILED");
                 res.body.params.errmsg.should.be.eq("Connection error: connect ECONNREFUSED 127.0.0.1:9092")
                 connectionStub.restore()
@@ -210,7 +210,7 @@ describe("DATA INGEST API", () => {
                 res.should.have.status(404);
                 res.body.should.be.a("object");
                 res.body.should.have.property("result");
-                res.body.id.should.be.eq("api");
+                res.body.id.should.be.eq("api.data.in");
                 res.body.params.status.should.be.eq("FAILED")
                 res.body.params.errmsg.should.be.eq("Entry topic is not defined")
                 done()
@@ -226,7 +226,7 @@ describe("DATA INGEST API", () => {
                 res.should.have.status(400);
                 res.body.should.be.a("object");
                 res.body.should.have.property("result");
-                res.body.id.should.be.eq("api");
+                res.body.id.should.be.eq("api.data.in");
                 res.body.params.status.should.be.eq("FAILED")
                 res.body.params.errmsg.should.be.eq("#required should have required property 'data'")
                 done()
@@ -246,7 +246,7 @@ describe("DATA INGEST API", () => {
                 res.should.have.status(404);
                 res.body.should.be.a("object");
                 res.body.should.have.property("result");
-                res.body.id.should.be.eq("api");
+                res.body.id.should.be.eq("api.data.in");
                 res.body.params.status.should.be.eq("FAILED");
                 res.body.params.errmsg.should.be.eq("Dataset with id not found")
                 done()
@@ -262,10 +262,10 @@ describe("DATA INGEST API", () => {
             .post(apiEndpoint)
             .send(TestInputsForDataIngestion.SAMPLE_INPUT)
             .end((err, res) => {
-                console.log({res})
+                console.log({ res })
                 res.should.have.status(500);
                 res.body.should.be.a("object")
-                res.body.id.should.be.eq("api");
+                res.body.id.should.be.eq("api.data.in");
                 res.body.params.status.should.be.eq("FAILED")
                 done();
             });
@@ -284,7 +284,7 @@ describe("DATA INGEST API", () => {
                 res.should.have.status(500);
                 res.body.should.be.a("object");
                 res.body.should.have.property("result");
-                res.body.id.should.be.eq("api");
+                res.body.id.should.be.eq("api.data.in");
                 res.body.params.status.should.be.eq("FAILED")
                 done()
             })
