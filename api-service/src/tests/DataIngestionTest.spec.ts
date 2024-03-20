@@ -6,11 +6,15 @@ import { TestInputsForDataIngestion } from "./Fixtures";
 import { describe, it } from 'mocha';
 import { Dataset } from "../models/Dataset";
 import sinon from "sinon";
-import { producer } from "../connections/kafkaConnection";
+import { Kafka } from "kafkajs";
+import { connectionConfig } from "../configs/ConnectionsConfig";
 
 chai.use(spies);
 chai.should();
 chai.use(chaiHttp);
+
+const kafka = new Kafka(connectionConfig.kafka.config);
+const producer = kafka.producer();
 
 const apiEndpoint = "/v1/data/in/:datasetId"
 const resultResponse = [
@@ -30,6 +34,41 @@ describe("DATA INGEST API", () => {
         chai.spy.restore(Dataset, "findOne");
     });
 
+    it("it should ingest data for individual event", (done) => {
+        chai.spy.on(Dataset, "findOne", () => {
+            return Promise.resolve({
+                dataValues: {
+                    dataset_config: {
+                        entry_topic: 'local.test.topic',
+                    },
+                    extraction_config: {
+                        is_batch_event: false,
+                        extraction_key: "events",
+                        batch_id: "id"
+                    }
+                }
+            })
+        })
+        let connectionStub = sinon.stub(kafkaModule, "connect").returns(true);
+        let sendStub = sinon.stub(kafkaModule, "send").returns(resultResponse);
+
+        chai
+            .request(app)
+            .post(apiEndpoint)
+            .send(TestInputsForDataIngestion.INDIVIDUAL_EVENT)
+            .end((err, res) => {
+                res.should.have.status(200);
+                res.body.should.be.a("object");
+                res.body.should.have.property("result");
+                res.body.id.should.be.eq("api");
+                chai.spy.restore(Dataset, "findOne");
+                res.body.result.message.should.be.eq("Data ingested successfully")
+                connectionStub.restore()
+                sendStub.restore()
+                done()
+            })
+    });
+
     it("it should ingest data successfully", (done) => {
         chai.spy.on(Dataset, "findOne", () => {
             return Promise.resolve({
@@ -40,9 +79,8 @@ describe("DATA INGEST API", () => {
                 }
             })
         })
-        sinon.stub(kafkaModule, "connect").returns(true);
-        sinon.stub(kafkaModule, "send").returns(resultResponse);
-
+        let connectionStub = sinon.stub(kafkaModule, "connect").returns(true);
+        let sendStub = sinon.stub(kafkaModule, "send").returns(resultResponse);
         chai
             .request(app)
             .post(apiEndpoint)
@@ -52,9 +90,10 @@ describe("DATA INGEST API", () => {
                 res.body.should.be.a("object");
                 res.body.should.have.property("result");
                 res.body.id.should.be.eq("api");
+                res.body.result.message.should.be.eq("Data ingested successfully")
+                connectionStub.restore()
+                sendStub.restore()
                 chai.spy.restore(Dataset, "findOne")
-                kafkaModule.connect.restore()
-                kafkaModule.send.restore()
                 done()
             })
     });
@@ -74,8 +113,8 @@ describe("DATA INGEST API", () => {
                 }
             })
         })
-        sinon.stub(producer, "connect").rejects(false);
-        sinon.stub(producer, "send").rejects(true)
+        let connectionStub = sinon.stub(kafkaModule, "connect").rejects(false);
+        let sinonStub = sinon.stub(kafkaModule, "send").rejects(true)
         chai
             .request(app)
             .post(apiEndpoint)
@@ -85,7 +124,44 @@ describe("DATA INGEST API", () => {
                 res.body.should.be.a("object");
                 res.body.should.have.property("result");
                 res.body.id.should.be.eq("api");
-                res.body.params.status.should.be.eq("FAILED")
+                res.body.params.status.should.be.eq("FAILED");
+                res.body.responseCode.should.be.eq("BAD_REQUEST");
+                connectionStub.restore()
+                sinonStub.restore()
+                done()
+            })
+    });
+
+    it("it should ingest data when valid extraction config present for batch", (done) => {
+        chai.spy.on(Dataset, "findOne", () => {
+            return Promise.resolve({
+                dataValues: {
+                    dataset_config: {
+                        entry_topic: 'local.test.topic',
+                    },
+                    extraction_config: {
+                        is_batch_event: true,
+                        extraction_key: "events",
+                        batch_id: "id"
+                    }
+                }
+            })
+        })
+        let connectionStub = sinon.stub(kafkaModule, "connect").resolves(true);
+        let sinonStub = sinon.stub(kafkaModule, "send").resolves(resultResponse)
+        chai
+            .request(app)
+            .post(apiEndpoint)
+            .send(TestInputsForDataIngestion.VALID_CONFIG)
+            .end((err, res) => {
+                res.should.have.status(200);
+                res.body.should.be.a("object");
+                res.body.should.have.property("result");
+                res.body.id.should.be.eq("api");
+                res.body.params.status.should.be.eq("SUCCESS");
+                res.body.result.message.should.be.eq("Data ingested successfully");
+                connectionStub.restore()
+                sinonStub.restore()
                 done()
             })
     });
@@ -100,9 +176,7 @@ describe("DATA INGEST API", () => {
                 }
             })
         })
-
-        sinon.stub(kafkaModule, "connect").returns(false)
-
+        let connectionStub = sinon.stub(producer, "connect").rejects({})
         chai
             .request(app)
             .post(apiEndpoint)
@@ -111,9 +185,10 @@ describe("DATA INGEST API", () => {
                 res.should.have.status(500);
                 res.body.should.be.a("object");
                 res.body.should.have.property("result");
-                kafkaModule.connect.restore();
                 res.body.id.should.be.eq("api");
-                res.body.params.status.should.be.eq("FAILED")
+                res.body.params.status.should.be.eq("FAILED");
+                res.body.params.errmsg.should.be.eq("Connection error: connect ECONNREFUSED 127.0.0.1:9092")
+                connectionStub.restore()
                 done()
             })
     });
@@ -137,6 +212,7 @@ describe("DATA INGEST API", () => {
                 res.body.should.have.property("result");
                 res.body.id.should.be.eq("api");
                 res.body.params.status.should.be.eq("FAILED")
+                res.body.params.errmsg.should.be.eq("Entry topic is not defined")
                 done()
             })
     });
@@ -152,6 +228,7 @@ describe("DATA INGEST API", () => {
                 res.body.should.have.property("result");
                 res.body.id.should.be.eq("api");
                 res.body.params.status.should.be.eq("FAILED")
+                res.body.params.errmsg.should.be.eq("#required should have required property 'data'")
                 done()
             })
     });
@@ -170,7 +247,8 @@ describe("DATA INGEST API", () => {
                 res.body.should.be.a("object");
                 res.body.should.have.property("result");
                 res.body.id.should.be.eq("api");
-                res.body.params.status.should.be.eq("FAILED")
+                res.body.params.status.should.be.eq("FAILED");
+                res.body.params.errmsg.should.be.eq("Dataset with id not found")
                 done()
             })
     });
@@ -191,39 +269,6 @@ describe("DATA INGEST API", () => {
                 res.body.params.status.should.be.eq("FAILED")
                 done();
             });
-    });
-
-    it("it should ingest data for individual event", (done) => {
-        chai.spy.on(Dataset, "findOne", () => {
-            return Promise.resolve({
-                dataValues: {
-                    dataset_config: {
-                        entry_topic: 'local.test.topic',
-                    },
-                    extraction_config: {
-                        is_batch_event: false,
-                        extraction_key: "events",
-                        batch_id: "id"
-                    }
-                }
-            })
-        })
-        sinon.stub(kafkaModule, "connect").returns(true);
-        sinon.stub(kafkaModule, "send").returns(resultResponse);
-        chai
-            .request(app)
-            .post(apiEndpoint)
-            .send(TestInputsForDataIngestion.INDIVIDUAL_EVENT)
-            .end(async (err, res) => {
-                res.should.have.status(200);
-                res.body.should.be.a("object");
-                res.body.should.have.property("result");
-                res.body.id.should.be.eq("api");
-                kafkaModule.connect.restore()
-                kafkaModule.send.restore()
-                chai.spy.restore(Dataset, "findOne");
-            })
-        done()
     });
 
     it("Unknown errors", (done) => {

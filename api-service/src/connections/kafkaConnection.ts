@@ -35,4 +35,4 @@ const send = async (payload: Record<string, any>, topic: string) => {
   }
 }
 
-export { connect, send, producer }
+export { connect, send }
