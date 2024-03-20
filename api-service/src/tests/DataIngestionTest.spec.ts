@@ -175,7 +175,7 @@ describe("DATA INGEST API", () => {
             })
     });
 
-    it("Dataset creation failure due to database connection failure", (done) => {
+    it("Database connection failure", (done) => {
         chai.spy.on(Dataset, "findOne", () => {
             return Promise.reject({})
         })
@@ -184,10 +184,9 @@ describe("DATA INGEST API", () => {
             .post(apiEndpoint)
             .send(TestInputsForDataIngestion.SAMPLE_INPUT)
             .end((err, res) => {
+                console.log({res})
                 res.should.have.status(500);
                 res.body.should.be.a("object")
-                res.body.id.should.be.eq("api");
-                res.body.params.status.should.be.eq("Internal Server Error")
                 res.body.id.should.be.eq("api");
                 res.body.params.status.should.be.eq("FAILED")
                 done();
