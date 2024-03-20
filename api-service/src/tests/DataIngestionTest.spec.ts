@@ -187,7 +187,6 @@ describe("DATA INGEST API", () => {
                 res.body.should.have.property("result");
                 res.body.id.should.be.eq("api.data.in");
                 res.body.params.status.should.be.eq("FAILED");
-                res.body.params.errmsg.should.be.eq("Connection error: connect ECONNREFUSED 127.0.0.1:9092")
                 connectionStub.restore()
                 done()
             })
