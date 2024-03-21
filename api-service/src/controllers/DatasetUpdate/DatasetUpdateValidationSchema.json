@@ -115,7 +115,12 @@
           "default": true
         }
       },
-      "required": ["$schema", "type", "properties", "additionalProperties"],
+      "required": [
+        "$schema",
+        "type",
+        "properties",
+        "additionalProperties"
+      ],
       "additionalProperties": false
     },
     "dataset_config": {
@@ -160,32 +165,62 @@
           },
           "action": {
             "type": "string",
-            "enum": ["add", "remove", "update"]
+            "enum": [
+              "add",
+              "remove",
+              "update"
+            ]
           }
         },
         "additionalProperties": false,
-        "required": ["values", "action"]
-      },
-      "tags": {
-        "type": "array",
-        "items": {
-          "type": "object",
+        "required": [
+          "values",
+          "action"
+        ],
+        "if": {
+          "properties": {
+            "action": {
+              "const": "add"
+            }
+          }
+        },
+        "then": {
           "properties": {
             "values": {
-              "type": "array",
-              "items": {
-                "type": "string",
-                "minLength": 1
-              }
-            },
-            "action": {
-              "type": "string",
-              "enum": ["add", "remove"]
+              "required": [
+                "transformation_function",
+                "mode",
+                "metadata"
+              ]
             }
-          },
-          "additionalProperties": false,
-          "required": ["values", "action"]
+          }
         }
+      }
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "values": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "minItems": 1
+          },
+          "action": {
+            "type": "string",
+            "enum": [
+              "add",
+              "remove"
+            ]
+          }
+        },
+        "required": [
+          "values",
+          "action"
+        ]
       }
     },
     "denorm_config": {
@@ -208,19 +243,41 @@
                     "minLength": 1
                   }
                 },
-                "required": ["denorm_key", "denorm_out_field"]
+                "required": ["denorm_out_field"]
               },
               "action": {
                 "type": "string",
-                "enum": ["add", "remove"]
+                "enum": [
+                  "add",
+                  "remove"
+                ]
               }
             },
             "additionalProperties": false,
-            "required": ["values", "action"]
+            "required": [
+              "values",
+              "action"
+            ],
+            "if": {
+              "properties": {
+                "action": {
+                  "const": "add"
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "values": {
+                  "required": [
+                    "denorm_key"
+                  ]
+                }
+              }
+            }
           }
         }
       }
-    },
-    "required": ["dataset_id"]
-  }
+    }
+  },
+  "required": ["dataset_id"]
 }

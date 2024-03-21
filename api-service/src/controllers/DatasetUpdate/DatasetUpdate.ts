@@ -57,12 +57,13 @@ const checkDatasetExists = async (dataset_id: string): Promise<Record<string, an
 
 const getUpdatedConfigs = (payload: Record<string, any>): Record<string, any> => {
     //update payload based on actions and conditions and return
-    const validationConfigs = _.get(payload, "validation_config") ? setValidationConfigs(payload) : null
-    const extractionConfig = _.get(payload, "extraction_config") ? setExtractionConfigs(payload) : null
-    const dedupConfig = _.get(payload, "dedup_config") ? setDedupConfigs(payload) : null
-    const tags = _.get(payload, "tags") ? getUpdatedTags(payload) : null
-    const denormConfig = _.get(payload, "dedup_config") ? setDenormConfigs(payload) : null
-    return {}
+    const { validation_config, extraction_config, dedup_config, tags, denorm_config } = payload
+    const validationConfigs = validation_config ? setValidationConfigs(validation_config) : null
+    const extractionConfig = extraction_config ? setExtractionConfigs(extraction_config) : null
+    const dedupConfig = dedup_config ? setDedupConfigs(dedup_config) : null
+    const datasetTags = tags ? getUpdatedTags(tags) : null
+    const denormConfig = denorm_config ? setDenormConfigs(denorm_config) : null
+    return { validationConfigs, extractionConfig, dedupConfig, datasetTags, denormConfig }
 }
 
 const setValidationConfigs = (payload: Record<string, any>): Record<string, any> => {
