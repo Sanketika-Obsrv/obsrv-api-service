@@ -11,6 +11,7 @@ import { DatasetDraft } from "../../models/DatasetDraft";
 import logger from "../../logger";
 import { defaultDatasetConfig } from "../../configs/DatasetConfigDefault";
 import { DatasetTransformationsDraft } from "../../models/TransformationDraft";
+import moment from "moment";
 
 const datasetUpdate = async (req: Request, res: Response) => {
     try {
@@ -33,7 +34,7 @@ const datasetUpdate = async (req: Request, res: Response) => {
             } as ErrorObject, req, res);
         }
 
-        const { isDatasetExists, datasetStatus } = await checkDatasetExists(_.get(datasetBody, "dataset_id"));
+        const { isDatasetExists, datasetStatus } = await checkDatasetExists(dataset_id);
         if (!isDatasetExists) {
             return ResponseHandler.errorResponse({
                 message: "Dataset does not exists",
@@ -64,12 +65,22 @@ const datasetUpdate = async (req: Request, res: Response) => {
         const datasetPayload = await mergeExistingDataset(updatedConfigs)
 
         const transformations = _.get(datasetBody, "transformation_config")
-        const transformationConfigs: any = transformations ? await getTransformationConfigs(transformations) : null
+        const transformationConfigs = transformations ? await getTransformationConfigs(transformations, _.get(datasetBody, "dataset_id")) : null
         if (transformationConfigs) {
-            await DatasetTransformationsDraft.bulkCreate(transformationConfigs)
+            const { addTransformation, updateTransformation, deleteTransformation }: any = transformationConfigs || {}
+            if (!_.isEmpty(addTransformation)) {
+                await DatasetTransformationsDraft.bulkCreate(addTransformation)
+            }
+            if (!_.isEmpty(updateTransformation)) {
+                Promise.all(_.map(updateTransformation, async (records) => {
+                    await DatasetTransformationsDraft.update(records, { where: { id: records.id } })
+                }))
+            }
+            if (!_.isEmpty(deleteTransformation)) {
+                await DatasetTransformationsDraft.destroy({ where: { id: deleteTransformation } })
+            }
         }
-
-        await DatasetDraft.update(datasetPayload, { where: { dataset_id } })
+        await DatasetDraft.update(datasetPayload, { where: { dataset_id: datasetPayload.dataset_id } })
         ResponseHandler.successResponse(req, res, { status: httpStatus.OK, data: { message: "Dataset is updated successfully" } });
     } catch (error: any) {
         ResponseHandler.errorResponse(error, req, res);
@@ -88,12 +99,14 @@ const checkDatasetExists = async (dataset_id: string): Promise<Record<string, an
 const getUpdatedConfigs = async (payload: Record<string, any>): Promise<Record<string, any>> => {
     const { validation_config, extraction_config, dedup_config, tags, denorm_config, dataset_id } = payload
     const existingDataset: any = await getDraftDataset(dataset_id)
-    const validationConfigs = validation_config ? setValidationConfigs(validation_config) : null
-    const extractionConfig = extraction_config ? setExtractionConfigs(extraction_config) : null
-    const dedupConfig = dedup_config ? setDedupConfigs(dedup_config) : null
-    const datasetTags = tags ? getUpdatedTags(tags, _.get(existingDataset, "tags")) : null
-    const denormConfig = denorm_config ? setDenormConfigs(denorm_config, _.get(existingDataset, ["denorm_config"])) : null
-    return { ...payload, ...(validationConfigs && { validation_config: validationConfigs }), ...(extractionConfig && { extraction_config: extractionConfig }), ...(dedupConfig && { dedup_config: dedupConfig }), ...(datasetTags && { tags: datasetTags }), ...(denormConfig && { denorm_config: denormConfig }) }
+    const updatedConfigs = {
+        validation_config: validation_config ? setValidationConfigs(validation_config) : null,
+        extraction_config: extraction_config ? setExtractionConfigs(extraction_config) : null,
+        dedup_config: dedup_config ? setDedupConfigs(dedup_config) : null,
+        tags: tags ? getUpdatedTags(tags, _.get(existingDataset, "tags")) : null,
+        denorm_config: denorm_config ? setDenormConfigs(denorm_config, _.get(existingDataset, ["denorm_config"])) : null
+    }
+    return _.pickBy({ ...payload, ...updatedConfigs }, _.identity)
 }
 
 const getDuplicateDenormKey = (denormConfig: Record<string, any>): Array<string> => {
@@ -131,29 +144,39 @@ const setDedupConfigs = (configs: Record<string, any>): Record<string, any> => {
 }
 
 const getUpdatedTags = (payload: Record<string, any>, datasetTags: Array<string>): Record<string, any> => {
-    const updatedTags = _.flatten(_.map(payload, tagField => {
+    let existingTags = datasetTags;
+    _.map(payload, tagField => {
         const { values, action } = tagField
+        const checkTagExist = _.intersection(datasetTags, values)
         if (action == "remove") {
-            const checkTagExist = _.intersection(datasetTags, values)
             if (_.size(checkTagExist) !== _.size(values)) {
-                throw { message: "Tags does not exist" }
+                throw {
+                    message: "Dataset tags do not exist to remove",
+                    statusCode: 404,
+                    errCode: "NOT_FOUND"
+                } as ErrorObject
             }
-            return _.difference(datasetTags, values) || []
+            existingTags = _.difference(existingTags, values) || []
         } else if (action == "add") {
-            const checkTagExist = _.intersection(datasetTags, values)
             if (_.size(checkTagExist)) {
-                throw { message: "Tags exists" }
+                throw {
+                    message: "Dataset tags already exist",
+                    statusCode: 400,
+                    errCode: "BAD_REQUEST"
+                } as ErrorObject
             }
-            return _.concat(datasetTags, values)
+            existingTags = _.concat(existingTags, values)
         }
-    }))
-    return _.flatten(_.uniq(updatedTags))
+    })
+    return _.flatten(existingTags)
 }
 
-const getTransformationConfigs = async (payload: Record<string, any>): Promise<Record<string, any>> => {
-    const { dataset_id } = payload;
+const getTransformationConfigs = async (payload: Record<string, any>, dataset_id: string): Promise<Record<string, any>> => {
     const datasetTransformations: any = await getDraftTransformations(dataset_id)
-    let transformations = datasetTransformations
+    const transformations = datasetTransformations
+    let addTransformation: Record<string, any> = []
+    let updateTransformation: Record<string, any> = []
+    let deleteTransformation: Array<string> = []
     const existingTransformations = _.map(transformations, config => config.field_key)
     _.map(payload, fields => {
         const { values, action } = fields
@@ -161,25 +184,37 @@ const getTransformationConfigs = async (payload: Record<string, any>): Promise<R
         const checkTransformationExists = _.includes(existingTransformations, fieldKey)
         if (action == "remove") {
             if (!checkTransformationExists) {
-                throw { message: "transformation not exists" }
+                throw {
+                    message: "Requested transformations do not exist to remove",
+                    statusCode: 404,
+                    errCode: "NOT_FOUND"
+                } as ErrorObject
             }
-            transformations = _.filter(transformations, fields => fields.field_key != fieldKey)
+            const deleteFieldKey: string = `${dataset_id}_${fieldKey}`
+            deleteTransformation = _.flatten(_.concat(deleteTransformation, deleteFieldKey))
         } else if (action == "add") {
             if (checkTransformationExists) {
-                throw { message: "transformation exists" }
+                throw {
+                    message: "Transformations already exists",
+                    statusCode: 400,
+                    errCode: "BAD_REQUEST"
+                } as ErrorObject
             }
-            transformations = _.concat(transformations, { ...values, id: `${dataset_id}.${fieldKey}` })
+            addTransformation = _.flatten(_.concat(addTransformation, { ...values, id: `${dataset_id}_${fieldKey}`, dataset_id }))
         } else if (action == "update") {
             if (!checkTransformationExists) {
-                throw { message: "transformation not exists" }
+                throw {
+                    message: "Requested transformations do not exist to update",
+                    statusCode: 404,
+                    errCode: "NOT_FOUND"
+                } as ErrorObject
             }
-            const existingTransformations = _.filter(transformations, field => field.field_key == fieldKey)
-            transformations = _.filter(transformations, field => field.field_key !== fieldKey)
-            const updatedTransformations = _.merge(existingTransformations, values)
-            transformations = _.flatten(_.concat(transformations, updatedTransformations))
+            const existingTransformations = _.filter(transformations, transformationField => transformationField.field_key == fieldKey)
+            const updatedTransformations = _.merge(_.get(existingTransformations, "[0]"), values)
+            updateTransformation = _.flatten(_.concat(updateTransformation, updatedTransformations))
         }
     })
-    return transformations
+    return { addTransformation, deleteTransformation, updateTransformation }
 }
 
 const setDenormConfigs = (payload: Record<string, any>, datasetDenormConfigs: Record<string, any>): Record<string, any> => {
@@ -193,12 +228,20 @@ const setDenormConfigs = (payload: Record<string, any>, datasetDenormConfigs: Re
         const checkDenormExist = _.includes(existingDenormKeys, denormOutField)
         if (action == "remove") {
             if (!checkDenormExist) {
-                throw { message: "denorm not exists" }
+                throw {
+                    message: "Denorm fields do not exist to remove",
+                    statusCode: 404,
+                    errCode: "NOT_FOUND"
+                } as ErrorObject
             }
             denormFields = _.filter(denormFields, fields => fields.denorm_out_field != denormOutField)
         } else if (action == "add") {
             if (checkDenormExist) {
-                throw { message: "denorm exists" }
+                throw {
+                    message: "Denorm fields already exist",
+                    statusCode: 400,
+                    errCode: "BAD_REQUEST"
+                } as ErrorObject
             }
             denormFields = _.concat(denormFields, values)
         }
@@ -208,12 +251,15 @@ const setDenormConfigs = (payload: Record<string, any>, datasetDenormConfigs: Re
 
 const mergeExistingDataset = async (configs: Record<string, any>): Promise<Record<string, any>> => {
     const existingDataset = await getDraftDataset(_.get(configs, "dataset_id"))
-    const mergedData = _.mergeWith(existingDataset, configs, (objValue, srcValue) => {
-        if (_.isArray(objValue) && _.isEmpty(srcValue)) {
+    const mergedData = _.mergeWith(existingDataset, _.omit(configs, ["dataset_id"]), (existingValue, newValue) => {
+        if (_.isArray(existingValue) && _.isEmpty(newValue)) {
             return [];
+        } else if (_.isArray(existingValue) && !_.isEmpty(newValue)) {
+            return newValue
         }
     });
-    return _.omit(mergedData, "transformation_config")
+    const created_date = moment(_.get(mergedData, "created_date")).format()
+    return _.omit({ ...mergedData, created_date }, ["transformation_config", "updated_date"])
 }
 
 export const getDraftTransformations = async (dataset_id: string) => {

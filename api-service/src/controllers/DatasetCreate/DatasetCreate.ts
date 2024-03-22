@@ -15,6 +15,7 @@ import { ErrorObject } from "../../types/ResponseModel";
 const datasetCreate = async (req: Request, res: Response) => {
     try {
         const datasetBody = req.body;
+        const { dataset_id, id } = datasetBody
         const isRequestValid: Record<string, any> = schemaValidation(datasetBody, DatasetCreate)
 
         if (!isRequestValid.isValid) {
@@ -25,7 +26,8 @@ const datasetCreate = async (req: Request, res: Response) => {
             } as ErrorObject, req, res);
         }
 
-        const isDataSetExists = await checkDatasetExists(_.get(req, ["body", "dataset_id"]));
+        const datasetId = id || `${dataset_id}.1`
+        const isDataSetExists = await checkDatasetExists(datasetId);
         if (isDataSetExists) {
             return ResponseHandler.errorResponse({
                 message: "Dataset already exists",
