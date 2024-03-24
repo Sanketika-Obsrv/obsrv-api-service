@@ -64,26 +64,34 @@ const datasetUpdate = async (req: Request, res: Response) => {
         const updatedConfigs = await getUpdatedConfigs(datasetBody);
         const datasetPayload = await mergeExistingDataset(updatedConfigs)
 
-        const transformations = _.get(datasetBody, "transformation_config")
-        const transformationConfigs = transformations ? await getTransformationConfigs(transformations, _.get(datasetBody, "dataset_id")) : null
-        if (transformationConfigs) {
-            const { addTransformation, updateTransformation, deleteTransformation }: any = transformationConfigs || {}
-            if (!_.isEmpty(addTransformation)) {
-                await DatasetTransformationsDraft.bulkCreate(addTransformation)
-            }
-            if (!_.isEmpty(updateTransformation)) {
-                Promise.all(_.map(updateTransformation, async (records) => {
-                    await DatasetTransformationsDraft.update(records, { where: { id: records.id } })
-                }))
-            }
-            if (!_.isEmpty(deleteTransformation)) {
-                await DatasetTransformationsDraft.destroy({ where: { id: deleteTransformation } })
-            }
-        }
-        await DatasetDraft.update(datasetPayload, { where: { dataset_id: datasetPayload.dataset_id } })
+        const transformationConfigs = _.get(datasetBody, "transformation_config")
+        await manageTransformations(transformationConfigs, dataset_id);
+
+        await DatasetDraft.update(datasetPayload, { where: { dataset_id } })
         ResponseHandler.successResponse(req, res, { status: httpStatus.OK, data: { message: "Dataset is updated successfully" } });
     } catch (error: any) {
         ResponseHandler.errorResponse(error, req, res);
+    }
+}
+
+const manageTransformations = async (transformations: Record<string, any>, datasetId: string) => {
+    if (transformations) {
+        const transformationConfigs = await getTransformationConfigs(transformations, datasetId);
+        if (transformationConfigs) {
+            const { addTransformation, updateTransformation, deleteTransformation } = transformationConfigs;
+
+            if (!_.isEmpty(addTransformation)) {
+                await DatasetTransformationsDraft.bulkCreate(addTransformation);
+            }
+
+            if (!_.isEmpty(updateTransformation)) {
+                await Promise.all(updateTransformation.map((record: any) => DatasetTransformationsDraft.update(record, { where: { id: record.id } })));
+            }
+
+            if (!_.isEmpty(deleteTransformation)) {
+                await DatasetTransformationsDraft.destroy({ where: { id: deleteTransformation } });
+            }
+        }
     }
 }
 
@@ -145,6 +153,11 @@ const setDedupConfigs = (configs: Record<string, any>): Record<string, any> => {
 
 const getUpdatedTags = (payload: Record<string, any>, datasetTags: Array<string>): Record<string, any> => {
     let existingTags = datasetTags;
+    const tagList = _.flatten(_.map(payload, fields => {
+        if (fields.action == "add") return fields.values
+    }))
+    const duplicateTags: Array<string> = getDuplicateConfigs(tagList)
+    if (!_.isEmpty(duplicateTags)) logger.info(`Duplicate tags provided by user to add are [${duplicateTags}]`)
     _.map(payload, tagField => {
         const { values, action } = tagField
         const checkTagExist = _.intersection(datasetTags, values)
@@ -168,7 +181,7 @@ const getUpdatedTags = (payload: Record<string, any>, datasetTags: Array<string>
             existingTags = _.concat(existingTags, values)
         }
     })
-    return _.flatten(existingTags)
+    return _.uniq(_.flatten(existingTags))
 }
 
 const getTransformationConfigs = async (payload: Record<string, any>, dataset_id: string): Promise<Record<string, any>> => {
@@ -178,6 +191,11 @@ const getTransformationConfigs = async (payload: Record<string, any>, dataset_id
     let updateTransformation: Record<string, any> = []
     let deleteTransformation: Array<string> = []
     const existingTransformations = _.map(transformations, config => config.field_key)
+    const transformationListToAdd = _.flatten(_.map(payload, fields => {
+        if (fields.action == "add") return fields.values.field_key
+    }))
+    const duplicateTags: Array<string> = getDuplicateConfigs(transformationListToAdd)
+    if (!_.isEmpty(duplicateTags)) logger.info(`Duplicate tags provided by user are [${duplicateTags}]`)
     _.map(payload, fields => {
         const { values, action } = fields
         const fieldKey = _.get(values, "field_key")
@@ -191,7 +209,7 @@ const getTransformationConfigs = async (payload: Record<string, any>, dataset_id
                 } as ErrorObject
             }
             const deleteFieldKey: string = `${dataset_id}_${fieldKey}`
-            deleteTransformation = _.flatten(_.concat(deleteTransformation, deleteFieldKey))
+            deleteTransformation = _.uniq(_.flatten(_.concat(deleteTransformation, deleteFieldKey)))
         } else if (action == "add") {
             if (checkTransformationExists) {
                 throw {
@@ -200,7 +218,10 @@ const getTransformationConfigs = async (payload: Record<string, any>, dataset_id
                     errCode: "BAD_REQUEST"
                 } as ErrorObject
             }
-            addTransformation = _.flatten(_.concat(addTransformation, { ...values, id: `${dataset_id}_${fieldKey}`, dataset_id }))
+            const transformatinExists = _.some(addTransformation, field => field.field_key == fieldKey)
+            if (!transformatinExists) {
+                addTransformation = _.flatten(_.concat(addTransformation, { ...values, id: `${dataset_id}_${fieldKey}`, dataset_id }))
+            }
         } else if (action == "update") {
             if (!checkTransformationExists) {
                 throw {
@@ -264,6 +285,10 @@ const mergeExistingDataset = async (configs: Record<string, any>): Promise<Recor
 
 export const getDraftTransformations = async (dataset_id: string) => {
     return DatasetTransformationsDraft.findAll({ where: { dataset_id }, raw: true });
+}
+
+const getDuplicateConfigs = (configs: Array<string | any>) => {
+    return _.compact(_.filter(configs, (item: string, index: number) => _.indexOf(configs, item) !== index));
 }
 
 export default datasetUpdate;
