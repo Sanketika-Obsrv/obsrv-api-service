@@ -13,9 +13,9 @@ name: "CodeQL"
 
 on:
   push:
-    branches: [ "feature/vuln-scan-config" ]
+    branches: [ "develop", "main" ]
   pull_request:
-    branches: [ "feature/vuln-scan-config" ]
+    branches: [ "develop", "main" ]
   
 
 jobs:
