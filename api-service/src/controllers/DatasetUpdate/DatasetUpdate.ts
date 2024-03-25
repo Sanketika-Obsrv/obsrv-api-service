@@ -218,8 +218,8 @@ const getTransformationConfigs = async (payload: Record<string, any>, dataset_id
                     errCode: "BAD_REQUEST"
                 } as ErrorObject
             }
-            const transformatinExists = _.some(addTransformation, field => field.field_key == fieldKey)
-            if (!transformatinExists) {
+            const transformationExists = _.some(addTransformation, field => field.field_key == fieldKey)
+            if (!transformationExists) {
                 addTransformation = _.flatten(_.concat(addTransformation, { ...values, id: `${dataset_id}_${fieldKey}`, dataset_id }))
             }
         } else if (action == "update") {
