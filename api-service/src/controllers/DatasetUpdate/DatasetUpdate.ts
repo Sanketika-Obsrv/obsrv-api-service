@@ -3,7 +3,6 @@ import { Request, Response } from "express";
 import { ResponseHandler } from "../../helpers/ResponseHandler";
 import { schemaValidation } from "../../services/ValidationService";
 import DatasetUpdate from "./DatasetUpdateValidationSchema.json";
-import { getDraftDataset } from "../../services/DatasetService";
 import _ from "lodash";
 import { DatasetStatus } from "../../types/DatasetModels";
 import { ErrorObject } from "../../types/ResponseModel";
@@ -96,7 +95,7 @@ const manageTransformations = async (transformations: Record<string, any>, datas
 }
 
 const checkDatasetExists = async (dataset_id: string): Promise<Record<string, any>> => {
-    const datasetExists: Record<string, any> | null = await getDraftDataset(dataset_id)
+    const datasetExists: Record<string, any> | null = await getExistingDataset(dataset_id)
     if (datasetExists) {
         return { isDatasetExists: true, datasetStatus: datasetExists.status }
     } else {
@@ -106,7 +105,7 @@ const checkDatasetExists = async (dataset_id: string): Promise<Record<string, an
 
 const getUpdatedConfigs = async (payload: Record<string, any>): Promise<Record<string, any>> => {
     const { validation_config, extraction_config, dedup_config, tags, denorm_config, dataset_id } = payload
-    const existingDataset: any = await getDraftDataset(dataset_id)
+    const existingDataset: any = await getExistingDataset(dataset_id)
     const updatedConfigs = {
         validation_config: validation_config ? setValidationConfigs(validation_config) : null,
         extraction_config: extraction_config ? setExtractionConfigs(extraction_config) : null,
@@ -271,7 +270,7 @@ const setDenormConfigs = (payload: Record<string, any>, datasetDenormConfigs: Re
 }
 
 const mergeExistingDataset = async (configs: Record<string, any>): Promise<Record<string, any>> => {
-    const existingDataset = await getDraftDataset(_.get(configs, "dataset_id"))
+    const existingDataset = await getExistingDataset(_.get(configs, "dataset_id"))
     const mergedData = _.mergeWith(existingDataset, _.omit(configs, ["dataset_id"]), (existingValue, newValue) => {
         if (_.isArray(existingValue) && _.isEmpty(newValue)) {
             return [];
@@ -285,6 +284,10 @@ const mergeExistingDataset = async (configs: Record<string, any>): Promise<Recor
 
 export const getDraftTransformations = async (dataset_id: string) => {
     return DatasetTransformationsDraft.findAll({ where: { dataset_id }, raw: true });
+}
+
+export const getExistingDataset = async (id: string) => {
+    return DatasetDraft.findOne({ where: { id }, raw: true })
 }
 
 const getDuplicateConfigs = (configs: Array<string | any>) => {

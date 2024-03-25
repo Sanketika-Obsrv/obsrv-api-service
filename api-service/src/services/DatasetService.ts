@@ -22,7 +22,7 @@ export const getDuplicateDenormKey = (denormConfig: Record<string, any>): Array<
 }
 
 export const getDraftDataset = async (dataset_id: string) => {
-    return DatasetDraft.findOne({ where: { id: dataset_id }, raw: true });
+    return DatasetDraft.findOne({ where: { dataset_id }, raw: true });
 }
 
 export const setApiId = async (req: any, apiId: string) => {
