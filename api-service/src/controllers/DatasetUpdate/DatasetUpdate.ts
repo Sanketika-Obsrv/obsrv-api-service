@@ -10,7 +10,7 @@ import { DatasetDraft } from "../../models/DatasetDraft";
 import logger from "../../logger";
 import { defaultDatasetConfig } from "../../configs/DatasetConfigDefault";
 import { DatasetTransformationsDraft } from "../../models/TransformationDraft";
-import moment from "moment";
+import { getDraftTransformations } from "../../services/DatasetService";
 
 const datasetUpdate = async (req: Request, res: Response) => {
     try {
@@ -26,8 +26,9 @@ const datasetUpdate = async (req: Request, res: Response) => {
 
         const { dataset_id, ...rest } = datasetBody
         if (_.isEmpty(rest)) {
+            logger.error(`Provide atleast one field in addition to the dataset_id:${dataset_id} to update the dataset`)
             return ResponseHandler.errorResponse({
-                message: "Invalid request body",
+                message: "Provide atleast one field in addition to the dataset_id to update the dataset",
                 statusCode: 400,
                 errCode: "BAD_REQUEST"
             } as ErrorObject, req, res);
@@ -35,18 +36,20 @@ const datasetUpdate = async (req: Request, res: Response) => {
 
         const { isDatasetExists, datasetStatus } = await checkDatasetExists(dataset_id);
         if (!isDatasetExists) {
+            logger.error(`Dataset does not exists with id:${dataset_id}`)
             return ResponseHandler.errorResponse({
-                message: "Dataset does not exists",
+                message: "Dataset does not exists to update",
                 statusCode: 404,
                 errCode: "NOT_FOUND"
             } as ErrorObject, req, res);
         }
 
         if (isDatasetExists && datasetStatus != DatasetStatus.Draft) {
+            logger.error(`Dataset with id:${dataset_id} cannot be updated as it is not in draft state`)
             return ResponseHandler.errorResponse({
-                message: "Given record is not a draft dataset",
-                statusCode: 404,
-                errCode: "NOT_FOUND"
+                message: "Dataset cannot be updated as it is not in draft state",
+                statusCode: 400,
+                errCode: "BAD_REQUEST"
             } as ErrorObject, req, res);
         }
 
@@ -55,20 +58,21 @@ const datasetUpdate = async (req: Request, res: Response) => {
             logger.error(`Duplicate denorm output fields found. Duplicate Denorm out fields are [${duplicateDenormKeys}]`)
             return ResponseHandler.errorResponse({
                 statusCode: 400,
-                message: "Duplicate denorm output fields found",
+                message: `Dataset contains duplicate denorm out keys:[${duplicateDenormKeys}}]`,
                 errCode: "BAD_REQUEST"
             } as ErrorObject, req, res);
         }
 
-        const updatedConfigs = await getUpdatedConfigs(datasetBody);
-        const datasetPayload = await mergeExistingDataset(updatedConfigs)
+        const updatedDatasetConfigs = await getDatasetUpdatedConfigs(datasetBody);
+        const datasetPayload = await mergeExistingDataset(updatedDatasetConfigs)
 
         const transformationConfigs = _.get(datasetBody, "transformation_config")
         await manageTransformations(transformationConfigs, dataset_id);
 
-        await DatasetDraft.update(datasetPayload, { where: { dataset_id } })
-        ResponseHandler.successResponse(req, res, { status: httpStatus.OK, data: { message: "Dataset is updated successfully" } });
+        await DatasetDraft.update(datasetPayload, { where: { id: dataset_id } })
+        ResponseHandler.successResponse(req, res, { status: httpStatus.OK, data: { message: "Dataset is updated successfully", id: dataset_id } });
     } catch (error: any) {
+        logger.error(error)
         ResponseHandler.errorResponse(error, req, res);
     }
 }
@@ -103,7 +107,7 @@ const checkDatasetExists = async (dataset_id: string): Promise<Record<string, an
     }
 }
 
-const getUpdatedConfigs = async (payload: Record<string, any>): Promise<Record<string, any>> => {
+const getDatasetUpdatedConfigs = async (payload: Record<string, any>): Promise<Record<string, any>> => {
     const { validation_config, extraction_config, dedup_config, tags, denorm_config, dataset_id } = payload
     const existingDataset: any = await getExistingDataset(dataset_id)
     const updatedConfigs = {
@@ -150,86 +154,127 @@ const setDedupConfigs = (configs: Record<string, any>): Record<string, any> => {
     return configs
 }
 
-const getUpdatedTags = (payload: Record<string, any>, datasetTags: Array<string>): Record<string, any> => {
-    let existingTags = datasetTags;
-    const tagList = _.flatten(_.map(payload, fields => {
-        if (fields.action == "add") return fields.values
-    }))
-    const duplicateTags: Array<string> = getDuplicateConfigs(tagList)
-    if (!_.isEmpty(duplicateTags)) logger.info(`Duplicate tags provided by user to add are [${duplicateTags}]`)
-    _.map(payload, tagField => {
-        const { values, action } = tagField
-        const checkTagExist = _.intersection(datasetTags, values)
-        if (action == "remove") {
-            if (_.size(checkTagExist) !== _.size(values)) {
-                throw {
-                    message: "Dataset tags do not exist to remove",
-                    statusCode: 404,
-                    errCode: "NOT_FOUND"
-                } as ErrorObject
-            }
-            existingTags = _.difference(existingTags, values) || []
-        } else if (action == "add") {
-            if (_.size(checkTagExist)) {
-                throw {
-                    message: "Dataset tags already exist",
-                    statusCode: 400,
-                    errCode: "BAD_REQUEST"
-                } as ErrorObject
-            }
-            existingTags = _.concat(existingTags, values)
-        }
-    })
-    return _.uniq(_.flatten(existingTags))
+const getUpdatedTags = (newTagsPayload: Record<string, any>, datasetTags: Array<string>): Record<string, any> => {
+
+    const getTagsPayload = (action: string) => {
+        return _.compact(_.flatten(_.map(newTagsPayload, fields => {
+            if (fields.action == action) return _.map(fields.values, value => _.toLower(value))
+        })))
+    }
+    const tagsToAdd = getTagsPayload("add")
+    const tagsToRemove = getTagsPayload("remove")
+
+    const duplicateTagsToAdd: Array<string> = getDuplicateConfigs(tagsToAdd)
+    if (!_.isEmpty(duplicateTagsToAdd)) {
+        logger.info(`Duplicate tags provided by user to add are [${duplicateTagsToAdd}]`)
+    }
+
+    const duplicateTagsToRemove: Array<string> = getDuplicateConfigs(tagsToRemove)
+    if (!_.isEmpty(duplicateTagsToRemove)) {
+        logger.info(`Duplicate tags provided by user to remove are [${duplicateTagsToRemove}]`)
+    }
+
+    const checkTagToAdd = _.intersection(datasetTags, _.uniq(tagsToAdd))
+    if (_.size(checkTagToAdd)) {
+        logger.error(`Dataset tags ${[checkTagToAdd]} already exists`)
+        throw {
+            message: "Dataset tags already exist",
+            statusCode: 400,
+            errCode: "BAD_REQUEST"
+        } as ErrorObject
+    }
+
+    const checkTagToRemove = _.intersection(datasetTags, _.uniq(tagsToRemove))
+    if (_.size(checkTagToRemove) !== _.size(_.uniq(tagsToRemove))) {
+        logger.error(`Dataset tags ${[tagsToRemove]} does not exist to remove`)
+        throw {
+            message: "Dataset tags do not exist to remove",
+            statusCode: 404,
+            errCode: "NOT_FOUND"
+        } as ErrorObject
+    }
+
+    const tagsAfterAddition = _.concat(datasetTags, tagsToAdd)
+    const updatedTags = _.difference(tagsAfterAddition, tagsToRemove)
+    return _.flatten(updatedTags)
 }
 
-const getTransformationConfigs = async (payload: Record<string, any>, dataset_id: string): Promise<Record<string, any>> => {
+const getTransformationConfigs = async (newTransformationPayload: Record<string, any>, dataset_id: string): Promise<Record<string, any>> => {
     const datasetTransformations: any = await getDraftTransformations(dataset_id)
-    const transformations = datasetTransformations
     let addTransformation: Record<string, any> = []
     let updateTransformation: Record<string, any> = []
     let deleteTransformation: Array<string> = []
-    const existingTransformations = _.map(transformations, config => config.field_key)
-    const transformationListToAdd = _.flatten(_.map(payload, fields => {
+
+    const existingTransformationsFields = _.map(datasetTransformations, config => config?.field_key)
+    const transformationFieldKeys = _.flatten(_.map(newTransformationPayload, fields => {
         if (fields.action == "add") return fields.values.field_key
     }))
-    const duplicateTags: Array<string> = getDuplicateConfigs(transformationListToAdd)
-    if (!_.isEmpty(duplicateTags)) logger.info(`Duplicate tags provided by user are [${duplicateTags}]`)
-    _.map(payload, fields => {
+
+    const duplicateFieldKeys: Array<string> = getDuplicateConfigs(transformationFieldKeys)
+    if (!_.isEmpty(duplicateFieldKeys)) {
+        logger.info(`Duplicate transformations provided by user are [${duplicateFieldKeys}]`)
+    }
+
+    const getTransformationPayload = (action: string) => {
+        return _.compact(_.flatten(_.map(newTransformationPayload, payload => {
+            if (payload.action == action) return payload.values
+        })))
+    }
+    const transformationsToAdd = getTransformationPayload("add")
+    const transformationsToUpdate = getTransformationPayload("update")
+    const transformationsToRemove = getTransformationPayload("remove")
+
+    const checkTransformations = (transformationPayload: Record<string, any>) => {
+        return _.intersection(existingTransformationsFields, _.map(transformationPayload, payload => _.get(payload, ["field_key"])))
+    }
+    const checkTransformationToAdd = checkTransformations(transformationsToAdd)
+    const checkTransformationToRemove = checkTransformations(transformationsToRemove)
+    const checkTransformationToUpdate = checkTransformations(transformationsToUpdate)
+
+    if (_.size(checkTransformationToAdd)) {
+        logger.error(`Dataset transformations ${[checkTransformationToAdd]} already exists`)
+        throw {
+            message: "Dataset transformations already exists",
+            statusCode: 400,
+            errCode: "BAD_REQUEST"
+        } as ErrorObject
+    }
+
+    const transformationExistsToUpdate = _.every(transformationsToUpdate, payload => _.includes(checkTransformationToUpdate, payload.field_key))
+    if (!transformationExistsToUpdate) {
+        logger.error(`Dataset transformations ${[transformationsToUpdate]} does not exist to update`)
+        throw {
+            message: "Dataset transformations do not exist to update",
+            statusCode: 404,
+            errCode: "NOT_FOUND"
+        } as ErrorObject
+    }
+
+    const isTransformationExistsToRemove = _.every(transformationsToRemove, payload => _.includes(checkTransformationToRemove, payload.field_key))
+    if (!isTransformationExistsToRemove) {
+        logger.error(`Dataset transformations ${[transformationsToRemove]} does not exist to remove`)
+        throw {
+            message: "Dataset transformations do not exist to remove",
+            statusCode: 404,
+            errCode: "NOT_FOUND"
+        } as ErrorObject
+    }
+
+    _.forEach(newTransformationPayload, fields => {
         const { values, action } = fields
         const fieldKey = _.get(values, "field_key")
-        const checkTransformationExists = _.includes(existingTransformations, fieldKey)
         if (action == "remove") {
-            if (!checkTransformationExists) {
-                throw {
-                    message: "Requested transformations do not exist to remove",
-                    statusCode: 404,
-                    errCode: "NOT_FOUND"
-                } as ErrorObject
-            }
             const deleteFieldKey: string = `${dataset_id}_${fieldKey}`
             deleteTransformation = _.uniq(_.flatten(_.concat(deleteTransformation, deleteFieldKey)))
-        } else if (action == "add") {
-            if (checkTransformationExists) {
-                throw {
-                    message: "Transformations already exists",
-                    statusCode: 400,
-                    errCode: "BAD_REQUEST"
-                } as ErrorObject
-            }
+        }
+        if (action == "add") {
             const transformationExists = _.some(addTransformation, field => field.field_key == fieldKey)
             if (!transformationExists) {
                 addTransformation = _.flatten(_.concat(addTransformation, { ...values, id: `${dataset_id}_${fieldKey}`, dataset_id }))
             }
-        } else if (action == "update") {
-            if (!checkTransformationExists) {
-                throw {
-                    message: "Requested transformations do not exist to update",
-                    statusCode: 404,
-                    errCode: "NOT_FOUND"
-                } as ErrorObject
-            }
-            const existingTransformations = _.filter(transformations, transformationField => transformationField.field_key == fieldKey)
+        }
+        if (action == "update") {
+            const existingTransformations = _.filter(datasetTransformations, transformationField => transformationField.field_key == fieldKey)
             const updatedTransformations = _.merge(_.get(existingTransformations, "[0]"), values)
             updateTransformation = _.flatten(_.concat(updateTransformation, updatedTransformations))
         }
@@ -237,36 +282,53 @@ const getTransformationConfigs = async (payload: Record<string, any>, dataset_id
     return { addTransformation, deleteTransformation, updateTransformation }
 }
 
-const setDenormConfigs = (payload: Record<string, any>, datasetDenormConfigs: Record<string, any>): Record<string, any> => {
-    const datasetDenormFields: Record<string, any> = _.get(datasetDenormConfigs, "denorm_fields")
-    const { denorm_fields } = payload;
-    let denormFields = datasetDenormFields
-    const existingDenormKeys = _.map(denormFields, config => config.denorm_out_field)
-    _.map(denorm_fields, fields => {
-        const { values, action } = fields
-        const denormOutField = _.get(values, "denorm_out_field")
-        const checkDenormExist = _.includes(existingDenormKeys, denormOutField)
-        if (action == "remove") {
-            if (!checkDenormExist) {
-                throw {
-                    message: "Denorm fields do not exist to remove",
-                    statusCode: 404,
-                    errCode: "NOT_FOUND"
-                } as ErrorObject
-            }
-            denormFields = _.filter(denormFields, fields => fields.denorm_out_field != denormOutField)
-        } else if (action == "add") {
-            if (checkDenormExist) {
-                throw {
-                    message: "Denorm fields already exist",
-                    statusCode: 400,
-                    errCode: "BAD_REQUEST"
-                } as ErrorObject
-            }
-            denormFields = _.concat(denormFields, values)
-        }
-    })
-    return { ...datasetDenormConfigs, denorm_fields: denormFields }
+const setDenormConfigs = (newDenormPayload: Record<string, any>, datasetDenormConfigs: Record<string, any>): Record<string, any> => {
+    const datasetDenormFieldsKeys = _.map(_.get(datasetDenormConfigs, "denorm_fields"), fields => fields?.denorm_out_field)
+    const { denorm_fields } = newDenormPayload;
+    const existingDenormFields = _.get(datasetDenormConfigs, "denorm_fields") || []
+
+    const getDenormPayload = (action: string) => {
+        return _.compact(_.flatten(_.map(denorm_fields, payload => {
+            if (payload.action == action) return payload.values
+        })))
+    }
+    const denormsToAdd = getDenormPayload("add")
+    const denormsToRemove = getDenormPayload("remove")
+
+    const denormFieldsToRemove = _.map(denormsToRemove, field => field.denorm_out_field)
+    const duplicateFieldKeys: Array<string> = getDuplicateConfigs(denormFieldsToRemove)
+    if (!_.isEmpty(duplicateFieldKeys)) {
+        logger.info(`Duplicate denorm out fields provided by user are [${duplicateFieldKeys}]`)
+    }
+
+    const checkDenormKeys = (denormKeys: Record<string, any>) => {
+        return _.intersection(datasetDenormFieldsKeys, _.map(denormKeys, payload => _.get(payload, ["denorm_out_field"])))
+    }
+    const checkDenormsToAdd = checkDenormKeys(denormsToAdd)
+    const checkDenormsToRemove = checkDenormKeys(denormsToRemove)
+
+    if (_.size(checkDenormsToAdd)) {
+        logger.error(`Denorm fields [${checkDenormsToAdd}] already exist`)
+        throw {
+            message: "Denorm fields already exist",
+            statusCode: 400,
+            errCode: "BAD_REQUEST"
+        } as ErrorObject
+    }
+
+    const isDenormExists = _.every(denormsToRemove, payload => _.includes(checkDenormsToRemove, payload.denorm_out_field))
+    if (!isDenormExists) {
+        logger.error(`Denorm fields [${denormFieldsToRemove}] do not exist to remove`)
+        throw {
+            message: "Denorm fields do not exist to remove",
+            statusCode: 404,
+            errCode: "NOT_FOUND"
+        } as ErrorObject
+    }
+
+    const denormsFields = _.concat(existingDenormFields, denormsToAdd)
+    const updatedDenormFields = _.filter(denormsFields, fields => !_.includes(checkDenormsToRemove, fields.denorm_out_field))
+    return { ...datasetDenormConfigs, denorm_fields: updatedDenormFields }
 }
 
 const mergeExistingDataset = async (configs: Record<string, any>): Promise<Record<string, any>> => {
@@ -274,16 +336,12 @@ const mergeExistingDataset = async (configs: Record<string, any>): Promise<Recor
     const mergedData = _.mergeWith(existingDataset, _.omit(configs, ["dataset_id"]), (existingValue, newValue) => {
         if (_.isArray(existingValue) && _.isEmpty(newValue)) {
             return [];
-        } else if (_.isArray(existingValue) && !_.isEmpty(newValue)) {
+        }
+        if (_.isArray(existingValue) && !_.isEmpty(newValue)) {
             return newValue
         }
     });
-    const created_date = moment(_.get(mergedData, "created_date")).format()
-    return _.omit({ ...mergedData, created_date }, ["transformation_config", "updated_date"])
-}
-
-export const getDraftTransformations = async (dataset_id: string) => {
-    return DatasetTransformationsDraft.findAll({ where: { dataset_id }, raw: true });
+    return _.omit(mergedData, ["transformation_config", "created_date"])
 }
 
 export const getExistingDataset = async (id: string) => {
