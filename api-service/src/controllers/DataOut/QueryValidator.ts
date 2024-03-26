@@ -24,7 +24,7 @@ export const validateQuery = async (requestPayload: any) => {
 
 const validateNativeQuery = (data: any) => {
     setQueryLimits(data)
-    let dataSourceLimits: any = getDataSourceLimits(getDataSourceFromPayload(data));
+    const dataSourceLimits: any = getDataSourceLimits(getDataSourceFromPayload(data));
     if (!_.isEmpty(dataSourceLimits) && dataSourceLimits !== undefined) {
         const isValidDate = validateQueryRules(data, dataSourceLimits.queryRules[data.query.queryType as keyof IQueryTypeRules])
         return isValidDate
@@ -36,7 +36,7 @@ const validateNativeQuery = (data: any) => {
 
 const validateSqlQuery = (data: any) => {
     setQueryLimits(data);
-    let dataSourceLimits: any = getDataSourceLimits(getDataSourceFromPayload(data));
+    const dataSourceLimits: any = getDataSourceLimits(getDataSourceFromPayload(data));
     if (!_.isEmpty(dataSourceLimits) && dataSourceLimits !== undefined) {
         const isValidDate = validateQueryRules(data, dataSourceLimits.queryRules.scan)
         return isValidDate
@@ -66,14 +66,14 @@ const setQueryLimits = (queryPayload: any) => {
     }
 
     if (_.isString(queryPayload?.query)) {
-        let vocabulary = queryPayload?.query.split(" ");
-        let queryLimitIndex = vocabulary.indexOf("LIMIT");
-        let queryLimit = Number(vocabulary[queryLimitIndex + 1]);
+        const vocabulary = queryPayload?.query.split(" ");
+        const queryLimitIndex = vocabulary.indexOf("LIMIT");
+        const queryLimit = Number(vocabulary[queryLimitIndex + 1]);
         if (isNaN(queryLimit)) {
             const updatedVocabulary = [...vocabulary, "LIMIT", queryRules.common.maxResultRowLimit].join(" ");
             queryPayload.query = updatedVocabulary;
         } else {
-            let newLimit = getLimit(queryLimit, queryRules.common.maxResultRowLimit);
+            const newLimit = getLimit(queryLimit, queryRules.common.maxResultRowLimit);
             vocabulary[queryLimitIndex + 1] = newLimit.toString();
             queryPayload.query = vocabulary.join(" ");
         }
@@ -101,7 +101,7 @@ const getDataSourceFromPayload = (queryPayload: any) => {
 
 const getDataSourceLimits = (datasource: string) => {
     const rules = _.get(queryRules, "rules") || [];
-    for (var index = 0; index < rules.length; index++) {
+    for (let index = 0; index < rules.length; index++) {
         if (rules[index].dataset == datasource) {
             return rules[index];
         }
@@ -133,7 +133,7 @@ const validateDateRange = (fromDate: moment.Moment, toDate: moment.Moment, allow
 
 const validateQueryRules = (queryPayload: any, limits: any) => {
     let fromDate: any, toDate: any;
-    let allowedRange = limits.maxDateRange;
+    const allowedRange = limits.maxDateRange;
     if (queryPayload.query && _.isObject(queryPayload.query)) {
         const dateRange = getIntervals(queryPayload.query);
         const extractedDateRange = Array.isArray(dateRange) ? dateRange[0].split("/") : dateRange.toString().split("/");
@@ -141,9 +141,9 @@ const validateQueryRules = (queryPayload: any, limits: any) => {
         toDate = moment(extractedDateRange[1], momentFormat);
     }
     else {
-        let vocabulary = queryPayload.query.split(" ");
-        let fromDateIndex = vocabulary.indexOf("TIMESTAMP");
-        let toDateIndex = vocabulary.lastIndexOf("TIMESTAMP");
+        const vocabulary = queryPayload.query.split(" ");
+        const fromDateIndex = vocabulary.indexOf("TIMESTAMP");
+        const toDateIndex = vocabulary.lastIndexOf("TIMESTAMP");
         fromDate = moment(vocabulary[fromDateIndex + 1], momentFormat);
         toDate = moment(vocabulary[toDateIndex + 1], momentFormat);
     }
@@ -168,7 +168,7 @@ const getDataSourceRef = async (datasourceName: string, granularity?: string) =>
 }
 
 const validateDatasource = async (datasource: any) => {
-    let existingDatasources = await axios.get(`${config?.query_api?.druid?.host}:${config?.query_api?.druid?.port}${config.query_api.druid.list_datasources_path}`, {})
+    const existingDatasources = await axios.get(`${config?.query_api?.druid?.host}:${config?.query_api?.druid?.port}${config.query_api.druid.list_datasources_path}`, {})
     if (!_.includes(existingDatasources.data, datasource)) {
         return false
     }
@@ -178,7 +178,7 @@ const validateDatasource = async (datasource: any) => {
 const setDatasourceRef = async (dataSourceName: string, payload: any): Promise<any> => {
     try {
         const granularity = _.get(payload, 'context.granularity')
-        let datasourceRef = await getDataSourceRef(dataSourceName, granularity);
+        const datasourceRef = await getDataSourceRef(dataSourceName, granularity);
         if (_.isObject(datasourceRef)) {
             logger.error(`Datasource ${dataSourceName} not present in the datasources live table.`)
             return datasourceRef
