@@ -50,8 +50,7 @@ export const VALID_DATASET = {
   },
   "dedup_config": {
     "drop_duplicates": true,
-    "dedup_key": "mid",
-    "dedup_period": 1036800
+    "dedup_key": "mid"
   },
   "data_schema": {
     "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -81,8 +80,6 @@ export const VALID_DATASET = {
     "data_key": "",
     "timestamp_key": "ets"
   },
-  "created_by": "SYSTEM",
-  "updated_by": "SYSTEM",
   "tags": []
 }
 
@@ -207,8 +204,7 @@ export const VALID_MASTER_DATASET = {
   },
   "dedup_config": {
     "drop_duplicates": true,
-    "dedup_key": "mid",
-    "dedup_period": 1036800
+    "dedup_key": "mid"
   },
   "data_schema": {
     "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -238,8 +234,6 @@ export const VALID_MASTER_DATASET = {
     "data_key": "",
     "timestamp_key": "ets"
   },
-  "created_by": "SYSTEM",
-  "updated_by": "SYSTEM",
   "tags": []
 }
 
