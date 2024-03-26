@@ -32,12 +32,11 @@ export const defaultMasterConfig = {
     "dataset_config": {
         "data_key": "",
         "timestamp_key": "",
-        "exclude_fields": [],
         "entry_topic": config.telemetry_service_config.kafka.topics.createMasterDataset,
         "redis_db_host": config.redis_config.redis_host,
         "redis_db_port": config.redis_config.redis_port,
         "index_data": true,
-        "redis_db": 0
+        "redis_db": 3
     },
     "status": DatasetStatus.Draft,
     "version": 1,
@@ -76,7 +75,6 @@ export const defaultDatasetConfig = {
     "dataset_config": {
         "data_key": "",
         "timestamp_key": "",
-        "exclude_fields": [],
         "entry_topic": config.telemetry_service_config.kafka.topics.createDataset,
         "redis_db_host": config.redis_config.redis_host,
         "redis_db_port": config.redis_config.redis_port,
