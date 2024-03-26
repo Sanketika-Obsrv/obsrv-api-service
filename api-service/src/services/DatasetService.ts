@@ -1,6 +1,7 @@
 import { Dataset } from "../models/Dataset";
 import _ from "lodash";
 import { DatasetDraft } from "../models/DatasetDraft";
+import { DatasetTransformationsDraft } from "../models/TransformationDraft";
 
 export const getDataset = async (datasetId: string): Promise<any> => {
     const dataset = await Dataset.findOne({
@@ -27,4 +28,8 @@ export const getDraftDataset = async (dataset_id: string) => {
 
 export const setApiId = async (req: any, apiId: string) => {
     return _.set(req, "id", apiId)
+}
+
+export const getDraftTransformations = async (dataset_id: string) => {
+    return DatasetTransformationsDraft.findAll({ where: { dataset_id }, raw: true });
 }

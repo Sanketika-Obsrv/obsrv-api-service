@@ -1,6 +1,5 @@
 import { sequelize } from "../connections/databaseConnection";
 import { DataTypes } from 'sequelize';
-import moment from "moment";
 import { DatasetStatus } from "../types/DatasetModels";
 
 export const DatasetDraft = sequelize.define('datasets_draft', {
@@ -81,14 +80,6 @@ export const DatasetDraft = sequelize.define('datasets_draft', {
     allowNull: false,
     defaultValue: "SYSTEM",
   },
-  created_date: {
-    type: DataTypes.STRING,
-    defaultValue: moment().format()
-  },
-  updated_date: {
-    type: DataTypes.STRING,
-    defaultValue: moment().format()
-  },
   published_date: {
     type: DataTypes.STRING,
     allowNull: true
@@ -98,6 +89,8 @@ export const DatasetDraft = sequelize.define('datasets_draft', {
     defaultValue: {}
   }
 }, {
-  tableName: "datasets_draft",
-  timestamps: false
+  timestamps: true,
+  createdAt: 'created_date',
+  updatedAt: 'updated_date',
+  tableName: "datasets_draft"
 });
