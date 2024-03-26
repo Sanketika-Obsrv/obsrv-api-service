@@ -333,7 +333,7 @@ const setDenormConfigs = (newDenormPayload: Record<string, any>, datasetDenormCo
 
 const mergeExistingDataset = async (configs: Record<string, any>): Promise<Record<string, any>> => {
     const existingDataset = await getExistingDataset(_.get(configs, "dataset_id"))
-    const mergedData = _.mergeWith(existingDataset, _.omit(configs, ["dataset_id"]), (existingValue, newValue) => {
+    const mergedData = _.mergeWith(existingDataset, configs, (existingValue, newValue) => {
         if (_.isArray(existingValue) && _.isEmpty(newValue)) {
             return [];
         }
@@ -341,7 +341,7 @@ const mergeExistingDataset = async (configs: Record<string, any>): Promise<Recor
             return newValue
         }
     });
-    return _.omit(mergedData, ["transformation_config", "created_date"])
+    return _.omit(mergedData, ["dataset_id", "transformation_config", "created_date"])
 }
 
 export const getExistingDataset = async (id: string) => {
