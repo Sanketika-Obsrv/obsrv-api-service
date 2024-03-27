@@ -53,7 +53,9 @@
             }
         }
     },
-    "oneOf": [
-        { "required": ["dataset_id", "datasource", "ingestion_spec", "published_date"] }, 
-        { "required": ["dataset_id", "datasource", "lakehouse_spec",  "published_date"] }]
+    "required": [
+        "dataset_id",
+        "datasource",
+        "published_date"
+    ]
  }
