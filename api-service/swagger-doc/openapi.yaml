@@ -321,7 +321,7 @@ components:
           type: string
         ingestion_spec:
           type: object
-        lakehouse_spec:
+        datalake_ingestion_spec:
           type: object
         datasource:
           type: string
@@ -359,7 +359,7 @@ components:
           type: string
         ingestion_spec:
           type: object
-        lakehouse_spec:
+        datalake_ingestion_spec:
           type: object
         datasource:
           type: string
@@ -1092,7 +1092,7 @@ components:
                       expr: $.ver
                       name: ver
               appendToExisting: false
-          lakehouse_spec:
+          datalake_ingestion_spec:
             dataset: sb-telemetry.1_DAY
             schema:
               table: sb-telemetry.1_DAY

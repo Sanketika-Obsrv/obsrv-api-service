@@ -10,7 +10,7 @@
         "ingestion_spec": {
             "type": "object"
         },
-        "lakehouse_spec": {
+        "datalake_ingestion_spec": {
             "type": "object"
         },
         "datasource_ref": {
