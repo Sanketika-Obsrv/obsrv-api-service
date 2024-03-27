@@ -19,73 +19,70 @@ const listDruidDatasources = config?.query_api?.druid?.list_datasources_path;
 const nativeQueryEndpointDruid = config?.query_api?.druid?.native_query_path;
 const sqlQueryEndpoint = config?.query_api?.druid?.sql_query_path;
 
-describe("QUERY API", () => {
+describe("QUERY API TESTS", () => {
 
     afterEach(() => {
         chai.spy.restore(Datasource, "findAll")
     })
 
-    describe("Druid failure scenarios", () => {
-
-        it("it should raise error when native query endpoint is called", (done) => {
-            chai.spy.on(Datasource, "findAll", () => {
-                return Promise.resolve(
-                    [{
-                        dataValues: {
-                            datasource_ref: "telemetry-events.1_rollup_week"
-                        }
-                    }]
-                )
-            })
-            nock(druidHost + ":" + druidPort)
-                .get(listDruidDatasources)
-                .reply(200, ['telemetry-events.1_rollup_week'])
-            nock(druidHost + ":" + druidPort)
-                .post(nativeQueryEndpointDruid)
-                .reply(500)
-            chai
-                .request(app)
-                .post(apiEndpoint)
-                .send(JSON.parse(TestQueries.VALID_QUERY))
-                .end((err, res) => {
-                    res.should.have.status(500);
-                    res.body.params.status.should.be.eq("FAILED");
-                    res.body.params.errmsg.should.be.eq("Unable to process the query.");
-                    res.body.responseCode.should.be.eq(httpStatus["500_NAME"]);
-                    nock.cleanAll();
-                    chai.spy.restore(Datasource, "findAll")
-                    done();
-                });
-        });
-
-        it("should raise error when sql query endpoint is called", (done) => {
-            chai.spy.on(Datasource, "findAll", () => {
-                return Promise.resolve([{
+    it("it should raise error when native query endpoint is called", (done) => {
+        chai.spy.on(Datasource, "findAll", () => {
+            return Promise.resolve(
+                [{
                     dataValues: {
                         datasource_ref: "telemetry-events.1_rollup_week"
                     }
-                }])
-            })
-            nock(druidHost + ":" + druidPort)
-                .get(listDruidDatasources)
-                .reply(200, ["telemetry-events.1_rollup_week"])
-            nock(druidHost + ":" + druidPort)
-                .post(sqlQueryEndpoint)
-                .reply(500)
-            chai
-                .request(app)
-                .post(apiEndpoint)
-                .send(JSON.parse(TestQueries.VALID_SQL_QUERY))
-                .end((err, res) => {
-                    res.should.have.status(500);
-                    res.body.params.status.should.be.eq("FAILED");
-                    res.body.params.errmsg.should.be.eq("Unable to process the query.");
-                    res.body.responseCode.should.be.eq(httpStatus["500_NAME"]);
-                    nock.cleanAll();
-                    chai.spy.restore(Datasource, "findAll")
-                    done();
-                });
-        });
+                }]
+            )
+        })
+        nock(druidHost + ":" + druidPort)
+            .get(listDruidDatasources)
+            .reply(200, ['telemetry-events.1_rollup_week'])
+        nock(druidHost + ":" + druidPort)
+            .post(nativeQueryEndpointDruid)
+            .reply(500)
+        chai
+            .request(app)
+            .post(apiEndpoint)
+            .send(JSON.parse(TestQueries.VALID_QUERY))
+            .end((err, res) => {
+                res.should.have.status(500);
+                res.body.params.status.should.be.eq("FAILED");
+                res.body.params.errmsg.should.be.eq("Unable to process the query.");
+                res.body.responseCode.should.be.eq(httpStatus["500_NAME"]);
+                nock.cleanAll();
+                chai.spy.restore(Datasource, "findAll")
+                done();
+            });
+    });
+
+    it("should raise error when sql query endpoint is called", (done) => {
+        chai.spy.on(Datasource, "findAll", () => {
+            return Promise.resolve([{
+                dataValues: {
+                    datasource_ref: "telemetry-events.1_rollup_week"
+                }
+            }])
+        })
+        nock(druidHost + ":" + druidPort)
+            .get(listDruidDatasources)
+            .reply(200, ["telemetry-events.1_rollup_week"])
+        nock(druidHost + ":" + druidPort)
+            .post(sqlQueryEndpoint)
+            .reply(500)
+        chai
+            .request(app)
+            .post(apiEndpoint)
+            .send(JSON.parse(TestQueries.VALID_SQL_QUERY))
+            .end((err, res) => {
+                res.should.have.status(500);
+                res.body.params.status.should.be.eq("FAILED");
+                res.body.params.errmsg.should.be.eq("Unable to process the query.");
+                res.body.responseCode.should.be.eq(httpStatus["500_NAME"]);
+                nock.cleanAll();
+                chai.spy.restore(Datasource, "findAll")
+                done();
+            });
     });
 
     it("Live datasource record not found!", (done) => {
@@ -107,60 +104,58 @@ describe("QUERY API", () => {
             });
     });
 
-    describe("Successfull druid queries", () => {
-        it("it should fetch information from druid data source", (done) => {
-            chai.spy.on(Datasource, "findAll", () => {
-                return [{ "datasource_ref": "sample_ref" }]
-            })
-            nock(druidHost + ":" + druidPort)
-                .get(listDruidDatasources)
-                .reply(200, ["sample_ref"])
-            nock(druidHost + ":" + druidPort)
-                .post(nativeQueryEndpointDruid)
-                .reply(200, [{ events: [] }]);
-            chai
-                .request(app)
-                .post(apiEndpoint)
-                .send(JSON.parse(TestQueries.VALID_QUERY))
-                .end((err, res) => {
-                    res.should.have.status(httpStatus.OK);
-                    res.body.should.be.a("object");
-                    res.body.responseCode.should.be.eq(httpStatus["200_NAME"]);
-                    res.body.should.have.property("result");
-                    res.body.result.length.should.be.lessThan(101);
-                    res.body.id.should.be.eq("api.data.out");
-                    nock.cleanAll()
-                    chai.spy.restore(Datasource, "findAll")
-                    done();
-                });
-        });
+    it("it should fetch information from druid data source", (done) => {
+        chai.spy.on(Datasource, "findAll", () => {
+            return [{ "datasource_ref": "sample_ref" }]
+        })
+        nock(druidHost + ":" + druidPort)
+            .get(listDruidDatasources)
+            .reply(200, ["sample_ref"])
+        nock(druidHost + ":" + druidPort)
+            .post(nativeQueryEndpointDruid)
+            .reply(200, [{ events: [] }]);
+        chai
+            .request(app)
+            .post(apiEndpoint)
+            .send(JSON.parse(TestQueries.VALID_QUERY))
+            .end((err, res) => {
+                res.should.have.status(httpStatus.OK);
+                res.body.should.be.a("object");
+                res.body.responseCode.should.be.eq(httpStatus["200_NAME"]);
+                res.body.should.have.property("result");
+                res.body.result.length.should.be.lessThan(101);
+                res.body.id.should.be.eq("api.data.out");
+                nock.cleanAll()
+                chai.spy.restore(Datasource, "findAll")
+                done();
+            });
+    });
 
-        it("it should allow druid to query when a valid sql query is given", (done) => {
-            chai.spy.on(Datasource, "findAll", () => {
-                return [{ "datasource_ref": "sample_ref" }]
-            })
-            nock(druidHost + ":" + druidPort)
-                .get(listDruidDatasources)
-                .reply(200, ["sample_ref"])
-            nock(druidHost + ":" + druidPort)
-                .post(sqlQueryEndpoint)
-                .reply(200, [{ events: [] }]);
-            chai
-                .request(app)
-                .post(apiEndpoint)
-                .send(JSON.parse(TestQueries.VALID_SQL_QUERY))
-                .end((err, res) => {
-                    res.should.have.status(httpStatus.OK);
-                    res.body.should.be.a("object");
-                    res.body.responseCode.should.be.eq(httpStatus["200_NAME"]);
-                    res.body.should.have.property("result");
-                    res.body.result.length.should.be.lessThan(101);
-                    res.body.id.should.be.eq("api.data.out");
-                    nock.cleanAll();
-                    chai.spy.restore(Datasource, "findAll");
-                    done();
-                });
-        });
+    it("it should allow druid to query when a valid sql query is given", (done) => {
+        chai.spy.on(Datasource, "findAll", () => {
+            return [{ "datasource_ref": "sample_ref" }]
+        })
+        nock(druidHost + ":" + druidPort)
+            .get(listDruidDatasources)
+            .reply(200, ["sample_ref"])
+        nock(druidHost + ":" + druidPort)
+            .post(sqlQueryEndpoint)
+            .reply(200, [{ events: [] }]);
+        chai
+            .request(app)
+            .post(apiEndpoint)
+            .send(JSON.parse(TestQueries.VALID_SQL_QUERY))
+            .end((err, res) => {
+                res.should.have.status(httpStatus.OK);
+                res.body.should.be.a("object");
+                res.body.responseCode.should.be.eq(httpStatus["200_NAME"]);
+                res.body.should.have.property("result");
+                res.body.result.length.should.be.lessThan(101);
+                res.body.id.should.be.eq("api.data.out");
+                nock.cleanAll();
+                chai.spy.restore(Datasource, "findAll");
+                done();
+            });
     });
 
     it("it should set threshold to default when threshold is not given", (done) => {
@@ -305,7 +300,7 @@ describe("QUERY API", () => {
         chai.spy.on(Datasource, "findAll", () => {
             return Promise.resolve([])
         })
-        
+
         chai
             .request(app)
             .post(apiEndpoint)
