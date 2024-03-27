@@ -1,12 +1,12 @@
-import app from "../app";
+import app from "../../../app";
 import chai from "chai";
 import chaiHttp from "chai-http";
 import spies from "chai-spies";
 import httpStatus from "http-status";
-import { DATASET_WITH_DUPLICATE_DENORM_KEY, SCHEMA_VALIDATION_ERROR_DATASET, DATASET_CREATE_SUCCESS_FIXTURES, DATASET_FAILURE_DUPLICATE_DENORM_FIXTURES } from "./Fixtures";
+import { TestInputsForDatasetUpdate, DATASET_CREATE_SUCCESS_FIXTURES, DATASET_FAILURE_DUPLICATE_DENORM_FIXTURES } from "./Fixtures";
 import { describe, it } from 'mocha';
-import { DatasetDraft } from "../models/DatasetDraft";
-import { sequelize } from "../connections/databaseConnection";
+import { DatasetDraft } from "../../../models/DatasetDraft";
+import { sequelize } from "../../../connections/databaseConnection";
 import _ from "lodash";
 
 chai.use(spies);
@@ -30,7 +30,7 @@ describe("Dataset create API", () => {
             chai.spy.on(DatasetDraft, "create", () => {
                 return Promise.resolve({ dataValues: { id: "" } })
             })
-            
+
             chai
                 .request(app)
                 .post("/v1/datasets/create")
@@ -70,7 +70,7 @@ describe("Dataset create API", () => {
         chai
             .request(app)
             .post("/v1/datasets/create")
-            .send(SCHEMA_VALIDATION_ERROR_DATASET)
+            .send(TestInputsForDatasetUpdate.SCHEMA_VALIDATION_ERROR_DATASET)
             .end((err, res) => {
                 res.should.have.status(httpStatus.BAD_REQUEST);
                 res.body.should.be.a("object")
@@ -87,7 +87,7 @@ describe("Dataset create API", () => {
         chai
             .request(app)
             .post("/v1/datasets/create")
-            .send(DATASET_WITH_DUPLICATE_DENORM_KEY)
+            .send(TestInputsForDatasetUpdate.DATASET_WITH_DUPLICATE_DENORM_KEY)
             .end((err, res) => {
                 res.should.have.status(httpStatus.CONFLICT);
                 res.body.should.be.a("object")
@@ -105,7 +105,7 @@ describe("Dataset create API", () => {
         chai
             .request(app)
             .post("/v1/datasets/create")
-            .send(DATASET_WITH_DUPLICATE_DENORM_KEY)
+            .send(TestInputsForDatasetUpdate.DATASET_WITH_DUPLICATE_DENORM_KEY)
             .end((err, res) => {
                 res.should.have.status(httpStatus.INTERNAL_SERVER_ERROR);
                 res.body.should.be.a("object")
