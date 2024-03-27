@@ -13,12 +13,9 @@ export const validateQuery = async (requestPayload: any) => {
     const query = requestPayload?.query;
     const isValid = (_.isObject(query)) ? validateNativeQuery(requestPayload) : (_.isString(query)) ? validateSqlQuery(requestPayload) : false;
     const datasource = getDataSourceFromPayload(requestPayload);
-    const shouldSkipValidation = _.includes(config.exclude_datasource_validation, datasource);
-
-    if (!shouldSkipValidation) {
+    if (isValid === true) {
         return setDatasourceRef(datasource, requestPayload);
     }
-
     return isValid;
 }
 
@@ -29,9 +26,7 @@ const validateNativeQuery = (data: any) => {
         const isValidDate = validateQueryRules(data, dataSourceLimits.queryRules[data.query.queryType as keyof IQueryTypeRules])
         return isValidDate
     }
-    else {
-        return true;
-    }
+    return true;
 }
 
 const validateSqlQuery = (data: any) => {
@@ -41,9 +36,7 @@ const validateSqlQuery = (data: any) => {
         const isValidDate = validateQueryRules(data, dataSourceLimits.queryRules.scan)
         return isValidDate
     }
-    else {
-        return true;
-    }
+    return true;
 }
 
 const getLimit = (queryLimit: number, maxRowLimit: number) => {
@@ -53,15 +46,21 @@ const getLimit = (queryLimit: number, maxRowLimit: number) => {
 const setQueryLimits = (queryPayload: any) => {
     if (_.isObject(queryPayload?.query)) {
         const threshold = _.get(queryPayload, "query.threshold")
-        if (threshold !== undefined) {
+        if (threshold) {
             const maxThreshold = getLimit(threshold, queryRules.common.maxResultThreshold)
             _.set(queryPayload, "query.threshold", maxThreshold)
         }
+        else {
+            _.set(queryPayload, "query.threshold", queryRules.common.maxResultThreshold)
+        }
 
         const scanLimit = _.get(queryPayload, "query.limit");
-        if (scanLimit !== undefined) {
+        if (scanLimit) {
             const maxSacnLimit = getLimit(scanLimit, queryRules.common.maxResultRowLimit)
             _.set(queryPayload, "query.limit", maxSacnLimit)
+        }
+        else {
+            _.set(queryPayload, "query.threshold", queryRules.common.maxResultRowLimit)
         }
     }
 
@@ -90,12 +89,10 @@ const getDataSourceFromPayload = (queryPayload: any) => {
             dataSource = dataSource.replace(/\\/g, "");
             return dataSource.replace(/"/g, "");
         }
-        return "";
     }
     if (_.isObject(queryPayload.query)) {
-        const dataSourceField: any = queryPayload.query?.dataSource;
-        if (typeof dataSourceField === 'object') { return dataSourceField.name || "" }
-        return dataSourceField || "";
+        const dataSourceField: any = _.get(queryPayload, "query.dataSource", '');
+        return dataSourceField;
     }
 }
 
@@ -170,23 +167,19 @@ const getDataSourceRef = async (datasourceName: string, granularity?: string) =>
 const validateDatasource = async (datasource: any) => {
     const existingDatasources = await axios.get(`${config?.query_api?.druid?.host}:${config?.query_api?.druid?.port}${config.query_api.druid.list_datasources_path}`, {})
     if (!_.includes(existingDatasources.data, datasource)) {
-        return false
+        logger.error(datasource?.message)
+        return datasource
     }
-    return true
 }
 
 const setDatasourceRef = async (dataSourceName: string, payload: any): Promise<any> => {
     try {
         const granularity = _.get(payload, 'context.granularity')
         const datasourceRef = await getDataSourceRef(dataSourceName, granularity);
-        if (_.isObject(datasourceRef)) {
-            logger.error(`Datasource ${dataSourceName} not present in the datasources live table.`)
-            return datasourceRef
-        }
+
         const isDatasourcePresentInDruid = await validateDatasource(datasourceRef);
-        if (isDatasourcePresentInDruid === false) {
-            logger.error(`Datasource ${dataSourceName} not available for querying in druid.`)
-            return { message: `Datasource ${dataSourceName} not available for querying`, statusCode: 404, errCode: "NOT_FOUND" };
+        if (isDatasourcePresentInDruid) {
+            return isDatasourcePresentInDruid
         }
         if (_.isString(payload?.query)) {
             payload.query = payload.query.replace(dataSourceName, datasourceRef)
