@@ -1,5 +1,5 @@
 import app from "../../../app";
-import chai from "chai";
+import chai, { expect } from "chai";
 import chaiHttp from "chai-http";
 import spies from "chai-spies";
 import httpStatus from "http-status";
@@ -13,7 +13,7 @@ chai.use(spies);
 chai.should();
 chai.use(chaiHttp);
 
-describe("Dataset update API", () => {
+describe("DATASET UPDATE API", () => {
 
     afterEach(() => {
         chai.spy.restore();
@@ -21,7 +21,7 @@ describe("Dataset update API", () => {
 
     it("Dataset updation success: When minimal request payload provided", (done) => {
         chai.spy.on(DatasetDraft, "findOne", () => {
-            return Promise.resolve({ id: "", status: "Draft" })
+            return Promise.resolve({ id: "telemetry", status: "Draft" })
         })
         chai.spy.on(DatasetDraft, "update", () => {
             return Promise.resolve({ dataValues: { id: "telemetry", message: "Dataset is updated successfully" } })
@@ -33,7 +33,7 @@ describe("Dataset update API", () => {
             .end((err, res) => {
                 res.should.have.status(httpStatus.OK);
                 res.body.should.be.a("object")
-                res.body.id.should.be.eq("api");
+                res.body.id.should.be.eq("api.dataset.update");
                 res.body.params.status.should.be.eq("SUCCESS")
                 res.body.result.id.should.be.eq("telemetry")
                 res.body.result.message.should.be.eq("Dataset is updated successfully")
@@ -44,7 +44,7 @@ describe("Dataset update API", () => {
     it("Dataset updation success: When full request payload provided", (done) => {
         chai.spy.on(DatasetDraft, "findOne", () => {
             return Promise.resolve({
-                id: "", status: "Draft", tags: ["tag1", "tag2"], denorm_config: {
+                id: "telemetry", status: "Draft", tags: ["tag1", "tag2"], denorm_config: {
                     denorm_fields: [{
                         "denorm_key": "actor.id",
                         "denorm_out_field": "mid"
@@ -74,7 +74,7 @@ describe("Dataset update API", () => {
             .end((err, res) => {
                 res.should.have.status(httpStatus.OK);
                 res.body.should.be.a("object")
-                res.body.id.should.be.eq("api");
+                res.body.id.should.be.eq("api.dataset.update");
                 res.body.params.status.should.be.eq("SUCCESS")
                 res.body.result.id.should.be.eq("telemetry")
                 res.body.result.message.should.be.eq("Dataset is updated successfully")
@@ -90,7 +90,7 @@ describe("Dataset update API", () => {
             .end((err, res) => {
                 res.should.have.status(httpStatus.BAD_REQUEST);
                 res.body.should.be.a("object")
-                res.body.id.should.be.eq("api");
+                res.body.id.should.be.eq("api.dataset.update");
                 res.body.params.status.should.be.eq("FAILED")
                 res.body.params.errmsg.should.be.eq("Provide atleast one field in addition to the dataset_id to update the dataset")
                 done();
@@ -108,7 +108,7 @@ describe("Dataset update API", () => {
             .end((err, res) => {
                 res.should.have.status(httpStatus.NOT_FOUND);
                 res.body.should.be.a("object")
-                res.body.id.should.be.eq("api");
+                res.body.id.should.be.eq("api.dataset.update");
                 res.body.params.status.should.be.eq("FAILED")
                 res.body.params.errmsg.should.be.eq("Dataset does not exists to update")
                 done();
@@ -126,7 +126,7 @@ describe("Dataset update API", () => {
             .end((err, res) => {
                 res.should.have.status(httpStatus.BAD_REQUEST);
                 res.body.should.be.a("object")
-                res.body.id.should.be.eq("api");
+                res.body.id.should.be.eq("api.dataset.update");
                 res.body.params.status.should.be.eq("FAILED")
                 res.body.params.errmsg.should.be.eq("Dataset cannot be updated as it is not in draft state")
                 done();
@@ -144,7 +144,7 @@ describe("Dataset update API", () => {
             .end((err, res) => {
                 res.should.have.status(httpStatus.INTERNAL_SERVER_ERROR);
                 res.body.should.be.a("object")
-                res.body.id.should.be.eq("api");
+                res.body.id.should.be.eq("api.dataset.update");
                 res.body.params.status.should.be.eq("FAILED")
                 done();
             });
@@ -158,7 +158,7 @@ describe("Dataset update API", () => {
 
         it("Success: Dataset name updated successfully", (done) => {
             chai.spy.on(DatasetDraft, "findOne", () => {
-                return Promise.resolve({ id: "", status: "Draft" })
+                return Promise.resolve({ id: "telemetry", status: "Draft" })
             })
             chai.spy.on(DatasetDraft, "update", () => {
                 return Promise.resolve({ dataValues: { id: "telemetry", message: "Dataset is updated successfully" } })
@@ -170,7 +170,7 @@ describe("Dataset update API", () => {
                 .end((err, res) => {
                     res.should.have.status(httpStatus.OK);
                     res.body.should.be.a("object")
-                    res.body.id.should.be.eq("api");
+                    res.body.id.should.be.eq("api.dataset.update");
                     res.body.params.status.should.be.eq("SUCCESS")
                     res.body.result.id.should.be.eq("telemetry")
                     res.body.result.message.should.be.eq("Dataset is updated successfully")
@@ -182,12 +182,13 @@ describe("Dataset update API", () => {
             chai
                 .request(app)
                 .patch("/v1/datasets/update")
-                .send({ dataset_id: "", name: {} })
+                .send({ dataset_id: "telemetry", name: {} })
                 .end((err, res) => {
                     res.should.have.status(httpStatus.BAD_REQUEST);
                     res.body.should.be.a("object")
-                    res.body.id.should.be.eq("api");
+                    res.body.id.should.be.eq("api.dataset.update");
                     res.body.params.status.should.be.eq("FAILED")
+                    res.body.params.errmsg.should.be.eq("#properties/name/type should be string")
                     done();
                 });
         });
@@ -202,7 +203,7 @@ describe("Dataset update API", () => {
         it("Success: Dataset data schema updated successfully", (done) => {
             chai.spy.on(DatasetDraft, "findOne", () => {
                 return Promise.resolve({
-                    id: "", status: "Draft"
+                    id: "telemetry", status: "Draft"
                 })
             })
             chai.spy.on(DatasetDraft, "update", () => {
@@ -215,7 +216,7 @@ describe("Dataset update API", () => {
                 .end((err, res) => {
                     res.should.have.status(httpStatus.OK);
                     res.body.should.be.a("object")
-                    res.body.id.should.be.eq("api");
+                    res.body.id.should.be.eq("api.dataset.update");
                     res.body.params.status.should.be.eq("SUCCESS")
                     res.body.result.id.should.be.eq("telemetry")
                     res.body.result.message.should.be.eq("Dataset is updated successfully")
@@ -227,12 +228,13 @@ describe("Dataset update API", () => {
             chai
                 .request(app)
                 .patch("/v1/datasets/update")
-                .send({ dataset_id: "telemetry", data_schema: {} })
+                .send({ dataset_id: "sb-telemetry", data_schema: { a: "" } })
                 .end((err, res) => {
                     res.should.have.status(httpStatus.BAD_REQUEST);
                     res.body.should.be.a("object")
-                    res.body.id.should.be.eq("api");
+                    res.body.id.should.be.eq("api.dataset.update");
                     res.body.params.status.should.be.eq("FAILED")
+                    res.body.params.errmsg.should.be.eq("#properties/data_schema/additionalProperties should NOT have additional properties")                   
                     done();
                 });
         });
@@ -247,7 +249,7 @@ describe("Dataset update API", () => {
         it("Success: Dataset config updated successfully", (done) => {
             chai.spy.on(DatasetDraft, "findOne", () => {
                 return Promise.resolve({
-                    id: "", status: "Draft"
+                    id: "telemetry", status: "Draft"
                 })
             })
             chai.spy.on(DatasetDraft, "update", () => {
@@ -260,7 +262,7 @@ describe("Dataset update API", () => {
                 .end((err, res) => {
                     res.should.have.status(httpStatus.OK);
                     res.body.should.be.a("object")
-                    res.body.id.should.be.eq("api");
+                    res.body.id.should.be.eq("api.dataset.update");
                     res.body.params.status.should.be.eq("SUCCESS")
                     res.body.result.id.should.be.eq("telemetry")
                     res.body.result.message.should.be.eq("Dataset is updated successfully")
@@ -268,16 +270,17 @@ describe("Dataset update API", () => {
                 });
         });
 
-        it("Failure: Failed to update data schema", (done) => {
+        it("Failure: Failed to update dataset config", (done) => {
             chai
                 .request(app)
                 .patch("/v1/datasets/update")
-                .send({ dataset_id: "telemetry", dataset_config: { "a": "b" } })
+                .send({ dataset_id: "telemetry", dataset_config: { new: 1 } })
                 .end((err, res) => {
                     res.should.have.status(httpStatus.BAD_REQUEST);
                     res.body.should.be.a("object")
-                    res.body.id.should.be.eq("api");
+                    res.body.id.should.be.eq("api.dataset.update");
                     res.body.params.status.should.be.eq("FAILED")
+                    res.body.params.errmsg.should.be.eq("#properties/dataset_config/additionalProperties should NOT have additional properties")
                     done();
                 });
         });

@@ -1,5 +1,5 @@
 import app from "../../../app";
-import chai from "chai";
+import chai, { expect } from "chai";
 import chaiHttp from "chai-http";
 import spies from "chai-spies";
 import httpStatus from "http-status";
@@ -12,7 +12,7 @@ chai.use(spies);
 chai.should();
 chai.use(chaiHttp);
 
-describe("Dataset validation config update", () => {
+describe("DATASET VALIDATION CONFIG UPDATE", () => {
 
     afterEach(() => {
         chai.spy.restore();
@@ -21,7 +21,7 @@ describe("Dataset validation config update", () => {
     it("Success: Dataset validation configs updated when validation is true", (done) => {
         chai.spy.on(DatasetDraft, "findOne", () => {
             return Promise.resolve({
-                id: "", status: "Draft"
+                id: "telemetry", status: "Draft"
             })
         })
         chai.spy.on(DatasetDraft, "update", () => {
@@ -34,7 +34,7 @@ describe("Dataset validation config update", () => {
             .end((err, res) => {
                 res.should.have.status(httpStatus.OK);
                 res.body.should.be.a("object")
-                res.body.id.should.be.eq("api");
+                res.body.id.should.be.eq("api.dataset.update");
                 res.body.params.status.should.be.eq("SUCCESS")
                 res.body.result.id.should.be.eq("telemetry")
                 res.body.result.message.should.be.eq("Dataset is updated successfully")
@@ -45,7 +45,7 @@ describe("Dataset validation config update", () => {
     it("Success: Dataset validation configs updated with default values when validation is false", (done) => {
         chai.spy.on(DatasetDraft, "findOne", () => {
             return Promise.resolve({
-                id: "", status: "Draft"
+                id: "telemetry", status: "Draft"
             })
         })
         chai.spy.on(DatasetDraft, "update", () => {
@@ -58,7 +58,7 @@ describe("Dataset validation config update", () => {
             .end((err, res) => {
                 res.should.have.status(httpStatus.OK);
                 res.body.should.be.a("object")
-                res.body.id.should.be.eq("api");
+                res.body.id.should.be.eq("api.dataset.update");
                 res.body.params.status.should.be.eq("SUCCESS")
                 res.body.result.id.should.be.eq("telemetry")
                 res.body.result.message.should.be.eq("Dataset is updated successfully")
@@ -75,8 +75,9 @@ describe("Dataset validation config update", () => {
             .end((err, res) => {
                 res.should.have.status(httpStatus.BAD_REQUEST);
                 res.body.should.be.a("object")
-                res.body.id.should.be.eq("api");
+                res.body.id.should.be.eq("api.dataset.update");
                 res.body.params.status.should.be.eq("FAILED")
+                expect(res.body.params.errmsg).to.match(/^#properties(.+)'.mode'$/)
                 done();
             });
     });

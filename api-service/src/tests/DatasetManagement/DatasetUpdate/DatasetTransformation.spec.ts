@@ -13,7 +13,7 @@ chai.use(spies);
 chai.should();
 chai.use(chaiHttp);
 
-describe("Dataset transformation update", () => {
+describe("DATASET TRANSFORMATIONS UPDATE", () => {
 
     afterEach(() => {
         chai.spy.restore();
@@ -22,7 +22,7 @@ describe("Dataset transformation update", () => {
     it("Success: Dataset transformations successfully added", (done) => {
         chai.spy.on(DatasetDraft, "findOne", () => {
             return Promise.resolve({
-                id: "", status: "Draft"
+                id: "telemetry", status: "Draft"
             })
         })
         chai.spy.on(DatasetTransformationsDraft, "findAll", () => {
@@ -41,7 +41,7 @@ describe("Dataset transformation update", () => {
             .end((err, res) => {
                 res.should.have.status(httpStatus.OK);
                 res.body.should.be.a("object")
-                res.body.id.should.be.eq("api");
+                res.body.id.should.be.eq("api.dataset.update");
                 res.body.params.status.should.be.eq("SUCCESS")
                 res.body.result.id.should.be.eq("telemetry")
                 res.body.result.message.should.be.eq("Dataset is updated successfully")
@@ -52,7 +52,7 @@ describe("Dataset transformation update", () => {
     it("Success: Dataset transformations successfully removed", (done) => {
         chai.spy.on(DatasetDraft, "findOne", () => {
             return Promise.resolve({
-                id: "", status: "Draft"
+                id: "telemetry", status: "Draft"
             })
         })
         chai.spy.on(DatasetTransformationsDraft, "findAll", () => {
@@ -71,7 +71,7 @@ describe("Dataset transformation update", () => {
             .end((err, res) => {
                 res.should.have.status(httpStatus.OK);
                 res.body.should.be.a("object")
-                res.body.id.should.be.eq("api");
+                res.body.id.should.be.eq("api.dataset.update");
                 res.body.params.status.should.be.eq("SUCCESS")
                 res.body.result.id.should.be.eq("telemetry")
                 res.body.result.message.should.be.eq("Dataset is updated successfully")
@@ -82,7 +82,7 @@ describe("Dataset transformation update", () => {
     it("Success: Dataset transformations successfully updated", (done) => {
         chai.spy.on(DatasetDraft, "findOne", () => {
             return Promise.resolve({
-                id: "", status: "Draft"
+                id: "telemetry", status: "Draft"
             })
         })
         chai.spy.on(DatasetTransformationsDraft, "findAll", () => {
@@ -101,7 +101,7 @@ describe("Dataset transformation update", () => {
             .end((err, res) => {
                 res.should.have.status(httpStatus.OK);
                 res.body.should.be.a("object")
-                res.body.id.should.be.eq("api");
+                res.body.id.should.be.eq("api.dataset.update");
                 res.body.params.status.should.be.eq("SUCCESS")
                 res.body.result.id.should.be.eq("telemetry")
                 res.body.result.message.should.be.eq("Dataset is updated successfully")
@@ -111,7 +111,7 @@ describe("Dataset transformation update", () => {
 
     it("Success: When payload contains same transformation field_key to be added, updated or removed", (done) => {
         chai.spy.on(DatasetDraft, "findOne", () => {
-            return Promise.resolve({ id: "", status: "Draft" })
+            return Promise.resolve({ id: "telemetry", status: "Draft" })
         })
         chai.spy.on(DatasetTransformationsDraft, "findAll", () => {
             return Promise.resolve([{ field_key: "key2" }, { field_key: "key3" }])
@@ -135,7 +135,7 @@ describe("Dataset transformation update", () => {
             .end((err, res) => {
                 res.should.have.status(httpStatus.OK);
                 res.body.should.be.a("object")
-                res.body.id.should.be.eq("api");
+                res.body.id.should.be.eq("api.dataset.update");
                 res.body.params.status.should.be.eq("SUCCESS")
                 res.body.result.id.should.be.eq("telemetry")
                 res.body.result.message.should.be.eq("Dataset is updated successfully")
@@ -146,7 +146,7 @@ describe("Dataset transformation update", () => {
     it("Failure: When transformation fields provided to add already exists", (done) => {
         chai.spy.on(DatasetDraft, "findOne", () => {
             return Promise.resolve({
-                id: "", status: "Draft", tags: ["tag1", "tag2"], denorm_config: {
+                id: "telemetry", status: "Draft", tags: ["tag1", "tag2"], denorm_config: {
                     denorm_fields: [{
                         "denorm_key": "actor.id",
                         "denorm_out_field": "mid"
@@ -164,7 +164,7 @@ describe("Dataset transformation update", () => {
             .end((err, res) => {
                 res.should.have.status(httpStatus.BAD_REQUEST);
                 res.body.should.be.a("object")
-                res.body.id.should.be.eq("api");
+                res.body.id.should.be.eq("api.dataset.update");
                 res.body.params.status.should.be.eq("FAILED")
                 res.body.params.errmsg.should.be.eq("Dataset transformations already exists")
                 done();
@@ -174,7 +174,7 @@ describe("Dataset transformation update", () => {
     it("Failure: When transformation fields provided to update do not exists", (done) => {
         chai.spy.on(DatasetDraft, "findOne", () => {
             return Promise.resolve({
-                id: "", status: "Draft", tags: ["tag1", "tag2"], denorm_config: {
+                id: "telemetry", status: "Draft", tags: ["tag1", "tag2"], denorm_config: {
                     denorm_fields: [{
                         "denorm_key": "actor.id",
                         "denorm_out_field": "mid"
@@ -192,7 +192,7 @@ describe("Dataset transformation update", () => {
             .end((err, res) => {
                 res.should.have.status(httpStatus.NOT_FOUND);
                 res.body.should.be.a("object")
-                res.body.id.should.be.eq("api");
+                res.body.id.should.be.eq("api.dataset.update");
                 res.body.params.status.should.be.eq("FAILED")
                 res.body.params.errmsg.should.be.eq("Dataset transformations do not exist to update")
                 done();
@@ -202,7 +202,7 @@ describe("Dataset transformation update", () => {
     it("Failure: When transformation fields provided to remove do not exists", (done) => {
         chai.spy.on(DatasetDraft, "findOne", () => {
             return Promise.resolve({
-                id: "", status: "Draft", tags: ["tag1", "tag2"], denorm_config: {
+                id: "telemetry", status: "Draft", tags: ["tag1", "tag2"], denorm_config: {
                     denorm_fields: [{
                         "denorm_key": "actor.id",
                         "denorm_out_field": "mid"
@@ -220,7 +220,7 @@ describe("Dataset transformation update", () => {
             .end((err, res) => {
                 res.should.have.status(httpStatus.NOT_FOUND);
                 res.body.should.be.a("object")
-                res.body.id.should.be.eq("api");
+                res.body.id.should.be.eq("api.dataset.update");
                 res.body.params.status.should.be.eq("FAILED")
                 res.body.params.errmsg.should.be.eq("Dataset transformations do not exist to remove")
                 done();

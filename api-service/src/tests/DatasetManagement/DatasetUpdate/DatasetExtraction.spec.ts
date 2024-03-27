@@ -1,5 +1,5 @@
 import app from "../../../app";
-import chai from "chai";
+import chai, { expect } from "chai";
 import chaiHttp from "chai-http";
 import spies from "chai-spies";
 import httpStatus from "http-status";
@@ -12,7 +12,7 @@ chai.use(spies);
 chai.should();
 chai.use(chaiHttp);
 
-describe("Dataset extraction config update", () => {
+describe("DATASET EXTRACTION CONFIG UPDATE", () => {
 
     afterEach(() => {
         chai.spy.restore();
@@ -21,7 +21,7 @@ describe("Dataset extraction config update", () => {
     it("Success: Dataset extraction configs updated if it is a batch event", (done) => {
         chai.spy.on(DatasetDraft, "findOne", () => {
             return Promise.resolve({
-                id: "", status: "Draft"
+                id: "telemetry", status: "Draft"
             })
         })
         chai.spy.on(DatasetDraft, "update", () => {
@@ -34,7 +34,7 @@ describe("Dataset extraction config update", () => {
             .end((err, res) => {
                 res.should.have.status(httpStatus.OK);
                 res.body.should.be.a("object")
-                res.body.id.should.be.eq("api");
+                res.body.id.should.be.eq("api.dataset.update");
                 res.body.params.status.should.be.eq("SUCCESS")
                 res.body.result.id.should.be.eq("telemetry")
                 res.body.result.message.should.be.eq("Dataset is updated successfully")
@@ -45,7 +45,7 @@ describe("Dataset extraction config update", () => {
     it("Success: Dataset extraction configs updated with default values if it is not batch event", (done) => {
         chai.spy.on(DatasetDraft, "findOne", () => {
             return Promise.resolve({
-                id: "", status: "Draft"
+                id: "telemetry", status: "Draft"
             })
         })
         chai.spy.on(DatasetDraft, "update", () => {
@@ -58,7 +58,7 @@ describe("Dataset extraction config update", () => {
             .end((err, res) => {
                 res.should.have.status(httpStatus.OK);
                 res.body.should.be.a("object")
-                res.body.id.should.be.eq("api");
+                res.body.id.should.be.eq("api.dataset.update");
                 res.body.params.status.should.be.eq("SUCCESS")
                 res.body.result.id.should.be.eq("telemetry")
                 res.body.result.message.should.be.eq("Dataset is updated successfully")
@@ -75,8 +75,9 @@ describe("Dataset extraction config update", () => {
             .end((err, res) => {
                 res.should.have.status(httpStatus.BAD_REQUEST);
                 res.body.should.be.a("object")
-                res.body.id.should.be.eq("api");
+                res.body.id.should.be.eq("api.dataset.update");
                 res.body.params.status.should.be.eq("FAILED")
+                expect(res.body.params.errmsg).to.match(/^#properties(.+)'.extraction_key'$/)
                 done();
             });
     });

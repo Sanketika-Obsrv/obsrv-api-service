@@ -12,7 +12,7 @@ chai.use(spies);
 chai.should();
 chai.use(chaiHttp);
 
-describe("Dataset tags update", () => {
+describe("DATASET TAGS UPDATE", () => {
 
     afterEach(() => {
         chai.spy.restore();
@@ -21,7 +21,7 @@ describe("Dataset tags update", () => {
     it("Success: Dataset tags successfully added", (done) => {
         chai.spy.on(DatasetDraft, "findOne", () => {
             return Promise.resolve({
-                id: "", status: "Draft", denorm_config: { denorm_fields: [] }
+                id: "telemetry", status: "Draft", denorm_config: { denorm_fields: [] }
             })
         })
         chai.spy.on(DatasetDraft, "update", () => {
@@ -34,7 +34,7 @@ describe("Dataset tags update", () => {
             .end((err, res) => {
                 res.should.have.status(httpStatus.OK);
                 res.body.should.be.a("object")
-                res.body.id.should.be.eq("api");
+                res.body.id.should.be.eq("api.dataset.update");
                 res.body.params.status.should.be.eq("SUCCESS")
                 res.body.result.id.should.be.eq("telemetry")
                 res.body.result.message.should.be.eq("Dataset is updated successfully")
@@ -45,7 +45,7 @@ describe("Dataset tags update", () => {
     it("Success: Dataset tags successfully removed", (done) => {
         chai.spy.on(DatasetDraft, "findOne", () => {
             return Promise.resolve({
-                id: "", status: "Draft", tags: ["tag1", "tag2"]
+                id: "telemetry", status: "Draft", tags: ["tag1", "tag2"]
             })
         })
         chai.spy.on(DatasetDraft, "update", () => {
@@ -58,7 +58,7 @@ describe("Dataset tags update", () => {
             .end((err, res) => {
                 res.should.have.status(httpStatus.OK);
                 res.body.should.be.a("object")
-                res.body.id.should.be.eq("api");
+                res.body.id.should.be.eq("api.dataset.update");
                 res.body.params.status.should.be.eq("SUCCESS")
                 res.body.result.id.should.be.eq("telemetry")
                 res.body.result.message.should.be.eq("Dataset is updated successfully")
@@ -69,7 +69,7 @@ describe("Dataset tags update", () => {
     it("Success: When payload contains same tags to be added or removed", (done) => {
         chai.spy.on(DatasetDraft, "findOne", () => {
             return Promise.resolve({
-                id: "", status: "Draft", tags: ["tag1", "tag2"]
+                id: "telemetry", status: "Draft", tags: ["tag1", "tag2"]
             })
         })
         chai.spy.on(DatasetDraft, "update", () => {
@@ -82,7 +82,7 @@ describe("Dataset tags update", () => {
             .end((err, res) => {
                 res.should.have.status(httpStatus.OK);
                 res.body.should.be.a("object")
-                res.body.id.should.be.eq("api");
+                res.body.id.should.be.eq("api.dataset.update");
                 res.body.params.status.should.be.eq("SUCCESS")
                 res.body.result.id.should.be.eq("telemetry")
                 res.body.result.message.should.be.eq("Dataset is updated successfully")
@@ -93,7 +93,7 @@ describe("Dataset tags update", () => {
     it("Failure: When tags provided to add already exists", (done) => {
         chai.spy.on(DatasetDraft, "findOne", () => {
             return Promise.resolve({
-                id: "", status: "Draft", tags: ["tag3", "tag1"]
+                id: "telemetry", status: "Draft", tags: ["tag3", "tag1"]
             })
         })
         chai
@@ -103,7 +103,7 @@ describe("Dataset tags update", () => {
             .end((err, res) => {
                 res.should.have.status(httpStatus.BAD_REQUEST);
                 res.body.should.be.a("object")
-                res.body.id.should.be.eq("api");
+                res.body.id.should.be.eq("api.dataset.update");
                 res.body.params.status.should.be.eq("FAILED")
                 res.body.params.errmsg.should.be.eq("Dataset tags already exist")
                 done();
@@ -113,7 +113,7 @@ describe("Dataset tags update", () => {
     it("Failure: When tags provided to delete does not exists", (done) => {
         chai.spy.on(DatasetDraft, "findOne", () => {
             return Promise.resolve({
-                id: "", status: "Draft", tags: ["tag5"]
+                id: "telemetry", status: "Draft", tags: ["tag5"]
             })
         })
         chai
@@ -123,7 +123,7 @@ describe("Dataset tags update", () => {
             .end((err, res) => {
                 res.should.have.status(httpStatus.NOT_FOUND);
                 res.body.should.be.a("object")
-                res.body.id.should.be.eq("api");
+                res.body.id.should.be.eq("api.dataset.update");
                 res.body.params.status.should.be.eq("FAILED")
                 res.body.params.errmsg.should.be.eq("Dataset tags do not exist to remove")
                 done();

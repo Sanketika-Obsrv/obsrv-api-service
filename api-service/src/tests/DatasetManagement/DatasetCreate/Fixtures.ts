@@ -1,6 +1,6 @@
 import httpStatus from "http-status"
 
-export const TestInputsForDatasetUpdate = {
+export const TestInputsForDatasetCreate = {
     VALID_DATASET: {
         "dataset_id": "sb-ddd",
         "type": "dataset",
@@ -238,43 +238,43 @@ export const TestInputsForDatasetUpdate = {
 export const DATASET_CREATE_SUCCESS_FIXTURES = [
     {
         "title": "Dataset creation success: When all the request payload configs provided",
-        "requestPayload": TestInputsForDatasetUpdate.VALID_DATASET,
+        "requestPayload": TestInputsForDatasetCreate.VALID_DATASET,
         "httpStatus": httpStatus.OK,
         "status": "SUCCESS"
     },
     {
         "title": "Master Dataset creation success: When all the request payload configs provided",
-        "requestPayload": TestInputsForDatasetUpdate.VALID_MASTER_DATASET,
+        "requestPayload": TestInputsForDatasetCreate.VALID_MASTER_DATASET,
         "httpStatus": httpStatus.OK,
         "status": "SUCCESS"
     },
     {
         "title": "Dataset creation success: When minimal request payload configs provided",
-        "requestPayload": TestInputsForDatasetUpdate.VALID_MINIMAL_DATASET,
+        "requestPayload": TestInputsForDatasetCreate.VALID_MINIMAL_DATASET,
         "httpStatus": httpStatus.OK,
         "status": "SUCCESS"
     },
     {
         "title": "Master Dataset creation success: When minimal request paylod configs provided",
-        "requestPayload": TestInputsForDatasetUpdate.VALID_MINIMAL_MASTER_DATASET,
+        "requestPayload": TestInputsForDatasetCreate.VALID_MINIMAL_MASTER_DATASET,
         "httpStatus": httpStatus.OK,
         "status": "SUCCESS"
     },
     {
         "title": "Dataset creation success: When more than minimal request payload configs provided",
-        "requestPayload": TestInputsForDatasetUpdate.VALID_MORE_THAN_MINIMAL_DATASET,
+        "requestPayload": TestInputsForDatasetCreate.VALID_MORE_THAN_MINIMAL_DATASET,
         "httpStatus": httpStatus.OK,
         "status": "SUCCESS"
     },
     {
         "title": "Master Dataset creation success: When more than minimal request payload configs provided",
-        "requestPayload": TestInputsForDatasetUpdate.VALID_MORE_THAN_MINIMAL_MASTER_DATASET,
+        "requestPayload": TestInputsForDatasetCreate.VALID_MORE_THAN_MINIMAL_MASTER_DATASET,
         "httpStatus": httpStatus.OK,
         "status": "SUCCESS"
     },
     {
         "title": "Dataset creation success: When id is not present in request payload and is generated using dataset_id",
-        "requestPayload": TestInputsForDatasetUpdate.VALID_MORE_THAN_MINIMAL_DATASET,
+        "requestPayload": TestInputsForDatasetCreate.VALID_MORE_THAN_MINIMAL_DATASET,
         "httpStatus": httpStatus.OK,
         "status": "SUCCESS"
     },
@@ -283,13 +283,13 @@ export const DATASET_CREATE_SUCCESS_FIXTURES = [
 export const DATASET_FAILURE_DUPLICATE_DENORM_FIXTURES = [
     {
         "title": "Dataset creation failure: Dataset contains duplicate denorm out field",
-        "requestPayload": TestInputsForDatasetUpdate.DATASET_WITH_DUPLICATE_DENORM_KEY,
+        "requestPayload": TestInputsForDatasetCreate.DATASET_WITH_DUPLICATE_DENORM_KEY,
         "httpStatus": httpStatus.BAD_REQUEST,
         "status": "FAILED"
     },
     {
         "title": "Master Dataset creation failure: Dataset contains duplicate denorm out field",
-        "requestPayload": { ...TestInputsForDatasetUpdate.DATASET_WITH_DUPLICATE_DENORM_KEY, type: "master-dataset" },
+        "requestPayload": { ...TestInputsForDatasetCreate.DATASET_WITH_DUPLICATE_DENORM_KEY, type: "master-dataset" },
         "httpStatus": httpStatus.BAD_REQUEST,
         "status": "FAILED"
     }
