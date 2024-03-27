@@ -152,14 +152,13 @@ const validateQueryRules = (queryPayload: any, limits: any) => {
 const getDataSourceRef = async (datasourceName: string, granularity?: string) => {
     const dataSources = await getDatasourceList(datasourceName)
     if (_.isEmpty(dataSources)) {
+        logger.error(`Datasource ${datasourceName} not available in datasource live table`)
         return { message: `Datasource ${datasourceName} not available for querying`, statusCode: 404, errCode: "NOT_FOUND" };
     }
     const record = dataSources.filter((record: any) => {
         const aggregatedRecord = _.get(record, "metadata.aggregated")
         if (granularity)
             return aggregatedRecord && _.get(record, "metadata.granularity") === granularity;
-        else
-            return !aggregatedRecord
     });
     return record[0]?.dataValues?.datasource_ref
 }
@@ -179,7 +178,7 @@ const setDatasourceRef = async (dataSourceName: string, payload: any): Promise<a
 
         const isDatasourcePresentInDruid = await validateDatasource(datasourceRef);
         if (isDatasourcePresentInDruid) {
-            return isDatasourcePresentInDruid
+            return { message: `Datasource ${datasourceRef} not available for querying`, statusCode: 404, errCode: "NOT_FOUND" };
         }
         if (_.isString(payload?.query)) {
             payload.query = payload.query.replace(dataSourceName, datasourceRef)

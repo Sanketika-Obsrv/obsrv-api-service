@@ -9,8 +9,10 @@ import axios from "axios";
 import { config } from "../../configs/Config";
 import * as _ from "lodash";
 
-const nativeQueryEndpoint = `${config?.query_api?.druid?.host}:${config?.query_api?.druid?.port}${config.query_api.druid.native_query_path}`;
-const sqlQueryEndpoint = `${config?.query_api?.druid?.host}:${config?.query_api?.druid?.port}${config.query_api.druid.sql_query_path}`;
+const druidPort = _.get(config, "query_api.druid.port");
+const druidHost = _.get(config, "query_api.druid.host");
+const nativeQueryEndpoint = `${druidHost}:${druidPort}${config.query_api.druid.native_query_path}`;
+const sqlQueryEndpoint = `${druidHost}:${druidPort}${config.query_api.druid.sql_query_path}`;
 
 const executeNativeQuery = async (payload: any) => {
     const queryResult = await axios.post(nativeQueryEndpoint, payload)
