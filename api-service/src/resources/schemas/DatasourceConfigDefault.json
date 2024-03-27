@@ -1,5 +1,4 @@
 {
-    "lakehouse_spec": {},
     "retention_period": {
         "enabled": "false"
     },

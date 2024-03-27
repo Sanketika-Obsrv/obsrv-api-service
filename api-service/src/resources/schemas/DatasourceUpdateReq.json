@@ -10,9 +10,6 @@
         "ingestion_spec": {
             "type": "object"
         },
-        "lakehouse_spec": {
-            "type": "object"
-        },
         "datasource_ref": {
             "type": "string"
         },
