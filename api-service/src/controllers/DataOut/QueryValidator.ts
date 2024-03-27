@@ -174,9 +174,10 @@ const setDatasourceRef = async (dataSourceName: string, payload: any): Promise<a
     try {
         const granularity = _.get(payload, 'context.granularity')
         const datasourceRef = await getDataSourceRef(dataSourceName, granularity);
-        const isDatasourcePresentInDruid = await validateDatasource(datasourceRef);
-        if (isDatasourcePresentInDruid) {
-            return { message: `Datasource ${isDatasourcePresentInDruid} not available for querying`, statusCode: 404, errCode: "NOT_FOUND" };
+        const datasource = await validateDatasource(datasourceRef);
+        if (datasource) {
+            logger.error(`Datasource ${datasource} not available for querying in druid`)
+            return { message: `Datasource ${datasource} not available for querying`, statusCode: 404, errCode: "NOT_FOUND" };
         }
         if (_.isString(payload?.query)) {
             payload.query = payload.query.replace(dataSourceName, datasourceRef)
