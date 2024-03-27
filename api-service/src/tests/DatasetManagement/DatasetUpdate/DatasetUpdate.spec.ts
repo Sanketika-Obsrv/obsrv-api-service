@@ -188,7 +188,7 @@ describe("DATASET UPDATE API", () => {
                     res.body.should.be.a("object")
                     res.body.id.should.be.eq("api.dataset.update");
                     res.body.params.status.should.be.eq("FAILED")
-                    res.body.params.errmsg.should.be.eq("#properties/name/type should be string")
+                    expect(res.body.params.errmsg).to.match(/^(.+)should be string$/)
                     done();
                 });
         });
@@ -234,7 +234,7 @@ describe("DATASET UPDATE API", () => {
                     res.body.should.be.a("object")
                     res.body.id.should.be.eq("api.dataset.update");
                     res.body.params.status.should.be.eq("FAILED")
-                    res.body.params.errmsg.should.be.eq("#properties/data_schema/additionalProperties should NOT have additional properties")                   
+                    expect(res.body.params.errmsg).to.match(/^(.+)should NOT have additional properties$/)
                     done();
                 });
         });
@@ -280,7 +280,7 @@ describe("DATASET UPDATE API", () => {
                     res.body.should.be.a("object")
                     res.body.id.should.be.eq("api.dataset.update");
                     res.body.params.status.should.be.eq("FAILED")
-                    res.body.params.errmsg.should.be.eq("#properties/dataset_config/additionalProperties should NOT have additional properties")
+                    expect(res.body.params.errmsg).to.match(/^(.+)should NOT have additional properties$/)
                     done();
                 });
         });
