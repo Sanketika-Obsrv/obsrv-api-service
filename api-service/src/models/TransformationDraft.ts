@@ -1,4 +1,3 @@
-import moment from "moment";
 import { sequelize } from "../connections/databaseConnection";
 import { DataTypes } from 'sequelize';
 import { DatasetStatus, TransformationMode } from "../types/DatasetModels";
@@ -43,21 +42,13 @@ export const DatasetTransformationsDraft = sequelize.define('dataset_transformat
         allowNull: false,
         defaultValue: "SYSTEM",
     },
-    created_date: {
-        type: DataTypes.DATE,
-        allowNull: false,
-        defaultValue: moment().format()
-    },
-    updated_date: {
-        type: DataTypes.DATE,
-        allowNull: false,
-        defaultValue: moment().format()
-    },
     published_date: {
         type: DataTypes.DATE,
         defaultValue: null
     }
 }, {
-    timestamps: false,
+    timestamps: true,
+    createdAt: 'created_date',
+    updatedAt: 'updated_date',
     tableName: 'dataset_transformations_draft'
 });
