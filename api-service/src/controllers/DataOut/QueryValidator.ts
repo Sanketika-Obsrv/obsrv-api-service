@@ -175,10 +175,9 @@ const setDatasourceRef = async (dataSourceName: string, payload: any): Promise<a
     try {
         const granularity = _.get(payload, 'context.granularity')
         const datasourceRef = await getDataSourceRef(dataSourceName, granularity);
-
         const isDatasourcePresentInDruid = await validateDatasource(datasourceRef);
         if (isDatasourcePresentInDruid) {
-            return { message: `Datasource ${datasourceRef} not available for querying`, statusCode: 404, errCode: "NOT_FOUND" };
+            return { message: datasourceRef?.message, statusCode: 404, errCode: "NOT_FOUND" };
         }
         if (_.isString(payload?.query)) {
             payload.query = payload.query.replace(dataSourceName, datasourceRef)
