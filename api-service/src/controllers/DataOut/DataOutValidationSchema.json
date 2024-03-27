@@ -1,0 +1,21 @@
+{
+    "type": "object",
+    "properties": {
+      "query": {
+        "oneOf": [
+          { "type": "string" },
+          { "type": "object" }
+        ]
+      },
+      "context": {
+        "type": "object",
+        "properties": {
+          "granularity": {
+            "type": "string",
+            "enum": ["five_minute", "ten_minute", "fifteen_minute", "thirty_minute", "hour", "six_hour", "eight_hour", "day", "week", "month", "quarter", "year"]
+          }
+        }
+      }
+    },
+    "required": ["query"]
+  }
