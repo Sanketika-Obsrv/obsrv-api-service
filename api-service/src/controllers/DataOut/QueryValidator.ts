@@ -187,6 +187,6 @@ const setDatasourceRef = async (dataSourceName: string, payload: any): Promise<a
         }
         return true;
     } catch (error: any) {
-        return { message: `Error while fetching datasource record`, statusCode: 404, errCode: "NOT_FOUND" };
+        return { message: `Datasource not found`, statusCode: 404, errCode: "NOT_FOUND" };
     }
 }
