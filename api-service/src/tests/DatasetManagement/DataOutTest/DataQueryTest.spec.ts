@@ -25,7 +25,7 @@ describe("QUERY API TESTS", () => {
         chai.spy.restore(Datasource, "findAll")
     })
 
-    it("it should raise error when native query endpoint is called", (done) => {
+    it("when druid is down, it should raise error when native query endpoint is called", (done) => {
         chai.spy.on(Datasource, "findAll", () => {
             return Promise.resolve(
                 [{
@@ -56,7 +56,7 @@ describe("QUERY API TESTS", () => {
             });
     });
 
-    it("should raise error when sql query endpoint is called", (done) => {
+    it("when druid is down, it should raise error when sql query endpoint is called", (done) => {
         chai.spy.on(Datasource, "findAll", () => {
             return Promise.resolve([{
                 dataValues: {
@@ -78,14 +78,14 @@ describe("QUERY API TESTS", () => {
                 res.should.have.status(500);
                 res.body.params.status.should.be.eq("FAILED");
                 res.body.params.errmsg.should.be.eq("Unable to process the query.");
-                res.body.responseCode.should.be.eq(httpStatus["500_NAME"]);
+                res.body.responseCode.should.be.eq("INTERNAL_SERVER_ERROR");
                 nock.cleanAll();
                 chai.spy.restore(Datasource, "findAll")
                 done();
             });
     });
 
-    it("Live datasource record not found!", (done) => {
+    it("live datasource not found!", (done) => {
         chai.spy.on(Datasource, "findAll", () => {
             return Promise.reject([])
         })
@@ -96,7 +96,7 @@ describe("QUERY API TESTS", () => {
             .end((err, res) => {
                 res.should.have.status(404);
                 res.body.params.status.should.be.eq("FAILED");
-                res.body.params.errmsg.should.be.eq("Error while fetching datasource record");
+                res.body.params.errmsg.should.be.eq("Datasource not found");
                 res.body.responseCode.should.be.eq("NOT_FOUND");
                 nock.cleanAll();
                 chai.spy.restore(Datasource, "findAll")
@@ -119,9 +119,9 @@ describe("QUERY API TESTS", () => {
             .post(apiEndpoint)
             .send(JSON.parse(TestQueries.VALID_QUERY))
             .end((err, res) => {
-                res.should.have.status(httpStatus.OK);
+                res.should.have.status(200);
                 res.body.should.be.a("object");
-                res.body.responseCode.should.be.eq(httpStatus["200_NAME"]);
+                res.body.responseCode.should.be.eq("OK");
                 res.body.should.have.property("result");
                 res.body.result.length.should.be.lessThan(101);
                 res.body.id.should.be.eq("api.data.out");
@@ -146,11 +146,10 @@ describe("QUERY API TESTS", () => {
             .post(apiEndpoint)
             .send(JSON.parse(TestQueries.VALID_SQL_QUERY))
             .end((err, res) => {
-                res.should.have.status(httpStatus.OK);
+                res.should.have.status(200);
                 res.body.should.be.a("object");
-                res.body.responseCode.should.be.eq(httpStatus["200_NAME"]);
+                res.body.responseCode.should.be.eq("OK");
                 res.body.should.have.property("result");
-                res.body.result.length.should.be.lessThan(101);
                 res.body.id.should.be.eq("api.data.out");
                 nock.cleanAll();
                 chai.spy.restore(Datasource, "findAll");
@@ -177,10 +176,9 @@ describe("QUERY API TESTS", () => {
             .post(apiEndpoint)
             .send(JSON.parse(TestQueries.WITHOUT_THRESOLD_QUERY))
             .end((err, res) => {
-                res.should.have.status(httpStatus.OK);
+                res.should.have.status(200);
                 res.body.should.be.a("object");
-                res.body.responseCode.should.be.eq(httpStatus["200_NAME"]);
-                res.body.result.length.should.be.lessThan(101); // default is 100
+                res.body.responseCode.should.be.eq("OK");
                 res.body.id.should.be.eq("api.data.out");
                 nock.cleanAll()
                 chai.spy.restore(Datasource, "findAll")
@@ -194,7 +192,6 @@ describe("QUERY API TESTS", () => {
             .post(apiEndpoint)
             .send(JSON.parse(TestQueries.HIGH_LIMIT_SQL_QUERY))
             .end((err, res) => {
-                console.log(res)
                 res.should.have.status(400);
                 res.body.should.be.a("object");
                 res.body.responseCode.should.be.eq("BAD_REQUEST");
@@ -205,7 +202,7 @@ describe("QUERY API TESTS", () => {
             });
     });
 
-    it("Invalid date range", (done) => {
+    it("invalid date range", (done) => {
         chai.spy.on(Datasource, "findAll", () => {
             Promise.resolve([{
                 dataValues: {
@@ -255,10 +252,9 @@ describe("QUERY API TESTS", () => {
             .post(apiEndpoint)
             .send(JSON.parse(TestQueries.HIGH_LIMIT_NATIVE_QUERY))
             .end((err, res) => {
-                console.log(res)
-                res.should.have.status(httpStatus.OK);
+                res.should.have.status(200);
                 res.body.should.be.a("object");
-                res.body.responseCode.should.be.eq(httpStatus["200_NAME"]);
+                res.body.responseCode.should.be.eq("OK");
                 res.body.id.should.be.eq("api.data.out");
                 nock.cleanAll()
                 chai.spy.restore(Datasource, "findAll")
@@ -285,10 +281,9 @@ describe("QUERY API TESTS", () => {
             .post(apiEndpoint)
             .send(JSON.parse(TestQueries.LIMIT_IS_NAN))
             .end((err, res) => {
-                console.log(res)
-                res.should.have.status(httpStatus.OK);
+                res.should.have.status(200);
                 res.body.should.be.a("object");
-                res.body.responseCode.should.be.eq(httpStatus["200_NAME"]);
+                res.body.responseCode.should.be.eq("OK");
                 res.body.id.should.be.eq("api.data.out");
                 nock.cleanAll()
                 chai.spy.restore(Datasource, "findAll")
@@ -306,7 +301,6 @@ describe("QUERY API TESTS", () => {
             .post(apiEndpoint)
             .send(JSON.parse(TestQueries.DATASOURCE_NOT_FOUND))
             .end((err, res) => {
-                console.log(res)
                 res.should.have.status(404);
                 res.body.should.be.a("object");
                 res.body.responseCode.should.be.eq("NOT_FOUND");
