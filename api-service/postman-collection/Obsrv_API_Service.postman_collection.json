@@ -1,0 +1,607 @@
+{
+	"info": {
+		"_postman_id": "01a69af1-9cf2-4d45-8b11-5fb6e06ca3ef",
+		"name": "Obsrv API Service",
+		"description": "Obsrv is a set of APIs that provide access to a variety of data sources and datasets. These APIs can be used to analyze different types of events, as well as to manage data sources and datasets.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json",
+		"_exporter_id": "26192103",
+		"_collection_link": "https://speeding-star-177775.postman.co/workspace/2ce96556-12e2-48bd-8e42-9c1dba428cc8/collection/26192103-01a69af1-9cf2-4d45-8b11-5fb6e06ca3ef?action=share&source=collection_link&creator=26192103"
+	},
+	"item": [
+		{
+			"name": "Dataset CRUD APIs",
+			"item": [
+				{
+					"name": "Dataset create",
+					"protocolProfileBehavior": {
+						"disabledSystemHeaders": {
+							"content-type": true,
+							"content-length": true,
+							"host": true,
+							"user-agent": true,
+							"accept": true,
+							"accept-encoding": true,
+							"connection": true
+						}
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n \"dataset_id\": \"sb-telemetry\",\n \"type\": \"dataset\",\n \"name\": \"sb-telemetry\",\n \"validation_config\": {\n   \"validate\": true,\n   \"mode\": \"Strict\"\n },\n \"extraction_config\": {\n   \"is_batch_event\": true,\n   \"extraction_key\": \"events\",\n   \"dedup_config\": {\n     \"drop_duplicates\": true,\n     \"dedup_key\": \"id\"\n   }\n },\n \"dedup_config\": {\n   \"drop_duplicates\": true,\n   \"dedup_key\": \"mid\"\n },\n \"data_schema\": {\n   \"$schema\": \"https://json-schema.org/draft/2020-12/schema\",\n   \"type\": \"object\",\n   \"properties\": {\n     \"eid\": {\n       \"type\": \"string\"\n     },\n     \"ver\": {\n       \"type\": \"string\"\n     },\n     \"required\": [\"eid\"]\n   },\n   \"additionalProperties\":true\n },\n \"denorm_config\": {\n   \"denorm_fields\": [\n     {\n       \"denorm_key\": \"actor.id\",\n       \"denorm_out_field\": \"userdata\"\n     }\n   ]\n },\n \"dataset_config\": {\n   \"data_key\": \"mid\",\n   \"timestamp_key\": \"ets\"\n },\n \"tags\": []\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "localhost:3000/v1/datasets/create",
+						"description": "This API allows you to create new datasets used by the analytical data source."
+					},
+					"response": [
+						{
+							"name": "Dataset Success",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"dataset_id\": \"sb-telemetry\",\n    \"type\": \"dataset\",\n    \"name\": \"sb-telemetry\",\n    \"validation_config\": {\n        \"validate\": true,\n        \"mode\": \"Strict\"\n    },\n    \"extraction_config\": {\n        \"is_batch_event\": true,\n        \"extraction_key\": \"events\",\n        \"dedup_config\": {\n            \"drop_duplicates\": true,\n            \"dedup_key\": \"id\"\n        }\n    },\n    \"dedup_config\": {\n        \"drop_duplicates\": true,\n        \"dedup_key\": \"mid\"\n    },\n    \"data_schema\": {\n        \"$schema\": \"https://json-schema.org/draft/2020-12/schema\",\n        \"type\": \"object\",\n        \"properties\": {\n            \"eid\": {\n                \"type\": \"string\"\n            },\n            \"ver\": {\n                \"type\": \"string\"\n            },\n            \"required\": [\n                \"eid\"\n            ]\n        },\n        \"additionalProperties\": true\n    },\n    \"denorm_config\": {\n        \"denorm_fields\": [\n            {\n                \"denorm_key\": \"actor.id\",\n                \"denorm_out_field\": \"userdata\"\n            },\n            {\n                \"denorm_key\": \"actor.id\",\n                \"denorm_out_field\": \"mid\"\n            }\n        ]\n    },\n    \"dataset_config\": {\n        \"data_key\": \"mid\",\n        \"timestamp_key\": \"ets\"\n    },\n    \"tags\": [\"tag1\",\"tag2\"]\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "localhost:3000/v1/datasets/create"
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [],
+							"cookie": [],
+							"body": "{\n    \"id\": \"api\",\n    \"ver\": \"v1\",\n    \"ts\": 1711523413816,\n    \"params\": {\n        \"status\": \"SUCCESS\",\n        \"errmsg\": \"\"\n    },\n    \"responseCode\": \"OK\",\n    \"result\": {\n        \"id\": \"sb-telemetry.1\"\n    }\n}"
+						},
+						{
+							"name": "Master Dataset Success",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n \"dataset_id\": \"sb-telemetry-master\",\n \"type\": \"master-dataset\",\n \"name\": \"sb-telemetry-master\",\n \"validation_config\": {\n   \"validate\": true,\n   \"mode\": \"Strict\"\n },\n \"extraction_config\": {\n   \"is_batch_event\": true,\n   \"extraction_key\": \"events\",\n   \"dedup_config\": {\n     \"drop_duplicates\": true,\n     \"dedup_key\": \"id\"\n   }\n },\n \"dedup_config\": {\n   \"drop_duplicates\": true,\n   \"dedup_key\": \"mid\"\n },\n \"data_schema\": {\n   \"$schema\": \"https://json-schema.org/draft/2020-12/schema\",\n   \"type\": \"object\",\n   \"properties\": {\n     \"eid\": {\n       \"type\": \"string\"\n     },\n     \"ver\": {\n       \"type\": \"string\"\n     },\n     \"required\": [\"eid\"]\n   },\n   \"additionalProperties\":true\n },\n \"denorm_config\": {\n   \"denorm_fields\": [\n     {\n       \"denorm_key\": \"actor.id\",\n       \"denorm_out_field\": \"userdata\"\n     }\n   ]\n },\n \"dataset_config\": {\n   \"data_key\": \"mid\",\n   \"timestamp_key\": \"ets\"\n },\n \"tags\": []\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "localhost:3000/v1/datasets/create"
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [],
+							"cookie": [],
+							"body": "{\n    \"id\": \"api\",\n    \"ver\": \"v1\",\n    \"ts\": 1711523649865,\n    \"params\": {\n        \"status\": \"SUCCESS\",\n        \"errmsg\": \"\"\n    },\n    \"responseCode\": \"OK\",\n    \"result\": {\n        \"id\": \"sb-telemetry.1\"\n    }\n}"
+						},
+						{
+							"name": "Failure: Dataset with given dataset_id already exists",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n \"dataset_id\": \"sb-telemetry\",\n \"type\": \"master-dataset\",\n \"name\": \"sb-telemetry\",\n \"validation_config\": {\n   \"validate\": true,\n   \"mode\": \"Strict\"\n },\n \"extraction_config\": {\n   \"is_batch_event\": true,\n   \"extraction_key\": \"events\",\n   \"dedup_config\": {\n     \"drop_duplicates\": true,\n     \"dedup_key\": \"id\"\n   }\n },\n \"dedup_config\": {\n   \"drop_duplicates\": true,\n   \"dedup_key\": \"mid\"\n },\n \"data_schema\": {\n   \"$schema\": \"https://json-schema.org/draft/2020-12/schema\",\n   \"type\": \"object\",\n   \"properties\": {\n     \"eid\": {\n       \"type\": \"string\"\n     },\n     \"ver\": {\n       \"type\": \"string\"\n     },\n     \"required\": [\"eid\"]\n   },\n   \"additionalProperties\":true\n },\n \"denorm_config\": {\n   \"denorm_fields\": [\n     {\n       \"denorm_key\": \"actor.id\",\n       \"denorm_out_field\": \"userdata\"\n     }\n   ]\n },\n \"dataset_config\": {\n   \"data_key\": \"mid\",\n   \"timestamp_key\": \"ets\"\n },\n \"tags\": []\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "localhost:3000/v1/datasets/create"
+							},
+							"status": "Conflict",
+							"code": 409,
+							"_postman_previewlanguage": "json",
+							"header": [],
+							"cookie": [],
+							"body": "{\n    \"id\": \"api\",\n    \"ver\": \"v1\",\n    \"ts\": 1711523707699,\n    \"params\": {\n        \"status\": \"FAILED\",\n        \"errmsg\": \"Dataset already exists\"\n    },\n    \"responseCode\": \"CONFLICT\",\n    \"result\": {}\n}"
+						},
+						{
+							"name": "Failure: Dataset contains duplicate denorm out field",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n \"dataset_id\": \"sb-telemetry\",\n \"type\": \"dataset\",\n \"name\": \"sb-telemetry\",\n \"data_schema\": {\n   \"$schema\": \"https://json-schema.org/draft/2020-12/schema\",\n   \"type\": \"object\",\n   \"properties\": {\n     \"eid\": {\n       \"type\": \"string\"\n     },\n     \"ver\": {\n       \"type\": \"string\"\n     },\n     \"required\": [\"eid\"]\n   },\n   \"additionalProperties\":true\n },\n \"denorm_config\": {\n   \"denorm_fields\": [\n     {\n       \"denorm_key\": \"actor.id\",\n       \"denorm_out_field\": \"userdata\"\n     },\n     {\n       \"denorm_key\": \"actor.id\",\n       \"denorm_out_field\": \"userdata\"\n     }\n   ]\n }\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "localhost:3000/v1/datasets/create"
+							},
+							"status": "Bad Request",
+							"code": 400,
+							"_postman_previewlanguage": "json",
+							"header": [],
+							"cookie": [],
+							"body": "{\n    \"id\": \"api\",\n    \"ver\": \"v1\",\n    \"ts\": 1711523869002,\n    \"params\": {\n        \"status\": \"FAILED\",\n        \"errmsg\": \"Duplicate denorm output fields found\"\n    },\n    \"responseCode\": \"BAD_REQUEST\",\n    \"result\": {}\n}"
+						},
+						{
+							"name": "Failure: Invalid request payload provided",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n \"type\": \"dataset\",\n \"name\": \"sb-telemetry\",\n \"data_schema\": {\n   \"$schema\": \"https://json-schema.org/draft/2020-12/schema\",\n   \"type\": \"object\",\n   \"properties\": {\n     \"eid\": {\n       \"type\": \"string\"\n     },\n     \"ver\": {\n       \"type\": \"string\"\n     },\n     \"required\": [\"eid\"]\n   },\n   \"additionalProperties\":true\n },\n \"denorm_config\": {\n   \"denorm_fields\": [\n     {\n       \"denorm_key\": \"actor.id\",\n       \"denorm_out_field\": \"userdata\"\n     },\n     {\n       \"denorm_key\": \"actor.id\",\n       \"denorm_out_field\": \"userdata\"\n     }\n   ]\n }\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "localhost:3000/v1/datasets/create"
+							},
+							"status": "Bad Request",
+							"code": 400,
+							"_postman_previewlanguage": "json",
+							"header": [],
+							"cookie": [],
+							"body": "{\n    \"id\": \"api\",\n    \"ver\": \"v1\",\n    \"ts\": 1711523935549,\n    \"params\": {\n        \"status\": \"FAILED\",\n        \"errmsg\": \"#required should have required property 'dataset_id'\"\n    },\n    \"responseCode\": \"BAD_REQUEST\",\n    \"result\": {}\n}"
+						}
+					]
+				},
+				{
+					"name": "Dataset update",
+					"protocolProfileBehavior": {
+						"disabledSystemHeaders": {
+							"content-type": true,
+							"content-length": true,
+							"host": true,
+							"user-agent": true,
+							"accept": true,
+							"accept-encoding": true,
+							"connection": true
+						}
+					},
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"dataset_id\": \"sb-telemetry.1\",\n    \"name\": \"sb-telemetry\",\n    \"validation_config\": {\n        \"validate\": true,\n        \"mode\": \"Strict\"\n    },\n    \"extraction_config\": {\n        \"is_batch_event\": true,\n        \"extraction_key\": \"events\",\n        \"dedup_config\": {\n            \"drop_duplicates\": true,\n            \"dedup_key\": \"id\"\n        }\n    },\n    \"dedup_config\": {\n        \"drop_duplicates\": true,\n        \"dedup_key\": \"mid\"\n    },\n    \"data_schema\": {\n        \"$schema\": \"https://json-schema.org/draft/2020-12/schema\",\n        \"type\": \"object\",\n        \"properties\": {\n            \"eid\": {\n                \"type\": \"string\"\n            },\n            \"ver\": {\n                \"type\": \"string\"\n            },\n            \"required\": [\n                \"eid\"\n            ]\n        },\n        \"additionalProperties\": true\n    },\n    \"denorm_config\": {\n        \"denorm_fields\": [\n            {\n                \"values\": {\n                    \"denorm_key\": \"actor.id\",\n                    \"denorm_out_field\": \"userdata\"\n                },\n                \"action\": \"remove\"\n            },\n            {\n                \"values\": {\n                    \"denorm_key\": \"actor.id\",\n                    \"denorm_out_field\": \"edata\"\n                },\n                \"action\": \"add\"\n            }\n        ]\n    },\n    \"transformation_config\": [\n        {\n            \"values\": {\n                \"field_key\": \"eid\",\n                \"transformation_function\": {\n                    \"type\": \"mask\",\n                    \"expr\": \"eid\",\n                    \"condition\": null\n                },\n                \"mode\": \"Strict\",\n                \"metadata\": {\n                    \"_transformationType\": \"mask\",\n                    \"_transformedFieldDataType\": \"string\",\n                    \"_transformedFieldSchemaType\": \"string\",\n                    \"section\": \"transformation\"\n                }\n            },\n            \"action\": \"add\"\n        }\n    ],\n    \"dataset_config\": {\n        \"data_key\": \"mid\",\n        \"timestamp_key\": \"ets\"\n    },\n    \"tags\": [\n        {\n            \"values\": [\n                \"tag1\",\n                \"tag2\"\n            ],\n            \"action\": \"remove\"\n        },\n        {\n            \"values\": [\n                \"tag3\",\n                \"tag4\"\n            ],\n            \"action\": \"add\"\n        }\n    ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "localhost:3000/v1/datasets/update",
+						"description": "This API allows you to update existing datasets, add or remove denorm fields and tags, add, remove or update transformations used by the analytical data source."
+					},
+					"response": [
+						{
+							"name": "Updated successfully",
+							"originalRequest": {
+								"method": "PATCH",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"dataset_id\": \"sb-telemetry.1\",\n    \"name\": \"sb-telemetry\",\n    \"validation_config\": {\n        \"validate\": true,\n        \"mode\": \"Strict\"\n    },\n    \"extraction_config\": {\n        \"is_batch_event\": true,\n        \"extraction_key\": \"events\",\n        \"dedup_config\": {\n            \"drop_duplicates\": true,\n            \"dedup_key\": \"id\"\n        }\n    },\n    \"dedup_config\": {\n        \"drop_duplicates\": true,\n        \"dedup_key\": \"mid\"\n    },\n    \"data_schema\": {\n        \"$schema\": \"https://json-schema.org/draft/2020-12/schema\",\n        \"type\": \"object\",\n        \"properties\": {\n            \"eid\": {\n                \"type\": \"string\"\n            },\n            \"ver\": {\n                \"type\": \"string\"\n            },\n            \"required\": [\n                \"eid\"\n            ]\n        },\n        \"additionalProperties\": true\n    },\n    \"denorm_config\": {\n        \"denorm_fields\": [\n            {\n                \"values\": {\n                    \"denorm_key\": \"actor.id\",\n                    \"denorm_out_field\": \"userdata\"\n                },\n                \"action\": \"remove\"\n            },\n            {\n                \"values\": {\n                    \"denorm_key\": \"actor.id\",\n                    \"denorm_out_field\": \"edata\"\n                },\n                \"action\": \"add\"\n            }\n        ]\n    },\n    \"transformation_config\": [\n        {\n            \"values\": {\n                \"field_key\": \"eid\",\n                \"transformation_function\": {\n                    \"type\": \"mask\",\n                    \"expr\": \"eid\",\n                    \"condition\": null\n                },\n                \"mode\": \"Strict\",\n                \"metadata\": {\n                    \"_transformationType\": \"mask\",\n                    \"_transformedFieldDataType\": \"string\",\n                    \"_transformedFieldSchemaType\": \"string\",\n                    \"section\": \"transformation\"\n                }\n            },\n            \"action\": \"add\"\n        }\n    ],\n    \"dataset_config\": {\n        \"data_key\": \"mid\",\n        \"timestamp_key\": \"ets\"\n    },\n    \"tags\": [\n        {\n            \"values\": [\n                \"tag1\",\n                \"tag2\"\n            ],\n            \"action\": \"remove\"\n        },\n        {\n            \"values\": [\n                \"tag3\",\n                \"tag4\"\n            ],\n            \"action\": \"add\"\n        }\n    ]\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "localhost:3000/v1/datasets/update"
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [],
+							"cookie": [],
+							"body": "{\n    \"id\": \"api\",\n    \"ver\": \"v1\",\n    \"ts\": 1711524639749,\n    \"params\": {\n        \"status\": \"SUCCESS\",\n        \"errmsg\": \"\"\n    },\n    \"responseCode\": \"OK\",\n    \"result\": {\n        \"message\": \"Dataset is updated successfully\",\n        \"id\": \"sb-telemetry.1\"\n    }\n}"
+						},
+						{
+							"name": "Failure: Dataset does not exists to update",
+							"originalRequest": {
+								"method": "PATCH",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"dataset_id\": \"sb-telemetry\",\n    \"name\": \"sb-telemetry\",\n    \"validation_config\": {\n        \"validate\": true,\n        \"mode\": \"Strict\"\n    },\n    \"extraction_config\": {\n        \"is_batch_event\": true,\n        \"extraction_key\": \"events\",\n        \"dedup_config\": {\n            \"drop_duplicates\": true,\n            \"dedup_key\": \"id\"\n        }\n    },\n    \"dedup_config\": {\n        \"drop_duplicates\": true,\n        \"dedup_key\": \"mid\"\n    },\n    \"data_schema\": {\n        \"$schema\": \"https://json-schema.org/draft/2020-12/schema\",\n        \"type\": \"object\",\n        \"properties\": {\n            \"eid\": {\n                \"type\": \"string\"\n            },\n            \"ver\": {\n                \"type\": \"string\"\n            },\n            \"required\": [\n                \"eid\"\n            ]\n        },\n        \"additionalProperties\": true\n    },\n    \"denorm_config\": {\n        \"denorm_fields\": [\n            {\n                \"values\": {\n                    \"denorm_key\": \"actor.id\",\n                    \"denorm_out_field\": \"userdata\"\n                },\n                \"action\": \"remove\"\n            },\n            {\n                \"values\": {\n                    \"denorm_key\": \"actor.id\",\n                    \"denorm_out_field\": \"edata\"\n                },\n                \"action\": \"add\"\n            }\n        ]\n    },\n    \"transformation_config\": [\n        {\n            \"values\": {\n                \"field_key\": \"key1\",\n                \"transformation_function\": {},\n                \"mode\": \"Strict\",\n                \"metadata\": {}\n            },\n            \"action\": \"add\"\n        }\n    ],\n    \"dataset_config\": {\n        \"data_key\": \"mid\",\n        \"timestamp_key\": \"ets\"\n    },\n    \"tags\": [\n        {\n            \"values\": [\n                \"tag1\",\n                \"tag2\"\n            ],\n            \"action\": \"remove\"\n        },\n        {\n            \"values\": [\n                \"tag3\",\n                \"tag4\"\n            ],\n            \"action\": \"add\"\n        }\n    ]\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "localhost:3000/v1/datasets/update"
+							},
+							"status": "Not Found",
+							"code": 404,
+							"_postman_previewlanguage": "json",
+							"header": [],
+							"cookie": [],
+							"body": "{\n    \"id\": \"api\",\n    \"ver\": \"v1\",\n    \"ts\": 1711524320479,\n    \"params\": {\n        \"status\": \"FAILED\",\n        \"errmsg\": \"Dataset does not exists to update\"\n    },\n    \"responseCode\": \"NOT_FOUND\",\n    \"result\": {}\n}"
+						},
+						{
+							"name": "Failure: Invalid payload provided",
+							"originalRequest": {
+								"method": "PATCH",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"dataset_id\": \"sb-telemetry\",\n    \"name\": {},\n    \"validation_config\": {\n        \"validate\": true,\n        \"mode\": \"Strict\"\n    },\n    \"extraction_config\": {\n        \"is_batch_event\": true,\n        \"extraction_key\": \"events\",\n        \"dedup_config\": {\n            \"drop_duplicates\": true,\n            \"dedup_key\": \"id\"\n        }\n    },\n    \"dedup_config\": {\n        \"drop_duplicates\": true,\n        \"dedup_key\": \"mid\"\n    },\n    \"data_schema\": {\n        \"$schema\": \"https://json-schema.org/draft/2020-12/schema\",\n        \"type\": \"object\",\n        \"properties\": {\n            \"eid\": {\n                \"type\": \"string\"\n            },\n            \"ver\": {\n                \"type\": \"string\"\n            },\n            \"required\": [\n                \"eid\"\n            ]\n        },\n        \"additionalProperties\": true\n    },\n    \"denorm_config\": {\n        \"denorm_fields\": [\n            {\n                \"values\": {\n                    \"denorm_key\": \"actor.id\",\n                    \"denorm_out_field\": \"userdata\"\n                },\n                \"action\": \"remove\"\n            },\n            {\n                \"values\": {\n                    \"denorm_key\": \"actor.id\",\n                    \"denorm_out_field\": \"edata\"\n                },\n                \"action\": \"add\"\n            }\n        ]\n    },\n    \"transformation_config\": [\n        {\n            \"values\": {\n                \"field_key\": \"key1\",\n                \"transformation_function\": {},\n                \"mode\": \"Strict\",\n                \"metadata\": {}\n            },\n            \"action\": \"add\"\n        }\n    ],\n    \"dataset_config\": {\n        \"data_key\": \"mid\",\n        \"timestamp_key\": \"ets\"\n    },\n    \"tags\": [\n        {\n            \"values\": [\n                \"tag1\",\n                \"tag2\"\n            ],\n            \"action\": \"remove\"\n        },\n        {\n            \"values\": [\n                \"tag3\",\n                \"tag4\"\n            ],\n            \"action\": \"add\"\n        }\n    ]\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "localhost:3000/v1/datasets/update"
+							},
+							"status": "Bad Request",
+							"code": 400,
+							"_postman_previewlanguage": "json",
+							"header": [],
+							"cookie": [],
+							"body": "{\n    \"id\": \"api.dataset.update\",\n    \"ver\": \"v1\",\n    \"ts\": 1711534119759,\n    \"params\": {\n        \"status\": \"FAILED\",\n        \"errmsg\": \"#properties/name/type should be string\"\n    },\n    \"responseCode\": \"BAD_REQUEST\",\n    \"result\": {}\n}"
+						},
+						{
+							"name": "Failure: No field provided along with dataset_id",
+							"originalRequest": {
+								"method": "PATCH",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"dataset_id\": \"sb-telemetry\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "localhost:3000/v1/datasets/update"
+							},
+							"status": "Bad Request",
+							"code": 400,
+							"_postman_previewlanguage": "json",
+							"header": [],
+							"cookie": [],
+							"body": "{\n    \"id\": \"api.dataset.update\",\n    \"ver\": \"v1\",\n    \"ts\": 1711534170807,\n    \"params\": {\n        \"status\": \"FAILED\",\n        \"errmsg\": \"Provide atleast one field in addition to the dataset_id to update the dataset\"\n    },\n    \"responseCode\": \"BAD_REQUEST\",\n    \"result\": {}\n}"
+						},
+						{
+							"name": "Failure: Cannot update as dataset not in draft state",
+							"originalRequest": {
+								"method": "PATCH",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"dataset_id\": \"sb-telemetry.1\",\n    \"name\": \"sb-telemetry\",\n    \"validation_config\": {\n        \"validate\": true,\n        \"mode\": \"Strict\"\n    },\n    \"extraction_config\": {\n        \"is_batch_event\": true,\n        \"extraction_key\": \"events\",\n        \"dedup_config\": {\n            \"drop_duplicates\": true,\n            \"dedup_key\": \"id\"\n        }\n    },\n    \"dedup_config\": {\n        \"drop_duplicates\": true,\n        \"dedup_key\": \"mid\"\n    },\n    \"data_schema\": {\n        \"$schema\": \"https://json-schema.org/draft/2020-12/schema\",\n        \"type\": \"object\",\n        \"properties\": {\n            \"eid\": {\n                \"type\": \"string\"\n            },\n            \"ver\": {\n                \"type\": \"string\"\n            },\n            \"required\": [\n                \"eid\"\n            ]\n        },\n        \"additionalProperties\": true\n    },\n    \"denorm_config\": {\n        \"denorm_fields\": [\n            {\n                \"values\": {\n                    \"denorm_key\": \"actor.id\",\n                    \"denorm_out_field\": \"userdata\"\n                },\n                \"action\": \"remove\"\n            },\n            {\n                \"values\": {\n                    \"denorm_key\": \"actor.id\",\n                    \"denorm_out_field\": \"edata\"\n                },\n                \"action\": \"add\"\n            }\n        ]\n    },\n    \"transformation_config\": [\n        {\n            \"values\": {\n                \"field_key\": \"key1\",\n                \"transformation_function\": {},\n                \"mode\": \"Strict\",\n                \"metadata\": {}\n            },\n            \"action\": \"add\"\n        }\n    ],\n    \"dataset_config\": {\n        \"data_key\": \"mid\",\n        \"timestamp_key\": \"ets\"\n    },\n    \"tags\": [\n        {\n            \"values\": [\n                \"tag1\",\n                \"tag2\"\n            ],\n            \"action\": \"remove\"\n        },\n        {\n            \"values\": [\n                \"tag3\",\n                \"tag4\"\n            ],\n            \"action\": \"add\"\n        }\n    ]\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "localhost:3000/v1/datasets/update"
+							},
+							"status": "Bad Request",
+							"code": 400,
+							"_postman_previewlanguage": "json",
+							"header": [],
+							"cookie": [],
+							"body": "{\n    \"id\": \"api.dataset.update\",\n    \"ver\": \"v1\",\n    \"ts\": 1711534328930,\n    \"params\": {\n        \"status\": \"FAILED\",\n        \"errmsg\": \"Dataset cannot be updated as it is not in draft state\"\n    },\n    \"responseCode\": \"BAD_REQUEST\",\n    \"result\": {}\n}"
+						},
+						{
+							"name": "Failure:  Dataset contains duplicate denorm out field",
+							"originalRequest": {
+								"method": "PATCH",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"dataset_id\": \"sb-telemetry.1\",\n    \"name\": \"sb-telemetry\",\n    \"validation_config\": {\n        \"validate\": true,\n        \"mode\": \"Strict\"\n    },\n    \"extraction_config\": {\n        \"is_batch_event\": true,\n        \"extraction_key\": \"events\",\n        \"dedup_config\": {\n            \"drop_duplicates\": true,\n            \"dedup_key\": \"id\"\n        }\n    },\n    \"dedup_config\": {\n        \"drop_duplicates\": true,\n        \"dedup_key\": \"mid\"\n    },\n    \"data_schema\": {\n        \"$schema\": \"https://json-schema.org/draft/2020-12/schema\",\n        \"type\": \"object\",\n        \"properties\": {\n            \"eid\": {\n                \"type\": \"string\"\n            },\n            \"ver\": {\n                \"type\": \"string\"\n            },\n            \"required\": [\n                \"eid\"\n            ]\n        },\n        \"additionalProperties\": true\n    },\n    \"denorm_config\": {\n        \"denorm_fields\": [\n            {\n                \"values\": {\n                    \"denorm_key\": \"actor.id\",\n                    \"denorm_out_field\": \"userdata\"\n                },\n                \"action\": \"add\"\n            },\n            {\n                \"values\": {\n                    \"denorm_key\": \"actor.id\",\n                    \"denorm_out_field\": \"userdata\"\n                },\n                \"action\": \"add\"\n            }\n        ]\n    },\n    \"transformation_config\": [\n        {\n            \"values\": {\n                \"field_key\": \"key1\",\n                \"transformation_function\": {},\n                \"mode\": \"Strict\",\n                \"metadata\": {}\n            },\n            \"action\": \"add\"\n        }\n    ],\n    \"dataset_config\": {\n        \"data_key\": \"mid\",\n        \"timestamp_key\": \"ets\"\n    },\n    \"tags\": [\n        {\n            \"values\": [\n                \"tag1\",\n                \"tag2\"\n            ],\n            \"action\": \"remove\"\n        },\n        {\n            \"values\": [\n                \"tag3\",\n                \"tag4\"\n            ],\n            \"action\": \"add\"\n        }\n    ]\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "localhost:3000/v1/datasets/update"
+							},
+							"status": "Bad Request",
+							"code": 400,
+							"_postman_previewlanguage": "json",
+							"header": [],
+							"cookie": [],
+							"body": "{\n    \"id\": \"api.dataset.update\",\n    \"ver\": \"v1\",\n    \"ts\": 1711534439560,\n    \"params\": {\n        \"status\": \"FAILED\",\n        \"errmsg\": \"Dataset contains duplicate denorm out keys:[userdata}]\"\n    },\n    \"responseCode\": \"BAD_REQUEST\",\n    \"result\": {}\n}"
+						},
+						{
+							"name": "Failure: Dataset tags to add already exists",
+							"originalRequest": {
+								"method": "PATCH",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"dataset_id\": \"sb-telemetry.1\",\n    \"name\": \"sb-telemetry\",\n    \"validation_config\": {\n        \"validate\": true,\n        \"mode\": \"Strict\"\n    },\n    \"extraction_config\": {\n        \"is_batch_event\": true,\n        \"extraction_key\": \"events\",\n        \"dedup_config\": {\n            \"drop_duplicates\": true,\n            \"dedup_key\": \"id\"\n        }\n    },\n    \"dedup_config\": {\n        \"drop_duplicates\": true,\n        \"dedup_key\": \"mid\"\n    },\n    \"data_schema\": {\n        \"$schema\": \"https://json-schema.org/draft/2020-12/schema\",\n        \"type\": \"object\",\n        \"properties\": {\n            \"eid\": {\n                \"type\": \"string\"\n            },\n            \"ver\": {\n                \"type\": \"string\"\n            },\n            \"required\": [\n                \"eid\"\n            ]\n        },\n        \"additionalProperties\": true\n    },\n    \"denorm_config\": {\n        \"denorm_fields\": [\n            {\n                \"values\": {\n                    \"denorm_key\": \"actor.id\",\n                    \"denorm_out_field\": \"userdata\"\n                },\n                \"action\": \"add\"\n            }\n        ]\n    },\n    \"transformation_config\": [\n        {\n            \"values\": {\n                \"field_key\": \"key1\",\n                \"transformation_function\": {},\n                \"mode\": \"Strict\",\n                \"metadata\": {}\n            },\n            \"action\": \"add\"\n        }\n    ],\n    \"dataset_config\": {\n        \"data_key\": \"mid\",\n        \"timestamp_key\": \"ets\"\n    },\n    \"tags\": [\n        {\n            \"values\": [\n                \"tag1\",\n                \"tag2\"\n            ],\n            \"action\": \"remove\"\n        },\n        {\n            \"values\": [\n                \"tag3\",\n                \"tag4\"\n            ],\n            \"action\": \"add\"\n        }\n    ]\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "localhost:3000/v1/datasets/update"
+							},
+							"status": "Bad Request",
+							"code": 400,
+							"_postman_previewlanguage": "json",
+							"header": [],
+							"cookie": [],
+							"body": "{\n    \"id\": \"api.dataset.update\",\n    \"ver\": \"v1\",\n    \"ts\": 1711534567778,\n    \"params\": {\n        \"status\": \"FAILED\",\n        \"errmsg\": \"Dataset tags already exist\"\n    },\n    \"responseCode\": \"BAD_REQUEST\",\n    \"result\": {}\n}"
+						},
+						{
+							"name": "Failure: Dataset tags to remove do not exist",
+							"originalRequest": {
+								"method": "PATCH",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"dataset_id\": \"sb-telemetry.1\",\n    \"name\": \"sb-telemetry\",\n    \"validation_config\": {\n        \"validate\": true,\n        \"mode\": \"Strict\"\n    },\n    \"extraction_config\": {\n        \"is_batch_event\": true,\n        \"extraction_key\": \"events\",\n        \"dedup_config\": {\n            \"drop_duplicates\": true,\n            \"dedup_key\": \"id\"\n        }\n    },\n    \"dedup_config\": {\n        \"drop_duplicates\": true,\n        \"dedup_key\": \"mid\"\n    },\n    \"data_schema\": {\n        \"$schema\": \"https://json-schema.org/draft/2020-12/schema\",\n        \"type\": \"object\",\n        \"properties\": {\n            \"eid\": {\n                \"type\": \"string\"\n            },\n            \"ver\": {\n                \"type\": \"string\"\n            },\n            \"required\": [\n                \"eid\"\n            ]\n        },\n        \"additionalProperties\": true\n    },\n    \"denorm_config\": {\n        \"denorm_fields\": [\n            {\n                \"values\": {\n                    \"denorm_key\": \"actor.id\",\n                    \"denorm_out_field\": \"userdata\"\n                },\n                \"action\": \"add\"\n            }\n        ]\n    },\n    \"transformation_config\": [\n        {\n            \"values\": {\n                \"field_key\": \"key1\",\n                \"transformation_function\": {},\n                \"mode\": \"Strict\",\n                \"metadata\": {}\n            },\n            \"action\": \"add\"\n        }\n    ],\n    \"dataset_config\": {\n        \"data_key\": \"mid\",\n        \"timestamp_key\": \"ets\"\n    },\n    \"tags\": [\n        {\n            \"values\": [\n                \"tag1\",\n                \"tag2\"\n            ],\n            \"action\": \"remove\"\n        }\n    ]\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "localhost:3000/v1/datasets/update"
+							},
+							"status": "Not Found",
+							"code": 404,
+							"_postman_previewlanguage": "json",
+							"header": [],
+							"cookie": [],
+							"body": "{\n    \"id\": \"api.dataset.update\",\n    \"ver\": \"v1\",\n    \"ts\": 1711534640665,\n    \"params\": {\n        \"status\": \"FAILED\",\n        \"errmsg\": \"Dataset tags do not exist to remove\"\n    },\n    \"responseCode\": \"NOT_FOUND\",\n    \"result\": {}\n}"
+						},
+						{
+							"name": "Failure: Dataset transformations to add already exists",
+							"originalRequest": {
+								"method": "PATCH",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"dataset_id\": \"sb-telemetry.1\",\n    \"name\": \"sb-telemetry\",\n    \"validation_config\": {\n        \"validate\": true,\n        \"mode\": \"Strict\"\n    },\n    \"extraction_config\": {\n        \"is_batch_event\": true,\n        \"extraction_key\": \"events\",\n        \"dedup_config\": {\n            \"drop_duplicates\": true,\n            \"dedup_key\": \"id\"\n        }\n    },\n    \"dedup_config\": {\n        \"drop_duplicates\": true,\n        \"dedup_key\": \"mid\"\n    },\n    \"data_schema\": {\n        \"$schema\": \"https://json-schema.org/draft/2020-12/schema\",\n        \"type\": \"object\",\n        \"properties\": {\n            \"eid\": {\n                \"type\": \"string\"\n            },\n            \"ver\": {\n                \"type\": \"string\"\n            },\n            \"required\": [\n                \"eid\"\n            ]\n        },\n        \"additionalProperties\": true\n    },\n    \"denorm_config\": {\n        \"denorm_fields\": [\n            {\n                \"values\": {\n                    \"denorm_key\": \"actor.id\",\n                    \"denorm_out_field\": \"userdata\"\n                },\n                \"action\": \"add\"\n            }\n        ]\n    },\n    \"transformation_config\": [\n        {\n            \"values\": {\n                \"field_key\": \"key1\",\n                \"transformation_function\": {},\n                \"mode\": \"Strict\",\n                \"metadata\": {}\n            },\n            \"action\": \"add\"\n        }\n    ],\n    \"dataset_config\": {\n        \"data_key\": \"mid\",\n        \"timestamp_key\": \"ets\"\n    }\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "localhost:3000/v1/datasets/update"
+							},
+							"status": "Bad Request",
+							"code": 400,
+							"_postman_previewlanguage": "json",
+							"header": [],
+							"cookie": [],
+							"body": "{\n    \"id\": \"api.dataset.update\",\n    \"ver\": \"v1\",\n    \"ts\": 1711534711145,\n    \"params\": {\n        \"status\": \"FAILED\",\n        \"errmsg\": \"Dataset transformations already exists\"\n    },\n    \"responseCode\": \"BAD_REQUEST\",\n    \"result\": {}\n}"
+						},
+						{
+							"name": "Failure: Dataset transformations to update do not exists",
+							"originalRequest": {
+								"method": "PATCH",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"dataset_id\": \"sb-telemetry.1\",\n    \"name\": \"sb-telemetry\",\n    \"validation_config\": {\n        \"validate\": true,\n        \"mode\": \"Strict\"\n    },\n    \"extraction_config\": {\n        \"is_batch_event\": true,\n        \"extraction_key\": \"events\",\n        \"dedup_config\": {\n            \"drop_duplicates\": true,\n            \"dedup_key\": \"id\"\n        }\n    },\n    \"dedup_config\": {\n        \"drop_duplicates\": true,\n        \"dedup_key\": \"mid\"\n    },\n    \"data_schema\": {\n        \"$schema\": \"https://json-schema.org/draft/2020-12/schema\",\n        \"type\": \"object\",\n        \"properties\": {\n            \"eid\": {\n                \"type\": \"string\"\n            },\n            \"ver\": {\n                \"type\": \"string\"\n            },\n            \"required\": [\n                \"eid\"\n            ]\n        },\n        \"additionalProperties\": true\n    },\n    \"denorm_config\": {\n        \"denorm_fields\": [\n            {\n                \"values\": {\n                    \"denorm_key\": \"actor.id\",\n                    \"denorm_out_field\": \"userdata\"\n                },\n                \"action\": \"add\"\n            }\n        ]\n    },\n    \"transformation_config\": [\n        {\n            \"values\": {\n                \"field_key\": \"key2\",\n                \"transformation_function\": {},\n                \"mode\": \"Strict\",\n                \"metadata\": {}\n            },\n            \"action\": \"update\"\n        }\n    ],\n    \"dataset_config\": {\n        \"data_key\": \"mid\",\n        \"timestamp_key\": \"ets\"\n    }\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "localhost:3000/v1/datasets/update"
+							},
+							"status": "Not Found",
+							"code": 404,
+							"_postman_previewlanguage": "json",
+							"header": [],
+							"cookie": [],
+							"body": "{\n    \"id\": \"api.dataset.update\",\n    \"ver\": \"v1\",\n    \"ts\": 1711534770124,\n    \"params\": {\n        \"status\": \"FAILED\",\n        \"errmsg\": \"Dataset transformations do not exist to update\"\n    },\n    \"responseCode\": \"NOT_FOUND\",\n    \"result\": {}\n}"
+						},
+						{
+							"name": "Failure: Dataset transformations to remove do not exist",
+							"originalRequest": {
+								"method": "PATCH",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"dataset_id\": \"sb-telemetry.1\",\n    \"name\": \"sb-telemetry\",\n    \"validation_config\": {\n        \"validate\": true,\n        \"mode\": \"Strict\"\n    },\n    \"extraction_config\": {\n        \"is_batch_event\": true,\n        \"extraction_key\": \"events\",\n        \"dedup_config\": {\n            \"drop_duplicates\": true,\n            \"dedup_key\": \"id\"\n        }\n    },\n    \"dedup_config\": {\n        \"drop_duplicates\": true,\n        \"dedup_key\": \"mid\"\n    },\n    \"data_schema\": {\n        \"$schema\": \"https://json-schema.org/draft/2020-12/schema\",\n        \"type\": \"object\",\n        \"properties\": {\n            \"eid\": {\n                \"type\": \"string\"\n            },\n            \"ver\": {\n                \"type\": \"string\"\n            },\n            \"required\": [\n                \"eid\"\n            ]\n        },\n        \"additionalProperties\": true\n    },\n    \"denorm_config\": {\n        \"denorm_fields\": [\n            {\n                \"values\": {\n                    \"denorm_key\": \"actor.id\",\n                    \"denorm_out_field\": \"userdata\"\n                },\n                \"action\": \"add\"\n            }\n        ]\n    },\n    \"transformation_config\": [\n        {\n            \"values\": {\n                \"field_key\": \"key2\",\n                \"transformation_function\": {},\n                \"mode\": \"Strict\",\n                \"metadata\": {}\n            },\n            \"action\": \"remove\"\n        }\n    ],\n    \"dataset_config\": {\n        \"data_key\": \"mid\",\n        \"timestamp_key\": \"ets\"\n    }\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "localhost:3000/v1/datasets/update"
+							},
+							"status": "Not Found",
+							"code": 404,
+							"_postman_previewlanguage": "json",
+							"header": [],
+							"cookie": [],
+							"body": "{\n    \"id\": \"api.dataset.update\",\n    \"ver\": \"v1\",\n    \"ts\": 1711534808604,\n    \"params\": {\n        \"status\": \"FAILED\",\n        \"errmsg\": \"Dataset transformations do not exist to remove\"\n    },\n    \"responseCode\": \"NOT_FOUND\",\n    \"result\": {}\n}"
+						},
+						{
+							"name": "Failure: Dataset denorm fields to add already exists",
+							"originalRequest": {
+								"method": "PATCH",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"dataset_id\": \"sb-telemetry.1\",\n    \"name\": \"sb-telemetry\",\n    \"validation_config\": {\n        \"validate\": true,\n        \"mode\": \"Strict\"\n    },\n    \"extraction_config\": {\n        \"is_batch_event\": true,\n        \"extraction_key\": \"events\",\n        \"dedup_config\": {\n            \"drop_duplicates\": true,\n            \"dedup_key\": \"id\"\n        }\n    },\n    \"dedup_config\": {\n        \"drop_duplicates\": true,\n        \"dedup_key\": \"mid\"\n    },\n    \"data_schema\": {\n        \"$schema\": \"https://json-schema.org/draft/2020-12/schema\",\n        \"type\": \"object\",\n        \"properties\": {\n            \"eid\": {\n                \"type\": \"string\"\n            },\n            \"ver\": {\n                \"type\": \"string\"\n            },\n            \"required\": [\n                \"eid\"\n            ]\n        },\n        \"additionalProperties\": true\n    },\n    \"denorm_config\": {\n        \"denorm_fields\": [\n            {\n                \"values\": {\n                    \"denorm_key\": \"actor.id\",\n                    \"denorm_out_field\": \"edata\"\n                },\n                \"action\": \"add\"\n            }\n        ]\n    },\n    \"dataset_config\": {\n        \"data_key\": \"mid\",\n        \"timestamp_key\": \"ets\"\n    }\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "localhost:3000/v1/datasets/update"
+							},
+							"status": "Bad Request",
+							"code": 400,
+							"_postman_previewlanguage": "json",
+							"header": [],
+							"cookie": [],
+							"body": "{\n    \"id\": \"api.dataset.update\",\n    \"ver\": \"v1\",\n    \"ts\": 1711534915269,\n    \"params\": {\n        \"status\": \"FAILED\",\n        \"errmsg\": \"Denorm fields already exist\"\n    },\n    \"responseCode\": \"BAD_REQUEST\",\n    \"result\": {}\n}"
+						},
+						{
+							"name": "Failure: Dataset denorm to remove does not exist",
+							"originalRequest": {
+								"method": "PATCH",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"dataset_id\": \"sb-telemetry.1\",\n    \"name\": \"sb-telemetry\",\n    \"validation_config\": {\n        \"validate\": true,\n        \"mode\": \"Strict\"\n    },\n    \"extraction_config\": {\n        \"is_batch_event\": true,\n        \"extraction_key\": \"events\",\n        \"dedup_config\": {\n            \"drop_duplicates\": true,\n            \"dedup_key\": \"id\"\n        }\n    },\n    \"dedup_config\": {\n        \"drop_duplicates\": true,\n        \"dedup_key\": \"mid\"\n    },\n    \"data_schema\": {\n        \"$schema\": \"https://json-schema.org/draft/2020-12/schema\",\n        \"type\": \"object\",\n        \"properties\": {\n            \"eid\": {\n                \"type\": \"string\"\n            },\n            \"ver\": {\n                \"type\": \"string\"\n            },\n            \"required\": [\n                \"eid\"\n            ]\n        },\n        \"additionalProperties\": true\n    },\n    \"denorm_config\": {\n        \"denorm_fields\": [\n            {\n                \"values\": {\n                    \"denorm_key\": \"actor.id\",\n                    \"denorm_out_field\": \"userdata\"\n                },\n                \"action\": \"remove\"\n            }\n        ]\n    },\n    \"dataset_config\": {\n        \"data_key\": \"mid\",\n        \"timestamp_key\": \"ets\"\n    }\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "localhost:3000/v1/datasets/update"
+							},
+							"status": "Not Found",
+							"code": 404,
+							"_postman_previewlanguage": "json",
+							"header": [],
+							"cookie": [],
+							"body": "{\n    \"id\": \"api.dataset.update\",\n    \"ver\": \"v1\",\n    \"ts\": 1711534975927,\n    \"params\": {\n        \"status\": \"FAILED\",\n        \"errmsg\": \"Denorm fields do not exist to remove\"\n    },\n    \"responseCode\": \"NOT_FOUND\",\n    \"result\": {}\n}"
+						}
+					]
+				}
+			],
+			"description": "The Dataset APIs facilitate efficient management of datasets by enabling users to create, read, and update dataset records, along with the capability to list multiple records based on specific criteria."
+		},
+		{
+			"name": "Data Ingest",
+			"item": [
+				{
+					"name": "Data ingest successfully(individual)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"data\": {\n        \"event\": {\n            \"eid\": \"INTERACT\",\n            \"date\": \"2022-01-01\",\n            \"ver\": \"3.0\",\n            \"syncts\": 1668591949682,\n            \"ets\": 1668591949682\n        }\n    }\n}"
+						},
+						"url": "localhost:4444/v1/data/in/sb-telemetry-imported"
+					},
+					"response": []
+				},
+				{
+					"name": "Data ingest successfully(batch)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"data\": {\n        \"eid\": \"eid\",\n        \"events\": [\n            {\n                \"date\": 1693699474326,\n                \"school_id\": 10038,\n                \"school_category\": \"secondary\",\n                \"grade\": 9,\n                \"gender\": \"others\",\n                \"total_students\": 1193,\n                \"students_marked\": 1193,\n                \"students_present\": 520,\n                \"state_id\": \"15\",\n                \"district_id\": \"2003\",\n                \"block_id\": \"100\",\n                \"cluster_id\": \"624\"\n            }\n        ]\n    }\n}"
+						},
+						"url": "localhost:4444/v1/data/in/sb-telemetry-imported"
+					},
+					"response": []
+				},
+				{
+					"name": "Dataset not found",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"data\": {\n        \"eid\": \"eid\",\n        \"ev\": [\n            {\n                \"date\": 1693699474326,\n                \"school_id\": 10038,\n                \"school_category\": \"secondary\",\n                \"grade\": 9,\n                \"gender\": \"others\",\n                \"total_students\": 1193,\n                \"students_marked\": 1193,\n                \"students_present\": 520,\n                \"state_id\": \"15\",\n                \"district_id\": \"2003\",\n                \"block_id\": \"100\",\n                \"cluster_id\": \"624\"\n            }\n        ]\n    }\n}"
+						},
+						"url": {
+							"raw": "localhost:4444/v1/data/in/?datasetId",
+							"host": [
+								"localhost"
+							],
+							"port": "4444",
+							"path": [
+								"v1",
+								"data",
+								"in",
+								""
+							],
+							"query": [
+								{
+									"key": "datasetId",
+									"value": null
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Invalid request body",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"data\": {\n        \"eid\": \"eid\",\n        \"event\": {\n            \"date\": 1693699474326,\n            \"school_id\": 10038,\n            \"school_category\": \"secondary\",\n            \"grade\": 9,\n            \"gender\": \"others\",\n            \"total_students\": 1193,\n            \"students_marked\": 1193,\n            \"students_present\": 520,\n            \"state_id\": \"15\",\n            \"district_id\": \"2003\",\n            \"block_id\": \"100\",\n            \"cluster_id\": \"624\"\n        }\n    }\n}"
+						},
+						"url": "localhost:4444/v1/data/in/sb-telemetry-imported"
+					},
+					"response": []
+				},
+				{
+					"name": "Entry topic not found",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"data\": {\n        \"eid\": \"eid\",\n        \"events\": [\n            {\n                \"date\": 1693699474326,\n                \"school_id\": 10038,\n                \"school_category\": \"secondary\",\n                \"grade\": 9,\n                \"gender\": \"others\",\n                \"total_students\": 1193,\n                \"students_marked\": 1193,\n                \"students_present\": 520,\n                \"state_id\": \"15\",\n                \"district_id\": \"2003\",\n                \"block_id\": \"100\",\n                \"cluster_id\": \"624\"\n            }\n        ]\n    }\n}"
+						},
+						"url": "localhost:4444/v1/data/in/added-tags"
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}

@@ -11,9 +11,9 @@ servers:
 tags:
   - name: Dataset CRUD APIs
     description: >-
-      The Dataset APIs provide a way to interact with a database and allow you
-      to create, read, update records in the database, as well as list multiple
-      records based on certain criteria.
+      The Dataset APIs facilitate efficient management of datasets by enabling
+      users to create, read, and update dataset records, along with the
+      capability to list multiple records based on specific criteria.
   - name: Data Ingest
 paths:
   /v1/datasets/create:
@@ -67,35 +67,6 @@ paths:
       responses:
         '200':
           description: OK
-          headers:
-            X-Powered-By:
-              schema:
-                type: string
-                example: Express
-            Content-Type:
-              schema:
-                type: string
-                example: application/json; charset=utf-8
-            Content-Length:
-              schema:
-                type: integer
-                example: '137'
-            ETag:
-              schema:
-                type: string
-                example: W/"89-tBD7ma2ZXQukTJlJuPn9QW7EiU0"
-            Date:
-              schema:
-                type: string
-                example: Wed, 27 Mar 2024 07:10:13 GMT
-            Connection:
-              schema:
-                type: string
-                example: keep-alive
-            Keep-Alive:
-              schema:
-                type: string
-                example: timeout=5
           content:
             application/json:
               schema:
@@ -127,35 +98,6 @@ paths:
                       id: sb-telemetry.1
         '400':
           description: Bad Request
-          headers:
-            X-Powered-By:
-              schema:
-                type: string
-                example: Express
-            Content-Type:
-              schema:
-                type: string
-                example: application/json; charset=utf-8
-            Content-Length:
-              schema:
-                type: integer
-                example: '160'
-            ETag:
-              schema:
-                type: string
-                example: W/"a0-FnCov6FIYc/LcySgr0igvp5eEUk"
-            Date:
-              schema:
-                type: string
-                example: Wed, 27 Mar 2024 07:17:49 GMT
-            Connection:
-              schema:
-                type: string
-                example: keep-alive
-            Keep-Alive:
-              schema:
-                type: string
-                example: timeout=5
           content:
             application/json:
               schema:
@@ -185,35 +127,6 @@ paths:
                     result: {}
         '409':
           description: Conflict
-          headers:
-            X-Powered-By:
-              schema:
-                type: string
-                example: Express
-            Content-Type:
-              schema:
-                type: string
-                example: application/json; charset=utf-8
-            Content-Length:
-              schema:
-                type: integer
-                example: '143'
-            ETag:
-              schema:
-                type: string
-                example: W/"8f-SGbIwP/nz3um9pBzrP8hVm2Acbs"
-            Date:
-              schema:
-                type: string
-                example: Wed, 27 Mar 2024 07:15:07 GMT
-            Connection:
-              schema:
-                type: string
-                example: keep-alive
-            Keep-Alive:
-              schema:
-                type: string
-                example: timeout=5
           content:
             application/json:
               schema:
@@ -306,35 +219,6 @@ paths:
       responses:
         '200':
           description: OK
-          headers:
-            X-Powered-By:
-              schema:
-                type: string
-                example: Express
-            Content-Type:
-              schema:
-                type: string
-                example: application/json; charset=utf-8
-            Content-Length:
-              schema:
-                type: integer
-                example: '181'
-            ETag:
-              schema:
-                type: string
-                example: W/"b5-J+kVflYGazPyfJVoDrz1CNOHgXY"
-            Date:
-              schema:
-                type: string
-                example: Wed, 27 Mar 2024 07:30:39 GMT
-            Connection:
-              schema:
-                type: string
-                example: keep-alive
-            Keep-Alive:
-              schema:
-                type: string
-                example: timeout=5
           content:
             application/json:
               schema:
@@ -352,35 +236,6 @@ paths:
                   id: sb-telemetry.1
         '400':
           description: Bad Request
-          headers:
-            X-Powered-By:
-              schema:
-                type: string
-                example: Express
-            Content-Type:
-              schema:
-                type: string
-                example: application/json; charset=utf-8
-            Content-Length:
-              schema:
-                type: integer
-                example: '177'
-            ETag:
-              schema:
-                type: string
-                example: W/"b1-P/4TIdBnix2s40EfA9Ja9rkQSi4"
-            Date:
-              schema:
-                type: string
-                example: Wed, 27 Mar 2024 10:08:39 GMT
-            Connection:
-              schema:
-                type: string
-                example: keep-alive
-            Keep-Alive:
-              schema:
-                type: string
-                example: timeout=5
           content:
             application/json:
               schema:
@@ -467,35 +322,6 @@ paths:
                     result: {}
         '404':
           description: Not Found
-          headers:
-            X-Powered-By:
-              schema:
-                type: string
-                example: Express
-            Content-Type:
-              schema:
-                type: string
-                example: application/json; charset=utf-8
-            Content-Length:
-              schema:
-                type: integer
-                example: '155'
-            ETag:
-              schema:
-                type: string
-                example: W/"9b-Vz5QeMuXVrfPId4C15AwFFm7DQ0"
-            Date:
-              schema:
-                type: string
-                example: Wed, 27 Mar 2024 07:25:20 GMT
-            Connection:
-              schema:
-                type: string
-                example: keep-alive
-            Keep-Alive:
-              schema:
-                type: string
-                example: timeout=5
           content:
             application/json:
               schema:
