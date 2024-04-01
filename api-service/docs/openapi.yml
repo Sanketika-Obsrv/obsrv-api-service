@@ -152,7 +152,7 @@ paths:
                 ts: 1711955743089
                 params:
                   status: FAILED
-                  errmsg: connect ECONNREFUSED 127.0.0.1:5432
+                  errmsg: Failed to create dataset
                 responseCode: INTERNAL_SERVER_ERROR
                 result: {}
   /v1/datasets/update:
@@ -408,7 +408,7 @@ paths:
                 ts: 1711955854087
                 params:
                   status: FAILED
-                  errmsg: connect ECONNREFUSED 127.0.0.1:5432
+                  errmsg: Failed to update dataset
                 responseCode: INTERNAL_SERVER_ERROR
                 result: {}
   /444/v1/data/in/sb-telemetry-imported:

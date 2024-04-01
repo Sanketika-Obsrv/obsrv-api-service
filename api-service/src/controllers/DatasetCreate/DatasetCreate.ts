@@ -51,7 +51,12 @@ const datasetCreate = async (req: Request, res: Response) => {
         ResponseHandler.successResponse(req, res, { status: httpStatus.OK, data: { id: _.get(response, ["dataValues", "id"]) || "" } });
     } catch (error: any) {
         logger.error(error)
-        ResponseHandler.errorResponse(error, req, res);
+        let errorMessage = error;
+        const statusCode = _.get(error, "statusCode")
+        if(!statusCode || statusCode == 500){
+            errorMessage={ message : "Failed to create dataset" }
+        }
+        ResponseHandler.errorResponse(errorMessage, req, res);
     }
 }
 
