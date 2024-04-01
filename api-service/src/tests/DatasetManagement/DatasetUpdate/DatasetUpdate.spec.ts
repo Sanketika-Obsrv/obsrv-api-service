@@ -146,6 +146,7 @@ describe("DATASET UPDATE API", () => {
                 res.body.should.be.a("object")
                 res.body.id.should.be.eq("api.dataset.update");
                 res.body.params.status.should.be.eq("FAILED")
+                res.body.params.errmsg.should.be.eq("Failed to update dataset")
                 done();
             });
     });
