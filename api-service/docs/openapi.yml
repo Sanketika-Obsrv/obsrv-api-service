@@ -140,6 +140,21 @@ paths:
                   errmsg: Dataset already exists
                 responseCode: CONFLICT
                 result: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                id: api.dataset.create
+                ver: v1
+                ts: 1711955743089
+                params:
+                  status: FAILED
+                  errmsg: connect ECONNREFUSED 127.0.0.1:5432
+                responseCode: INTERNAL_SERVER_ERROR
+                result: {}
   /v1/datasets/update:
     patch:
       tags:
@@ -381,6 +396,21 @@ paths:
                       errmsg: Denorm fields do not exist to remove
                     responseCode: NOT_FOUND
                     result: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                id: api.dataset.update
+                ver: v1
+                ts: 1711955854087
+                params:
+                  status: FAILED
+                  errmsg: connect ECONNREFUSED 127.0.0.1:5432
+                responseCode: INTERNAL_SERVER_ERROR
+                result: {}
   /444/v1/data/in/sb-telemetry-imported:
     post:
       tags:
