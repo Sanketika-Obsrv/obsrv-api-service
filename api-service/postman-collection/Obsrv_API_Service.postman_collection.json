@@ -183,7 +183,7 @@
 							}
 						},
 						"url": "localhost:3000/v1/datasets/update",
-						"description": "This API allows you to update existing datasets, add or remove denorm fields and tags, add, remove or update transformations used by the analytical data source."
+						"description": "This API allows you to update existing datasets, add or remove denorm fields used by the analytical data source. User can even add, remove or update transformations."
 					},
 					"response": [
 						{
