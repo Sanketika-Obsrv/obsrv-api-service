@@ -1,0 +1,517 @@
+openapi: 3.0.0
+info:
+  title: Obsrv API Service
+  description: >-
+    Obsrv is a set of APIs that provide access to a variety of data sources and
+    datasets. These APIs can be used to analyze different types of events, as
+    well as to manage data sources and datasets.
+  version: 1.0.0
+servers:
+  - url: "<Your-Host-IP>:3000"
+tags:
+  - name: Dataset CRUD APIs
+    description: >-
+      The Dataset APIs facilitate efficient management of datasets by enabling
+      users to create, read, and update dataset records, along with the
+      capability to list multiple records based on specific criteria.
+  - name: Data Ingest
+paths:
+  /v1/datasets/create:
+    post:
+      tags:
+        - Dataset CRUD APIs
+      summary: Dataset create
+      description: >-
+        This API allows you to create new datasets used by the analytical data
+        source.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                dataset_id: sb-telemetry
+                type: dataset
+                name: sb-telemetry
+                validation_config:
+                  validate: true
+                  mode: Strict
+                extraction_config:
+                  is_batch_event: true
+                  extraction_key: events
+                  dedup_config:
+                    drop_duplicates: true
+                    dedup_key: id
+                dedup_config:
+                  drop_duplicates: true
+                  dedup_key: mid
+                data_schema:
+                  $schema: https://json-schema.org/draft/2020-12/schema
+                  type: object
+                  properties:
+                    eid:
+                      type: string
+                    ver:
+                      type: string
+                    required:
+                      - eid
+                  additionalProperties: true
+                denorm_config:
+                  denorm_fields:
+                    - denorm_key: actor.id
+                      denorm_out_field: userdata
+                dataset_config:
+                  data_key: mid
+                  timestamp_key: ets
+                tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+              examples:
+                example-0:
+                  summary: Dataset Success
+                  value:
+                    id: api
+                    ver: v1
+                    ts: 1711523413816
+                    params:
+                      status: SUCCESS
+                      errmsg: ''
+                    responseCode: OK
+                    result:
+                      id: sb-telemetry.1
+                example-1:
+                  summary: Master Dataset Success
+                  value:
+                    id: api
+                    ver: v1
+                    ts: 1711523649865
+                    params:
+                      status: SUCCESS
+                      errmsg: ''
+                    responseCode: OK
+                    result:
+                      id: sb-telemetry.1
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+              examples:
+                example-0:
+                  summary: 'Failure: Dataset contains duplicate denorm out field'
+                  value:
+                    id: api
+                    ver: v1
+                    ts: 1711523869002
+                    params:
+                      status: FAILED
+                      errmsg: Duplicate denorm output fields found
+                    responseCode: BAD_REQUEST
+                    result: {}
+                example-1:
+                  summary: 'Failure: Invalid request payload provided'
+                  value:
+                    id: api
+                    ver: v1
+                    ts: 1711523935549
+                    params:
+                      status: FAILED
+                      errmsg: '#required should have required property ''dataset_id'''
+                    responseCode: BAD_REQUEST
+                    result: {}
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                id: api
+                ver: v1
+                ts: 1711523707699
+                params:
+                  status: FAILED
+                  errmsg: Dataset already exists
+                responseCode: CONFLICT
+                result: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                id: api.dataset.create
+                ver: v1
+                ts: 1711955743089
+                params:
+                  status: FAILED
+                  errmsg: Failed to create dataset
+                responseCode: INTERNAL_SERVER_ERROR
+                result: {}
+  /v1/datasets/update:
+    patch:
+      tags:
+        - Dataset CRUD APIs
+      summary: Dataset update
+      description: >-
+        This API allows you to update existing datasets, add or remove denorm
+        fields used by the analytical data source. User can even add, remove or update transformations.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                dataset_id: sb-telemetry.1
+                name: sb-telemetry
+                validation_config:
+                  validate: true
+                  mode: Strict
+                extraction_config:
+                  is_batch_event: true
+                  extraction_key: events
+                  dedup_config:
+                    drop_duplicates: true
+                    dedup_key: id
+                dedup_config:
+                  drop_duplicates: true
+                  dedup_key: mid
+                data_schema:
+                  $schema: https://json-schema.org/draft/2020-12/schema
+                  type: object
+                  properties:
+                    eid:
+                      type: string
+                    ver:
+                      type: string
+                    required:
+                      - eid
+                  additionalProperties: true
+                denorm_config:
+                  denorm_fields:
+                    - values:
+                        denorm_key: actor.id
+                        denorm_out_field: userdata
+                      action: remove
+                    - values:
+                        denorm_key: actor.id
+                        denorm_out_field: edata
+                      action: add
+                transformation_config:
+                  - values:
+                      field_key: eid
+                      transformation_function:
+                        type: mask
+                        expr: eid
+                        condition: null
+                      mode: Strict
+                      metadata:
+                        _transformationType: mask
+                        _transformedFieldDataType: string
+                        _transformedFieldSchemaType: string
+                        section: transformation
+                    action: add
+                dataset_config:
+                  data_key: mid
+                  timestamp_key: ets
+                tags:
+                  - values:
+                      - tag1
+                      - tag2
+                    action: remove
+                  - values:
+                      - tag3
+                      - tag4
+                    action: add
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                id: api
+                ver: v1
+                ts: 1711524639749
+                params:
+                  status: SUCCESS
+                  errmsg: ''
+                responseCode: OK
+                result:
+                  message: Dataset is updated successfully
+                  id: sb-telemetry.1
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+              examples:
+                example-0:
+                  summary: 'Failure: Invalid payload provided'
+                  value:
+                    id: api.dataset.update
+                    ver: v1
+                    ts: 1711534119759
+                    params:
+                      status: FAILED
+                      errmsg: '#properties/name/type should be string'
+                    responseCode: BAD_REQUEST
+                    result: {}
+                example-1:
+                  summary: 'Failure: No field provided along with dataset_id'
+                  value:
+                    id: api.dataset.update
+                    ver: v1
+                    ts: 1711534170807
+                    params:
+                      status: FAILED
+                      errmsg: >-
+                        Provide atleast one field in addition to the dataset_id
+                        to update the dataset
+                    responseCode: BAD_REQUEST
+                    result: {}
+                example-2:
+                  summary: 'Failure: Cannot update as dataset not in draft state'
+                  value:
+                    id: api.dataset.update
+                    ver: v1
+                    ts: 1711534328930
+                    params:
+                      status: FAILED
+                      errmsg: Dataset cannot be updated as it is not in draft state
+                    responseCode: BAD_REQUEST
+                    result: {}
+                example-3:
+                  summary: 'Failure:  Dataset contains duplicate denorm out field'
+                  value:
+                    id: api.dataset.update
+                    ver: v1
+                    ts: 1711534439560
+                    params:
+                      status: FAILED
+                      errmsg: Dataset contains duplicate denorm out keys:[userdata}]
+                    responseCode: BAD_REQUEST
+                    result: {}
+                example-4:
+                  summary: 'Failure: Dataset tags to add already exists'
+                  value:
+                    id: api.dataset.update
+                    ver: v1
+                    ts: 1711534567778
+                    params:
+                      status: FAILED
+                      errmsg: Dataset tags already exist
+                    responseCode: BAD_REQUEST
+                    result: {}
+                example-5:
+                  summary: 'Failure: Dataset transformations to add already exists'
+                  value:
+                    id: api.dataset.update
+                    ver: v1
+                    ts: 1711534711145
+                    params:
+                      status: FAILED
+                      errmsg: Dataset transformations already exists
+                    responseCode: BAD_REQUEST
+                    result: {}
+                example-6:
+                  summary: 'Failure: Dataset denorm fields to add already exists'
+                  value:
+                    id: api.dataset.update
+                    ver: v1
+                    ts: 1711534915269
+                    params:
+                      status: FAILED
+                      errmsg: Denorm fields already exist
+                    responseCode: BAD_REQUEST
+                    result: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                type: object
+              examples:
+                example-0:
+                  summary: 'Failure: Dataset does not exists to update'
+                  value:
+                    id: api
+                    ver: v1
+                    ts: 1711524320479
+                    params:
+                      status: FAILED
+                      errmsg: Dataset does not exists to update
+                    responseCode: NOT_FOUND
+                    result: {}
+                example-1:
+                  summary: 'Failure: Dataset tags to remove do not exist'
+                  value:
+                    id: api.dataset.update
+                    ver: v1
+                    ts: 1711534640665
+                    params:
+                      status: FAILED
+                      errmsg: Dataset tags do not exist to remove
+                    responseCode: NOT_FOUND
+                    result: {}
+                example-2:
+                  summary: 'Failure: Dataset transformations to update do not exists'
+                  value:
+                    id: api.dataset.update
+                    ver: v1
+                    ts: 1711534770124
+                    params:
+                      status: FAILED
+                      errmsg: Dataset transformations do not exist to update
+                    responseCode: NOT_FOUND
+                    result: {}
+                example-3:
+                  summary: 'Failure: Dataset transformations to remove do not exist'
+                  value:
+                    id: api.dataset.update
+                    ver: v1
+                    ts: 1711534808604
+                    params:
+                      status: FAILED
+                      errmsg: Dataset transformations do not exist to remove
+                    responseCode: NOT_FOUND
+                    result: {}
+                example-4:
+                  summary: 'Failure: Dataset denorm to remove does not exist'
+                  value:
+                    id: api.dataset.update
+                    ver: v1
+                    ts: 1711534975927
+                    params:
+                      status: FAILED
+                      errmsg: Denorm fields do not exist to remove
+                    responseCode: NOT_FOUND
+                    result: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                id: api.dataset.update
+                ver: v1
+                ts: 1711955854087
+                params:
+                  status: FAILED
+                  errmsg: Failed to update dataset
+                responseCode: INTERNAL_SERVER_ERROR
+                result: {}
+  /444/v1/data/in/sb-telemetry-imported:
+    post:
+      tags:
+        - Data Ingest
+      summary: Invalid request body
+      requestBody:
+        content:
+          '*/*':
+            schema:
+              type: string
+              example: >-
+                "{\n    \"data\": {\n        \"eid\": \"eid\",\n       
+                \"event\": {\n            \"date\": 1693699474326,\n           
+                \"school_id\": 10038,\n            \"school_category\":
+                \"secondary\",\n            \"grade\": 9,\n           
+                \"gender\": \"others\",\n            \"total_students\":
+                1193,\n            \"students_marked\": 1193,\n           
+                \"students_present\": 520,\n            \"state_id\":
+                \"15\",\n            \"district_id\": \"2003\",\n           
+                \"block_id\": \"100\",\n            \"cluster_id\":
+                \"624\"\n        }\n    }\n}"
+      parameters:
+        - name: Content-Type
+          in: header
+          schema:
+            type: string
+          example: application/json
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /444/v1/data/in/:
+    post:
+      tags:
+        - Data Ingest
+      summary: Dataset not found
+      requestBody:
+        content:
+          '*/*':
+            schema:
+              type: string
+              example: >-
+                "{\n    \"data\": {\n        \"eid\": \"eid\",\n        \"ev\":
+                [\n            {\n                \"date\":
+                1693699474326,\n                \"school_id\":
+                10038,\n                \"school_category\":
+                \"secondary\",\n                \"grade\": 9,\n               
+                \"gender\": \"others\",\n                \"total_students\":
+                1193,\n                \"students_marked\":
+                1193,\n                \"students_present\":
+                520,\n                \"state_id\": \"15\",\n               
+                \"district_id\": \"2003\",\n                \"block_id\":
+                \"100\",\n                \"cluster_id\": \"624\"\n           
+                }\n        ]\n    }\n}"
+      parameters:
+        - name: Content-Type
+          in: header
+          schema:
+            type: string
+          example: application/json
+        - name: datasetId
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /444/v1/data/in/added-tags:
+    post:
+      tags:
+        - Data Ingest
+      summary: Entry topic not found
+      requestBody:
+        content:
+          '*/*':
+            schema:
+              type: string
+              example: >-
+                "{\n    \"data\": {\n        \"eid\": \"eid\",\n       
+                \"events\": [\n            {\n                \"date\":
+                1693699474326,\n                \"school_id\":
+                10038,\n                \"school_category\":
+                \"secondary\",\n                \"grade\": 9,\n               
+                \"gender\": \"others\",\n                \"total_students\":
+                1193,\n                \"students_marked\":
+                1193,\n                \"students_present\":
+                520,\n                \"state_id\": \"15\",\n               
+                \"district_id\": \"2003\",\n                \"block_id\":
+                \"100\",\n                \"cluster_id\": \"624\"\n           
+                }\n        ]\n    }\n}"
+      parameters:
+        - name: Content-Type
+          in: header
+          schema:
+            type: string
+          example: application/json
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}

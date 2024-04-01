@@ -111,6 +111,7 @@ describe("DATASET CREATE API", () => {
                 res.body.should.be.a("object")
                 res.body.id.should.be.eq("api.dataset.create");
                 res.body.params.status.should.be.eq("FAILED")
+                res.body.params.errmsg.should.be.eq("Failed to create dataset")
                 done();
             });
     });
