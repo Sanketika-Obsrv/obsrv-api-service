@@ -39,7 +39,12 @@ const datasetRead = async (req: Request, res: Response) => {
         ResponseHandler.successResponse(req, res, { status: httpStatus.OK, data: _.get(results, "0") as any });
     } catch (error: any) {
         logger.error(error)
-        ResponseHandler.errorResponse(error, req, res)
+        let errorMessage = error;
+        const statusCode = _.get(error, "statusCode")
+        if(!statusCode || statusCode == 500){
+            errorMessage={ message : "Failed to read dataset" }
+        }
+        ResponseHandler.errorResponse(errorMessage, req, res);
     }
 }
 
