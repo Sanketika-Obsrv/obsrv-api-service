@@ -10,11 +10,10 @@ import { DatasetDraft } from "../../models/DatasetDraft";
 import logger from "../../logger";
 import { defaultDatasetConfig } from "../../configs/DatasetConfigDefault";
 import { DatasetTransformationsDraft } from "../../models/TransformationDraft";
-import { getDraftTransformations, setApiId } from "../../services/DatasetService";
+import { getDraftTransformations } from "../../services/DatasetService";
 
 const datasetUpdate = async (req: Request, res: Response) => {
     try {
-        setApiId(req, "api.dataset.update")
         const datasetBody = req.body;
         const isRequestValid: Record<string, any> = schemaValidation(datasetBody, DatasetUpdate)
         if (!isRequestValid.isValid) {

@@ -34,7 +34,7 @@ describe("DATASET DEDUPE CONFIG UPDATE", () => {
             .end((err, res) => {
                 res.should.have.status(httpStatus.OK);
                 res.body.should.be.a("object")
-                res.body.id.should.be.eq("api.dataset.update");
+                res.body.id.should.be.eq("api.datasets.update");
                 res.body.params.status.should.be.eq("SUCCESS")
                 res.body.result.id.should.be.eq("telemetry")
                 res.body.result.message.should.be.eq("Dataset is updated successfully")
@@ -58,7 +58,7 @@ describe("DATASET DEDUPE CONFIG UPDATE", () => {
             .end((err, res) => {
                 res.should.have.status(httpStatus.OK);
                 res.body.should.be.a("object")
-                res.body.id.should.be.eq("api.dataset.update");
+                res.body.id.should.be.eq("api.datasets.update");
                 res.body.params.status.should.be.eq("SUCCESS")
                 res.body.result.id.should.be.eq("telemetry")
                 res.body.result.message.should.be.eq("Dataset is updated successfully")
@@ -75,7 +75,7 @@ describe("DATASET DEDUPE CONFIG UPDATE", () => {
             .end((err, res) => {
                 res.should.have.status(httpStatus.BAD_REQUEST);
                 res.body.should.be.a("object")
-                res.body.id.should.be.eq("api.dataset.update");
+                res.body.id.should.be.eq("api.datasets.update");
                 res.body.params.status.should.be.eq("FAILED")
                 expect(res.body.params.errmsg).to.match(/^#properties(.+)'.dedup_key'$/)
                 done();

@@ -34,7 +34,7 @@ describe("DATASET TAGS UPDATE", () => {
             .end((err, res) => {
                 res.should.have.status(httpStatus.OK);
                 res.body.should.be.a("object")
-                res.body.id.should.be.eq("api.dataset.update");
+                res.body.id.should.be.eq("api.datasets.update");
                 res.body.params.status.should.be.eq("SUCCESS")
                 res.body.result.id.should.be.eq("telemetry")
                 res.body.result.message.should.be.eq("Dataset is updated successfully")
@@ -58,7 +58,7 @@ describe("DATASET TAGS UPDATE", () => {
             .end((err, res) => {
                 res.should.have.status(httpStatus.OK);
                 res.body.should.be.a("object")
-                res.body.id.should.be.eq("api.dataset.update");
+                res.body.id.should.be.eq("api.datasets.update");
                 res.body.params.status.should.be.eq("SUCCESS")
                 res.body.result.id.should.be.eq("telemetry")
                 res.body.result.message.should.be.eq("Dataset is updated successfully")
@@ -82,7 +82,7 @@ describe("DATASET TAGS UPDATE", () => {
             .end((err, res) => {
                 res.should.have.status(httpStatus.OK);
                 res.body.should.be.a("object")
-                res.body.id.should.be.eq("api.dataset.update");
+                res.body.id.should.be.eq("api.datasets.update");
                 res.body.params.status.should.be.eq("SUCCESS")
                 res.body.result.id.should.be.eq("telemetry")
                 res.body.result.message.should.be.eq("Dataset is updated successfully")
@@ -103,7 +103,7 @@ describe("DATASET TAGS UPDATE", () => {
             .end((err, res) => {
                 res.should.have.status(httpStatus.BAD_REQUEST);
                 res.body.should.be.a("object")
-                res.body.id.should.be.eq("api.dataset.update");
+                res.body.id.should.be.eq("api.datasets.update");
                 res.body.params.status.should.be.eq("FAILED")
                 res.body.params.errmsg.should.be.eq("Dataset tags already exist")
                 done();
@@ -123,7 +123,7 @@ describe("DATASET TAGS UPDATE", () => {
             .end((err, res) => {
                 res.should.have.status(httpStatus.NOT_FOUND);
                 res.body.should.be.a("object")
-                res.body.id.should.be.eq("api.dataset.update");
+                res.body.id.should.be.eq("api.datasets.update");
                 res.body.params.status.should.be.eq("FAILED")
                 res.body.params.errmsg.should.be.eq("Dataset tags do not exist to remove")
                 done();
