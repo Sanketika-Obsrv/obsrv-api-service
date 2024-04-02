@@ -44,17 +44,17 @@ const datasetRead = async (req: Request, res: Response) => {
 }
 
 const getDatasetModel = (status: string | any): string => {
-    if (status !== DatasetStatus.Live) return "datasets_draft";
+    if (status === DatasetStatus.Draft || status === DatasetStatus.Publish) return "datasets_draft";
     return "datasets";
 }
 
 const getInvalidFields = (payload: Record<string, any>): Record<string, any> => {
     const { datasetFields, status } = payload
-    if (status == DatasetStatus.Live) {
-        const invalidFields = _.difference(_.split(datasetFields, ","), validDatasetFields)
+    if (status === DatasetStatus.Draft || status === DatasetStatus.Publish) {
+        const invalidFields = _.difference(_.split(datasetFields, ","), validDraftDatasetFields)
         return invalidFields
     }
-    const invalidFields = difference(_.split(datasetFields, ","), validDraftDatasetFields)
+    const invalidFields = difference(_.split(datasetFields, ","), validDatasetFields)
     return invalidFields;
 }
 
