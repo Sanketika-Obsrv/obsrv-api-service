@@ -1,0 +1,15 @@
+{
+  "type": "object",
+  "properties": {
+    "filters": {
+      "type": "object"
+    },
+    "offset": {
+      "type": "integer"
+    },
+    "limit": {
+      "type": "integer"
+    }
+  },
+  "additionalProperties": false
+}
