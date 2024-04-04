@@ -3,7 +3,7 @@ import dataIn from "../controllers/DataIngestion/DataIngestionController";
 import DatasetCreate from "../controllers/DatasetCreate/DatasetCreate";
 import DatasetUpdate from "../controllers/DatasetUpdate/DatasetUpdate";
 import dataOut from "../controllers/DataOut/DataOutController";
-import { setApiId } from "../middleware/setApiId";
+import { setApiId } from "../middlewares/setApiId";
 
 
 export const router = express.Router();
