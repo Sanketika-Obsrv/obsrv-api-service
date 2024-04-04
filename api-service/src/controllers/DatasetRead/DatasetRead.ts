@@ -15,8 +15,8 @@ const datasetRead = async (req: Request, res: Response) => {
         const { dataset_id } = req.params;
         const { fields, status = DatasetStatus.Live } = req.query;
 
-        const invalidFields = getInvalidFields({ datasetFields: fields, status })
-        if (!_.isEmpty(fields) && !_.isEmpty(invalidFields)) {
+        const invalidFields = !_.isEmpty(fields) ? getInvalidFields({ datasetFields: fields, status }) : []
+        if (!_.isEmpty(invalidFields)) {
             logger.error(`The specified fields [${invalidFields}] in the dataset cannot be found`)
             return ResponseHandler.errorResponse({
                 message: `The specified fields [${invalidFields}] in the dataset cannot be found.`,
@@ -51,7 +51,9 @@ const datasetRead = async (req: Request, res: Response) => {
 }
 
 const getDatasetModel = (status: string | any): string => {
-    if (status === DatasetStatus.Draft || status === DatasetStatus.Publish) return "datasets_draft";
+    if (status === DatasetStatus.Draft || status === DatasetStatus.Publish) {
+        return "datasets_draft";
+    }
     return "datasets";
 }
 
