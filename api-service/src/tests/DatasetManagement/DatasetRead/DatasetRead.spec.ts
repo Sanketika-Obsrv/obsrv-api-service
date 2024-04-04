@@ -20,7 +20,7 @@ describe("DATASET READ API", () => {
 
     it("Dataset read success: When minimal fields requested", (done) => {
         chai.spy.on(sequelize, "query", () => {
-            return Promise.resolve([[{ name: 'sb-telemetry' }], {}])
+            return Promise.resolve([[{ 'name': 'sb-telemetry' }], {}])
         })
         chai
             .request(app)
@@ -32,13 +32,15 @@ describe("DATASET READ API", () => {
                 res.body.params.status.should.be.eq("SUCCESS")
                 res.body.result.should.be.a("object")
                 res.body.result.name.should.be.eq('sb-telemetry')
+                const result = JSON.stringify(res.body.result)
+                result.should.be.eq(JSON.stringify({ 'name': 'sb-telemetry' }))
                 done();
             });
     });
 
     it("Dataset read success: Fetch all dataset fields when fields param is empty", (done) => {
         chai.spy.on(sequelize, "query", () => {
-            return Promise.resolve([[{ name: 'sb-telemetry', id:"sb", status:"Live", type:"dataset" }], {}])
+            return Promise.resolve([[{ name: 'sb-telemetry', id: "sb", status: "Draft", type: "dataset" }], {}])
         })
         chai
             .request(app)
@@ -50,13 +52,14 @@ describe("DATASET READ API", () => {
                 res.body.params.status.should.be.eq("SUCCESS")
                 res.body.result.should.be.a("object")
                 res.body.result.type.should.be.eq('dataset')
+                res.body.result.status.should.be.eq('Draft')
                 done();
             });
     });
 
     it("Dataset read success: Fetch all live dataset when status param is empty", (done) => {
         chai.spy.on(sequelize, "query", () => {
-            return Promise.resolve([[{ name: 'sb-telemetry', id:"sb", status:"Live", type:"dataset" }], {}])
+            return Promise.resolve([[{ name: 'sb-telemetry', id: "sb", status: "Live", type: "dataset" }], {}])
         })
         chai
             .request(app)
@@ -74,7 +77,7 @@ describe("DATASET READ API", () => {
 
     it("Dataset read success: Fetch all live dataset when status param is empty", (done) => {
         chai.spy.on(sequelize, "query", () => {
-            return Promise.resolve([[{ name: 'sb-telemetry', id:"sb", status:"Draft", type:"dataset" }], {}])
+            return Promise.resolve([[{ name: 'sb-telemetry', id: "sb", status: "Draft", type: "dataset" }], {}])
         })
         chai
             .request(app)
