@@ -19,7 +19,7 @@ const datasetRead = async (req: Request, res: Response) => {
         if (!_.isEmpty(fields) && !_.isEmpty(invalidFields)) {
             logger.error(`The specified fields [${invalidFields}] in the dataset cannot be found`)
             return ResponseHandler.errorResponse({
-                message: `The specified field [${invalidFields}] in the dataset cannot be found.`,
+                message: `The specified fields [${invalidFields}] in the dataset cannot be found.`,
                 statusCode: 400,
                 errCode: "BAD_REQUEST"
             } as ErrorObject, req, res);
