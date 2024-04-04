@@ -12,6 +12,8 @@ import { DatasetType } from "../../types/DatasetModels";
 import { query } from "../../connections/databaseConnection";
 import { ErrorObject } from "../../types/ResponseModel";
 
+export const apiId = "api.datasets.create"
+
 const datasetCreate = async (req: Request, res: Response) => {
     try {
         const datasetBody = req.body;
@@ -52,8 +54,8 @@ const datasetCreate = async (req: Request, res: Response) => {
         logger.error(error)
         let errorMessage = error;
         const statusCode = _.get(error, "statusCode")
-        if(!statusCode || statusCode == 500){
-            errorMessage={ message : "Failed to create dataset" }
+        if (!statusCode || statusCode == 500) {
+            errorMessage = { message: "Failed to create dataset" }
         }
         ResponseHandler.errorResponse(errorMessage, req, res);
     }
