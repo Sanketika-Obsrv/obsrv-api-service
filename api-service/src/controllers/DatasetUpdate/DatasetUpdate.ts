@@ -12,6 +12,8 @@ import { defaultDatasetConfig } from "../../configs/DatasetConfigDefault";
 import { DatasetTransformationsDraft } from "../../models/TransformationDraft";
 import { getDraftTransformations } from "../../services/DatasetService";
 
+export const apiId = "api.datasets.update";
+
 const datasetUpdate = async (req: Request, res: Response) => {
     try {
         const datasetBody = req.body;
@@ -75,8 +77,8 @@ const datasetUpdate = async (req: Request, res: Response) => {
         logger.error(error)
         let errorMessage = error;
         const statusCode = _.get(error, "statusCode")
-        if(!statusCode || statusCode == 500){
-            errorMessage={ message : "Failed to update dataset" }
+        if (!statusCode || statusCode == 500) {
+            errorMessage = { message: "Failed to update dataset" }
         }
         ResponseHandler.errorResponse(errorMessage, req, res);
     }

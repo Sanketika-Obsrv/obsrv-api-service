@@ -8,6 +8,7 @@ import { describe, it } from 'mocha';
 import { DatasetDraft } from "../../../models/DatasetDraft";
 import { sequelize } from "../../../connections/databaseConnection";
 import _ from "lodash";
+import { apiId } from "../../../controllers/DatasetCreate/DatasetCreate"
 
 chai.use(spies);
 chai.should();
@@ -38,7 +39,7 @@ describe("DATASET CREATE API", () => {
                 .end((err, res) => {
                     res.should.have.status(fixture.httpStatus);
                     res.body.should.be.a("object")
-                    res.body.id.should.be.eq("api.dataset.create");
+                    res.body.id.should.be.eq(apiId);
                     res.body.params.status.should.be.eq(fixture.status)
                     res.body.result.id.should.be.eq("telemetry")
                     done();
@@ -58,7 +59,7 @@ describe("DATASET CREATE API", () => {
                 .end((err, res) => {
                     res.should.have.status(fixture.httpStatus);
                     res.body.should.be.a("object")
-                    res.body.id.should.be.eq("api.dataset.create");
+                    res.body.id.should.be.eq(apiId);
                     res.body.params.status.should.be.eq(fixture.status)
                     res.body.params.errmsg.should.be.eq("Duplicate denorm output fields found")
                     done();
@@ -74,7 +75,7 @@ describe("DATASET CREATE API", () => {
             .end((err, res) => {
                 res.should.have.status(httpStatus.BAD_REQUEST);
                 res.body.should.be.a("object")
-                res.body.id.should.be.eq("api.dataset.create");
+                res.body.id.should.be.eq(apiId);
                 res.body.params.status.should.be.eq("FAILED")
                 done();
             });
@@ -91,7 +92,7 @@ describe("DATASET CREATE API", () => {
             .end((err, res) => {
                 res.should.have.status(httpStatus.CONFLICT);
                 res.body.should.be.a("object")
-                res.body.id.should.be.eq("api.dataset.create");
+                res.body.id.should.be.eq(apiId);
                 res.body.params.status.should.be.eq("FAILED")
                 res.body.params.errmsg.should.be.eq("Dataset already exists")
                 done();
@@ -109,7 +110,7 @@ describe("DATASET CREATE API", () => {
             .end((err, res) => {
                 res.should.have.status(httpStatus.INTERNAL_SERVER_ERROR);
                 res.body.should.be.a("object")
-                res.body.id.should.be.eq("api.dataset.create");
+                res.body.id.should.be.eq(apiId);
                 res.body.params.status.should.be.eq("FAILED")
                 res.body.params.errmsg.should.be.eq("Failed to create dataset")
                 done();
