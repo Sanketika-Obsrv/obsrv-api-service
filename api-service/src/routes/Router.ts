@@ -13,4 +13,4 @@ router.post(`/v1/data/in/:datasetId`, dataIn);
 router.post('/v1/data/query', dataOut);
 router.post("/v1/datasets/create", setApiId("api.datasets.create"), DatasetCreate)
 router.patch("/v1/datasets/update", setApiId("api.datasets.update"), DatasetUpdate)
-router.get("/v1/datasets/read/:dataset_id", DatasetRead)
+router.get("/v1/datasets/read/:dataset_id", setApiId("api.datasets.read"), DatasetRead)
