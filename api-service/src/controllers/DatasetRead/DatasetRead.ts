@@ -8,6 +8,8 @@ import { query } from "../../connections/databaseConnection";
 import logger from "../../logger";
 import httpStatus from "http-status";
 
+export const apiId = "api.datasets.read";
+
 const datasetRead = async (req: Request, res: Response) => {
     try {
         const { dataset_id } = req.params;
@@ -41,8 +43,8 @@ const datasetRead = async (req: Request, res: Response) => {
         logger.error(error)
         let errorMessage = error;
         const statusCode = _.get(error, "statusCode")
-        if(!statusCode || statusCode == 500){
-            errorMessage={ message : "Failed to read dataset" }
+        if (!statusCode || statusCode == 500) {
+            errorMessage = { message: "Failed to read dataset" }
         }
         ResponseHandler.errorResponse(errorMessage, req, res);
     }
