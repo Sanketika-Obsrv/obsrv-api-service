@@ -66,7 +66,7 @@ const getInvalidFields = (payload: Record<string, any>): Record<string, any> => 
 
 const transformFieldValues = (datasetFields: Record<string, any>) => {
     const { status, fields } = datasetFields;
-    if (status == DatasetStatus.Live && _.includes(_.split(fields, ","), "version")) {
+    if (!(status === DatasetStatus.Draft || status === DatasetStatus.Publish) && _.includes(_.split(fields, ","), "version")) {
         return _.replace(fields, "version", "data_version")
     }
     return fields
