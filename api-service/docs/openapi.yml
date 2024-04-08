@@ -168,8 +168,7 @@ paths:
       summary: Dataset update
       description: >-
         This API allows you to update existing datasets, add or remove denorm
-        fields and tags, add, remove or update transformations used by the
-        analytical data source.
+        fields used by the analytical data source. User can even add, remove or update transformations
       requestBody:
         content:
           application/json:
