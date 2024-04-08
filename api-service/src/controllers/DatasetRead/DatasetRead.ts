@@ -26,7 +26,7 @@ const datasetRead = async (req: Request, res: Response) => {
         }
 
         const datasetModel = getDatasetModel(status);
-        const fieldValue = !_.isEmpty(fields) ? getFieldValues({ fields, status }) : "*"
+        const fieldValue = !_.isEmpty(fields) ? transformFieldValues({ fields, status }) : "*"
         const { results } = await query(`SELECT ${fieldValue} FROM ${datasetModel} WHERE id = '${dataset_id}'`)
         if (_.isEmpty(results)) {
             logger.error(`Dataset with the given dataset_id:${dataset_id} not found`)
@@ -38,7 +38,7 @@ const datasetRead = async (req: Request, res: Response) => {
         }
 
         logger.info(`Dataset Read Successfully with id:${dataset_id}`)
-        const data = getResponseData(results);
+        const data = transformResponseData(results);
         ResponseHandler.successResponse(req, res, { status: httpStatus.OK, data });
     } catch (error: any) {
         logger.error(error)
@@ -64,7 +64,7 @@ const getInvalidFields = (payload: Record<string, any>): Record<string, any> => 
     return invalidFields;
 }
 
-const getFieldValues = (datasetFields: Record<string, any>) => {
+const transformFieldValues = (datasetFields: Record<string, any>) => {
     const { status, fields } = datasetFields;
     if (status == DatasetStatus.Live && _.includes(_.split(fields, ","), "version")) {
         return _.replace(fields, "version", "data_version")
@@ -72,7 +72,7 @@ const getFieldValues = (datasetFields: Record<string, any>) => {
     return fields
 }
 
-const getResponseData = (data: Array<any>) => {
+const transformResponseData = (data: Array<any>) => {
     const response = _.first(data);
     const liveDatasetVersion = _.get(response, "data_version")
     const updatedResponse = liveDatasetVersion ? { ..._.omit(response, ["data_version"]), version: liveDatasetVersion } : response
