@@ -1,60 +1,102 @@
 {
-    "type": "object",
+  "type": "object",
+  "properties": {
+    "datasource": {
+      "type": "string"
+    },
+    "dataset_id": {
+      "type": "string"
+    },
+    "type": {
+      "type": "string",
+      "enum": ["druid", "datalake"]
+    },
+    "datasource_ref": {
+      "type": "string"
+    },
+    "retention_period": {
+      "type": "object"
+    },
+    "archival_policy": {
+      "type": "object"
+    },
+    "purge_policy": {
+      "type": "object"
+    },
+    "backup_config": {
+      "type": "object"
+    },
+    "status": {
+      "type": "string",
+      "enum": ["Live", "Retired"]
+    },
+    "created_by": {
+      "type": "string"
+    },
+    "updated_by": {
+      "type": "string"
+    },
+    "published_date": {
+      "type": "string"
+    },
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "aggregated": {
+          "type": "boolean"
+        },
+        "granularity": {
+          "type": "string"
+        }
+      }
+    },
+    "ingestion_spec": {
+      "type": "object"
+    }
+  },
+  "required": ["dataset_id", "datasource", "type"],
+  "if": {
     "properties": {
-        "datasource": {
+      "type": { "const": "datalake" }
+    }
+  },
+  "then": {
+    "properties": {
+      "ingestion_spec": {
+        "type": "object",
+        "properties": {
+          "dataset": {
             "type": "string"
-        },
-        "dataset_id": {
-            "type": "string"
-        },
-        "ingestion_spec": {
-            "type": "object"
-        },
-        "datalake_ingestion_spec": {
-            "type": "object"
-        },
-        "datasource_ref": {
-            "type": "string"
-        },
-        "retention_period": {
-            "type": "object"
-        },
-        "archival_policy": {
-            "type": "object"
-        },
-        "purge_policy": {
-            "type": "object"
-        },
-        "backup_config": {
-            "type": "object"
-        },
-        "status": {
-            "type": "string",
-            "enum": ["Live", "Retired"]
-        },
-        "created_by": {
-            "type": "string"
-        },
-        "updated_by": {
-            "type": "string"
-        },
-        "published_date": {
-            "type": "string"
-        },
-        "metadata": {
+          },
+          "schema": {
             "type": "object",
             "properties": {
-                "aggregated": {
-                    "type": "boolean"
-                },
-                "granularity": {
-                    "type": "string"
-                }
-            }
-        }
+              "partitionColumn": { "type": "string" },
+              "primaryKey": { "type": "string" },
+              "timestampColumn": { "type": "string" }
+            },
+            "required": ["partitionColumn", "primaryKey", "timestampColumn"]
+          }
+        },
+        "required": ["dataset", "schema"]
+      }
     },
-    "required": [
-        "dataset_id",
-        "datasource"
-    ]
+    "required": ["type"]
+  },
+  "else": {
+    "type": "object",
+    "if": {
+      "properties": {
+        "type": { "const": "druid" }
+      }
+    },
+    "then": {
+      "properties": {
+        "ingestion_spec": {
+          "type": "object"
+        }
+      },
+      "required": ["type"]
+    }
+  }
 }

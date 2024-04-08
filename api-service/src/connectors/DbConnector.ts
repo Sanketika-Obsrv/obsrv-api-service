@@ -57,7 +57,7 @@ export class DbConnector implements IConnector {
 
     public async insertRecord(table: string, fields: any) {
         await this.pool.transaction(async (dbTransaction) => {
-            await this.submit_ingestion(_.get(fields, 'ingestion_spec'), table)
+            await this.submit_ingestion(_.get(fields, 'ingestion_spec'), table, _.get(fields, "type"))
             await dbTransaction(table).insert(fields).on('query-error', (error: any) => {
                 this.log_error(OP_TYPES.INSERT, error, table, fields);
                 throw {...constants.FAILED_RECORD_CREATE, "errCode": error.code}
@@ -89,7 +89,7 @@ export class DbConnector implements IConnector {
         const existingRecord = await this.pool(table).select().where(filters).first()
         if (!_.isUndefined(existingRecord)) {
             await this.pool.transaction(async (dbTransaction) => {
-                await this.submit_ingestion(_.get(values, 'ingestion_spec'), table)
+                await this.submit_ingestion(_.get(values, 'ingestion_spec'), table, _.get(fields, "type"))
                 await dbTransaction(table).where(filters).update(schemaMerger.mergeSchema(existingRecord, values)).on('query-error', (error: any) => {
                     this.log_error(OP_TYPES.UPSERT, error, table, values);
                     throw {...constants.FAILED_RECORD_UPDATE, "errCode": error.code}
@@ -100,7 +100,7 @@ export class DbConnector implements IConnector {
             })
         } else {
             await this.pool.transaction(async (dbTransaction) => {
-                await this.submit_ingestion(_.get(values, 'ingestion_spec'), table)
+                await this.submit_ingestion(_.get(values, 'ingestion_spec'), table, _.get(fields, "type"))
                 await dbTransaction(table).insert(values).on('query-error', (error: any) => {
                     this.log_error(OP_TYPES.UPSERT, error, table, values);
                     throw {...constants.FAILED_RECORD_CREATE, "errCode": error.code}
@@ -144,8 +144,8 @@ export class DbConnector implements IConnector {
         })
     }
 
-    private async submit_ingestion(ingestion_spec: Record<string, any>, table: string) {
-        if (appConfig.table_names.datasources === table) {
+    private async submit_ingestion(ingestion_spec: Record<string, any>, table: string, storage_type: string) {
+        if (appConfig.table_names.datasources === table && storage_type === appConfig.datasource_storage_types.druid) {
             return await wrapperService.submitIngestion(ingestion_spec)
                 .catch((error: any) => {
                     console.error(constants.INGESTION_FAILED_ON_SAVE)

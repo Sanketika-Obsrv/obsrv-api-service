@@ -1,5 +1,4 @@
 {
-    "datalake_ingestion_spec": {},
     "retention_period": {
         "enabled": "false"
     },

@@ -7,6 +7,7 @@ import constants from "../resources/Constants.json";
 import { ingestorService } from "../routes/Router";
 import { ErrorResponseHandler } from "../helpers/ErrorResponseHandler";
 import { DatasetStatus, IConnector } from "../models/DatasetModels";
+import { config } from "../configs/Config";
 
 const telemetryObject = { id: null, type: "datasource", ver: "1.0.0" };
 
@@ -28,7 +29,7 @@ export class DataSourceService {
             const datasources = new Datasources(req.body)
             const payload: any = datasources.setValues()
             updateTelemetryAuditEvent({ request: req, object: { ...telemetryObject, id: _.get(payload, 'id'), } });
-            await this.validateDatasource(payload)
+            if(payload.type === config.datasource_storage_types.druid) await this.validateDatasource(payload)
             await this.dbUtil.save(req, res, next, payload)
         } catch (error: any) { this.errorHandler.handleError(req, res, next, error) }
     }
@@ -36,7 +37,7 @@ export class DataSourceService {
         try {
             const datasources = new Datasources(req.body)
             const payload: Record<string, any> = datasources.setValues()
-            await this.validateDatasource(payload)
+            if(payload.type === config.datasource_storage_types.druid) await this.validateDatasource(payload)
             await findAndSetExistingRecord({ dbConnector: this.dbConnector, table: this.table, request: req, filters: { "id": _.get(payload, 'id') }, object: { ...telemetryObject, id: _.get(payload, 'id') } });
             await this.dbUtil.upsert(req, res, next, payload)
         } catch (error: any) { this.errorHandler.handleError(req, res, next, error) }
