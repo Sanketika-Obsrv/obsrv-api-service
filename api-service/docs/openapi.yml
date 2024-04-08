@@ -417,17 +417,41 @@ paths:
                   errmsg: Failed to update dataset
                 responseCode: INTERNAL_SERVER_ERROR
                 result: {}
-  /v1/datasets/read/sb-telemetry.1:
+  /v1/datasets/read/{dataset_id}:
     get:
       tags:
         - Dataset CRUD APIs
       summary: Dataset read
+      description: >-
+        This API allows you to read a dataset from the requested dataset_id.
+        User can request for the specific fields and status of the dataset through the request params.
+        By default, the API returns the dataset of status "Live".
+        <br>
+        <br>
+        Valid fields that user can request are
+        
+        1. Draft dataset:[  'dataset_id',  'id',  'name',  'type',  'validation_config',  'extraction_config',  'dedup_config',  'data_schema',  'router_config',  'denorm_config',  'transformation_config',  'dataset_config',  'tags',  'status',  'version',  'client_state',  'created_by',  'updated_by',  'created_date',  'update_date',  'published_date']
+        
+        2. Live dataset: [  'dataset_id',  'id',  'name',  'type',  'validation_config',  'extraction_config',  'dedup_config',  'data_schema',  'router_config',  'denorm_config',  'transformation_config',  'dataset_config',  'tags',  'status',  'data_version',  'created_by',  'updated_by',  'created_date',  'update_date',  'published_date']
       parameters:
-        - name: status
-          in: query
+        - name: dataset_id
+          example: sb_telemetry.1
+          in: path
+          required: true
           schema:
             type: string
+        - name: status
           example: Draft
+          in: query
+          required: false 
+          schema:
+            type: string
+        - name: fields
+          example: name
+          in: query
+          required: false 
+          schema:
+            type: string
       responses:
         '200':
           description: OK
