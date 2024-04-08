@@ -8,6 +8,7 @@ import { DatasetDraft } from "../../../models/DatasetDraft";
 import _ from "lodash";
 import { TestInputsForDatasetUpdate } from "./Fixtures";
 import { DatasetTransformationsDraft } from "../../../models/TransformationDraft";
+import { apiId } from "../../../controllers/DatasetUpdate/DatasetUpdate"
 
 chai.use(spies);
 chai.should();
@@ -33,7 +34,7 @@ describe("DATASET UPDATE API", () => {
             .end((err, res) => {
                 res.should.have.status(httpStatus.OK);
                 res.body.should.be.a("object")
-                res.body.id.should.be.eq("api.dataset.update");
+                res.body.id.should.be.eq(apiId);
                 res.body.params.status.should.be.eq("SUCCESS")
                 res.body.result.id.should.be.eq("telemetry")
                 res.body.result.message.should.be.eq("Dataset is updated successfully")
@@ -74,7 +75,7 @@ describe("DATASET UPDATE API", () => {
             .end((err, res) => {
                 res.should.have.status(httpStatus.OK);
                 res.body.should.be.a("object")
-                res.body.id.should.be.eq("api.dataset.update");
+                res.body.id.should.be.eq(apiId);
                 res.body.params.status.should.be.eq("SUCCESS")
                 res.body.result.id.should.be.eq("telemetry")
                 res.body.result.message.should.be.eq("Dataset is updated successfully")
@@ -90,7 +91,7 @@ describe("DATASET UPDATE API", () => {
             .end((err, res) => {
                 res.should.have.status(httpStatus.BAD_REQUEST);
                 res.body.should.be.a("object")
-                res.body.id.should.be.eq("api.dataset.update");
+                res.body.id.should.be.eq(apiId);
                 res.body.params.status.should.be.eq("FAILED")
                 res.body.params.errmsg.should.be.eq("Provide atleast one field in addition to the dataset_id to update the dataset")
                 done();
@@ -108,7 +109,7 @@ describe("DATASET UPDATE API", () => {
             .end((err, res) => {
                 res.should.have.status(httpStatus.NOT_FOUND);
                 res.body.should.be.a("object")
-                res.body.id.should.be.eq("api.dataset.update");
+                res.body.id.should.be.eq(apiId);
                 res.body.params.status.should.be.eq("FAILED")
                 res.body.params.errmsg.should.be.eq("Dataset does not exists to update")
                 done();
@@ -126,7 +127,7 @@ describe("DATASET UPDATE API", () => {
             .end((err, res) => {
                 res.should.have.status(httpStatus.BAD_REQUEST);
                 res.body.should.be.a("object")
-                res.body.id.should.be.eq("api.dataset.update");
+                res.body.id.should.be.eq(apiId);
                 res.body.params.status.should.be.eq("FAILED")
                 res.body.params.errmsg.should.be.eq("Dataset cannot be updated as it is not in draft state")
                 done();
@@ -144,7 +145,7 @@ describe("DATASET UPDATE API", () => {
             .end((err, res) => {
                 res.should.have.status(httpStatus.INTERNAL_SERVER_ERROR);
                 res.body.should.be.a("object")
-                res.body.id.should.be.eq("api.dataset.update");
+                res.body.id.should.be.eq(apiId);
                 res.body.params.status.should.be.eq("FAILED")
                 res.body.params.errmsg.should.be.eq("Failed to update dataset")
                 done();
@@ -171,7 +172,7 @@ describe("DATASET UPDATE API", () => {
                 .end((err, res) => {
                     res.should.have.status(httpStatus.OK);
                     res.body.should.be.a("object")
-                    res.body.id.should.be.eq("api.dataset.update");
+                    res.body.id.should.be.eq(apiId);
                     res.body.params.status.should.be.eq("SUCCESS")
                     res.body.result.id.should.be.eq("telemetry")
                     res.body.result.message.should.be.eq("Dataset is updated successfully")
@@ -187,7 +188,7 @@ describe("DATASET UPDATE API", () => {
                 .end((err, res) => {
                     res.should.have.status(httpStatus.BAD_REQUEST);
                     res.body.should.be.a("object")
-                    res.body.id.should.be.eq("api.dataset.update");
+                    res.body.id.should.be.eq(apiId);
                     res.body.params.status.should.be.eq("FAILED")
                     expect(res.body.params.errmsg).to.match(/^(.+)should be string$/)
                     done();
@@ -217,7 +218,7 @@ describe("DATASET UPDATE API", () => {
                 .end((err, res) => {
                     res.should.have.status(httpStatus.OK);
                     res.body.should.be.a("object")
-                    res.body.id.should.be.eq("api.dataset.update");
+                    res.body.id.should.be.eq(apiId);
                     res.body.params.status.should.be.eq("SUCCESS")
                     res.body.result.id.should.be.eq("telemetry")
                     res.body.result.message.should.be.eq("Dataset is updated successfully")
@@ -233,7 +234,7 @@ describe("DATASET UPDATE API", () => {
                 .end((err, res) => {
                     res.should.have.status(httpStatus.BAD_REQUEST);
                     res.body.should.be.a("object")
-                    res.body.id.should.be.eq("api.dataset.update");
+                    res.body.id.should.be.eq(apiId);
                     res.body.params.status.should.be.eq("FAILED")
                     expect(res.body.params.errmsg).to.match(/^(.+)should NOT have additional properties$/)
                     done();
@@ -263,7 +264,7 @@ describe("DATASET UPDATE API", () => {
                 .end((err, res) => {
                     res.should.have.status(httpStatus.OK);
                     res.body.should.be.a("object")
-                    res.body.id.should.be.eq("api.dataset.update");
+                    res.body.id.should.be.eq(apiId);
                     res.body.params.status.should.be.eq("SUCCESS")
                     res.body.result.id.should.be.eq("telemetry")
                     res.body.result.message.should.be.eq("Dataset is updated successfully")
@@ -279,7 +280,7 @@ describe("DATASET UPDATE API", () => {
                 .end((err, res) => {
                     res.should.have.status(httpStatus.BAD_REQUEST);
                     res.body.should.be.a("object")
-                    res.body.id.should.be.eq("api.dataset.update");
+                    res.body.id.should.be.eq(apiId);
                     res.body.params.status.should.be.eq("FAILED")
                     expect(res.body.params.errmsg).to.match(/^(.+)should NOT have additional properties$/)
                     done();

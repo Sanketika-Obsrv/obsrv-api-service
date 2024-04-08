@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import logger from "../../logger";
-import { getDraftDataset, getDuplicateDenormKey, setApiId } from "../../services/DatasetService";
+import { getDraftDataset, getDuplicateDenormKey } from "../../services/DatasetService";
 import _ from "lodash";
 import DatasetCreate from "./DatasetCreateValidationSchema.json";
 import { schemaValidation } from "../../services/ValidationService";
@@ -12,9 +12,10 @@ import { DatasetType } from "../../types/DatasetModels";
 import { query } from "../../connections/databaseConnection";
 import { ErrorObject } from "../../types/ResponseModel";
 
+export const apiId = "api.datasets.create"
+
 const datasetCreate = async (req: Request, res: Response) => {
     try {
-        setApiId(req, "api.dataset.create")
         const datasetBody = req.body;
         const isRequestValid: Record<string, any> = schemaValidation(datasetBody, DatasetCreate)
 
@@ -53,8 +54,8 @@ const datasetCreate = async (req: Request, res: Response) => {
         logger.error(error)
         let errorMessage = error;
         const statusCode = _.get(error, "statusCode")
-        if(!statusCode || statusCode == 500){
-            errorMessage={ message : "Failed to create dataset" }
+        if (!statusCode || statusCode == 500) {
+            errorMessage = { message: "Failed to create dataset" }
         }
         ResponseHandler.errorResponse(errorMessage, req, res);
     }
