@@ -27,6 +27,7 @@ paths:
         This API allows you to create new datasets used by the analytical data
         source.
       requestBody:
+        required: true
         content:
           application/json:
             schema:
@@ -170,6 +171,7 @@ paths:
         This API allows you to update existing datasets, add or remove denorm
         fields used by the analytical data source. User can even add, remove or update transformations
       requestBody:
+        required: true
         content:
           application/json:
             schema:
@@ -423,7 +425,7 @@ paths:
         - Dataset CRUD APIs
       summary: Dataset read
       description: >-
-        This API allows you to read a dataset from the requested dataset_id.
+        This API allows you to read dataset from the requested dataset_id.
         User can request for the specific fields and status of the dataset through the request params.
         By default, the API returns the dataset of status "Live".
         <br>
