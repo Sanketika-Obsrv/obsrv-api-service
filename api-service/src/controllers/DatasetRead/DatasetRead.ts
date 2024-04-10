@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { DatasetStatus } from "../../types/DatasetModels";
-import _, { difference } from "lodash";
-import { validDatasetFields, validDraftDatasetFields } from "../../configs/DatasetConfigDefault";
+import _ from "lodash";
+import { validDatasetFields } from "../../configs/DatasetConfigDefault";
 import { ResponseHandler } from "../../helpers/ResponseHandler";
 import { ErrorObject } from "../../types/ResponseModel";
 import { query } from "../../connections/databaseConnection";
@@ -15,7 +15,7 @@ const datasetRead = async (req: Request, res: Response) => {
         const { dataset_id } = req.params;
         const { fields, status = DatasetStatus.Live } = req.query;
 
-        const invalidFields = !_.isEmpty(fields) ? getInvalidFields({ datasetFields: fields, status }) : []
+        const invalidFields = !_.isEmpty(fields) ? getInvalidFields({ datasetFields: fields }) : []
         if (!_.isEmpty(invalidFields)) {
             logger.error(`The specified fields [${invalidFields}] in the dataset cannot be found`)
             return ResponseHandler.errorResponse({
@@ -26,7 +26,7 @@ const datasetRead = async (req: Request, res: Response) => {
         }
 
         const datasetModel = getDatasetModel(status);
-        const fieldValue = !_.isEmpty(fields) ? fields : "*"
+        const fieldValue = !_.isEmpty(fields) ? transformFieldValues({ fields, status }) : "*"
         const { results } = await query(`SELECT ${fieldValue} FROM ${datasetModel} WHERE id = '${dataset_id}'`)
         if (_.isEmpty(results)) {
             logger.error(`Dataset with the given dataset_id:${dataset_id} not found`)
@@ -38,7 +38,8 @@ const datasetRead = async (req: Request, res: Response) => {
         }
 
         logger.info(`Dataset Read Successfully with id:${dataset_id}`)
-        ResponseHandler.successResponse(req, res, { status: httpStatus.OK, data: _.get(results, "0") as any });
+        const data = transformResponseData(results);
+        ResponseHandler.successResponse(req, res, { status: httpStatus.OK, data });
     } catch (error: any) {
         logger.error(error)
         let errorMessage = error;
@@ -58,13 +59,24 @@ const getDatasetModel = (status: string | any): string => {
 }
 
 const getInvalidFields = (payload: Record<string, any>): Record<string, any> => {
-    const { datasetFields, status } = payload
-    if (status === DatasetStatus.Draft || status === DatasetStatus.Publish) {
-        const invalidFields = _.difference(_.split(datasetFields, ","), validDraftDatasetFields)
-        return invalidFields
-    }
-    const invalidFields = difference(_.split(datasetFields, ","), validDatasetFields)
+    const { datasetFields } = payload
+    const invalidFields = _.difference(_.split(datasetFields, ","), validDatasetFields)
     return invalidFields;
+}
+
+const transformFieldValues = (datasetFields: Record<string, any>) => {
+    const { status, fields } = datasetFields;
+    if (!(status === DatasetStatus.Draft || status === DatasetStatus.Publish) && _.includes(_.split(fields, ","), "version")) {
+        return _.replace(fields, "version", "data_version")
+    }
+    return fields
+}
+
+const transformResponseData = (data: Array<any>) => {
+    const response = _.first(data);
+    const liveDatasetVersion = _.get(response, "data_version")
+    const updatedResponse = liveDatasetVersion ? { ..._.omit(response, ["data_version"]), version: liveDatasetVersion } : response
+    return updatedResponse
 }
 
 export default datasetRead;

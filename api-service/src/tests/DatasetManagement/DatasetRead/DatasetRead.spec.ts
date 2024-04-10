@@ -21,11 +21,11 @@ describe("DATASET READ API", () => {
 
     it("Dataset read success: When minimal fields requested", (done) => {
         chai.spy.on(sequelize, "query", () => {
-            return Promise.resolve([[{ 'name': 'sb-telemetry' }], {}])
+            return Promise.resolve([[{ 'name': 'sb-telemetry', 'data_version': 1 }], {}])
         })
         chai
             .request(app)
-            .get("/v1/datasets/read/sb-telemetry?fields=name")
+            .get("/v1/datasets/read/sb-telemetry?fields=name,version")
             .end((err, res) => {
                 res.should.have.status(httpStatus.OK);
                 res.body.should.be.a("object")
@@ -34,7 +34,7 @@ describe("DATASET READ API", () => {
                 res.body.result.should.be.a("object")
                 res.body.result.name.should.be.eq('sb-telemetry')
                 const result = JSON.stringify(res.body.result)
-                result.should.be.eq(JSON.stringify({ 'name': 'sb-telemetry' }))
+                result.should.be.eq(JSON.stringify({ 'name': 'sb-telemetry', 'version': 1 }))
                 done();
             });
     });
@@ -75,7 +75,7 @@ describe("DATASET READ API", () => {
                 res.body.result.should.be.a("object")
                 res.body.result.status.should.be.eq('Live')
                 const result = JSON.stringify(res.body.result)
-                result.should.be.eq(JSON.stringify(TestInputsForDatasetRead.LIVE_SCHEMA))
+                result.should.be.eq(JSON.stringify({ ..._.omit(TestInputsForDatasetRead.LIVE_SCHEMA, ["data_version"]), version: 1 }))
                 done();
             });
     });
@@ -100,7 +100,7 @@ describe("DATASET READ API", () => {
     it("Dataset read failure: When specified field of live dataset cannot be found", (done) => {
         chai
             .request(app)
-            .get("/v1/datasets/read/sb-telemetry?fields=version")
+            .get("/v1/datasets/read/sb-telemetry?fields=data")
             .end((err, res) => {
                 res.should.have.status(httpStatus.BAD_REQUEST);
                 res.body.should.be.a("object")
@@ -114,7 +114,7 @@ describe("DATASET READ API", () => {
     it("Dataset read failure: When specified field of draft dataset cannot be found", (done) => {
         chai
             .request(app)
-            .get("/v1/datasets/read/sb-telemetry?fields=data_version&status=Draft")
+            .get("/v1/datasets/read/sb-telemetry?fields=data&status=Draft")
             .end((err, res) => {
                 res.should.have.status(httpStatus.BAD_REQUEST);
                 res.body.should.be.a("object")
