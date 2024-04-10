@@ -41,6 +41,8 @@ describe("DATASET CREATE API", () => {
                     res.body.should.be.a("object")
                     res.body.id.should.be.eq(apiId);
                     res.body.params.status.should.be.eq(fixture.status)
+                    res.body.params.err.should.be.eq("0")
+                    res.body.params.mid.should.be.eq(fixture.mid)
                     res.body.result.id.should.be.eq("telemetry")
                     done();
                 });
@@ -61,6 +63,8 @@ describe("DATASET CREATE API", () => {
                     res.body.should.be.a("object")
                     res.body.id.should.be.eq(apiId);
                     res.body.params.status.should.be.eq(fixture.status)
+                    res.body.params.err.should.be.eq("1")
+                    res.body.params.mid.should.be.eq(fixture.mid)
                     res.body.params.errmsg.should.be.eq("Duplicate denorm output fields found")
                     done();
                 });
@@ -76,6 +80,8 @@ describe("DATASET CREATE API", () => {
                 res.should.have.status(httpStatus.BAD_REQUEST);
                 res.body.should.be.a("object")
                 res.body.id.should.be.eq(apiId);
+                res.body.params.err.should.be.eq("1");
+                res.body.params.mid.should.be.eq("4a7f14c3-d61e-4d4f-be78-181834eeff6d")
                 res.body.params.status.should.be.eq("FAILED")
                 done();
             });
@@ -94,6 +100,8 @@ describe("DATASET CREATE API", () => {
                 res.body.should.be.a("object")
                 res.body.id.should.be.eq(apiId);
                 res.body.params.status.should.be.eq("FAILED")
+                res.body.params.err.should.be.eq("1");
+                res.body.params.mid.should.be.eq("4a7f14c3-d61e-4d4f-be78-181834eeff6d")
                 res.body.params.errmsg.should.be.eq("Dataset already exists")
                 done();
             });
@@ -112,6 +120,8 @@ describe("DATASET CREATE API", () => {
                 res.body.should.be.a("object")
                 res.body.id.should.be.eq(apiId);
                 res.body.params.status.should.be.eq("FAILED")
+                res.body.params.err.should.be.eq("1");
+                res.body.params.mid.should.be.eq("4a7f14c3-d61e-4d4f-be78-181834eeff6d")
                 res.body.params.errmsg.should.be.eq("Failed to create dataset")
                 done();
             });
