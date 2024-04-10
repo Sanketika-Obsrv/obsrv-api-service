@@ -16,7 +16,6 @@ tags:
       capability to list multiple records based on specific criteria.
   - name: Data Ingest
   - name: Data query
-  - name: Data exhaust
 paths:
   /v1/datasets/create:
     post:
@@ -618,504 +617,336 @@ paths:
                   errmsg: Failed to read dataset
                 responseCode: INTERNAL_SERVER_ERROR
                 result: {}
-  /444/v1/data/in/sb-telemetry-imported:
-    post:
-      tags:
-        - Data Ingest
-      summary: Data ingest
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              example:
-                data:
-                  event:
-                    eid: INTERACT
-                    date: '2022-01-01'
-                    ver: '3.0'
-                    syncts: 1668591949682
-                    ets: 1668591949682
-      parameters:
-        - name: Content-Type
-          in: header
+  /v1/data/in/{datasetId}:
+      post:
+        tags:
+          - Data Ingest
+        parameters:
+        - required: true
           schema:
+            title: datasetId
             type: string
-          example: application/json
-      responses:
-        '200':
-          description: OK
-          headers:
-            X-Powered-By:
-              schema:
-                type: string
-                example: Express
-            Content-Type:
-              schema:
-                type: string
-                example: application/json; charset=utf-8
-            Content-Length:
-              schema:
-                type: integer
-                example: '162'
-            ETag:
-              schema:
-                type: string
-                example: W/"a2-VX3w1bt3fUXVVCHlq3Stnp7edkc"
-            Date:
-              schema:
-                type: string
-                example: Mon, 01 Apr 2024 10:11:46 GMT
-            Connection:
-              schema:
-                type: string
-                example: keep-alive
-            Keep-Alive:
-              schema:
-                type: string
-                example: timeout=5
+          name: datasetId
+          in: path
+        summary: Data ingest
+        description: >-
+          This API allows you to ingest events to a data streaming platform in individual or batch format.
+        requestBody:
           content:
             application/json:
-              schema:
-                type: object
               examples:
-                example-0:
-                  summary: Data ingest successful(individual)
-                  value:
-                    id: api.data.in
-                    ver: v1
-                    ts: 1711966306164
-                    params:
-                      status: SUCCESS
-                      errmsg: ''
-                    responseCode: OK
-                    result:
-                      message: Data ingested successfully
-                example-1:
-                  summary: Data ingest successfully(batch)
-                  value:
-                    id: api.data.in
-                    ver: v1
-                    ts: 1711966352987
-                    params:
-                      status: SUCCESS
-                      errmsg: ''
-                    responseCode: OK
-                    result:
-                      message: Data ingested successfully
-        '400':
-          description: Bad Request
-          headers:
-            X-Powered-By:
-              schema:
-                type: string
-                example: Express
-            Content-Type:
-              schema:
-                type: string
-                example: application/json; charset=utf-8
-            Content-Length:
-              schema:
-                type: integer
-                example: '195'
-            ETag:
-              schema:
-                type: string
-                example: W/"c3-s9LhoXtWetfBYQZfs6ljrZ6qzi0"
-            Date:
-              schema:
-                type: string
-                example: Mon, 01 Apr 2024 10:13:30 GMT
-            Connection:
-              schema:
-                type: string
-                example: keep-alive
-            Keep-Alive:
-              schema:
-                type: string
-                example: timeout=5
+                example1:
+                    summary: Ingest individual event
+                    value:
+                      data:
+                        event:
+                          eid: INTERACT
+                          date: '2022-01-01'
+                          ver: '3.0'
+                          syncts: 1668591949682
+                          ets: 1668591949682
+                example2:
+                    summary: Ingest batch event
+                    value:
+                      data:
+                        eid: "eid"
+                        events: [{ "eid": "INTERACT","date": "2022-01-01","ver": "3.0","syncts": 1668591949682}]
+        responses:
+          '200':
+            description: OK
+            content:
+              application/json:
+                schema:
+                  type: object
+                examples:
+                  example-0:
+                    summary: Data ingest successful(individual)
+                    value:
+                      id: api.data.in
+                      ver: v1
+                      ts: 1711966306164
+                      params:
+                        status: SUCCESS
+                        errmsg: ''
+                      responseCode: OK
+                      result:
+                        message: Data ingested successfully
+                  example-1:
+                    summary: Data ingest successfully(batch)
+                    value:
+                      id: api.data.in
+                      ver: v1
+                      ts: 1711966352987
+                      params:
+                        status: SUCCESS
+                        errmsg: ''
+                      responseCode: OK
+                      result:
+                        message: Data ingested successfully
+          '400':
+            description: Bad Request
+            content:
+              application/json:
+                schema:
+                  type: object
+                example:
+                  id: api.data.in
+                  ver: v1
+                  ts: 1711966410766
+                  params:
+                    status: FAILED
+                    errmsg: >-
+                      #properties/data/oneOf should match exactly one schema in
+                      oneOf
+                  responseCode: BAD_REQUEST
+                  result: {}
+          '404':
+            description: Not Found
+            content:
+              application/json:
+                schema:
+                  type: object
+                examples:
+                  example-0:
+                    summary: Dataset not found
+                    value:
+                      id: api.data.in
+                      ver: v1
+                      ts: 1711966446364
+                      params:
+                        status: FAILED
+                        errmsg: Dataset with id not found
+                      responseCode: BAD_REQUEST
+                      result: {}
+                  example-1:
+                    summary: Entry topic not found
+                    value:
+                      id: api.data.in
+                      ver: v1
+                      ts: 1711975482739
+                      params:
+                        status: FAILED
+                        errmsg: Entry topic is not defined
+                      responseCode: BAD_REQUEST
+                      result: {}
+  /v1/data/query:
+      post:
+        tags:
+          - Data query
+        summary: Data query
+        description: >-
+          This API allows you to query your datasource.
+        requestBody:
           content:
             application/json:
-              schema:
-                type: object
-              example:
-                id: api.data.in
-                ver: v1
-                ts: 1711966410766
-                params:
-                  status: FAILED
-                  errmsg: >-
-                    #properties/data/oneOf should match exactly one schema in
-                    oneOf
-                responseCode: BAD_REQUEST
-                result: {}
-        '404':
-          description: Not Found
-          headers:
-            X-Powered-By:
-              schema:
-                type: string
-                example: Express
-            Content-Type:
-              schema:
-                type: string
-                example: application/json; charset=utf-8
-            Content-Length:
-              schema:
-                type: integer
-                example: '157'
-            ETag:
-              schema:
-                type: string
-                example: W/"9d-aWMcO0dxAl8AsPQ5hqQD72PP6NU"
-            Date:
-              schema:
-                type: string
-                example: Mon, 01 Apr 2024 10:14:06 GMT
-            Connection:
-              schema:
-                type: string
-                example: keep-alive
-            Keep-Alive:
-              schema:
-                type: string
-                example: timeout=5
-          content:
-            application/json:
-              schema:
-                type: object
+                # example:
+                #   context:
+                #     granularity: day
+                #   query: >-
+                #     SELECT * FROM "rollups-configured" WHERE __time >= TIMESTAMP
+                #     '2020-12-31' AND __time < TIMESTAMP '2024-01-21' LIMIT 1
               examples:
-                example-0:
-                  summary: Dataset not found
-                  value:
-                    id: api.data.in
-                    ver: v1
-                    ts: 1711966446364
-                    params:
-                      status: FAILED
-                      errmsg: Dataset with id not found
-                    responseCode: BAD_REQUEST
-                    result: {}
-                example-1:
-                  summary: Entry topic not found
-                  value:
-                    id: api.data.in
-                    ver: v1
-                    ts: 1711975482739
-                    params:
-                      status: FAILED
-                      errmsg: Entry topic is not defined
-                    responseCode: BAD_REQUEST
-                    result: {}
-  /444/v1/data/query:
-    post:
-      tags:
-        - Data query
-      summary: Data query
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              example:
-                context:
-                  granularity: day
-                query: >-
-                  SELECT * FROM "rollups-configured" WHERE __time >= TIMESTAMP
-                  '2020-12-31' AND __time < TIMESTAMP '2024-01-21' LIMIT 1
-      responses:
-        '200':
-          description: OK
-          headers:
-            X-Powered-By:
-              schema:
-                type: string
-                example: Express
-            Content-Type:
-              schema:
-                type: string
-                example: application/json; charset=utf-8
-            Content-Length:
-              schema:
-                type: integer
-                example: '2280'
-            ETag:
-              schema:
-                type: string
-                example: W/"8e8-TlKxtgzZCmOLRiPGIN2mpTr0eQ4"
-            Date:
-              schema:
-                type: string
-                example: Mon, 01 Apr 2024 11:46:12 GMT
-            Connection:
-              schema:
-                type: string
-                example: keep-alive
-            Keep-Alive:
-              schema:
-                type: string
-                example: timeout=5
-          content:
-            application/json:
-              schema:
-                type: object
-              examples:
-                example-0:
-                  summary: 'Success: sql query'
-                  value:
-                    id: api.data.out
-                    ver: v1
-                    ts: 1711971972855
-                    params:
-                      status: SUCCESS
-                      errmsg: ''
-                    responseCode: OK
-                    result:
-                      - __time: '2022-01-01T00:00:00.000Z'
-                        eid: '1'
-                        ver: '3.0'
-                        flags_ex_processed: 'true'
-                        flags_pp_validation_processed: 'true'
-                        flags_pp_duplicate_skipped: 'true'
-                        flags_device_denorm: 'true'
-                        flags_user_denorm: 'true'
-                        flags_loc_denorm: 'true'
-                        derivedlocationdata_district: AGRA
-                        derivedlocationdata_from: user-profile
-                        derivedlocationdata_state: Uttar Pradesh
-                        mid: 6c3fc8c2-357d-489b-b0c9-afdde6e5c6c0
-                        type: events
-                        actor_type: User
-                        actor_id: 311663b2-d7de-4d46-8803-20407eaa3403
-                        edata_type: session
-                        userdata_subject: null
-                        userdata_district: AGRA
-                        userdata_usersubtype: hm
-                        userdata_grade: null
-                        userdata_usersignintype: Self-Signed-In
-                        userdata_usertype: administrator
-                        userdata_userlogintype: administrator
-                        userdata_state: Uttar Pradesh
-                        devicedata_statecustomcode: '29'
-                        devicedata_country: India
-                        devicedata_iso3166statecode: IN-KA
-                        devicedata_city: Bengaluru
-                        devicedata_countrycode: IN
-                        devicedata_state: Karnataka
-                        devicedata_devicespec_idisk: '106.47'
-                        devicedata_devicespec_webview: 107.0.5304.105
-                        devicedata_devicespec_os: Android 12
-                        devicedata_devicespec_scrn: '6.53'
-                        devicedata_devicespec_sims: '-1'
-                        devicedata_devicespec_cpu: "abi: arm64-v8a processor\t: 0 "
-                        devicedata_devicespec_id: ac4ad4ac3feda0f2b17835b81e736c88c194dc89
-                        devicedata_devicespec_camera: ''
-                        devicedata_devicespec_edisk: '106.27'
-                        devicedata_devicespec_make: vivo 1915
-                        devicedata_statecode: KA
-                        devicedata_districtcustom: BENGALURU URBAN SOUTH
-                        devicedata_statecustomname: Karnataka
-                        devicedata_userdeclared_district: AGRA
-                        devicedata_userdeclared_state: Uttar Pradesh
-                        context_cdata_id: a3c784f0-61d8-43e4-a92a-373fd4338c1d
-                        context_cdata_type: UserSession
-                        context_env: sdk
-                        context_channel: '0126796199493140480'
-                        context_pdata_id: preprod.diksha.app
-                        context_pdata_pid: sunbird.app
-                        context_pdata_ver: 4.10.1023preproduction
-                        context_sid: a3c784f0-61d8-43e4-a92a-373fd4338c1d
-                        context_did: ac4ad4ac3feda0f2b17835b81e736c88c194dc89
-                        context_rollup_l1: '0126796199493140480'
-                        object_id: ''
-                        object_type: ''
-                        object_version: ''
-                        object_rollup: '{}'
-                        count: 3
-                        edata_duration_sum: null
-                example-1:
-                  summary: 'Success: native query'
-                  value:
-                    id: api.data.out
-                    ver: v1
-                    ts: 1711973520793
-                    params:
-                      status: SUCCESS
-                      errmsg: ''
-                    responseCode: OK
-                    result:
-                      - timestamp: '2022-01-01T00:00:00.000Z'
-                        result:
-                          mid: 1
-        '400':
-          description: Bad Request
-          headers:
-            X-Powered-By:
-              schema:
-                type: string
-                example: Express
-            Content-Type:
-              schema:
-                type: string
-                example: application/json; charset=utf-8
-            Content-Length:
-              schema:
-                type: integer
-                example: '201'
-            ETag:
-              schema:
-                type: string
-                example: W/"c9-oV8Psx0gaXpIUOCQT9lFkcsl0SU"
-            Date:
-              schema:
-                type: string
-                example: Mon, 01 Apr 2024 11:49:53 GMT
-            Connection:
-              schema:
-                type: string
-                example: keep-alive
-            Keep-Alive:
-              schema:
-                type: string
-                example: timeout=5
-          content:
-            application/json:
-              schema:
-                type: object
-              examples:
-                example-0:
-                  summary: 'Failure: invalid date range'
-                  value:
-                    id: api.data.out
-                    ver: v1
-                    ts: 1711972193426
-                    params:
-                      status: FAILED
-                      errmsg: >-
-                        Invalid date range! make sure your range cannot be more
-                        than 30 days
-                    responseCode: BAD_REQUEST
-                    result: {}
-                example-1:
-                  summary: 'Failure: Invalid date range (native)'
-                  value:
-                    id: api.data.out
-                    ver: v1
-                    ts: 1711972501847
-                    params:
-                      status: FAILED
-                      errmsg: >-
-                        Invalid date range! make sure your range cannot be more
-                        than 30 days
-                    responseCode: BAD_REQUEST
-                    result: {}
-        '404':
-          description: Not Found
-          headers:
-            X-Powered-By:
-              schema:
-                type: string
-                example: Express
-            Content-Type:
-              schema:
-                type: string
-                example: application/json; charset=utf-8
-            Content-Length:
-              schema:
-                type: integer
-                example: '201'
-            ETag:
-              schema:
-                type: string
-                example: W/"c9-oOPdPjvTI/yRUcA8V6d5riD4+80"
-            Date:
-              schema:
-                type: string
-                example: Mon, 01 Apr 2024 11:48:05 GMT
-            Connection:
-              schema:
-                type: string
-                example: keep-alive
-            Keep-Alive:
-              schema:
-                type: string
-                example: timeout=5
-          content:
-            application/json:
-              schema:
-                type: object
-              examples:
-                example-0:
-                  summary: 'Failure: Datasource not found in druid'
-                  value:
-                    id: api.data.out
-                    ver: v1
-                    ts: 1711972085550
-                    params:
-                      status: FAILED
-                      errmsg: >-
-                        Datasource rollups-configured.1_rollup_week not
-                        available for querying
-                    responseCode: NOT_FOUND
-                    result: {}
-                example-1:
-                  summary: 'Failure: Datasource not found in live table'
-                  value:
-                    id: api.data.out
-                    ver: v1
-                    ts: 1711975034302
-                    params:
-                      status: FAILED
-                      errmsg: Datasource undefined not found
-                    responseCode: NOT_FOUND
-                    result: {}
-                example-2:
-                  summary: 'Failure: Datasource not found in live table (native)'
-                  value:
-                    id: api.data.out
-                    ver: v1
-                    ts: 1711974978635
-                    params:
-                      status: FAILED
-                      errmsg: Datasource telemetry-eventssss not found
-                    responseCode: NOT_FOUND
-                    result: {}
-                example-3:
-                  summary: 'Failure: Datasource not found in druid(native)'
-                  value:
-                    id: api.data.out
-                    ver: v1
-                    ts: 1711972569115
-                    params:
-                      status: FAILED
-                      errmsg: >-
-                        Datasource telemetry-events.1_rollup_day not available
-                        for querying
-                    responseCode: NOT_FOUND
-                    result: {}
-  /444/v1/data/exhaust/beckn-test-data:
-    get:
-      tags:
-        - Data exhaust
-      summary: Data exhaust
-      parameters:
-        - name: from
-          in: query
-          schema:
-            type: string
-          example: '2023-10-01'
-        - name: to
-          in: query
-          schema:
-            type: string
-          example: '2024-03-10'
-        - name: type
-          in: query
-          schema:
-            type: string
-          example: raw
-      responses:
-        '200':
-          description: Successful response
-          content:
-            application/json: {}
+                example1:
+                    summary: SQL query
+                    value:
+                      context:
+                        granularity: day
+                      query: >-
+                        SELECT * FROM "rollups-configured" WHERE __time >= TIMESTAMP
+                        '2020-12-31' AND __time < TIMESTAMP '2024-01-21' LIMIT 1
+                example2:
+                    summary: Native query
+                    value:
+                      context:
+                        granularity: day
+                      query:
+                        quertType: scan
+                        dataSource: rollups-configured
+                        intervals:
+                          type: intervals
+                          intervals: ["2022-01-01/2022-02-01"]
+                        granularity: day
+                        columns: ["eid","__time"]
+        responses:
+          '200':
+            description: OK
+            content:
+              application/json:
+                schema:
+                  type: object
+                examples:
+                  example-0:
+                    summary: 'Success: sql query'
+                    value:
+                      id: api.data.out
+                      ver: v1
+                      ts: 1711971972855
+                      params:
+                        status: SUCCESS
+                        errmsg: ''
+                      responseCode: OK
+                      result:
+                        - __time: '2022-01-01T00:00:00.000Z'
+                          eid: '1'
+                          ver: '3.0'
+                          flags_ex_processed: 'true'
+                          flags_pp_validation_processed: 'true'
+                          flags_pp_duplicate_skipped: 'true'
+                          flags_device_denorm: 'true'
+                          flags_user_denorm: 'true'
+                          flags_loc_denorm: 'true'
+                          derivedlocationdata_district: AGRA
+                          derivedlocationdata_from: user-profile
+                          derivedlocationdata_state: Uttar Pradesh
+                          mid: 6c3fc8c2-357d-489b-b0c9-afdde6e5c6c0
+                          type: events
+                          actor_type: User
+                          actor_id: 311663b2-d7de-4d46-8803-20407eaa3403
+                          edata_type: session
+                          userdata_subject: null
+                          userdata_district: AGRA
+                          userdata_usersubtype: hm
+                          userdata_grade: null
+                          userdata_usersignintype: Self-Signed-In
+                          userdata_usertype: administrator
+                          userdata_userlogintype: administrator
+                          userdata_state: Uttar Pradesh
+                          devicedata_statecustomcode: '29'
+                          devicedata_country: India
+                          devicedata_iso3166statecode: IN-KA
+                          devicedata_city: Bengaluru
+                          devicedata_countrycode: IN
+                          devicedata_state: Karnataka
+                          devicedata_devicespec_idisk: '106.47'
+                          devicedata_devicespec_webview: 107.0.5304.105
+                          devicedata_devicespec_os: Android 12
+                          devicedata_devicespec_scrn: '6.53'
+                          devicedata_devicespec_sims: '-1'
+                          devicedata_devicespec_cpu: "abi: arm64-v8a processor\t: 0 "
+                          devicedata_devicespec_id: ac4ad4ac3feda0f2b17835b81e736c88c194dc89
+                          devicedata_devicespec_camera: ''
+                          devicedata_devicespec_edisk: '106.27'
+                          devicedata_devicespec_make: vivo 1915
+                          devicedata_statecode: KA
+                          devicedata_districtcustom: BENGALURU URBAN SOUTH
+                          devicedata_statecustomname: Karnataka
+                          devicedata_userdeclared_district: AGRA
+                          devicedata_userdeclared_state: Uttar Pradesh
+                          context_cdata_id: a3c784f0-61d8-43e4-a92a-373fd4338c1d
+                          context_cdata_type: UserSession
+                          context_env: sdk
+                          context_channel: '0126796199493140480'
+                          context_pdata_id: preprod.diksha.app
+                          context_pdata_pid: sunbird.app
+                          context_pdata_ver: 4.10.1023preproduction
+                          context_sid: a3c784f0-61d8-43e4-a92a-373fd4338c1d
+                          context_did: ac4ad4ac3feda0f2b17835b81e736c88c194dc89
+                          context_rollup_l1: '0126796199493140480'
+                          object_id: ''
+                          object_type: ''
+                          object_version: ''
+                          object_rollup: '{}'
+                          count: 3
+                          edata_duration_sum: null
+                  example-1:
+                    summary: 'Success: native query'
+                    value:
+                      id: api.data.out
+                      ver: v1
+                      ts: 1711973520793
+                      params:
+                        status: SUCCESS
+                        errmsg: ''
+                      responseCode: OK
+                      result:
+                        - timestamp: '2022-01-01T00:00:00.000Z'
+                          result:
+                            mid: 1
+          '400':
+            description: Bad Request
+            content:
+              application/json:
+                schema:
+                  type: object
+                examples:
+                  example-0:
+                    summary: 'Failure: invalid date range'
+                    value:
+                      id: api.data.out
+                      ver: v1
+                      ts: 1711972193426
+                      params:
+                        status: FAILED
+                        errmsg: >-
+                          Invalid date range! make sure your range cannot be more
+                          than 30 days
+                      responseCode: BAD_REQUEST
+                      result: {}
+                  example-1:
+                    summary: 'Failure: Invalid date range (native)'
+                    value:
+                      id: api.data.out
+                      ver: v1
+                      ts: 1711972501847
+                      params:
+                        status: FAILED
+                        errmsg: >-
+                          Invalid date range! make sure your range cannot be more
+                          than 30 days
+                      responseCode: BAD_REQUEST
+                      result: {}
+          '404':
+            description: Not Found
+            content:
+              application/json:
+                schema:
+                  type: object
+                examples:
+                  example-0:
+                    summary: 'Failure: Datasource not found in druid'
+                    value:
+                      id: api.data.out
+                      ver: v1
+                      ts: 1711972085550
+                      params:
+                        status: FAILED
+                        errmsg: >-
+                          Datasource rollups-configured.1_rollup_week not
+                          available for querying
+                      responseCode: NOT_FOUND
+                      result: {}
+                  example-1:
+                    summary: 'Failure: Datasource not found in live table'
+                    value:
+                      id: api.data.out
+                      ver: v1
+                      ts: 1711975034302
+                      params:
+                        status: FAILED
+                        errmsg: Datasource undefined not found
+                      responseCode: NOT_FOUND
+                      result: {}
+                  example-2:
+                    summary: 'Failure: Datasource not found in live table (native)'
+                    value:
+                      id: api.data.out
+                      ver: v1
+                      ts: 1711974978635
+                      params:
+                        status: FAILED
+                        errmsg: Datasource telemetry-eventssss not found
+                      responseCode: NOT_FOUND
+                      result: {}
+                  example-3:
+                    summary: 'Failure: Datasource not found in druid(native)'
+                    value:
+                      id: api.data.out
+                      ver: v1
+                      ts: 1711972569115
+                      params:
+                        status: FAILED
+                        errmsg: >-
+                          Datasource telemetry-events.1_rollup_day not available
+                          for querying
+                      responseCode: NOT_FOUND
+                      result: {}
