@@ -16,8 +16,7 @@ export const apiId = "api.datasets.create"
 
 const datasetCreate = async (req: Request, res: Response) => {
     try {
-        const datasetBody = req.body;
-        const isRequestValid: Record<string, any> = schemaValidation(datasetBody, DatasetCreate)
+        const isRequestValid: Record<string, any> = schemaValidation(req.body, DatasetCreate)
 
         if (!isRequestValid.isValid) {
             return ResponseHandler.errorResponse({
@@ -27,7 +26,8 @@ const datasetCreate = async (req: Request, res: Response) => {
             } as ErrorObject, req, res);
         }
 
-        const isDataSetExists = await checkDatasetExists(_.get(req, ["body", "dataset_id"]));
+        const datasetBody = req.body.request;
+        const isDataSetExists = await checkDatasetExists(_.get(datasetBody, ["dataset_id"]));
         if (isDataSetExists) {
             return ResponseHandler.errorResponse({
                 message: "Dataset already exists",

@@ -1,148 +1,174 @@
 {
-    "type": "object",
-    "additionalProperties": false,
-    "properties": {
-      "id": {
-        "type": "string",
-        "minLength": 1
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "enum": ["api.datasets.create"]
+    },
+    "ver": {
+      "type": "string"
+    },
+    "ts": {
+      "type": "string"
+    },
+    "params": {
+      "type": "object",
+      "properties": {
+        "mid": {
+          "type": "string"
+        }
       },
-      "dataset_id": {
-        "type": "string",
-        "minLength": 1
-      },
-      "type": {
-        "type": "string",
-        "enum": ["dataset", "master-dataset"]
-      },
-      "name": {
-        "type": "string",
-        "minLength": 1
-      },
-      "validation_config": {
-        "type": "object",
-        "properties": {
-          "validate": {
-            "type": "boolean"
-          },
-          "mode": {
-            "type": "string",
-            "enum": ["Strict", "IgnoreNewFields"]
-          }
+      "required": ["mid"],
+      "additionalProperties": false
+    },
+    "request": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
         },
-        "required": ["validate", "mode"],
-        "additionalProperties": false
-      },
-      "extraction_config": {
-        "type": "object",
-        "properties": {
-          "is_batch_event": {
-            "type": "boolean"
-          },
-          "extraction_key": {
-            "type": "string",
-            "minLength": 1
-          },
-          "dedup_config": {
-            "type": "object",
-            "properties": {
-              "drop_duplicates": {
-                "type": "boolean"
-              },
-              "dedup_key": {
-                "type": "string",
-                "minLength": 1
-              }
-            },
-            "required": ["drop_duplicates", "dedup_key"],
-            "additionalProperties": false
-          }
+        "dataset_id": {
+          "type": "string",
+          "minLength": 1
         },
-        "required": ["is_batch_event", "extraction_key", "dedup_config"],
-        "additionalProperties": false
-      },
-      "dedup_config": {
-        "type": "object",
-        "properties": {
-          "drop_duplicates": {
-            "type": "boolean"
-          },
-          "dedup_key": {
-            "type": "string",
-            "minLength": 1
-          }
+        "type": {
+          "type": "string",
+          "enum": ["dataset", "master-dataset"]
         },
-        "required": ["drop_duplicates", "dedup_key"],
-        "additionalProperties": false
-      },
-      "data_schema": {
-        "type": "object",
-        "properties": {
-          "$schema": {
-            "type": "string",
-            "minLength": 1
-          },
-          "type": {
-            "type": "string",
-            "minLength": 1
-          },
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "validation_config": {
+          "type": "object",
           "properties": {
-            "type": "object",
-            "minProperties": 1
+            "validate": {
+              "type": "boolean"
+            },
+            "mode": {
+              "type": "string",
+              "enum": ["Strict", "IgnoreNewFields"]
+            }
           },
-          "additionalProperties": {
-            "type": "boolean",
-            "default": true
-          }
+          "required": ["validate", "mode"],
+          "additionalProperties": false
         },
-        "required": ["$schema", "type", "properties", "additionalProperties"],
-        "additionalProperties": false
-      },
-      "denorm_config": {
-        "type": "object",
-        "properties": {
-          "denorm_fields": {
-            "type": "array",
-            "items": {
+        "extraction_config": {
+          "type": "object",
+          "properties": {
+            "is_batch_event": {
+              "type": "boolean"
+            },
+            "extraction_key": {
+              "type": "string",
+              "minLength": 1
+            },
+            "dedup_config": {
               "type": "object",
               "properties": {
-                "denorm_key": {
-                  "type": "string",
-                  "minLength": 1
+                "drop_duplicates": {
+                  "type": "boolean"
                 },
-                "denorm_out_field": {
+                "dedup_key": {
                   "type": "string",
                   "minLength": 1
                 }
               },
-              "required": ["denorm_key", "denorm_out_field"],
+              "required": ["drop_duplicates", "dedup_key"],
               "additionalProperties": false
             }
-          }
-        },
-        "required": ["denorm_fields"],
-        "additionalProperties": false
-      },
-      "dataset_config": {
-        "type": "object",
-        "properties": {
-          "data_key": {
-            "type": "string"
           },
-          "timestamp_key": {
-            "type": "string",
-            "minLength": 1
-          }
+          "required": ["is_batch_event", "extraction_key", "dedup_config"],
+          "additionalProperties": false
         },
-        "required": ["data_key", "timestamp_key"],
-        "additionalProperties": false
-      },
-      "tags": {
-        "type": "array",
-        "items": {
-          "type": "string"
+        "dedup_config": {
+          "type": "object",
+          "properties": {
+            "drop_duplicates": {
+              "type": "boolean"
+            },
+            "dedup_key": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "required": ["drop_duplicates", "dedup_key"],
+          "additionalProperties": false
+        },
+        "data_schema": {
+          "type": "object",
+          "properties": {
+            "$schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "type": {
+              "type": "string",
+              "minLength": 1
+            },
+            "properties": {
+              "type": "object",
+              "minProperties": 1
+            },
+            "additionalProperties": {
+              "type": "boolean",
+              "default": true
+            }
+          },
+          "required": ["$schema", "type", "properties", "additionalProperties"],
+          "additionalProperties": false
+        },
+        "denorm_config": {
+          "type": "object",
+          "properties": {
+            "denorm_fields": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "denorm_key": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "denorm_out_field": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                },
+                "required": ["denorm_key", "denorm_out_field"],
+                "additionalProperties": false
+              }
+            }
+          },
+          "required": ["denorm_fields"],
+          "additionalProperties": false
+        },
+        "dataset_config": {
+          "type": "object",
+          "properties": {
+            "data_key": {
+              "type": "string"
+            },
+            "timestamp_key": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "required": ["data_key", "timestamp_key"],
+          "additionalProperties": false
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
         }
-      }
-    },
-    "required": ["dataset_id", "type", "name", "data_schema"]
-  }
-  
+      },
+      "required": ["dataset_id", "type", "name", "data_schema"],
+      "additionalProperties": false
+    }
+  },
+  "required": ["id", "ver", "ts", "params", "request"],
+  "additionalProperties": false
+}
