@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import { ResponseHandler } from '../../helpers/ResponseHandler';
 import httpStatus from 'http-status';
 import { getDateRange, isValidDateRange } from '../../utils/common';
-import { config, config as globalConfig } from '../../configs/Config';
+import { config } from '../../configs/Config';
 import { init } from '../../services/CloudServices/index';
 import moment from "moment";
 import { getDataset } from '../../services/DatasetService';
@@ -27,12 +27,12 @@ export const dataExhaust = async (req: Request, res: Response) => {
     const getFromStorage = async (type: string, dateRange: any, datasetId: string) => {
         const resData =
             cloudProvider.getFiles(
-                globalConfig.cloud_config.container, globalConfig.cloud_config.container_prefix, type, dateRange, datasetId,
+                config.cloud_config.container, config.cloud_config.container_prefix, type, dateRange, datasetId,
             )
         return resData || {};
     }
 
-    if (type && globalConfig.cloud_config.exclude_exhaust_types.includes(datasetId)) {
+    if (type && config.cloud_config.exclude_exhaust_types.includes(datasetId)) {
         return ResponseHandler.errorResponse({ statusCode: 404, message: "Record not found", errCode: httpStatus["404_NAME"] }, req, res)
     }
     const datasetRecord = await verifyDatasetExists(datasetId);
@@ -44,11 +44,11 @@ export const dataExhaust = async (req: Request, res: Response) => {
     const isValidDates = isValidDateRange(
         moment(dateRange.from, momentFormat),
         moment(dateRange.to, momentFormat),
-        globalConfig.cloud_config.maxQueryDateRange,
+        config.cloud_config.maxQueryDateRange,
     );
     if (!isValidDates) {
-        logger.error(`Invalid date range! make sure your range cannot be more than ${globalConfig.cloud_config.maxQueryDateRange} days`)
-        return ResponseHandler.errorResponse({ statusCode: 400, message: `Invalid date range! make sure your range cannot be more than ${globalConfig.cloud_config.maxQueryDateRange} days`, errCode: "BAD_REQUEST" }, req, res)
+        logger.error(`Invalid date range! make sure your range cannot be more than ${config.cloud_config.maxQueryDateRange} days`)
+        return ResponseHandler.errorResponse({ statusCode: 400, message: `Invalid date range! make sure your range cannot be more than ${config.cloud_config.maxQueryDateRange} days`, errCode: "BAD_REQUEST" }, req, res)
     }
 
     const resData: any = await getFromStorage(type, dateRange, datasetId);
