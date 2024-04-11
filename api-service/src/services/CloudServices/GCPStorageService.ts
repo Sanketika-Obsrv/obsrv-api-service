@@ -67,7 +67,7 @@ export class GCPStorageService implements ICloudService {
                     files.push(fileObject);
                 });
                 return {
-                    expiresAt: moment().add(config.cloud_config.storage_url_expiry, 'seconds').toISOString(),
+                    expiresAt: moment().add(config.exhaust_config.storage_url_expiry, 'seconds').toISOString(),
                     files: signedUrls,
                     periodWiseFiles,
                 };

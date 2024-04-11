@@ -16,7 +16,7 @@ export class AWSStorageService implements ICloudService {
             const region = _.get(config, "region").toString();
             this.client = new S3Client({ region });
         } else {
-            const region = globalConfig.cloud_config.cloud_storage_region || "us-east-2";
+            const region = globalConfig.exhaust_config.cloud_storage_region || "us-east-2";
             process.env.AWS_REGION = region;
             const s3Client = new S3Client({
                 region,
@@ -39,7 +39,7 @@ export class AWSStorageService implements ICloudService {
                 const generateSignedUrl = async () => {
                     const command = this.getAWSCommand(container, fileNameWithPrefix);
                     const fileName = fileNameWithPrefix.split("/").pop();
-                    const presignedURL = await getSignedUrl(this.client, command, { expiresIn: globalConfig.cloud_config.storage_url_expiry });
+                    const presignedURL = await getSignedUrl(this.client, command, { expiresIn: globalConfig.exhaust_config.storage_url_expiry });
                     resolve({ [fileName]: presignedURL });
                 }
                 generateSignedUrl();
@@ -62,7 +62,7 @@ export class AWSStorageService implements ICloudService {
             files.push(fileUrl);
         });
         return {
-            expiresAt: moment().add(globalConfig.cloud_config.storage_url_expiry, 'seconds').toISOString(),
+            expiresAt: moment().add(globalConfig.exhaust_config.storage_url_expiry, 'seconds').toISOString(),
             files,
             periodWiseFiles,
         };
