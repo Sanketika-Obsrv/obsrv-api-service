@@ -4,7 +4,7 @@ import validationSchema from "./validationSchema.json";
 import { schemaValidation } from "../../services/ValidationService";
 import { ResponseHandler } from "../../helpers/ResponseHandler";
 import { send } from "../../connections/kafkaConnection";
-import { getDataset, setApiId } from "../../services/DatasetService";
+import { getDataset } from "../../services/DatasetService";
 import logger from "../../logger";
 import { v4 } from "uuid";
 import { config } from "../../configs/Config";

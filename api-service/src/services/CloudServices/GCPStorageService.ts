@@ -5,7 +5,6 @@ import { config } from "../../configs/Config";
 import { logger } from "@azure/storage-blob";
 import { Storage } from "@google-cloud/storage"
 import { FilterDataByDateRange, ICloudService } from "./types";
-import { ChecksumAlgorithm } from "@aws-sdk/client-s3";
 
 export class GCPStorageService implements ICloudService {
     private storage: any;

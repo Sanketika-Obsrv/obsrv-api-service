@@ -1,7 +1,6 @@
 import { Request, Response } from "express";
 import logger from "../../logger";
 import { ResponseHandler } from "../../helpers/ResponseHandler";
-import { setApiId } from "../../services/DatasetService";
 import { schemaValidation } from "../../services/ValidationService";
 import validationSchema from "./DataOutValidationSchema.json";
 import { validateQuery } from "./QueryValidator";
