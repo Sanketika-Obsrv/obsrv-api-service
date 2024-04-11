@@ -73,7 +73,7 @@ export const config = {
       "references": []
     }
   },
-  "exhaust_config": {
+  "cloud_config": {
     "cloud_storage_provider": process.env.cloud_storage_provider || "aws", // Supported providers - AWS, GCP, Azure
     "cloud_storage_region": process.env.cloud_storage_region || "", // Region for the cloud provider storage
     "cloud_storage_config": process.env.cloud_storage_config ? JSON.parse(process.env.cloud_storage_config) : {}, // Respective credentials object for cloud provider. Optional if service account provided
