@@ -29,7 +29,6 @@ const errorObject = {
 
 const dataIn = async (req: Request, res: Response) => {
     try {
-        setApiId(req, "api.data.in")
         const datasetId = req.params.datasetId.trim();
         const isValidSchema = schemaValidation(req.body, validationSchema)
         if (!isValidSchema?.isValid) {

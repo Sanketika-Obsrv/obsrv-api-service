@@ -10,7 +10,6 @@ import { executeNativeQuery, executeSqlQuery } from "../../connections/druidConn
 
 const dataOut = async (req: Request, res: Response) => {
     try {
-        setApiId(req, "api.data.out");
         const isValidSchema = schemaValidation(req.body, validationSchema);
         if (!isValidSchema?.isValid) {
             return ResponseHandler.errorResponse({ message: isValidSchema?.message, statusCode: 400, errCode: "BAD_REQUEST" }, req, res);
@@ -27,6 +26,7 @@ const dataOut = async (req: Request, res: Response) => {
         }
 
         if (isValidQuery === true && _.isString(query)) {
+            console.log({query})
             const result = await executeSqlQuery({ query })
             logger.info("SQL query executed successfully")
             return ResponseHandler.successResponse(req, res, {
