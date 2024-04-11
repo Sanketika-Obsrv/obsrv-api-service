@@ -85,7 +85,7 @@ export class AzureStorageService implements ICloudService {
             azureHeaders
         );
         const sasUrl = this.getUrl(container, filePath, token);
-        return Promise.resolve(sasUrl);
+                return Promise.resolve(sasUrl);
     }
 
     async getPreSignedUrl(container: string, fileName: string, prefix = undefined) {
@@ -97,7 +97,7 @@ export class AzureStorageService implements ICloudService {
             fileName,
             globalConfig.exhaust_config.storage_url_expiry
         );
-        return presignedURL;
+                return presignedURL;
     }
 
     async getSignedUrls(container: any, filesList: any) {
@@ -109,7 +109,6 @@ export class AzureStorageService implements ICloudService {
                         resolve({ [fileName]: presignedURL });
                     })
                     .catch((error) => {
-                        // Handle errors if necessary
                         reject({ error: error.message });
                     });
             });
