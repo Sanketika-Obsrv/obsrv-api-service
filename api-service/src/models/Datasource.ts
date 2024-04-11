@@ -47,12 +47,6 @@ export const Datasource = sequelize.define("datasources", {
         type: DataTypes.STRING,
         defaultValue: "SYSTEM",
     },
-    created_date: {
-        type: DataTypes.TIME
-    },
-    updated_date: {
-        type: DataTypes.TIME
-    },
     published_date: {
         type: DataTypes.TIME
     },
@@ -62,5 +56,7 @@ export const Datasource = sequelize.define("datasources", {
     }
 }, {
     tableName: "datasources",
-    timestamps: false
+    timestamps: true,
+    createdAt: 'created_date',
+    updatedAt: 'updated_date',
 })

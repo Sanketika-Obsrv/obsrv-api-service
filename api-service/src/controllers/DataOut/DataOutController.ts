@@ -3,24 +3,10 @@ import logger from "../../logger";
 import { ResponseHandler } from "../../helpers/ResponseHandler";
 import { setApiId } from "../../services/DatasetService";
 import { schemaValidation } from "../../services/ValidationService";
-import validationSchema from "./DataOutvalidationSchema.json";
+import validationSchema from "./DataOutValidationSchema.json";
 import { validateQuery } from "./QueryValidator";
-import axios from "axios";
-import { config } from "../../configs/Config";
 import * as _ from "lodash";
-
-const nativeQueryEndpoint = `${config?.query_api?.druid?.host}:${config?.query_api?.druid?.port}${config.query_api.druid.native_query_path}`;
-const sqlQueryEndpoint = `${config?.query_api?.druid?.host}:${config?.query_api?.druid?.port}${config.query_api.druid.sql_query_path}`;
-
-const executeNativeQuery = async (payload: any) => {
-    const queryResult = await axios.post(nativeQueryEndpoint, payload)
-    return queryResult;
-}
-
-const executeSqlQuery = async (payload: any) => {
-    const queryResult = await axios.post(sqlQueryEndpoint, payload)
-    return queryResult;
-}
+import { executeNativeQuery, executeSqlQuery } from "../../connections/druidConnection";
 
 const dataOut = async (req: Request, res: Response) => {
     try {

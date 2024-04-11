@@ -2,12 +2,11 @@ import { IQueryTypeRules } from "../../types/QueryModels";
 import { queryRules } from "./QueryRules";
 import * as _ from "lodash";
 import moment from "moment";
-import { config } from "../../configs/Config";
 import { getDatasourceList } from "../../services/DatasourceService";
-import axios from "axios";
 import logger from "../../logger";
+import { getDatasourceListFromDruid } from "../../connections/druidConnection";
 
-const momentFormat = "YYYY-MM-DD HH:MI:SS";
+const momentFormat = "YYYY-MM-DD HH:MM:SS";
 
 export const validateQuery = async (requestPayload: any) => {
     const query = requestPayload?.query;
@@ -98,16 +97,16 @@ const getDataSourceFromPayload = (queryPayload: any) => {
 
 const getDataSourceLimits = (datasource: string) => {
     const rules = _.get(queryRules, "rules") || [];
-    for (let index = 0; index < rules.length; index++) {
-        if (rules[index].dataset == datasource) {
-            return rules[index];
-        }
-    }
+    return _.find(rules, { dataset: datasource });
 };
 
 const getIntervals = (payload: any) => {
-    return (typeof payload.intervals == 'object' && !Array.isArray(payload.intervals)) ? payload.intervals.intervals : payload.intervals
-}
+    if (_.isObject(payload.intervals) && !_.isArray(payload.intervals)) {
+        return payload.intervals.intervals;
+    } else {
+        return payload.intervals;
+    }
+};
 
 const isValidDateRange = (
     fromDate: moment.Moment, toDate: moment.Moment, allowedRange: number = 0
@@ -152,20 +151,19 @@ const validateQueryRules = (queryPayload: any, limits: any) => {
 const getDataSourceRef = async (datasourceName: string, granularity?: string) => {
     const dataSources = await getDatasourceList(datasourceName)
     if (_.isEmpty(dataSources)) {
+        logger.error(`Datasource ${datasourceName} not available in datasource live table`)
         return { message: `Datasource ${datasourceName} not available for querying`, statusCode: 404, errCode: "NOT_FOUND" };
     }
     const record = dataSources.filter((record: any) => {
         const aggregatedRecord = _.get(record, "metadata.aggregated")
         if (granularity)
             return aggregatedRecord && _.get(record, "metadata.granularity") === granularity;
-        else
-            return !aggregatedRecord
     });
     return record[0]?.dataValues?.datasource_ref
 }
 
 const validateDatasource = async (datasource: any) => {
-    const existingDatasources = await axios.get(`${config?.query_api?.druid?.host}:${config?.query_api?.druid?.port}${config.query_api.druid.list_datasources_path}`, {})
+    const existingDatasources = await getDatasourceListFromDruid();
     if (!_.includes(existingDatasources.data, datasource)) {
         logger.error(datasource?.message)
         return datasource
@@ -176,10 +174,10 @@ const setDatasourceRef = async (dataSourceName: string, payload: any): Promise<a
     try {
         const granularity = _.get(payload, 'context.granularity')
         const datasourceRef = await getDataSourceRef(dataSourceName, granularity);
-
-        const isDatasourcePresentInDruid = await validateDatasource(datasourceRef);
-        if (isDatasourcePresentInDruid) {
-            return isDatasourcePresentInDruid
+        const datasource = await validateDatasource(datasourceRef);
+        if (datasource) {
+            logger.error(`Datasource ${datasource} not available for querying in druid`)
+            return { message: `Datasource ${datasource} not available for querying`, statusCode: 404, errCode: "NOT_FOUND" };
         }
         if (_.isString(payload?.query)) {
             payload.query = payload.query.replace(dataSourceName, datasourceRef)
@@ -189,6 +187,6 @@ const setDatasourceRef = async (dataSourceName: string, payload: any): Promise<a
         }
         return true;
     } catch (error: any) {
-        return { message: `Error while fetching datasource record`, statusCode: 404, errCode: "NOT_FOUND" };
+        return { message: `Datasource not found`, statusCode: 404, errCode: "NOT_FOUND" };
     }
 }

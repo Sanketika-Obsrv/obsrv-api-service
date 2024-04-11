@@ -1,19 +1,20 @@
-import app from "../app";
+import app from "../../../app";
 import chai from "chai";
 import chaiHttp from "chai-http";
 import spies from "chai-spies";
 import httpStatus from "http-status";
-import { DATASET_WITH_DUPLICATE_DENORM_KEY, SCHEMA_VALIDATION_ERROR_DATASET, DATASET_CREATE_SUCCESS_FIXTURES, DATASET_FAILURE_DUPLICATE_DENORM_FIXTURES } from "./Fixtures";
+import { TestInputsForDatasetCreate, DATASET_CREATE_SUCCESS_FIXTURES, DATASET_FAILURE_DUPLICATE_DENORM_FIXTURES } from "./Fixtures";
 import { describe, it } from 'mocha';
-import { DatasetDraft } from "../models/DatasetDraft";
-import { sequelize } from "../connections/databaseConnection";
+import { DatasetDraft } from "../../../models/DatasetDraft";
+import { sequelize } from "../../../connections/databaseConnection";
 import _ from "lodash";
+import { apiId } from "../../../controllers/DatasetCreate/DatasetCreate"
 
 chai.use(spies);
 chai.should();
 chai.use(chaiHttp);
 
-describe("Dataset create API", () => {
+describe("DATASET CREATE API", () => {
 
     afterEach(() => {
         chai.spy.restore();
@@ -28,9 +29,9 @@ describe("Dataset create API", () => {
                 return Promise.resolve([{ nextVal: 9 }])
             })
             chai.spy.on(DatasetDraft, "create", () => {
-                return Promise.resolve({ dataValues: { id: "" } })
+                return Promise.resolve({ dataValues: { id: "telemetry" } })
             })
-            
+
             chai
                 .request(app)
                 .post("/v1/datasets/create")
@@ -38,9 +39,9 @@ describe("Dataset create API", () => {
                 .end((err, res) => {
                     res.should.have.status(fixture.httpStatus);
                     res.body.should.be.a("object")
-                    res.body.id.should.be.eq("api");
+                    res.body.id.should.be.eq(apiId);
                     res.body.params.status.should.be.eq(fixture.status)
-                    res.body.result.id.should.be.eq("")
+                    res.body.result.id.should.be.eq("telemetry")
                     done();
                 });
         });
@@ -58,7 +59,7 @@ describe("Dataset create API", () => {
                 .end((err, res) => {
                     res.should.have.status(fixture.httpStatus);
                     res.body.should.be.a("object")
-                    res.body.id.should.be.eq("api");
+                    res.body.id.should.be.eq(apiId);
                     res.body.params.status.should.be.eq(fixture.status)
                     res.body.params.errmsg.should.be.eq("Duplicate denorm output fields found")
                     done();
@@ -70,11 +71,11 @@ describe("Dataset create API", () => {
         chai
             .request(app)
             .post("/v1/datasets/create")
-            .send(SCHEMA_VALIDATION_ERROR_DATASET)
+            .send(TestInputsForDatasetCreate.SCHEMA_VALIDATION_ERROR_DATASET)
             .end((err, res) => {
                 res.should.have.status(httpStatus.BAD_REQUEST);
                 res.body.should.be.a("object")
-                res.body.id.should.be.eq("api");
+                res.body.id.should.be.eq(apiId);
                 res.body.params.status.should.be.eq("FAILED")
                 done();
             });
@@ -87,11 +88,11 @@ describe("Dataset create API", () => {
         chai
             .request(app)
             .post("/v1/datasets/create")
-            .send(DATASET_WITH_DUPLICATE_DENORM_KEY)
+            .send(TestInputsForDatasetCreate.DATASET_WITH_DUPLICATE_DENORM_KEY)
             .end((err, res) => {
                 res.should.have.status(httpStatus.CONFLICT);
                 res.body.should.be.a("object")
-                res.body.id.should.be.eq("api");
+                res.body.id.should.be.eq(apiId);
                 res.body.params.status.should.be.eq("FAILED")
                 res.body.params.errmsg.should.be.eq("Dataset already exists")
                 done();
@@ -105,12 +106,13 @@ describe("Dataset create API", () => {
         chai
             .request(app)
             .post("/v1/datasets/create")
-            .send(DATASET_WITH_DUPLICATE_DENORM_KEY)
+            .send(TestInputsForDatasetCreate.DATASET_WITH_DUPLICATE_DENORM_KEY)
             .end((err, res) => {
                 res.should.have.status(httpStatus.INTERNAL_SERVER_ERROR);
                 res.body.should.be.a("object")
-                res.body.id.should.be.eq("api");
+                res.body.id.should.be.eq(apiId);
                 res.body.params.status.should.be.eq("FAILED")
+                res.body.params.errmsg.should.be.eq("Failed to create dataset")
                 done();
             });
     });
