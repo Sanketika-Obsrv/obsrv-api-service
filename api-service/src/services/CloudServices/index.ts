@@ -2,14 +2,14 @@ import { AWSStorageService } from "./AWSStorageService";
 import { AzureStorageService } from "./AzureStorageService";
 import { GCPStorageService } from "./GCPStorageService";
 
-export function init(provider: any) {
+export function init(provider: any, config: any) {
     switch (provider) {
         case "azure":
-            return AzureStorageService;
+            return new AzureStorageService(config);
         case "aws":
-            return AWSStorageService;
+            return new AWSStorageService(config);
         case "gcloud":
-            return GCPStorageService;
+            return new GCPStorageService(config);
         default:
             throw new Error(`Client Cloud Service - ${provider} provider is not supported`);
     }
