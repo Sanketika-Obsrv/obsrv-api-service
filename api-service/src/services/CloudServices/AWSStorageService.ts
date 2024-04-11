@@ -5,6 +5,7 @@ import { config as globalConfig } from "../../configs/Config";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner"
 import { getFileKey } from "../../utils/common"
 import { FilterDataByDateRange, ICloudService } from "./types";
+import { logger } from "@azure/storage-blob";
 
 export class AWSStorageService implements ICloudService {
     client: any;
@@ -72,7 +73,7 @@ export class AWSStorageService implements ICloudService {
         const signedUrlsList = await this.getSignedUrls(container, filesList);
         return signedUrlsList;
     }
-    
+
     async filterDataByRange(container: string, container_prefix: string, type: string, dateRange: any, datasetId: string): Promise<FilterDataByDateRange> {
         const startDate = moment(dateRange.from);
         const endDate = moment(dateRange.to);
@@ -84,7 +85,7 @@ export class AWSStorageService implements ICloudService {
                 try {
                     resolve(this.client.send(this.listAWSCommand(container, pathPrefix,)));
                 }
-                catch (err) { console.log(err) }
+                catch (err) { logger.error(err) }
             }))
         }
         const S3Objects = await Promise.all(promises);

@@ -177,7 +177,6 @@ export class AzureStorageService implements ICloudService {
                 logger.error(
                     `Unable to list the blobs present in directory ${pathPrefix}`
                 );
-                console.log(err);
                 return result;
             }
         }

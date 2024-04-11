@@ -110,7 +110,6 @@ export class GCPStorageService implements ICloudService {
             }
             catch (error) {
                 logger.error(error)
-                console.log(error)
                 return result
             }
         }
