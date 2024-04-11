@@ -1,7 +1,6 @@
 import { Request, Response } from "express";
 import logger from "../../logger";
 import { ResponseHandler } from "../../helpers/ResponseHandler";
-import { setApiId } from "../../services/DatasetService";
 import { schemaValidation } from "../../services/ValidationService";
 import validationSchema from "./DataOutValidationSchema.json";
 import { validateQuery } from "./QueryValidator";
@@ -10,7 +9,6 @@ import { executeNativeQuery, executeSqlQuery } from "../../connections/druidConn
 
 const dataOut = async (req: Request, res: Response) => {
     try {
-        setApiId(req, "api.data.out");
         const isValidSchema = schemaValidation(req.body, validationSchema);
         if (!isValidSchema?.isValid) {
             return ResponseHandler.errorResponse({ message: isValidSchema?.message, statusCode: 400, errCode: "BAD_REQUEST" }, req, res);
