@@ -9,8 +9,8 @@ import { getDataset } from '../../services/DatasetService';
 import * as _ from "lodash";
 import logger from '../../logger';
 
-const cloudProviderName = _.get(config, "cloud_config.cloud_storage_provider");
-const cloudProviderConfig = _.get(config, "cloud_config.cloud_storage_config");
+const cloudProviderName = config.cloud_config.cloud_storage_provider
+const cloudProviderConfig = config.cloud_config.cloud_storage_config
 export const cloudProvider = init(cloudProviderName, cloudProviderConfig);
 
 export const dataExhaust = async (req: Request, res: Response) => {
