@@ -8,6 +8,8 @@ import _ from "lodash";
 import { sequelize } from "../../../connections/databaseConnection";
 import { apiId } from "../../../controllers/DatasetRead/DatasetRead";
 import { TestInputsForDatasetRead } from "./Fixtures";
+import { DatasetTransformations } from "../../../models/Transformation";
+import { DatasetTransformationsDraft } from "../../../models/TransformationDraft";
 
 chai.use(spies);
 chai.should();
@@ -43,6 +45,9 @@ describe("DATASET READ API", () => {
         chai.spy.on(sequelize, "query", () => {
             return Promise.resolve([[TestInputsForDatasetRead.DRAFT_SCHEMA], {}])
         })
+        chai.spy.on(DatasetTransformationsDraft, "findAll", () => {
+            return Promise.resolve([])
+        })
         chai
             .request(app)
             .get("/v1/datasets/read/sb-telemetry?status=Draft")
@@ -55,7 +60,7 @@ describe("DATASET READ API", () => {
                 res.body.result.type.should.be.eq('dataset')
                 res.body.result.status.should.be.eq('Draft')
                 const result = JSON.stringify(res.body.result)
-                result.should.be.eq(JSON.stringify(TestInputsForDatasetRead.DRAFT_SCHEMA))
+                result.should.be.eq(JSON.stringify({ ...TestInputsForDatasetRead.DRAFT_SCHEMA, "transformation_config": [] }))
                 done();
             });
     });
@@ -63,6 +68,9 @@ describe("DATASET READ API", () => {
     it("Dataset read success: Fetch live dataset when status param is empty", (done) => {
         chai.spy.on(sequelize, "query", () => {
             return Promise.resolve([[TestInputsForDatasetRead.LIVE_SCHEMA], {}])
+        })
+        chai.spy.on(DatasetTransformations, "findAll", () => {
+            return Promise.resolve(TestInputsForDatasetRead.TRANSFORMATIONS_SCHEMA)
         })
         chai
             .request(app)
@@ -75,7 +83,7 @@ describe("DATASET READ API", () => {
                 res.body.result.should.be.a("object")
                 res.body.result.status.should.be.eq('Live')
                 const result = JSON.stringify(res.body.result)
-                result.should.be.eq(JSON.stringify({ ..._.omit(TestInputsForDatasetRead.LIVE_SCHEMA, ["data_version"]), version: 1 }))
+                result.should.be.eq(JSON.stringify({ ..._.omit({ ...TestInputsForDatasetRead.LIVE_SCHEMA, "transformation_config": TestInputsForDatasetRead.TRANSFORMATIONS_SCHEMA }, ["data_version"]), version: 1 }))
                 done();
             });
     });

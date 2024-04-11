@@ -80,10 +80,10 @@ const transformFieldValues = (datasetFields: Record<string, any>) => {
 
 const transformResponseData = async (payload: Record<string, any>) => {
     const { data, dataset_id, status, fields } = payload
-    const isTransformationConfig = _.includes(_.split(fields, ","), "transformation_config")
-    if (isTransformationConfig || _.isEmpty(fields)) {
+    const transformationConfigExist = _.includes(_.split(fields, ","), "transformation_config")
+    if (transformationConfigExist || _.isEmpty(fields)) {
         const transformationModel = getTransfomationModel(status)
-        const transformations = await transformationModel.findAll({ where: { dataset_id } })
+        const transformations = await transformationModel.findAll({ where: { dataset_id }, raw: true })
         _.set(data, "transformation_config", transformations)
     }
     const liveDatasetVersion = _.get(data, "data_version")
