@@ -26,7 +26,6 @@ const dataOut = async (req: Request, res: Response) => {
         }
 
         if (isValidQuery === true && _.isString(query)) {
-            console.log({query})
             const result = await executeSqlQuery({ query })
             logger.info("SQL query executed successfully")
             return ResponseHandler.successResponse(req, res, {
