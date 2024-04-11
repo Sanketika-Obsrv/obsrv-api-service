@@ -3,15 +3,11 @@ import { ResponseHandler } from '../../helpers/ResponseHandler';
 import httpStatus from 'http-status';
 import { getDateRange, isValidDateRange } from '../../utils/common';
 import { config } from '../../configs/Config';
-import { init } from '../../services/CloudServices/index';
 import moment from "moment";
 import { getDataset } from '../../services/DatasetService';
 import * as _ from "lodash";
 import logger from '../../logger';
-
-const cloudProviderName = config.cloud_config.cloud_storage_provider
-const cloudProviderConfig = config.cloud_config.cloud_storage_config
-export const cloudProvider = init(cloudProviderName, cloudProviderConfig);
+import { cloudProvider } from '../../services/CloudServices';
 
 export const dataExhaust = async (req: Request, res: Response) => {
     const { params } = req;

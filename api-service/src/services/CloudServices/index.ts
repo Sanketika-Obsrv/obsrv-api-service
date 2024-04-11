@@ -1,8 +1,13 @@
+import { config } from "../../configs/Config";
 import { AWSStorageService } from "./AWSStorageService";
 import { AzureStorageService } from "./AzureStorageService";
 import { GCPStorageService } from "./GCPStorageService";
+import * as _ from "lodash";
 
-export function init(provider: any, config: any) {
+const cloudProviderName = _.get(config, "cloud_config.cloud_storage_provider");
+const cloudProviderConfig = _.get(config, "cloud_config.cloud_storage_config");
+
+const initialiseServiceProvider = (provider: any, config: any): AzureStorageService | AWSStorageService | GCPStorageService => {
     switch (provider) {
         case "azure":
             return new AzureStorageService(config);
@@ -14,3 +19,5 @@ export function init(provider: any, config: any) {
             throw new Error(`Client Cloud Service - ${provider} provider is not supported`);
     }
 }
+
+export const cloudProvider = initialiseServiceProvider(cloudProviderName, cloudProviderConfig);
