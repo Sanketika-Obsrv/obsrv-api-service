@@ -32,7 +32,7 @@ export class AzureStorageService implements ICloudService {
                 this.sharedKeyCredential
             );
             this.containerClient = new ContainerClient(
-                `https://${config?.identity}.blob.core.windows.net/${globalConfig?.exhaust_config?.container}`,
+                `https://${config?.identity}.blob.core.windows.net/${globalConfig?.cloud_config?.container}`,
                 this.sharedKeyCredential
             );
         } catch (error) {
@@ -95,7 +95,7 @@ export class AzureStorageService implements ICloudService {
         const presignedURL = await this.getSignedUrl(
             container,
             fileName,
-            globalConfig.exhaust_config.storage_url_expiry
+            globalConfig.cloud_config.storage_url_expiry
         );
         return presignedURL;
     }
@@ -131,7 +131,7 @@ export class AzureStorageService implements ICloudService {
         });
         return {
             expiresAt: moment()
-                .add(globalConfig.exhaust_config.storage_url_expiry, "seconds")
+                .add(globalConfig.cloud_config.storage_url_expiry, "seconds")
                 .toISOString(),
             files,
             periodWiseFiles,
