@@ -11,13 +11,10 @@ export class AWSStorageService implements ICloudService {
     client: any;
     constructor(config: any) {
         if (_.get(config, "identity") && _.get(config, "credential") && _.get(config, "region")) {
-            process.env.AWS_ACCESS_KEY_ID = _.get(config, "identity");
-            process.env.AWS_SECRET_ACCESS_KEY = _.get(config, "credential");
             const region = _.get(config, "region").toString();
             this.client = new S3Client({ region });
         } else {
             const region = globalConfig.cloud_config.cloud_storage_region || "us-east-2";
-            process.env.AWS_REGION = region;
             const s3Client = new S3Client({
                 region,
             });
