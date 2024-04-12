@@ -27,6 +27,7 @@ paths:
         This API allows you to create new datasets used by the analytical data
         source.
       requestBody:
+        required: true
         content:
           application/json:
             schema:
