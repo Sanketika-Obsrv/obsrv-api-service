@@ -60,7 +60,7 @@ describe("DATASET READ API", () => {
                 res.body.result.type.should.be.eq('dataset')
                 res.body.result.status.should.be.eq('Draft')
                 const result = JSON.stringify(res.body.result)
-                result.should.be.eq(JSON.stringify({ ...TestInputsForDatasetRead.DRAFT_SCHEMA, "transformation_config": [] }))
+                result.should.be.eq(JSON.stringify({ ...TestInputsForDatasetRead.DRAFT_SCHEMA, "transformations_config": [] }))
                 done();
             });
     });
@@ -83,7 +83,7 @@ describe("DATASET READ API", () => {
                 res.body.result.should.be.a("object")
                 res.body.result.status.should.be.eq('Live')
                 const result = JSON.stringify(res.body.result)
-                result.should.be.eq(JSON.stringify({ ..._.omit({ ...TestInputsForDatasetRead.LIVE_SCHEMA, "transformation_config": TestInputsForDatasetRead.TRANSFORMATIONS_SCHEMA }, ["data_version"]), version: 1 }))
+                result.should.be.eq(JSON.stringify({ ..._.omit({ ...TestInputsForDatasetRead.LIVE_SCHEMA, "transformations_config": TestInputsForDatasetRead.TRANSFORMATIONS_SCHEMA }, ["data_version"]), version: 1 }))
                 done();
             });
     });

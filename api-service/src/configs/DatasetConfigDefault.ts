@@ -87,4 +87,4 @@ export const defaultDatasetConfig = {
     "updated_by": "SYSTEM"
 }
 
-export const validDatasetFields = ['dataset_id', 'id', 'name', 'type', 'validation_config', 'extraction_config', 'dedup_config', 'data_schema', 'router_config', 'denorm_config', 'transformation_config', 'dataset_config', 'transformation_config', 'tags', 'status', 'version', 'created_by', 'updated_by', 'created_date', 'updated_date', 'published_date']
+export const validDatasetFields = ['dataset_id', 'id', 'name', 'type', 'validation_config', 'extraction_config', 'dedup_config', 'data_schema', 'router_config', 'denorm_config', 'transformations_config', 'dataset_config', 'tags', 'status', 'version', 'created_by', 'updated_by', 'created_date', 'updated_date', 'published_date']

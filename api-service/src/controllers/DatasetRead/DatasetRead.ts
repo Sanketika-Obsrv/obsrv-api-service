@@ -71,7 +71,7 @@ const getInvalidFields = (payload: Record<string, any>): Record<string, any> => 
 
 const transformFieldValues = (datasetFields: Record<string, any>) => {
     const { status, fields } = datasetFields;
-    const updatedFields = _.join(_.remove(_.split(fields, ","), (newField) => newField !== "transformation_config"))
+    const updatedFields = _.join(_.remove(_.split(fields, ","), (newField) => newField !== "transformations_config"))
     if (!(status === DatasetStatus.Draft || status === DatasetStatus.Publish) && _.includes(fields, "version")) {
         return _.replace(updatedFields, "version", "data_version")
     }
@@ -80,11 +80,11 @@ const transformFieldValues = (datasetFields: Record<string, any>) => {
 
 const transformResponseData = async (payload: Record<string, any>) => {
     const { data, dataset_id, status, fields } = payload
-    const transformationConfigExist = _.includes(_.split(fields, ","), "transformation_config")
+    const transformationConfigExist = _.includes(_.split(fields, ","), "transformations_config")
     if (transformationConfigExist || _.isEmpty(fields)) {
         const transformationModel = getTransfomationModel(status)
-        const transformations = await transformationModel.findAll({ where: { dataset_id }, raw: true })
-        _.set(data, "transformation_config", transformations)
+        const transformations = await transformationModel.findAll({ where: { dataset_id }, raw: true, attributes: ["field_key", "transformation_function", "mode", "metadata"] })
+        _.set(data, "transformations_config", transformations)
     }
     const liveDatasetVersion = _.get(data, "data_version")
     const updatedResponse = liveDatasetVersion ? { ..._.omit(data, ["data_version"]), version: liveDatasetVersion } : data
