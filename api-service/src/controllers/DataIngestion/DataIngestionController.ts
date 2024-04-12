@@ -4,7 +4,7 @@ import validationSchema from "./validationSchema.json";
 import { schemaValidation } from "../../services/ValidationService";
 import { ResponseHandler } from "../../helpers/ResponseHandler";
 import { send } from "../../connections/kafkaConnection";
-import { getDataset, setApiId } from "../../services/DatasetService";
+import { getDataset } from "../../services/DatasetService";
 import logger from "../../logger";
 import { v4 } from "uuid";
 import { config } from "../../configs/Config";
@@ -29,7 +29,6 @@ const errorObject = {
 
 const dataIn = async (req: Request, res: Response) => {
     try {
-        setApiId(req, "api.data.in")
         const datasetId = req.params.datasetId.trim();
         const isValidSchema = schemaValidation(req.body, validationSchema)
         if (!isValidSchema?.isValid) {
