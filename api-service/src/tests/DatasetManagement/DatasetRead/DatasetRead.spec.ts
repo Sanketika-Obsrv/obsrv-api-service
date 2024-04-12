@@ -5,11 +5,12 @@ import spies from "chai-spies";
 import httpStatus from "http-status";
 import { describe, it } from 'mocha';
 import _ from "lodash";
-import { sequelize } from "../../../connections/databaseConnection";
 import { apiId } from "../../../controllers/DatasetRead/DatasetRead";
 import { TestInputsForDatasetRead } from "./Fixtures";
 import { DatasetTransformations } from "../../../models/Transformation";
 import { DatasetTransformationsDraft } from "../../../models/TransformationDraft";
+import { Dataset } from "../../../models/Dataset";
+import { DatasetDraft } from "../../../models/DatasetDraft";
 
 chai.use(spies);
 chai.should();
@@ -22,8 +23,8 @@ describe("DATASET READ API", () => {
     });
 
     it("Dataset read success: When minimal fields requested", (done) => {
-        chai.spy.on(sequelize, "query", () => {
-            return Promise.resolve([[{ 'name': 'sb-telemetry', 'data_version': 1 }], {}])
+        chai.spy.on(Dataset, "findAll", () => {
+            return Promise.resolve([{ 'name': 'sb-telemetry', 'data_version': 1 }])
         })
         chai
             .request(app)
@@ -42,8 +43,8 @@ describe("DATASET READ API", () => {
     });
 
     it("Dataset read success: Fetch all dataset fields when fields param is empty", (done) => {
-        chai.spy.on(sequelize, "query", () => {
-            return Promise.resolve([[TestInputsForDatasetRead.DRAFT_SCHEMA], {}])
+        chai.spy.on(DatasetDraft, "findAll", () => {
+            return Promise.resolve([TestInputsForDatasetRead.DRAFT_SCHEMA])
         })
         chai.spy.on(DatasetTransformationsDraft, "findAll", () => {
             return Promise.resolve([])
@@ -66,8 +67,8 @@ describe("DATASET READ API", () => {
     });
 
     it("Dataset read success: Fetch live dataset when status param is empty", (done) => {
-        chai.spy.on(sequelize, "query", () => {
-            return Promise.resolve([[TestInputsForDatasetRead.LIVE_SCHEMA], {}])
+        chai.spy.on(Dataset, "findAll", () => {
+            return Promise.resolve([TestInputsForDatasetRead.LIVE_SCHEMA])
         })
         chai.spy.on(DatasetTransformations, "findAll", () => {
             return Promise.resolve(TestInputsForDatasetRead.TRANSFORMATIONS_SCHEMA)
@@ -89,8 +90,8 @@ describe("DATASET READ API", () => {
     });
 
     it("Dataset read failure: When the dataset of requested dataset_id not found", (done) => {
-        chai.spy.on(sequelize, "query", () => {
-            return Promise.resolve([[], {}])
+        chai.spy.on(Dataset, "findAll", () => {
+            return Promise.resolve([])
         })
         chai
             .request(app)
@@ -134,7 +135,7 @@ describe("DATASET READ API", () => {
     });
 
     it("Dataset read failure: Connection to the database failed", (done) => {
-        chai.spy.on(sequelize, "query", () => {
+        chai.spy.on(Dataset, "findAll", () => {
             return Promise.reject()
         })
         chai

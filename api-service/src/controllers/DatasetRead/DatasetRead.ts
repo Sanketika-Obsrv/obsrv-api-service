@@ -4,11 +4,12 @@ import _ from "lodash";
 import { validDatasetFields } from "../../configs/DatasetConfigDefault";
 import { ResponseHandler } from "../../helpers/ResponseHandler";
 import { ErrorObject } from "../../types/ResponseModel";
-import { query } from "../../connections/databaseConnection";
 import logger from "../../logger";
 import httpStatus from "http-status";
 import { DatasetTransformationsDraft } from "../../models/TransformationDraft";
 import { DatasetTransformations } from "../../models/Transformation";
+import { DatasetDraft } from "../../models/DatasetDraft";
+import { Dataset } from "../../models/Dataset";
 
 export const apiId = "api.datasets.read";
 
@@ -31,7 +32,7 @@ const datasetRead = async (req: Request, res: Response) => {
         const fieldValue = !_.isEmpty(fields) ? transformFieldValues({ fields, status }) : "*"
         let data: any = {}
         if (!_.isEmpty(fieldValue)) {
-            const { results } = await query(`SELECT ${fieldValue} FROM ${datasetModel} WHERE id = '${dataset_id}'`)
+            const results = await datasetModel.findAll({ where: { id: dataset_id }, ...(fieldValue !== "*" && { attributes: fieldValue }), raw: true })
             if (_.isEmpty(results)) {
                 logger.error(`Dataset with the given dataset_id:${dataset_id} not found`)
                 return ResponseHandler.errorResponse({
@@ -56,11 +57,11 @@ const datasetRead = async (req: Request, res: Response) => {
     }
 }
 
-const getDatasetModel = (status: string | any): string => {
+const getDatasetModel = (status: string | any) => {
     if (status === DatasetStatus.Draft || status === DatasetStatus.Publish) {
-        return "datasets_draft";
+        return DatasetDraft;
     }
-    return "datasets";
+    return Dataset;
 }
 
 const getInvalidFields = (payload: Record<string, any>): Record<string, any> => {
@@ -71,11 +72,12 @@ const getInvalidFields = (payload: Record<string, any>): Record<string, any> => 
 
 const transformFieldValues = (datasetFields: Record<string, any>) => {
     const { status, fields } = datasetFields;
-    const updatedFields = _.join(_.remove(_.split(fields, ","), (newField) => newField !== "transformations_config"))
-    if (!(status === DatasetStatus.Draft || status === DatasetStatus.Publish) && _.includes(fields, "version")) {
-        return _.replace(updatedFields, "version", "data_version")
+    const updatedFields = _.remove(_.split(fields, ","), (newField) => newField !== "transformations_config")
+    if (!(status === DatasetStatus.Draft || status === DatasetStatus.Publish) && _.includes(updatedFields, "version")) {
+        const fieldIndex = _.indexOf(updatedFields, "version")
+        updatedFields[fieldIndex] = "data_version"
     }
-    return updatedFields;
+    return updatedFields
 }
 
 const transformResponseData = async (payload: Record<string, any>) => {
