@@ -50,15 +50,6 @@ const getDatasetList = async (request: Record<string, any>): Promise<Record<stri
     return datasetsList;
 }
 
-const getSortedDatasets = (datasets: Record<string, any>, sortOrder: Record<string, any>): Record<string, any> => {
-    if (!_.isEmpty(sortOrder)) {
-        const columnValues = _.map(sortOrder, field => field.column)
-        const orderValues = _.map(sortOrder, field => field.order)
-        return _.orderBy(datasets, columnValues, orderValues)
-    }
-    return datasets
-}
-
 const getAllDatasets = async (filters: Record<string, any>): Promise<Record<string, any>> => {
     let datasetStatus = _.get(filters, "status");
     datasetStatus = _.isArray(datasetStatus) ? datasetStatus : _.compact([datasetStatus])
@@ -85,12 +76,21 @@ const fetchDatasets = async (data: Record<string, any>) => {
     return { liveDatasetList, draftDatasetList }
 }
 
+const getSortedDatasets = (datasets: Record<string, any>, sortOrder: Record<string, any>): Record<string, any> => {
+    if (!_.isEmpty(sortOrder)) {
+        const columnValues = _.map(sortOrder, field => field.column)
+        const orderValues = _.map(sortOrder, field => field.order)
+        return _.orderBy(datasets, columnValues, orderValues)
+    }
+    return datasets
+}
+
 const transformDatasetList = async (datasets: Record<string, any>) => {
     const liveTransformations = await getDraftTransformations();
     const draftTransformations = await getLiveTransformations();
-    const allTransformations = _.concat(liveTransformations, draftTransformations)
+    const transformationList = _.concat(liveTransformations, draftTransformations)
     const datasetList = _.map(datasets, dataset => {
-        const transformationConfig = _.compact(_.flatten(_.map(allTransformations, (transformations: any) => {
+        const transformationConfig = _.compact(_.flatten(_.map(transformationList, (transformations: any) => {
             const datasetId = _.get(dataset, "id")
             const transformationId = _.get(transformations, "dataset_id")
             if (datasetId === transformationId) {
