@@ -12,8 +12,8 @@ import { DatasetTransformationsDraft } from "../../models/TransformationDraft";
 import { DatasetTransformations } from "../../models/Transformation";
 
 export const apiId = "api.datasets.list"
-const liveTableStatus = ["Live", "Retired"]
-const draftTableStatus = ["Draft", "Publish"]
+const liveDatasetStatus = ["Live", "Retired"]
+const draftDatasetStatus = ["Draft", "Publish"]
 
 const datasetList = async (req: Request, res: Response) => {
     try {
@@ -28,8 +28,8 @@ const datasetList = async (req: Request, res: Response) => {
 
         const requestBody = req.body.request;
         const datasetList = await getDatasetList(requestBody)
-        logger.info("Datasets are listed successfully")
-        ResponseHandler.successResponse(req, res, { status: httpStatus.OK, data: datasetList });
+        logger.info(`Datasets are listed successfully with a dataset count (${_.size(datasetList)})`)
+        ResponseHandler.successResponse(req, res, { status: httpStatus.OK, data: { data: datasetList, count: _.size(datasetList) } });
     } catch (error: any) {
         logger.error(error);
         let errorMessage = error;
@@ -43,11 +43,11 @@ const datasetList = async (req: Request, res: Response) => {
 
 const getDatasetList = async (request: Record<string, any>): Promise<Record<string, any>> => {
     const { filters = {}, offset = 0, limit = 50, sortBy = [] } = request || {};
-    let allDatasets: any = await getAllDatasets(filters)
+    const datasets = await getAllDatasets(filters)
+    let sortedDatasets: any = getSortedDatasets(datasets, sortBy)
     if (offset || limit) {
-        allDatasets = _.slice(allDatasets, offset, offset + limit)
+        sortedDatasets = _.slice(sortedDatasets, offset, offset + limit)
     }
-    const sortedDatasets = getSortedDatasets(allDatasets, sortBy)
     const datasetsList = await transformDatasetList(sortedDatasets)
     return datasetsList;
 }
@@ -63,52 +63,65 @@ const getSortedDatasets = (datasets: Record<string, any>, sortOrder: Record<stri
 
 const getAllDatasets = async (filters: Record<string, any>): Promise<Record<string, any>> => {
     let datasetStatus = _.get(filters, "status");
-    datasetStatus = _.isArray(datasetStatus) ? datasetStatus : [datasetStatus]
+    datasetStatus = _.isArray(datasetStatus) ? datasetStatus : _.compact([datasetStatus])
+    const { liveDatasetList, draftDatasetList } = await fetchDatasets({ datasetStatus, filters })
+    return _.compact(_.concat(liveDatasetList, draftDatasetList))
+}
+
+const fetchDatasets = async (data: Record<string, any>) => {
+    const { filters, datasetStatus } = data
     let liveDatasetList, draftDatasetList;
     if (_.isEmpty(datasetStatus)) {
-        liveDatasetList = await Dataset.findAll({ ...(!_.isEmpty(filters) && { where: filters }), raw: true });
-        draftDatasetList = await DatasetDraft.findAll({ ...(!_.isEmpty(filters) && { where: filters }), raw: true });
-    } else {
-        const hasDraftStatus = _.size(_.intersection(datasetStatus, draftTableStatus)) > 0;
-        const hasLiveStatus = _.size(_.intersection(datasetStatus, liveTableStatus)) > 0;
-
-        if (hasDraftStatus && !hasLiveStatus) {
-            draftDatasetList = await DatasetDraft.findAll({ where: { ...filters, status: datasetStatus }, raw: true });
-        } else if (hasLiveStatus && !hasDraftStatus) {
-            liveDatasetList = await Dataset.findAll({ where: { ...filters, status: datasetStatus }, raw: true });
-        } else {
-            const liveStatusFilters = _.intersection(datasetStatus, ["Live", "Retired"]);
-            const draftStatusFilters = _.intersection(datasetStatus, ["Publish", "Draft"]);
-
-            if (_.size(liveStatusFilters) > 0) {
-                liveDatasetList = await Dataset.findAll({ where: { ...filters, status: liveStatusFilters }, raw: true });
-            }
-
-            if (_.size(draftStatusFilters) > 0) {
-                draftDatasetList = await DatasetDraft.findAll({ where: { ...filters, status: draftStatusFilters }, raw: true });
-            }
-        }
+        liveDatasetList = await getLiveDatasets(filters, liveDatasetStatus)
+        draftDatasetList = await getDraftDatasets(filters, draftDatasetStatus)
+        return { liveDatasetList, draftDatasetList }
     }
-    return _.concat(liveDatasetList, draftDatasetList)
+    const draftStatus = _.intersection(datasetStatus, draftDatasetStatus);
+    const liveStatus = _.intersection(datasetStatus, liveDatasetStatus);
+    if (_.size(liveStatus) > 0) {
+        liveDatasetList = await getLiveDatasets(filters, liveStatus)
+    }
+    if (_.size(draftStatus) > 0) {
+        draftDatasetList = await getDraftDatasets(filters, draftStatus)
+    }
+    return { liveDatasetList, draftDatasetList }
+}
+
+const transformDatasetList = async (datasets: Record<string, any>) => {
+    const liveTransformations = await getDraftTransformations();
+    const draftTransformations = await getLiveTransformations();
+    const allTransformations = _.concat(liveTransformations, draftTransformations)
+    const datasetList = _.map(datasets, dataset => {
+        const transformationConfig = _.compact(_.flatten(_.map(allTransformations, (transformations: any) => {
+            const datasetId = _.get(dataset, "id")
+            const transformationId = _.get(transformations, "dataset_id")
+            if (datasetId === transformationId) {
+                return _.omit(transformations, ["dataset_id"]);
+            }
+        })))
+        const liveDatasetVersion = _.get(dataset, "data_version")
+        const updatedList = liveDatasetVersion ? { ..._.omit(dataset, ["data_version"]), version: liveDatasetVersion } : dataset
+        return { ...updatedList, ...(!_.isEmpty(transformationConfig) && { "transformations_config": transformationConfig }) }
+    })
+    return datasetList
+}
+
+const getDraftDatasets = async (filters: Record<string, any>, datasetStatus: Array<any>): Promise<Record<string, any>> => {
+    return DatasetDraft.findAll({ where: { ...filters, ...(!_.isEmpty(datasetStatus) && { status: datasetStatus }) }, raw: true });
+}
+
+const getLiveDatasets = async (filters: Record<string, any>, datasetStatus: Array<any>): Promise<Record<string, any>> => {
+    return Dataset.findAll({ where: { ...filters, ...(!_.isEmpty(datasetStatus) && { status: datasetStatus }) }, raw: true });
 }
 
 const datasetTransformationAttributes = ["dataset_id", "field_key", "transformation_function", "mode", "metadata"]
 
-const transformDatasetList = async (datasets: Record<string, any>) => {
-    const liveTransformations = await DatasetTransformations.findAll({ where: { status: liveTableStatus }, attributes: datasetTransformationAttributes, raw: true })
-    const draftTransformations = await DatasetTransformationsDraft.findAll({ where: { status: draftTableStatus }, attributes: datasetTransformationAttributes, raw: true })
-    const allTransformations = _.concat(liveTransformations, draftTransformations)
-    const datasetLists = _.map(datasets, list => {
-        const config = _.compact(_.flatten(_.map(allTransformations, (fields: any) => {
-            if (list.id == fields.dataset_id) {
-                return fields;
-            }
-        })))
-        const liveDatasetVersion = _.get(list, "data_version")
-        const updatedList = liveDatasetVersion ? { ..._.omit(list, ["data_version"]), version: liveDatasetVersion } : list
-        return { ...updatedList, ...(!_.isEmpty(config) && { "transformations_config": config }) }
-    })
-    return datasetLists
+const getDraftTransformations = async () => {
+    return DatasetTransformationsDraft.findAll({ where: { status: draftDatasetStatus }, attributes: datasetTransformationAttributes, raw: true })
+}
+
+const getLiveTransformations = async () => {
+    return DatasetTransformations.findAll({ where: { status: liveDatasetStatus }, attributes: datasetTransformationAttributes, raw: true })
 }
 
 export default datasetList;
