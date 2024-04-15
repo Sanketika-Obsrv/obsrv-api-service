@@ -50,10 +50,12 @@
           "additionalProperties": false
         },
         "offset": {
-          "type": "integer"
+          "type": "integer",
+          "minimum": 0
         },
         "limit": {
-          "type": "integer"
+          "type": "integer",
+          "minimum": 0
         },
         "sortBy": {
           "type": "array",
