@@ -51,23 +51,6 @@ export const TestInputsForDatasetRead = {
                 }
             ]
         },
-        "transformation_config": [
-            {
-                "field_key": "eid",
-                "transformation_function": {
-                    "type": "mask",
-                    "expr": "eid",
-                    "condition": null
-                },
-                "mode": "Strict",
-                "metadata": {
-                    "_transformationType": "mask",
-                    "_transformedFieldDataType": "string",
-                    "_transformedFieldSchemaType": "string",
-                    "section": "transformation"
-                }
-            }
-        ],
         "dataset_config": {
             "data_key": "eid",
             "timestamp_key": "ets",
@@ -143,23 +126,6 @@ export const TestInputsForDatasetRead = {
                 }
             ]
         },
-        "transformation_config": [
-            {
-                "field_key": "eid",
-                "transformation_function": {
-                    "type": "mask",
-                    "expr": "eid",
-                    "condition": null
-                },
-                "mode": "Strict",
-                "metadata": {
-                    "_transformationType": "mask",
-                    "_transformedFieldDataType": "string",
-                    "_transformedFieldSchemaType": "string",
-                    "section": "transformation"
-                }
-            }
-        ],
         "dataset_config": {
             "data_key": "eid",
             "timestamp_key": "ets",
@@ -180,6 +146,22 @@ export const TestInputsForDatasetRead = {
         "created_date": "",
         "update_date": "",
         "published_date": ""
-
-    }
+    },
+    TRANSFORMATIONS_SCHEMA: [
+        {
+            "field_key": "eid",
+            "transformation_function": {
+                "type": "mask",
+                "expr": "eid",
+                "condition": null
+            },
+            "mode": "Strict",
+            "metadata": {
+                "_transformationType": "mask",
+                "_transformedFieldDataType": "string",
+                "_transformedFieldSchemaType": "string",
+                "section": "transformation"
+            }
+        }
+    ]
 }

@@ -54,11 +54,6 @@ export const config = {
   },
   "exclude_datasource_validation": process.env.exclude_datasource_validation ? process.env.exclude_datasource_validation.split(",") : ["system-stats", "failed-events-summary", "masterdata-system-stats", "system-events"], // list of datasource names to skip validation while calling query API
   "telemetry_dataset": process.env.telemetry_dataset || `${env}.system.telemetry.events`,
-  "table_names": {     // Names of all tables available for CRUD operations
-    "datasets": "datasets",
-    "datasources": "datasources",
-    "datasetSourceConfig": "dataset_source_config"
-  },
   "table_config": {   // This object defines the configuration for each table.
     "datasets": {
       "primary_key": "id",
@@ -73,7 +68,7 @@ export const config = {
       "references": []
     }
   },
-  "exhaust_config": {
+  "cloud_config": {
     "cloud_storage_provider": process.env.cloud_storage_provider || "aws", // Supported providers - AWS, GCP, Azure
     "cloud_storage_region": process.env.cloud_storage_region || "", // Region for the cloud provider storage
     "cloud_storage_config": process.env.cloud_storage_config ? JSON.parse(process.env.cloud_storage_config) : {}, // Respective credentials object for cloud provider. Optional if service account provided
