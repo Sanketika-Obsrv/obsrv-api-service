@@ -7,7 +7,7 @@ export const TestInputsForDatasetCreate = {
         "ver": "v1",
         "ts": "2024-04-10T16:10:50+05:30",
         "params": {
-            "mid": "4a7f14c3-d61e-4d4f-be78-181834eeff6d"
+            "msgid": "4a7f14c3-d61e-4d4f-be78-181834eeff6d"
         },
         "request": {
             "dataset_id": "sb-ddd",
@@ -19,7 +19,7 @@ export const TestInputsForDatasetCreate = {
             },
             "dedup_config": {
                 "drop_duplicates": true,
-                "dedup_key": "mid"
+                "dedup_key": "msgid"
             },
             "data_schema": {
                 "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -58,7 +58,7 @@ export const TestInputsForDatasetCreate = {
         "ver": "v1",
         "ts": "2024-04-10T16:10:50+05:30",
         "params": {
-            "mid": "4a7f14c3-d61e-4d4f-be78-181834eeff6d"
+            "msgid": "4a7f14c3-d61e-4d4f-be78-181834eeff6d"
         },
         "request": {
             "dataset_id": "sb-ddd",
@@ -88,7 +88,7 @@ export const TestInputsForDatasetCreate = {
         "ver": "v1",
         "ts": "2024-04-10T16:10:50+05:30",
         "params": {
-            "mid": "4a7f14c3-d61e-4d4f-be78-181834eeff6d"
+            "msgid": "4a7f14c3-d61e-4d4f-be78-181834eeff6d"
         },
         "request": {
             "dataset_id": "sb-ddd",
@@ -117,7 +117,7 @@ export const TestInputsForDatasetCreate = {
         "ver": "v1",
         "ts": "2024-04-10T16:10:50+05:30",
         "params": {
-            "mid": "4a7f14c3-d61e-4d4f-be78-181834eeff6d"
+            "msgid": "4a7f14c3-d61e-4d4f-be78-181834eeff6d"
         },
         "request": {
             "dataset_id": "sb-ddd",
@@ -157,7 +157,7 @@ export const TestInputsForDatasetCreate = {
         "ver": "v1",
         "ts": "2024-04-10T16:10:50+05:30",
         "params": {
-            "mid": "4a7f14c3-d61e-4d4f-be78-181834eeff6d"
+            "msgid": "4a7f14c3-d61e-4d4f-be78-181834eeff6d"
         },
         "request": {
             "dataset_id": "sb-ddd",
@@ -197,7 +197,7 @@ export const TestInputsForDatasetCreate = {
         "ver": "v1",
         "ts": "2024-04-10T16:10:50+05:30",
         "params": {
-            "mid": "4a7f14c3-d61e-4d4f-be78-181834eeff6d"
+            "msgid": "4a7f14c3-d61e-4d4f-be78-181834eeff6d"
         },
         "request": {
             "id": "sb-telemetry2",
@@ -210,7 +210,7 @@ export const TestInputsForDatasetCreate = {
             },
             "dedup_config": {
                 "drop_duplicates": true,
-                "dedup_key": "mid"
+                "dedup_key": "msgid"
             },
             "data_schema": {
                 "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -249,7 +249,7 @@ export const TestInputsForDatasetCreate = {
         "ver": "v1",
         "ts": "2024-04-10T16:10:50+05:30",
         "params": {
-            "mid": "4a7f14c3-d61e-4d4f-be78-181834eeff6d"
+            "msgid": "4a7f14c3-d61e-4d4f-be78-181834eeff6d"
         },
         "request": {
             "dataset_id": 7
@@ -261,7 +261,7 @@ export const TestInputsForDatasetCreate = {
         "ver": "v1",
         "ts": "2024-04-10T16:10:50+05:30",
         "params": {
-            "mid": "4a7f14c3-d61e-4d4f-be78-181834eeff6d"
+            "msgid": "4a7f14c3-d61e-4d4f-be78-181834eeff6d"
         },
         "request": {
             "id": "sb-telemetry2",
@@ -306,49 +306,49 @@ export const DATASET_CREATE_SUCCESS_FIXTURES = [
         "requestPayload": TestInputsForDatasetCreate.VALID_DATASET,
         "httpStatus": httpStatus.OK,
         "status": "SUCCESS",
-        "mid": "4a7f14c3-d61e-4d4f-be78-181834eeff6d"
+        "msgid": "4a7f14c3-d61e-4d4f-be78-181834eeff6d"
     },
     {
         "title": "Master Dataset creation success: When all the request payload configs provided",
         "requestPayload": TestInputsForDatasetCreate.VALID_MASTER_DATASET,
         "httpStatus": httpStatus.OK,
         "status": "SUCCESS",
-        "mid": "4a7f14c3-d61e-4d4f-be78-181834eeff6d"
+        "msgid": "4a7f14c3-d61e-4d4f-be78-181834eeff6d"
     },
     {
         "title": "Dataset creation success: When minimal request payload configs provided",
         "requestPayload": TestInputsForDatasetCreate.VALID_MINIMAL_DATASET,
         "httpStatus": httpStatus.OK,
         "status": "SUCCESS",
-        "mid": "4a7f14c3-d61e-4d4f-be78-181834eeff6d"
+        "msgid": "4a7f14c3-d61e-4d4f-be78-181834eeff6d"
     },
     {
         "title": "Master Dataset creation success: When minimal request paylod configs provided",
         "requestPayload": TestInputsForDatasetCreate.VALID_MINIMAL_MASTER_DATASET,
         "httpStatus": httpStatus.OK,
         "status": "SUCCESS",
-        "mid": "4a7f14c3-d61e-4d4f-be78-181834eeff6d"
+        "msgid": "4a7f14c3-d61e-4d4f-be78-181834eeff6d"
     },
     {
         "title": "Dataset creation success: When more than minimal request payload configs provided",
         "requestPayload": TestInputsForDatasetCreate.VALID_MORE_THAN_MINIMAL_DATASET,
         "httpStatus": httpStatus.OK,
         "status": "SUCCESS",
-        "mid": "4a7f14c3-d61e-4d4f-be78-181834eeff6d"
+        "msgid": "4a7f14c3-d61e-4d4f-be78-181834eeff6d"
     },
     {
         "title": "Master Dataset creation success: When more than minimal request payload configs provided",
         "requestPayload": TestInputsForDatasetCreate.VALID_MORE_THAN_MINIMAL_MASTER_DATASET,
         "httpStatus": httpStatus.OK,
         "status": "SUCCESS",
-        "mid": "4a7f14c3-d61e-4d4f-be78-181834eeff6d"
+        "msgid": "4a7f14c3-d61e-4d4f-be78-181834eeff6d"
     },
     {
         "title": "Dataset creation success: When id is not present in request payload and is generated using dataset_id",
         "requestPayload": TestInputsForDatasetCreate.VALID_MORE_THAN_MINIMAL_DATASET,
         "httpStatus": httpStatus.OK,
         "status": "SUCCESS",
-        "mid": "4a7f14c3-d61e-4d4f-be78-181834eeff6d"
+        "msgid": "4a7f14c3-d61e-4d4f-be78-181834eeff6d"
     },
 ]
 
@@ -358,13 +358,13 @@ export const DATASET_FAILURE_DUPLICATE_DENORM_FIXTURES = [
         "requestPayload": TestInputsForDatasetCreate.DATASET_WITH_DUPLICATE_DENORM_KEY,
         "httpStatus": httpStatus.BAD_REQUEST,
         "status": "FAILED",
-        "mid": "4a7f14c3-d61e-4d4f-be78-181834eeff6d"
+        "msgid": "4a7f14c3-d61e-4d4f-be78-181834eeff6d"
     },
     {
         "title": "Master Dataset creation failure: Dataset contains duplicate denorm out field",
         "requestPayload": _.set(TestInputsForDatasetCreate.DATASET_WITH_DUPLICATE_DENORM_KEY, "request.type", "master-dataset"),
         "httpStatus": httpStatus.BAD_REQUEST,
         "status": "FAILED",
-        "mid": "4a7f14c3-d61e-4d4f-be78-181834eeff6d"
+        "msgid": "4a7f14c3-d61e-4d4f-be78-181834eeff6d"
     }
 ]
