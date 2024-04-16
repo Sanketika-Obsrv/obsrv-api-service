@@ -10,26 +10,26 @@ const ResponseHandler = {
   successResponse: (req: Request, res: Response, result: Result) => {
     const { entity, body } = req as any;
     entity && onSuccess(req)
-    const msgid = _.get(body, ["params", "mid"])
-    res.status(result.status || 200).json(ResponseHandler.refactorResponse({ id: (req as any).id, result: result.data, mid: msgid }));
+    const msgid = _.get(body, ["params", "msgid"])
+    res.status(result.status || 200).json(ResponseHandler.refactorResponse({ id: (req as any).id, result: result.data, msgid }));
   },
 
   routeNotFound: (req: Request, res: Response, next: NextFunction) => {
     next({ statusCode: httpStatus.NOT_FOUND, message: httpStatus["404"], errCode: httpStatus["404_NAME"] });
   },
 
-  refactorResponse: ({ id = "api", ver = "v1", params = { status: "SUCCESS", err: "0", errmsg: "" }, responseCode = httpStatus["200_NAME"], result = {}, mid = "" }): IResponse => {
-    const paramsObj = { ...params, ...(!_.isEmpty(mid) && { mid }), resmsgid: uuidv4().toString() }
-    const updatedParams = _.isEmpty(paramsObj.errmsg) ? _.omit(paramsObj, ["errmsg"]) : paramsObj
-    return <IResponse>{ id, ver, ts: moment().format(), params: updatedParams, responseCode, result }
+  refactorResponse: ({ id = "api", ver = "v1", params = { status: "SUCCESS" }, responseCode = httpStatus["200_NAME"], result = {}, msgid = "" }): IResponse => {
+    const paramsObj = { ...params, ...(!_.isEmpty(msgid) && { msgid }), resmsgid: uuidv4().toString() }
+    return <IResponse>{ id, ver, ts: moment().format(), params: paramsObj, responseCode, result }
   },
 
   errorResponse: (error: Record<string, any>, req: Request, res: Response) => {
-    const { statusCode, message, errCode } = error;
+    const { statusCode, message, errCode, code = "INTERNAL_SERVER_ERROR", trace = "" } = error;
     const { id, entity, body } = req as any;
-    const msgid = _.get(body, ["params", "mid"])
+    const msgid = _.get(body, ["params", "msgid"])
     entity && onFailure(req)
-    res.status(statusCode || httpStatus.INTERNAL_SERVER_ERROR).json(ResponseHandler.refactorResponse({ id: id, mid: msgid, params: { status: "FAILED", errmsg: message, err: "1" }, responseCode: errCode || httpStatus["500_NAME"] }));
+    const response = ResponseHandler.refactorResponse({ id, msgid, params: { status: "FAILED" }, responseCode: errCode || httpStatus["500_NAME"] })
+    res.status(statusCode || httpStatus.INTERNAL_SERVER_ERROR).json({ ...response, error: { code, message, trace } });
   },
 
   setApiId: (id: string) => (req: Request, res: Response, next: NextFunction) => {

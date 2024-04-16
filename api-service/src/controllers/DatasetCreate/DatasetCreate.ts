@@ -20,6 +20,7 @@ const datasetCreate = async (req: Request, res: Response) => {
 
         if (!isRequestValid.isValid) {
             return ResponseHandler.errorResponse({
+                code: "SCHEMA_VALIDATION_FAILED",
                 message: isRequestValid.message,
                 statusCode: 400,
                 errCode: "BAD_REQUEST"
@@ -30,6 +31,7 @@ const datasetCreate = async (req: Request, res: Response) => {
         const isDataSetExists = await checkDatasetExists(_.get(datasetBody, ["dataset_id"]));
         if (isDataSetExists) {
             return ResponseHandler.errorResponse({
+                code: "DATASET_EXISTS",
                 message: "Dataset already exists",
                 statusCode: 409,
                 errCode: "CONFLICT"
@@ -40,8 +42,9 @@ const datasetCreate = async (req: Request, res: Response) => {
         if (!_.isEmpty(duplicateDenormKeys)) {
             logger.error(`Duplicate denorm output fields found. Duplicate Denorm out fields are [${duplicateDenormKeys}]`)
             return ResponseHandler.errorResponse({
+                code: "DUPLICATE_DENORM_KEY_FOUND",
                 statusCode: 400,
-                message: "Duplicate denorm output fields found",
+                message: "Duplicate denorm key found",
                 errCode: "BAD_REQUEST"
             } as ErrorObject, req, res);
         }
@@ -55,7 +58,7 @@ const datasetCreate = async (req: Request, res: Response) => {
         let errorMessage = error;
         const statusCode = _.get(error, "statusCode")
         if (!statusCode || statusCode == 500) {
-            errorMessage = { message: "Failed to create dataset" }
+            errorMessage = { code: "DATASET_CREATION_FAILURE", message: "Failed to create dataset" }
         }
         ResponseHandler.errorResponse(errorMessage, req, res);
     }

@@ -14,11 +14,11 @@
     "params": {
       "type": "object",
       "properties": {
-        "mid": {
+        "msgid": {
           "type": "string"
         }
       },
-      "required": ["mid"],
+      "required": ["msgid"],
       "additionalProperties": false
     },
     "request": {

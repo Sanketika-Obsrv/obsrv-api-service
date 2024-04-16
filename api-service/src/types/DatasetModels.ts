@@ -27,10 +27,8 @@ export interface QValidator extends IValidator {
 
 export interface Params {
     status: string,
-    errmsg?: string,
-    resmsgid:string,
-    mid: string,
-    err: string
+    resmsgid: string,
+    msgid: string,
 }
 export interface IResponse {
     id: string,
