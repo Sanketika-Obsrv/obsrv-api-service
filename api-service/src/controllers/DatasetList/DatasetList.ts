@@ -86,8 +86,8 @@ const getSortedDatasets = (datasets: Record<string, any>, sortOrder: Record<stri
 }
 
 const transformDatasetList = async (datasets: Record<string, any>) => {
-    const { liveDatasetId, draftDatsetId } = getDatasetId(datasets)
-    const draftTransformations = await getDraftTransformations(draftDatsetId);
+    const { liveDatasetId, draftDatasetId } = getDatasetId(datasets)
+    const draftTransformations = await getDraftTransformations(draftDatasetId);
     const liveTransformations = await getLiveTransformations(liveDatasetId);
     const transformationList = _.concat(liveTransformations, draftTransformations)
     const datasetList = _.map(datasets, dataset => {
@@ -115,8 +115,8 @@ const getDatasetId = (datasets: Record<string, any>) => {
         return status === DatasetStatus.Draft || status === DatasetStatus.Publish
     })
     const liveDatasetId = _.map(liveDatasets, list => _.get(list, "id"))
-    const draftDatsetId = _.map(draftDatasets, list => _.get(list, "id"))
-    return { liveDatasetId, draftDatsetId }
+    const draftDatasetId = _.map(draftDatasets, list => _.get(list, "id"))
+    return { liveDatasetId, draftDatasetId }
 }
 
 const getDraftDatasets = async (filters: Record<string, any>, datasetStatus: Array<any>): Promise<Record<string, any>> => {
