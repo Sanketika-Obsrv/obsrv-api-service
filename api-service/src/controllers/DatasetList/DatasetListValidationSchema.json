@@ -54,7 +54,7 @@
           "items": {
             "type": "object",
             "properties": {
-              "column": {
+              "field": {
                 "type": "string",
                 "enum": [
                   "created_date",
@@ -69,7 +69,7 @@
               }
             },
             "additionalProperties": false,
-            "required": ["column", "order"]
+            "required": ["field", "order"]
           }
         }
       },
