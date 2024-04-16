@@ -10,6 +10,7 @@ import { Dataset } from "../../models/Dataset";
 import httpStatus from "http-status";
 import { DatasetTransformationsDraft } from "../../models/TransformationDraft";
 import { DatasetTransformations } from "../../models/Transformation";
+import { DatasetStatus } from "../../types/DatasetModels";
 
 export const apiId = "api.datasets.list"
 const liveDatasetStatus = ["Live", "Retired"]
@@ -85,8 +86,9 @@ const getSortedDatasets = (datasets: Record<string, any>, sortOrder: Record<stri
 }
 
 const transformDatasetList = async (datasets: Record<string, any>) => {
-    const liveTransformations = await getDraftTransformations();
-    const draftTransformations = await getLiveTransformations();
+    const { liveDatasetId, draftDatsetId } = getDatasetId(datasets)
+    const draftTransformations = await getDraftTransformations(draftDatsetId);
+    const liveTransformations = await getLiveTransformations(liveDatasetId);
     const transformationList = _.concat(liveTransformations, draftTransformations)
     const datasetList = _.map(datasets, dataset => {
         const transformationConfig = _.compact(_.flatten(_.map(transformationList, (transformations: any) => {
@@ -103,6 +105,20 @@ const transformDatasetList = async (datasets: Record<string, any>) => {
     return datasetList
 }
 
+const getDatasetId = (datasets: Record<string, any>) => {
+    const liveDatasets = _.filter(datasets, field => {
+        const { status } = field || {}
+        return status === DatasetStatus.Live || status === DatasetStatus.Retired
+    })
+    const draftDatasets = _.filter(datasets, field => {
+        const { status } = field || {}
+        return status === DatasetStatus.Draft || status === DatasetStatus.Publish
+    })
+    const liveDatasetId = _.map(liveDatasets, list => _.get(list, "id"))
+    const draftDatsetId = _.map(draftDatasets, list => _.get(list, "id"))
+    return { liveDatasetId, draftDatsetId }
+}
+
 const getDraftDatasets = async (filters: Record<string, any>, datasetStatus: Array<any>): Promise<Record<string, any>> => {
     return DatasetDraft.findAll({ where: { ...filters, ...(!_.isEmpty(datasetStatus) && { status: datasetStatus }) }, raw: true });
 }
@@ -113,12 +129,12 @@ const getLiveDatasets = async (filters: Record<string, any>, datasetStatus: Arra
 
 const datasetTransformationAttributes = ["dataset_id", "field_key", "transformation_function", "mode", "metadata"]
 
-const getDraftTransformations = async () => {
-    return DatasetTransformationsDraft.findAll({ where: { status: draftDatasetStatus }, attributes: datasetTransformationAttributes, raw: true })
+const getDraftTransformations = async (dataset_id: Array<any>) => {
+    return DatasetTransformationsDraft.findAll({ where: { status: draftDatasetStatus, dataset_id }, attributes: datasetTransformationAttributes, raw: true })
 }
 
-const getLiveTransformations = async () => {
-    return DatasetTransformations.findAll({ where: { status: liveDatasetStatus }, attributes: datasetTransformationAttributes, raw: true })
+const getLiveTransformations = async (dataset_id: Array<any>) => {
+    return DatasetTransformations.findAll({ where: { status: liveDatasetStatus, dataset_id }, attributes: datasetTransformationAttributes, raw: true })
 }
 
 export default datasetList;
