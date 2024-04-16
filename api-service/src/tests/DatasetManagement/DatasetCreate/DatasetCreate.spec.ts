@@ -82,7 +82,7 @@ describe("DATASET CREATE API", () => {
                 res.body.params.msgid.should.be.eq("4a7f14c3-d61e-4d4f-be78-181834eeff6d")
                 res.body.params.status.should.be.eq("FAILED")
                 expect(res.body.error.message).to.match(/^(.+)should be string$/)
-                res.body.error.code.should.be.eq("SCHEMA_VALIDATION_FAILED")
+                res.body.error.code.should.be.eq("INVALID_DATASET_REQUEST_BODY")
                 done();
             });
     });

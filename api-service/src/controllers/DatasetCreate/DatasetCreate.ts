@@ -20,7 +20,7 @@ const datasetCreate = async (req: Request, res: Response) => {
 
         if (!isRequestValid.isValid) {
             return ResponseHandler.errorResponse({
-                code: "SCHEMA_VALIDATION_FAILED",
+                code: "INVALID_DATASET_REQUEST_BODY",
                 message: isRequestValid.message,
                 statusCode: 400,
                 errCode: "BAD_REQUEST"
