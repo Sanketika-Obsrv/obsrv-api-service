@@ -42,10 +42,9 @@ const datasetList = async (req: Request, res: Response) => {
 }
 
 const getDatasetList = async (request: Record<string, any>): Promise<Record<string, any>> => {
-    const { filters = {}, offset = 0, limit = 50, sortBy = [] } = request || {};
+    const { filters = {}, sortBy = [] } = request || {};
     const datasets = await getAllDatasets(filters)
-    let sortedDatasets: any = getSortedDatasets(datasets, sortBy)
-    sortedDatasets = _.slice(sortedDatasets, offset, offset + limit)
+    const sortedDatasets: any = getSortedDatasets(datasets, sortBy)
     const datasetsList = await transformDatasetList(sortedDatasets)
     return datasetsList;
 }
