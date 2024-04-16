@@ -64,7 +64,7 @@ describe("DATASET CREATE API", () => {
                     res.body.params.status.should.be.eq(fixture.status)
                     res.body.params.msgid.should.be.eq(fixture.msgid)
                     res.body.error.message.should.be.eq("Duplicate denorm key found")
-                    res.body.error.code.should.be.eq("DUPLICATE_DENORM_KEY_FOUND")
+                    res.body.error.code.should.be.eq("DATASET_DUPLICATE_DENORM_KEY")
                     done();
                 });
         });
@@ -82,7 +82,7 @@ describe("DATASET CREATE API", () => {
                 res.body.params.msgid.should.be.eq("4a7f14c3-d61e-4d4f-be78-181834eeff6d")
                 res.body.params.status.should.be.eq("FAILED")
                 expect(res.body.error.message).to.match(/^(.+)should be string$/)
-                res.body.error.code.should.be.eq("INVALID_DATASET_REQUEST_BODY")
+                res.body.error.code.should.be.eq("DATASET_INVALID_INPUT")
                 done();
             });
     });

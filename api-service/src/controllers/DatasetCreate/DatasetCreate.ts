@@ -20,7 +20,7 @@ const datasetCreate = async (req: Request, res: Response) => {
 
         if (!isRequestValid.isValid) {
             return ResponseHandler.errorResponse({
-                code: "INVALID_DATASET_REQUEST_BODY",
+                code: "DATASET_INVALID_INPUT",
                 message: isRequestValid.message,
                 statusCode: 400,
                 errCode: "BAD_REQUEST"
@@ -42,7 +42,7 @@ const datasetCreate = async (req: Request, res: Response) => {
         if (!_.isEmpty(duplicateDenormKeys)) {
             logger.error(`Duplicate denorm output fields found. Duplicate Denorm out fields are [${duplicateDenormKeys}]`)
             return ResponseHandler.errorResponse({
-                code: "DUPLICATE_DENORM_KEY_FOUND",
+                code: "DATASET_DUPLICATE_DENORM_KEY",
                 statusCode: 400,
                 message: "Duplicate denorm key found",
                 errCode: "BAD_REQUEST"
