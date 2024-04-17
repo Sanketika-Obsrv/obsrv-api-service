@@ -13,6 +13,7 @@ import { DatasetTransformations } from "../../models/Transformation";
 import { DatasetStatus } from "../../types/DatasetModels";
 
 export const apiId = "api.datasets.list"
+export const errorCode = "DATASET_LIST_FAILURE"
 const liveDatasetStatus = ["Live", "Retired"]
 const draftDatasetStatus = ["Draft", "Publish"]
 
@@ -20,8 +21,10 @@ const datasetList = async (req: Request, res: Response) => {
     try {
         const isRequestValid: Record<string, any> = schemaValidation(req.body, DatasetCreate)
         if (!isRequestValid.isValid) {
+            const code = "DATASET_LIST_INPUT_INVALID"
+            logger.error({ code, apiId, message: isRequestValid.message })
             return ResponseHandler.errorResponse({
-                code: "DATASET_LIST_INPUT_INVALID",
+                code,
                 message: isRequestValid.message,
                 statusCode: 400,
                 errCode: "BAD_REQUEST"
@@ -33,11 +36,11 @@ const datasetList = async (req: Request, res: Response) => {
         logger.info(`Datasets are listed successfully with a dataset count (${_.size(datasetList)})`)
         ResponseHandler.successResponse(req, res, { status: httpStatus.OK, data: { data: datasetList, count: _.size(datasetList) } });
     } catch (error: any) {
-        logger.error(error);
+        logger.error({ ...error, apiId, code: errorCode });
         let errorMessage = error;
         const statusCode = _.get(error, "statusCode")
         if (!statusCode || statusCode == 500) {
-            errorMessage = { code: "DATASET_LIST_FAILURE", message: "Failed to list dataset" }
+            errorMessage = { code: errorCode, message: "Failed to list dataset" }
         }
         ResponseHandler.errorResponse(errorMessage, req, res);
     }
