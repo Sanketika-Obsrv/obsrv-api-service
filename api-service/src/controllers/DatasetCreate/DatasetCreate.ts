@@ -16,20 +16,22 @@ export const apiId = "api.datasets.create"
 
 const datasetCreate = async (req: Request, res: Response) => {
     try {
-        const datasetBody = req.body;
-        const isRequestValid: Record<string, any> = schemaValidation(datasetBody, DatasetCreate)
+        const isRequestValid: Record<string, any> = schemaValidation(req.body, DatasetCreate)
 
         if (!isRequestValid.isValid) {
             return ResponseHandler.errorResponse({
+                code: "DATASET_INVALID_INPUT",
                 message: isRequestValid.message,
                 statusCode: 400,
                 errCode: "BAD_REQUEST"
             } as ErrorObject, req, res);
         }
 
-        const isDataSetExists = await checkDatasetExists(_.get(req, ["body", "dataset_id"]));
+        const datasetBody = req.body.request;
+        const isDataSetExists = await checkDatasetExists(_.get(datasetBody, ["dataset_id"]));
         if (isDataSetExists) {
             return ResponseHandler.errorResponse({
+                code: "DATASET_EXISTS",
                 message: "Dataset already exists",
                 statusCode: 409,
                 errCode: "CONFLICT"
@@ -40,8 +42,9 @@ const datasetCreate = async (req: Request, res: Response) => {
         if (!_.isEmpty(duplicateDenormKeys)) {
             logger.error(`Duplicate denorm output fields found. Duplicate Denorm out fields are [${duplicateDenormKeys}]`)
             return ResponseHandler.errorResponse({
+                code: "DATASET_DUPLICATE_DENORM_KEY",
                 statusCode: 400,
-                message: "Duplicate denorm output fields found",
+                message: "Duplicate denorm key found",
                 errCode: "BAD_REQUEST"
             } as ErrorObject, req, res);
         }
@@ -55,7 +58,7 @@ const datasetCreate = async (req: Request, res: Response) => {
         let errorMessage = error;
         const statusCode = _.get(error, "statusCode")
         if (!statusCode || statusCode == 500) {
-            errorMessage = { message: "Failed to create dataset" }
+            errorMessage = { code: "DATASET_CREATION_FAILURE", message: "Failed to create dataset" }
         }
         ResponseHandler.errorResponse(errorMessage, req, res);
     }

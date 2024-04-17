@@ -1,5 +1,5 @@
 import app from "../../../app";
-import chai from "chai";
+import chai, { expect } from "chai";
 import chaiHttp from "chai-http";
 import spies from "chai-spies";
 import httpStatus from "http-status";
@@ -13,6 +13,8 @@ import { apiId } from "../../../controllers/DatasetCreate/DatasetCreate"
 chai.use(spies);
 chai.should();
 chai.use(chaiHttp);
+
+const msgid = "4a7f14c3-d61e-4d4f-be78-181834eeff6d"
 
 describe("DATASET CREATE API", () => {
 
@@ -41,6 +43,7 @@ describe("DATASET CREATE API", () => {
                     res.body.should.be.a("object")
                     res.body.id.should.be.eq(apiId);
                     res.body.params.status.should.be.eq(fixture.status)
+                    res.body.params.msgid.should.be.eq(fixture.msgid)
                     res.body.result.id.should.be.eq("telemetry")
                     done();
                 });
@@ -61,7 +64,9 @@ describe("DATASET CREATE API", () => {
                     res.body.should.be.a("object")
                     res.body.id.should.be.eq(apiId);
                     res.body.params.status.should.be.eq(fixture.status)
-                    res.body.params.errmsg.should.be.eq("Duplicate denorm output fields found")
+                    res.body.params.msgid.should.be.eq(fixture.msgid)
+                    res.body.error.message.should.be.eq("Duplicate denorm key found")
+                    res.body.error.code.should.be.eq("DATASET_DUPLICATE_DENORM_KEY")
                     done();
                 });
         });
@@ -76,7 +81,10 @@ describe("DATASET CREATE API", () => {
                 res.should.have.status(httpStatus.BAD_REQUEST);
                 res.body.should.be.a("object")
                 res.body.id.should.be.eq(apiId);
+                res.body.params.msgid.should.be.eq(msgid)
                 res.body.params.status.should.be.eq("FAILED")
+                expect(res.body.error.message).to.match(/^(.+)should be string$/)
+                res.body.error.code.should.be.eq("DATASET_INVALID_INPUT")
                 done();
             });
     });
@@ -94,7 +102,9 @@ describe("DATASET CREATE API", () => {
                 res.body.should.be.a("object")
                 res.body.id.should.be.eq(apiId);
                 res.body.params.status.should.be.eq("FAILED")
-                res.body.params.errmsg.should.be.eq("Dataset already exists")
+                res.body.params.msgid.should.be.eq(msgid)
+                res.body.error.message.should.be.eq("Dataset already exists")
+                res.body.error.code.should.be.eq("DATASET_EXISTS")
                 done();
             });
     });
@@ -112,7 +122,9 @@ describe("DATASET CREATE API", () => {
                 res.body.should.be.a("object")
                 res.body.id.should.be.eq(apiId);
                 res.body.params.status.should.be.eq("FAILED")
-                res.body.params.errmsg.should.be.eq("Failed to create dataset")
+                res.body.params.msgid.should.be.eq(msgid)
+                res.body.error.message.should.be.eq("Failed to create dataset")
+                res.body.error.code.should.be.eq("DATASET_CREATION_FAILURE")
                 done();
             });
     });
