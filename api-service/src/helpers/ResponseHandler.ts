@@ -19,7 +19,7 @@ const ResponseHandler = {
   },
 
   refactorResponse: ({ id = "api", ver = "v1", params = { status: "SUCCESS" }, responseCode = httpStatus["200_NAME"], result = {}, msgid = "" }): IResponse => {
-    const paramsObj = { ...params, ...(!_.isEmpty(msgid) && { msgid }), resmsgid: uuidv4().toString() }
+    const paramsObj = { ...params, ...(!_.isEmpty(msgid) && { msgid }), resmsgid: uuidv4() }
     return <IResponse>{ id, ver, ts: moment().format(), params: paramsObj, responseCode, result }
   },
 
