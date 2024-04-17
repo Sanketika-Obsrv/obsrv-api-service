@@ -52,8 +52,7 @@ const getDatasetList = async (request: Record<string, any>): Promise<Record<stri
 }
 
 const getAllDatasets = async (filters: Record<string, any>): Promise<Record<string, any>> => {
-    let datasetStatus = _.get(filters, "status");
-    datasetStatus = _.isArray(datasetStatus) ? datasetStatus : datasetStatus
+    const datasetStatus = _.get(filters, "status");
     const { liveDatasetList, draftDatasetList } = await fetchDatasets({ datasetStatus, filters })
     return _.compact(_.concat(liveDatasetList, draftDatasetList))
 }
@@ -67,8 +66,9 @@ const fetchDatasets = async (data: Record<string, any>) => {
         return { liveDatasetList, draftDatasetList }
     }
     let liveDatasetList, draftDatasetList;
-    const draftStatus = _.intersection(_.flatten([datasetStatus]), draftDatasetStatus);
-    const liveStatus = _.intersection(_.flatten([datasetStatus]), liveDatasetStatus);
+    const status = _.isArray(datasetStatus) ? datasetStatus : [datasetStatus]
+    const draftStatus = _.intersection(status, draftDatasetStatus);
+    const liveStatus = _.intersection(status, liveDatasetStatus);
     if (_.size(liveStatus) > 0) {
         liveDatasetList = await getLiveDatasets(filters, liveStatus)
     }
