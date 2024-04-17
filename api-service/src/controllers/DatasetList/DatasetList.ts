@@ -60,9 +60,7 @@ const getAllDatasets = async (filters: Record<string, any>): Promise<Record<stri
 const fetchDatasets = async (data: Record<string, any>) => {
     const { filters, datasetStatus } = data
     if (_.isEmpty(datasetStatus)) {
-        const [liveDataset, draftDataset] = await Promise.allSettled([getLiveDatasets(filters, liveDatasetStatus), getDraftDatasets(filters, draftDatasetStatus)])
-        const liveDatasetList = liveDataset.status == "fulfilled" ? liveDataset.value : []
-        const draftDatasetList = draftDataset.status == "fulfilled" ? draftDataset.value : []
+        const [liveDatasetList, draftDatasetList] = await Promise.all([getLiveDatasets(filters, liveDatasetStatus), getDraftDatasets(filters, draftDatasetStatus)])
         return { liveDatasetList, draftDatasetList }
     }
     let liveDatasetList, draftDatasetList;
@@ -89,10 +87,8 @@ const getSortedDatasets = (datasets: Record<string, any>, sortOrder: Record<stri
 
 const transformDatasetList = async (datasets: Record<string, any>) => {
     const { liveDatasetId, draftDatasetId } = getDatasetId(datasets)
-    const [draftTransformations, liveTransformations] = await Promise.allSettled([getDraftTransformations(draftDatasetId), getLiveTransformations(liveDatasetId)])
-    const draftTransformationList = draftTransformations.status == "fulfilled" ? draftTransformations.value : []
-    const liveTransformationList = liveTransformations.status == "fulfilled" ? liveTransformations.value : []
-    const transformationList = _.concat(liveTransformationList, draftTransformationList)
+    const [draftTransformations, liveTransformations] = await Promise.all([getDraftTransformations(draftDatasetId), getLiveTransformations(liveDatasetId)])
+    const transformationList = _.concat(liveTransformations, draftTransformations)
     const datasetList = _.map(datasets, dataset => {
         const transformationConfig = _.compact(_.flatten(_.map(transformationList, (transformations: any) => {
             const datasetId = _.get(dataset, "id")
