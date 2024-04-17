@@ -21,6 +21,7 @@ const datasetList = async (req: Request, res: Response) => {
         const isRequestValid: Record<string, any> = schemaValidation(req.body, DatasetCreate)
         if (!isRequestValid.isValid) {
             return ResponseHandler.errorResponse({
+                code: "DATASET_LIST_INPUT_INVALID",
                 message: isRequestValid.message,
                 statusCode: 400,
                 errCode: "BAD_REQUEST"
@@ -36,7 +37,7 @@ const datasetList = async (req: Request, res: Response) => {
         let errorMessage = error;
         const statusCode = _.get(error, "statusCode")
         if (!statusCode || statusCode == 500) {
-            errorMessage = { message: "Failed to list dataset" }
+            errorMessage = { code: "DATASET_LIST_FAILURE", message: "Failed to list dataset" }
         }
         ResponseHandler.errorResponse(errorMessage, req, res);
     }
