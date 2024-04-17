@@ -14,6 +14,8 @@ chai.use(spies);
 chai.should();
 chai.use(chaiHttp);
 
+const msgid = "4a7f14c3-d61e-4d4f-be78-181834eeff6d"
+
 describe("DATASET CREATE API", () => {
 
     afterEach(() => {
@@ -40,7 +42,7 @@ describe("DATASET CREATE API", () => {
                     res.should.have.status(fixture.httpStatus);
                     res.body.should.be.a("object")
                     res.body.id.should.be.eq(apiId);
-                    res.body.params.status.should.be.eq(fixture.status)            
+                    res.body.params.status.should.be.eq(fixture.status)
                     res.body.params.msgid.should.be.eq(fixture.msgid)
                     res.body.result.id.should.be.eq("telemetry")
                     done();
@@ -78,8 +80,8 @@ describe("DATASET CREATE API", () => {
             .end((err, res) => {
                 res.should.have.status(httpStatus.BAD_REQUEST);
                 res.body.should.be.a("object")
-                res.body.id.should.be.eq(apiId);               
-                res.body.params.msgid.should.be.eq("4a7f14c3-d61e-4d4f-be78-181834eeff6d")
+                res.body.id.should.be.eq(apiId);
+                res.body.params.msgid.should.be.eq(msgid)
                 res.body.params.status.should.be.eq("FAILED")
                 expect(res.body.error.message).to.match(/^(.+)should be string$/)
                 res.body.error.code.should.be.eq("DATASET_INVALID_INPUT")
@@ -99,8 +101,8 @@ describe("DATASET CREATE API", () => {
                 res.should.have.status(httpStatus.CONFLICT);
                 res.body.should.be.a("object")
                 res.body.id.should.be.eq(apiId);
-                res.body.params.status.should.be.eq("FAILED")            
-                res.body.params.msgid.should.be.eq("4a7f14c3-d61e-4d4f-be78-181834eeff6d")
+                res.body.params.status.should.be.eq("FAILED")
+                res.body.params.msgid.should.be.eq(msgid)
                 res.body.error.message.should.be.eq("Dataset already exists")
                 res.body.error.code.should.be.eq("DATASET_EXISTS")
                 done();
@@ -119,8 +121,8 @@ describe("DATASET CREATE API", () => {
                 res.should.have.status(httpStatus.INTERNAL_SERVER_ERROR);
                 res.body.should.be.a("object")
                 res.body.id.should.be.eq(apiId);
-                res.body.params.status.should.be.eq("FAILED")            
-                res.body.params.msgid.should.be.eq("4a7f14c3-d61e-4d4f-be78-181834eeff6d")
+                res.body.params.status.should.be.eq("FAILED")
+                res.body.params.msgid.should.be.eq(msgid)
                 res.body.error.message.should.be.eq("Failed to create dataset")
                 res.body.error.code.should.be.eq("DATASET_CREATION_FAILURE")
                 done();
