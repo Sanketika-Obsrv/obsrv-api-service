@@ -12,6 +12,7 @@ import { DatasetDraft } from "../../models/DatasetDraft";
 import { Dataset } from "../../models/Dataset";
 
 export const apiId = "api.datasets.read";
+export const errorCode = "DATASET_READ_FAILURE"
 
 const datasetRead = async (req: Request, res: Response) => {
     try {
@@ -20,8 +21,10 @@ const datasetRead = async (req: Request, res: Response) => {
 
         const invalidFields = !_.isEmpty(fields) ? getInvalidFields({ datasetFields: fields }) : []
         if (!_.isEmpty(invalidFields)) {
-            logger.error(`The specified fields [${invalidFields}] in the dataset cannot be found`)
+            const code = "DATASET_INVALID_FIELDS"
+            logger.error({ code, apiId, message: `The specified fields [${invalidFields}] in the dataset cannot be found` })
             return ResponseHandler.errorResponse({
+                code,
                 message: `The specified fields [${invalidFields}] in the dataset cannot be found.`,
                 statusCode: 400,
                 errCode: "BAD_REQUEST"
@@ -34,8 +37,10 @@ const datasetRead = async (req: Request, res: Response) => {
         if (!_.isEmpty(fieldValue)) {
             const results = await datasetModel.findAll({ where: { id: dataset_id }, ...(fieldValue !== "*" && { attributes: fieldValue }), raw: true })
             if (_.isEmpty(results)) {
-                logger.error(`Dataset with the given dataset_id:${dataset_id} not found`)
+                const code = "DATASET_NOT_FOUND"
+                logger.error({ code, apiId, message: `Dataset with the given dataset_id:${dataset_id} not found` })
                 return ResponseHandler.errorResponse({
+                    code,
                     message: "Dataset with the given dataset_id not found",
                     statusCode: 404,
                     errCode: "NOT_FOUND"
@@ -43,15 +48,16 @@ const datasetRead = async (req: Request, res: Response) => {
             }
             data = _.first(results)
         }
-        logger.info(`Dataset Read Successfully with id:${dataset_id}`)
+        logger.info({ apiId, message: `Dataset Read Successfully with id:${dataset_id}` })
         const responseData = await transformResponseData({ status, dataset_id, data, fields });
         ResponseHandler.successResponse(req, res, { status: httpStatus.OK, data: responseData });
     } catch (error: any) {
-        logger.error(error)
+        const code = _.get(error, "code") || errorCode
+        logger.error({ ...error, apiId, code })
         let errorMessage = error;
         const statusCode = _.get(error, "statusCode")
         if (!statusCode || statusCode == 500) {
-            errorMessage = { message: "Failed to read dataset" }
+            errorMessage = { code, message: "Failed to read dataset" }
         }
         ResponseHandler.errorResponse(errorMessage, req, res);
     }
