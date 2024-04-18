@@ -84,6 +84,7 @@ const datasetUpdate = async (req: Request, res: Response) => {
         await manageTransformations(transformationConfigs, dataset_id);
 
         await DatasetDraft.update(datasetPayload, { where: { id: dataset_id } })
+        logger.info({ apiId, message: `Dataset updated successfully with id:${dataset_id}` })
         ResponseHandler.successResponse(req, res, { status: httpStatus.OK, data: { message: "Dataset is updated successfully", id: dataset_id } });
     } catch (error: any) {
         const code = _.get(error, "code") || errorCode
