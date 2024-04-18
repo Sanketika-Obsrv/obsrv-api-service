@@ -41,7 +41,7 @@ const dataIn = async (req: Request, res: Response) => {
             logger.error("Entry topic not found")
             return ResponseHandler.errorResponse(errorObject.topicNotFound, req, res);
         }
-        await send(addMetadataToEvents(requestBody.data, datasetId, requestBody), _.get(dataset, "dataValues.dataset_config.entry_topic"))
+        await send(addMetadataToEvents(datasetId, requestBody), _.get(dataset, "dataValues.dataset_config.entry_topic"))
         ResponseHandler.successResponse(req, res, { status: 200, data: { message: "Data ingested successfully" } });
     }
     catch (err: any) {
@@ -50,22 +50,23 @@ const dataIn = async (req: Request, res: Response) => {
     }
 }
 
-const addMetadataToEvents = (validData: any, datasetId: string, payload: any) => {
+const addMetadataToEvents = (datasetId: string, payload: any) => {
+    const validData = _.get(payload, "data");
     const now = Date.now();
-    const mid = _.get(payload, "params.mid");
+    const mid = _.get(payload, "params.msgid");
     const source = { id: "api.data.in", version: config?.version, entry_source: "api" };
     const obsrvMeta = { syncts: now, flags: {}, timespans: {}, error: {}, source: source };
     if (Array.isArray(validData)) {
         const payloadRef = validData.map((event: any) => {
             event = _.set(event, 'obsrv_meta', obsrvMeta);
             event = _.set(event, 'dataset', datasetId);
-            event = _.set(event, 'mid', mid);
+            event = _.set(event, 'msgid', mid);
             return event
         })
         return payloadRef;
     }
     else {
-        _.set(validData, 'mid', mid);
+        _.set(validData, 'msgid', mid);
         _.set(validData, 'obsrv_meta', obsrvMeta);
         _.set(validData, 'dataset', datasetId);
         return validData
