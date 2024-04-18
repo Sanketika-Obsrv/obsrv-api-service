@@ -91,7 +91,7 @@ const datasetUpdate = async (req: Request, res: Response) => {
         let errorMessage = error;
         const statusCode = _.get(error, "statusCode")
         if (!statusCode || statusCode == 500) {
-            errorMessage = { code: errorCode, message: "Failed to update dataset" }
+            errorMessage = { code, message: "Failed to update dataset" }
         }
         ResponseHandler.errorResponse(errorMessage, req, res);
     }
