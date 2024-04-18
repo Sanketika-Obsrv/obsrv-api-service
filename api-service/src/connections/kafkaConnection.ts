@@ -4,8 +4,8 @@ import logger from "../logger";
 import { CompressionTypes, CompressionCodecs } from "kafkajs";
 const kafka = new Kafka(connectionConfig.kafka.config);
 const producer = kafka.producer();
-const SnappyCodec = require('kafkajs-snappy');
-CompressionCodecs[CompressionTypes.Snappy] = SnappyCodec
+import { SnappyCodec } from "kafkajs-snappy-typescript";
+CompressionCodecs[CompressionTypes.Snappy] = new SnappyCodec().codec;
 
 let isConnected = false;
 
