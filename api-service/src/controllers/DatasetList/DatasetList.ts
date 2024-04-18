@@ -33,7 +33,7 @@ const datasetList = async (req: Request, res: Response) => {
 
         const requestBody = req.body.request;
         const datasetList = await getDatasetList(requestBody)
-        logger.info(`Datasets are listed successfully with a dataset count (${_.size(datasetList)})`)
+        logger.info({ apiId, message: `Datasets are listed successfully with a dataset count (${_.size(datasetList)})` })
         ResponseHandler.successResponse(req, res, { status: httpStatus.OK, data: { data: datasetList, count: _.size(datasetList) } });
     } catch (error: any) {
         logger.error({ ...error, apiId, code: errorCode });
