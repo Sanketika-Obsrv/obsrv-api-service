@@ -86,7 +86,8 @@ const datasetUpdate = async (req: Request, res: Response) => {
         await DatasetDraft.update(datasetPayload, { where: { id: dataset_id } })
         ResponseHandler.successResponse(req, res, { status: httpStatus.OK, data: { message: "Dataset is updated successfully", id: dataset_id } });
     } catch (error: any) {
-        logger.error({ ...error, apiId, code: errorCode })
+        const code = _.get(error, "code") || errorCode
+        logger.error({ ...error, apiId, code })
         let errorMessage = error;
         const statusCode = _.get(error, "statusCode")
         if (!statusCode || statusCode == 500) {
@@ -195,10 +196,8 @@ const getUpdatedTags = (newTagsPayload: Record<string, any>, datasetTags: Array<
 
     const checkTagToAdd = _.intersection(datasetTags, _.uniq(tagsToAdd))
     if (_.size(checkTagToAdd)) {
-        const code = "DATASET_TAGS_EXISTS"
-        logger.error({ code, apiId, message: `Dataset tags ${[checkTagToAdd]} already exists` })
         throw {
-            code,
+            code: "DATASET_TAGS_EXISTS",
             message: "Dataset tags already exist",
             statusCode: 400,
             errCode: "BAD_REQUEST"
@@ -207,10 +206,8 @@ const getUpdatedTags = (newTagsPayload: Record<string, any>, datasetTags: Array<
 
     const checkTagToRemove = _.intersection(datasetTags, _.uniq(tagsToRemove))
     if (_.size(checkTagToRemove) !== _.size(_.uniq(tagsToRemove))) {
-        const code = "DATASET_TAGS_DO_NOT_EXIST"
-        logger.error({ code, apiId, message: `Dataset tags ${[tagsToRemove]} does not exist to remove` })
         throw {
-            code,
+            code: "DATASET_TAGS_DO_NOT_EXIST",
             message: "Dataset tags do not exist to remove",
             statusCode: 404,
             errCode: "NOT_FOUND"
@@ -255,10 +252,8 @@ const getTransformationConfigs = async (newTransformationPayload: Record<string,
     const checkTransformationToUpdate = checkTransformations(transformationsToUpdate)
 
     if (_.size(checkTransformationToAdd)) {
-        const code = "DATASET_TRANSFORMATIONS_EXIST"
-        logger.error({ code, apiId, message: `Dataset transformations ${[checkTransformationToAdd]} already exists` })
         throw {
-            code,
+            code: "DATASET_TRANSFORMATIONS_EXIST",
             message: "Dataset transformations already exists",
             statusCode: 400,
             errCode: "BAD_REQUEST"
@@ -267,10 +262,8 @@ const getTransformationConfigs = async (newTransformationPayload: Record<string,
 
     const transformationExistsToUpdate = _.every(transformationsToUpdate, payload => _.includes(checkTransformationToUpdate, payload.field_key))
     if (!transformationExistsToUpdate) {
-        const code = "DATASET_TRANSFORMATIONS_DO_NOT_EXIST"
-        logger.error({ code, apiId, message: `Dataset transformations ${[transformationsToUpdate]} does not exist to update` })
         throw {
-            code,
+            code: "DATASET_TRANSFORMATIONS_DO_NOT_EXIST",
             message: "Dataset transformations do not exist to update",
             statusCode: 404,
             errCode: "NOT_FOUND"
@@ -279,10 +272,8 @@ const getTransformationConfigs = async (newTransformationPayload: Record<string,
 
     const isTransformationExistsToRemove = _.every(transformationsToRemove, payload => _.includes(checkTransformationToRemove, payload.field_key))
     if (!isTransformationExistsToRemove) {
-        const code = "DATASET_TRANSFORMATIONS_DO_NOT_EXIST"
-        logger.error({ code, apiId, message: `Dataset transformations ${[transformationsToUpdate]} does not exist to remove` })
         throw {
-            code,
+            code: "DATASET_TRANSFORMATIONS_DO_NOT_EXIST",
             message: "Dataset transformations do not exist to remove",
             statusCode: 404,
             errCode: "NOT_FOUND"
@@ -337,10 +328,8 @@ const setDenormConfigs = (newDenormPayload: Record<string, any>, datasetDenormCo
     const checkDenormsToRemove = checkDenormKeys(denormsToRemove)
 
     if (_.size(checkDenormsToAdd)) {
-        const code = "DATASET_DENORM_EXISTS"
-        logger.error({ code, apiId, message: `Denorm fields [${checkDenormsToAdd}] already exist` })
         throw {
-            code,
+            code: "DATASET_DENORM_EXISTS",
             message: "Denorm fields already exist",
             statusCode: 400,
             errCode: "BAD_REQUEST"
@@ -349,10 +338,8 @@ const setDenormConfigs = (newDenormPayload: Record<string, any>, datasetDenormCo
 
     const isDenormExists = _.every(denormsToRemove, payload => _.includes(checkDenormsToRemove, payload.denorm_out_field))
     if (!isDenormExists) {
-        const code = "DATASET_DENORM_DO_NOT_EXIST"
-        logger.error({ code, apiId, message: `Denorm fields [${denormFieldsToRemove}] do not exist to remove` })
         throw {
-            code,
+            code: "DATASET_DENORM_DO_NOT_EXIST",
             message: "Denorm fields do not exist to remove",
             statusCode: 404,
             errCode: "NOT_FOUND"
