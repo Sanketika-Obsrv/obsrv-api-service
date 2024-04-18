@@ -199,7 +199,9 @@ describe("DATA INGEST API", () => {
                 res.should.have.status(500);
                 res.body.should.be.a("object")
                 res.body.id.should.be.eq("api.data.in");
-                res.body.params.status.should.be.eq("FAILED")
+                res.body.params.status.should.be.eq("FAILED");
+                res.body.error.code.should.be.eq("DATA_INGESTION_FAILED");
+                res.body.error.message.should.be.eq("Failed to ingest data")
                 done();
             });
     });
