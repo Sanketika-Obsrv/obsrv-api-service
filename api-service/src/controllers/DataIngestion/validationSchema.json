@@ -1,24 +1,44 @@
 {
-    "type": "object",
-    "required":["data"],
-    "properties": {
-      "data": {
-        "type": "object",
-        "oneOf": [
-          {
-            "type": "object",
-            "minProperties": 2,
-            "maxProperties": 2
-          },
-          {
-            "required": ["event"],
-            "properties": {
-              "event": {
-                "type": "object"
-              }
-            }
+  "type": "object",
+  "required": ["id", "ver", "ts", "params", "data"],
+  "properties": {
+    "id": {
+      "type": "string",
+      "enum": [
+        "api.data.in"
+      ]
+    },
+    "ver": {
+      "type": "string"
+    },
+    "ts": {
+      "type": "string"
+    },
+    "params": {
+      "type": "object",
+      "properties": {
+        "msgid": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "msgid"
+      ],
+      "additionalProperties": false
+    },
+    "data": {
+      "oneOf": [
+        {
+          "type": "object"
+        },
+        {
+          "type": "array",
+          "items": {
+            "type": "object"
           }
-        ]
-      }
-    }
+        }
+      ]
+    },
+    "additionalProperties": false
   }
+}
