@@ -9,6 +9,10 @@ import { apiId } from "./DataOutController";
 
 const momentFormat = "YYYY-MM-DD HH:MM:SS";
 let dataset_id: string;
+const errCode = {
+    notFound: "DATA_OUT_SOURCE_NOT_FOUND",
+    invalidDateRange: "DATA_OUT_INVALID_DATE_RANGE"
+}
 
 export const validateQuery = async (requestPayload: any, datasetId: string) => {
     dataset_id = datasetId;
@@ -125,8 +129,8 @@ const validateDateRange = (fromDate: moment.Moment, toDate: moment.Moment, allow
         return true
     }
     else {
-        logger.error({ apiId, message: `Data range cannnot be more than ${allowedRange} days.`, code: "INVALID_DATE_RANGE" })
-        return { message: `Invalid date range! make sure your range cannot be more than ${allowedRange} days`, statusCode: 400, errCode: "BAD_REQUEST", code: "INVALID_DATE_RANGE" };
+        logger.error({ apiId, message: `Data range cannnot be more than ${allowedRange} days.`, code: errCode.invalidDateRange })
+        return { message: `Invalid date range! make sure your range cannot be more than ${allowedRange} days`, statusCode: 400, errCode: "BAD_REQUEST", code: errCode.invalidDateRange };
     }
 };
 
@@ -148,14 +152,14 @@ const validateQueryRules = (queryPayload: any, limits: any) => {
     }
     const isValidDates = fromDate && toDate && fromDate.isValid() && toDate.isValid()
     return isValidDates ? validateDateRange(fromDate, toDate, allowedRange)
-        : { message: "Invalid date range! the date range cannot be a null value", statusCode: 400, errCode: "BAD_REQUEST", code: "INVALID_DATE_RANGE" };
+        : { message: "Invalid date range! the date range cannot be a null value", statusCode: 400, errCode: "BAD_REQUEST", code: errCode.invalidDateRange };
 };
 
 const getDataSourceRef = async (datasourceName: string, granularity?: string) => {
     const dataSources = await getDatasourceList(datasourceName)
     if (_.isEmpty(dataSources)) {
-        logger.error({ apiId, message: `Datasource ${datasourceName} not available in datasource live table`, code: "DATASOURCE_NOT_FOUND" })
-        return { message: `Datasource ${datasourceName} not available for querying`, statusCode: 404, errCode: "NOT_FOUND", code: "DATASOURCE_NOT_FOUND" };
+        logger.error({ apiId, message: `Datasource ${datasourceName} not available in datasource live table`, code: errCode.notFound })
+        return { message: `Datasource ${datasourceName} not available for querying`, statusCode: 404, errCode: "NOT_FOUND", code: errCode.notFound };
     }
     const record = dataSources.filter((record: any) => {
         const aggregatedRecord = _.get(record, "metadata.aggregated")
@@ -182,8 +186,8 @@ const setDatasourceRef = async (dataSourceName: string, payload: any): Promise<a
             return datasourceRef
         }
         if (datasource) {
-            logger.error({ apiId, message: `Datasource ${datasource} not available for querying in druid`, code: "DATASOURCE_NOT_FOUND" })
-            return { message: `Datasource ${datasource} not available for querying`, statusCode: 404, errCode: "NOT_FOUND", code: "DATASOURCE_NOT_FOUND" };
+            logger.error({ apiId, message: `Datasource ${datasource} not available for querying in druid`, code: errCode.notFound })
+            return { message: `Datasource ${datasource} not available for querying`, statusCode: 404, errCode: "NOT_FOUND", code: errCode.notFound };
         }
         if (_.isString(payload?.query)) {
             payload.query = payload.query.replace(dataSourceName, datasourceRef)
@@ -193,7 +197,7 @@ const setDatasourceRef = async (dataSourceName: string, payload: any): Promise<a
         }
         return true;
     } catch (error: any) {
-        logger.error({ apiId, message: `Datasource not found`, code: "DATASOURCE_NOT_FOUND" })
-        return { message: `Datasource not found`, statusCode: 404, errCode: "NOT_FOUND", code: "DATASOURCE_NOT_FOUND" };
+        logger.error({ apiId, message: `Datasource not found`, code: errCode.notFound })
+        return { message: `Datasource not found`, statusCode: 404, errCode: "NOT_FOUND", code: errCode.notFound };
     }
 }

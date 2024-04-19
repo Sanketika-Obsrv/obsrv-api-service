@@ -97,7 +97,7 @@ describe("QUERY API TESTS", () => {
                 res.body.params.status.should.be.eq("FAILED");
                 res.body.error.message.should.be.eq("Datasource not found");
                 res.body.responseCode.should.be.eq("NOT_FOUND");
-                res.body.error.code.should.be.eq("DATASOURCE_NOT_FOUND");
+                res.body.error.code.should.be.eq("DATA_OUT_SOURCE_NOT_FOUND");
                 nock.cleanAll();
                 chai.spy.restore(Datasource, "findAll")
                 done();
@@ -197,7 +197,7 @@ describe("QUERY API TESTS", () => {
                 res.body.responseCode.should.be.eq("BAD_REQUEST");
                 res.body.params.status.should.be.eq("FAILED");
                 res.body.error.message.should.be.eq("#required should have required property 'query'");
-                res.body.error.code.should.be.eq("DATA_QUERY_INVALID_INPUT")
+                res.body.error.code.should.be.eq("DATA_OUT_INVALID_INPUT")
                 res.body.id.should.be.eq("api.data.out");
                 done();
             });
@@ -228,7 +228,7 @@ describe("QUERY API TESTS", () => {
                 res.body.id.should.be.eq("api.data.out");
                 res.body.params.status.should.be.eq("FAILED");
                 res.body.error.message.should.be.eq("Invalid date range! make sure your range cannot be more than 30 days");
-                res.body.error.code.should.be.eq("INVALID_DATE_RANGE")
+                res.body.error.code.should.be.eq("DATA_OUT_INVALID_DATE_RANGE")
                 nock.cleanAll()
                 chai.spy.restore(Datasource, "findAll")
                 done();
@@ -260,7 +260,7 @@ describe("QUERY API TESTS", () => {
                 res.body.id.should.be.eq("api.data.out");
                 res.body.params.status.should.be.eq("FAILED");
                 res.body.error.message.should.be.eq("Invalid date range! make sure your range cannot be more than 30 days");
-                res.body.error.code.should.be.eq("INVALID_DATE_RANGE");
+                res.body.error.code.should.be.eq("DATA_OUT_INVALID_DATE_RANGE");
                 nock.cleanAll()
                 chai.spy.restore(Datasource, "findAll")
                 done();

@@ -14,7 +14,7 @@ const dataOut = async (req: Request, res: Response) => {
         const isValidSchema = schemaValidation(req.body, validationSchema);
         if (!isValidSchema?.isValid) {
             logger.error({ apiId, message: isValidSchema?.message, code: "DATA_OUT_INVALID_INPUT" })
-            return ResponseHandler.errorResponse({ message: isValidSchema?.message, statusCode: 400, errCode: "BAD_REQUEST", code: "DATA_QUERY_INVALID_INPUT" }, req, res);
+            return ResponseHandler.errorResponse({ message: isValidSchema?.message, statusCode: 400, errCode: "BAD_REQUEST", code: "DATA_OUT_INVALID_INPUT" }, req, res);
         }
         const isValidQuery: any = await validateQuery(req.body, datasetId);
         const query = _.get(req, "body.query", "")
