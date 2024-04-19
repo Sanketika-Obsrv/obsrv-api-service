@@ -22,6 +22,7 @@
     "http-status": "^1.5.3",
     "kafkajs": "^2.2.4",
     "kafkajs-snappy": "^1.1.0",
+    "kafkajs-snappy-typescript": "^1.0.3",
     "knex": "^2.4.2",
     "lodash": "^4.17.21",
     "moment": "^2.29.4",

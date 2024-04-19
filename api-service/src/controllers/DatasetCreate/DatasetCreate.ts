@@ -19,8 +19,10 @@ const datasetCreate = async (req: Request, res: Response) => {
         const isRequestValid: Record<string, any> = schemaValidation(req.body, DatasetCreate)
 
         if (!isRequestValid.isValid) {
+            const code = "DATASET_INVALID_INPUT"
+            logger.error({ code, apiId, message: isRequestValid.message })
             return ResponseHandler.errorResponse({
-                code: "DATASET_INVALID_INPUT",
+                code,
                 message: isRequestValid.message,
                 statusCode: 400,
                 errCode: "BAD_REQUEST"
@@ -30,8 +32,10 @@ const datasetCreate = async (req: Request, res: Response) => {
         const datasetBody = req.body.request;
         const isDataSetExists = await checkDatasetExists(_.get(datasetBody, ["dataset_id"]));
         if (isDataSetExists) {
+            const code = "DATASET_EXISTS"
+            logger.error({ code, apiId, message: `Dataset Already exists with id:${_.get(datasetBody, "dataset_id")}` })
             return ResponseHandler.errorResponse({
-                code: "DATASET_EXISTS",
+                code,
                 message: "Dataset already exists",
                 statusCode: 409,
                 errCode: "CONFLICT"
@@ -40,9 +44,10 @@ const datasetCreate = async (req: Request, res: Response) => {
 
         const duplicateDenormKeys = getDuplicateDenormKey(_.get(datasetBody, "denorm_config"))
         if (!_.isEmpty(duplicateDenormKeys)) {
-            logger.error(`Duplicate denorm output fields found. Duplicate Denorm out fields are [${duplicateDenormKeys}]`)
+            const code = "DATASET_DUPLICATE_DENORM_KEY"
+            logger.error({ code, apiId, message: `Duplicate denorm output fields found. Duplicate Denorm out fields are [${duplicateDenormKeys}]` })
             return ResponseHandler.errorResponse({
-                code: "DATASET_DUPLICATE_DENORM_KEY",
+                code,
                 statusCode: 400,
                 message: "Duplicate denorm key found",
                 errCode: "BAD_REQUEST"
@@ -51,7 +56,7 @@ const datasetCreate = async (req: Request, res: Response) => {
 
         const datasetPayload: any = await getDefaultValue(datasetBody);
         const response = await DatasetDraft.create(datasetPayload)
-        logger.info(`Dataset Created Successfully with id:${_.get(response, ["dataValues", "id"])}`)
+        logger.info({ apiId, message: `Dataset Created Successfully with id:${_.get(response, ["dataValues", "id"])}` })
         ResponseHandler.successResponse(req, res, { status: httpStatus.OK, data: { id: _.get(response, ["dataValues", "id"]) || "" } });
     } catch (error: any) {
         logger.error(error)
@@ -67,7 +72,6 @@ const datasetCreate = async (req: Request, res: Response) => {
 const checkDatasetExists = async (dataset_id: string): Promise<boolean> => {
     const datasetExists = await getDraftDataset(dataset_id)
     if (datasetExists) {
-        logger.error(`Dataset Already exists with id:${_.get(datasetExists, "id")}`)
         return true;
     } else {
         return false
