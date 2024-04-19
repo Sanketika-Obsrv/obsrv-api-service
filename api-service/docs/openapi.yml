@@ -84,25 +84,29 @@ paths:
                   value:
                     id: api.datasets.create
                     ver: v1
-                    ts: 1711523413816
+                    ts: '2024-04-16T17:56:06+05:30'
                     params:
                       status: SUCCESS
-                      errmsg: ''
+                      msgid: 4a7f14c3-d61e-4d4f-be78-181834eeff6d
+                      resmsgid: 78hj80j9-d61e-4d4f-be78-181834eeff6d
                     responseCode: OK
                     result:
                       id: sb-telemetry.1
+                      version_id: '1713442037275'
                 example-1:
                   summary: Master Dataset Success
                   value:
                     id: api.datasets.create
                     ver: v1
-                    ts: 1711523649865
+                    ts: '2024-04-16T17:56:06+05:30'
                     params:
                       status: SUCCESS
-                      errmsg: ''
+                      msgid: 4a7f14c3-d61e-4d4f-be78-181834eeff6d
+                      resmsgid: 78hj80j9-d61e-4d4f-be78-181834eeff6d
                     responseCode: OK
                     result:
-                      id: sb-telemetry.1
+                      id: sb-telemetry-master.1
+                      version_id: '1713442037275'
         '400':
           description: Bad Request
           content:
@@ -115,23 +119,34 @@ paths:
                   value:
                     id: api.datasets.create
                     ver: v1
-                    ts: 1711523869002
+                    ts: '2024-04-16T17:59:06+05:30'
                     params:
                       status: FAILED
-                      errmsg: Duplicate denorm output fields found
+                      msgid: 4a7f14c3-d61e-4d4f-be78-181834eeff6d
+                      resmsgid: 54c5b692-dc37-432e-b556-7f396d7c9e07
                     responseCode: BAD_REQUEST
                     result: {}
+                    error:
+                      code: DUPLICATE_DENORM_KEY_FOUND
+                      message: Duplicate denorm key found
+                      trace: ''
                 example-1:
                   summary: 'Failure: Invalid request payload provided'
                   value:
                     id: api.datasets.create
                     ver: v1
-                    ts: 1711523935549
+                    ts: '2024-04-16T18:00:34+05:30'
                     params:
                       status: FAILED
-                      errmsg: '#required should have required property ''dataset_id'''
+                      resmsgid: 615c1e4c-8c19-44fd-b29c-c235e7cbb5f0
                     responseCode: BAD_REQUEST
                     result: {}
+                    error:
+                      code: SCHEMA_VALIDATION_FAILED
+                      message: >-
+                        #additionalProperties should NOT have additional
+                        properties
+                      trace: ''
         '409':
           description: Conflict
           content:
@@ -141,12 +156,17 @@ paths:
               example:
                 id: api.datasets.create
                 ver: v1
-                ts: 1711523707699
+                ts: '2024-04-16T17:56:06+05:30'
                 params:
                   status: FAILED
-                  errmsg: Dataset already exists
+                  msgid: 4a7f14c3-d61e-4d4f-be78-181834eeff6d
+                  resmsgid: 76612ad1-241b-4ce3-8af4-88db860697f4
                 responseCode: CONFLICT
                 result: {}
+                error:
+                  code: DATASET_EXISTS
+                  message: Dataset already exists
+                  trace: ''
         '500':
           description: Internal Server Error
           content:
@@ -156,12 +176,17 @@ paths:
               example:
                 id: api.datasets.create
                 ver: v1
-                ts: 1712033980278
+                ts: '2024-04-16T18:02:44+05:30'
                 params:
                   status: FAILED
-                  errmsg: Failed to create dataset
+                  msgid: 4a7f14c3-d61e-4d4f-be78-181834eeff6d
+                  resmsgid: dd1c0e11-fb4c-484c-81fe-82c9e2eee053
                 responseCode: INTERNAL_SERVER_ERROR
                 result: {}
+                error:
+                  code: DATASET_CREATION_FAILURE
+                  message: Failed to create dataset
+                  trace: ''
   /v1/datasets/update:
     patch:
       tags:
@@ -248,14 +273,16 @@ paths:
               example:
                 id: api.datasets.update
                 ver: v1
-                ts: 1711524639749
+                ts: '2024-04-19T00:16:13+05:30'
                 params:
                   status: SUCCESS
-                  errmsg: ''
+                  msgid: 4a7f14c3-d61e-4d4f-be78-181834eeff6d
+                  resmsgid: 4b2c0c22-f765-46f9-80af-33d0442db5ca
                 responseCode: OK
                 result:
                   message: Dataset is updated successfully
                   id: sb-telemetry.1
+                  version_key: '1713465973004'
         '400':
           description: Bad Request
           content:
@@ -268,80 +295,117 @@ paths:
                   value:
                     id: api.datasets.update
                     ver: v1
-                    ts: 1711534119759
+                    ts: '2024-04-19T12:22:12+05:30'
                     params:
                       status: FAILED
-                      errmsg: '#properties/name/type should be string'
+                      msgid: 4a7f14c3-d61e-4d4f-be78-181834eeff6d
+                      resmsgid: 9408e137-ada8-48b8-99e9-90d5cdd35e35
                     responseCode: BAD_REQUEST
                     result: {}
+                    error:
+                      code: DATASET_UPDATE_INPUT_INVALID
+                      message: >-
+                        #properties/request/properties/name/type should be
+                        string
+                      trace: ''
                 example-1:
                   summary: 'Failure: No field provided along with dataset_id'
                   value:
                     id: api.datasets.update
                     ver: v1
-                    ts: 1711534170807
+                    ts: '2024-04-19T12:23:06+05:30'
                     params:
                       status: FAILED
-                      errmsg: >-
-                        Provide atleast one field in addition to the dataset_id
-                        to update the dataset
+                      msgid: 4a7f14c3-d61e-4d4f-be78-181834eeff6d
+                      resmsgid: 347f465f-f100-4095-9801-38c4943380c0
                     responseCode: BAD_REQUEST
                     result: {}
+                    error:
+                      code: DATASET_UPDATE_NO_FIELDS
+                      message: >-
+                        Provide atleast one field in addition to the dataset_id
+                        to update the dataset
+                      trace: ''
                 example-2:
                   summary: 'Failure: Cannot update as dataset not in draft state'
                   value:
                     id: api.datasets.update
                     ver: v1
-                    ts: 1711534328930
+                    ts: '2024-04-19T12:25:57+05:30'
                     params:
                       status: FAILED
-                      errmsg: Dataset cannot be updated as it is not in draft state
+                      msgid: 4a7f14c3-d61e-4d4f-be78-181834eeff6d
+                      resmsgid: a9dfc926-c893-4ec3-82b8-bc8601d928a9
                     responseCode: BAD_REQUEST
                     result: {}
+                    error:
+                      code: DATASET_NOT_IN_DRAFT_STATE_TO_UPDATE
+                      message: Dataset cannot be updated as it is not in draft state
+                      trace: ''
                 example-3:
                   summary: 'Failure:  Dataset contains duplicate denorm out field'
                   value:
                     id: api.datasets.update
                     ver: v1
-                    ts: 1711534439560
+                    ts: '2024-04-19T12:29:25+05:30'
                     params:
                       status: FAILED
-                      errmsg: Dataset contains duplicate denorm out keys:[userdata}]
+                      msgid: 4a7f14c3-d61e-4d4f-be78-181834eeff6d
+                      resmsgid: 865b9bef-9b6d-467c-9065-6689126b0f42
                     responseCode: BAD_REQUEST
                     result: {}
+                    error:
+                      code: DATASET_DUPLICATE_DENORM_KEY
+                      message: Dataset contains duplicate denorm out keys:[userdata]
+                      trace: ''
                 example-4:
                   summary: 'Failure: Dataset tags to add already exists'
                   value:
                     id: api.datasets.update
                     ver: v1
-                    ts: 1711534567778
+                    ts: '2024-04-19T12:32:05+05:30'
                     params:
                       status: FAILED
-                      errmsg: Dataset tags already exist
+                      msgid: 4a7f14c3-d61e-4d4f-be78-181834eeff6d
+                      resmsgid: 9e9ff0bc-d660-4c4e-a2b0-cb11246a6961
                     responseCode: BAD_REQUEST
                     result: {}
+                    error:
+                      code: DATASET_TAGS_EXISTS
+                      message: Dataset tags already exist
+                      trace: ''
                 example-5:
                   summary: 'Failure: Dataset transformations to add already exists'
                   value:
                     id: api.datasets.update
                     ver: v1
-                    ts: 1711534711145
+                    ts: '2024-04-19T12:34:46+05:30'
                     params:
                       status: FAILED
-                      errmsg: Dataset transformations already exists
+                      msgid: 4a7f14c3-d61e-4d4f-be78-181834eeff6d
+                      resmsgid: e0a5cc26-032e-4be8-81ef-c7e76867c9c1
                     responseCode: BAD_REQUEST
                     result: {}
+                    error:
+                      code: DATASET_TRANSFORMATIONS_EXIST
+                      message: Dataset transformations already exists
+                      trace: ''
                 example-6:
                   summary: 'Failure: Dataset denorm fields to add already exists'
                   value:
                     id: api.datasets.update
                     ver: v1
-                    ts: 1711534915269
+                    ts: '2024-04-19T12:38:57+05:30'
                     params:
                       status: FAILED
-                      errmsg: Denorm fields already exist
+                      msgid: 4a7f14c3-d61e-4d4f-be78-181834eeff6d
+                      resmsgid: 0b807580-a2b5-4a44-adc4-80b35b4b6529
                     responseCode: BAD_REQUEST
                     result: {}
+                    error:
+                      code: DATASET_DENORM_EXISTS
+                      message: Denorm fields already exist
+                      trace: ''
         '404':
           description: Not Found
           content:
@@ -354,56 +418,81 @@ paths:
                   value:
                     id: api.datasets.update
                     ver: v1
-                    ts: 1711524320479
+                    ts: '2024-04-19T12:20:39+05:30'
                     params:
                       status: FAILED
-                      errmsg: Dataset does not exists to update
+                      msgid: 4a7f14c3-d61e-4d4f-be78-181834eeff6d
+                      resmsgid: ebcf0a62-7c95-40f5-adf2-87ab90a40a80
                     responseCode: NOT_FOUND
                     result: {}
+                    error:
+                      code: DATASET_NOT_EXISTS
+                      message: Dataset does not exists to update
+                      trace: ''
                 example-1:
                   summary: 'Failure: Dataset tags to remove do not exist'
                   value:
                     id: api.datasets.update
                     ver: v1
-                    ts: 1711534640665
+                    ts: '2024-04-19T12:33:33+05:30'
                     params:
                       status: FAILED
-                      errmsg: Dataset tags do not exist to remove
+                      msgid: 4a7f14c3-d61e-4d4f-be78-181834eeff6d
+                      resmsgid: c29e7d0f-3eaf-4972-8804-c172db7b6f13
                     responseCode: NOT_FOUND
                     result: {}
+                    error:
+                      code: DATASET_TAGS_DO_NOT_EXIST
+                      message: Dataset tags do not exist to remove
+                      trace: ''
                 example-2:
                   summary: 'Failure: Dataset transformations to update do not exists'
                   value:
                     id: api.datasets.update
                     ver: v1
-                    ts: 1711534770124
+                    ts: '2024-04-19T12:36:04+05:30'
                     params:
                       status: FAILED
-                      errmsg: Dataset transformations do not exist to update
+                      msgid: 4a7f14c3-d61e-4d4f-be78-181834eeff6d
+                      resmsgid: 0b5f515b-1958-4597-b603-b4038d4e5846
                     responseCode: NOT_FOUND
                     result: {}
+                    error:
+                      code: DATASET_TRANSFORMATIONS_DO_NOT_EXIST
+                      message: Dataset transformations do not exist to update
+                      trace: ''
                 example-3:
                   summary: 'Failure: Dataset transformations to remove do not exist'
                   value:
                     id: api.datasets.update
                     ver: v1
-                    ts: 1711534808604
+                    ts: '2024-04-19T12:37:20+05:30'
                     params:
                       status: FAILED
-                      errmsg: Dataset transformations do not exist to remove
+                      msgid: 4a7f14c3-d61e-4d4f-be78-181834eeff6d
+                      resmsgid: 69d32411-4252-4b7f-8afa-6d436928c3d3
                     responseCode: NOT_FOUND
                     result: {}
+                    error:
+                      code: DATASET_TRANSFORMATIONS_DO_NOT_EXIST
+                      message: Dataset transformations do not exist to remove
+                      trace: ''
                 example-4:
                   summary: 'Failure: Dataset denorm to remove does not exist'
                   value:
                     id: api.datasets.update
                     ver: v1
-                    ts: 1711534975927
+                    ts: '2024-04-19T12:40:07+05:30'
                     params:
                       status: FAILED
-                      errmsg: Denorm fields do not exist to remove
+                      msgid: 4a7f14c3-d61e-4d4f-be78-181834eeff6d
+                      resmsgid: ce78e393-2b74-46da-a70b-2abd06ad3270
                     responseCode: NOT_FOUND
                     result: {}
+                    error:
+                      code: DATASET_DENORM_DO_NOT_EXIST
+                      message: Denorm fields do not exist to remove
+                      trace: ''
         '500':
           description: Internal Server Error
           content:
@@ -413,12 +502,17 @@ paths:
               example:
                 id: api.datasets.update
                 ver: v1
-                ts: 1712034102445
+                ts: '2024-04-19T12:41:33+05:30'
                 params:
                   status: FAILED
-                  errmsg: Failed to update dataset
+                  msgid: 4a7f14c3-d61e-4d4f-be78-181834eeff6d
+                  resmsgid: 451daa85-9cb8-459a-b681-a256c6e912f0
                 responseCode: INTERNAL_SERVER_ERROR
                 result: {}
+                error:
+                  code: DATASET_UPDATE_FAILURE
+                  message: Failed to update dataset
+                  trace: ''
   /v1/datasets/read/{dataset_id}:
     get:
       tags:
@@ -463,20 +557,16 @@ paths:
                   value:
                     id: api.datasets.read
                     ver: v1
-                    ts: 1712898827896
+                    ts: '2024-04-19T12:43:58+05:30'
                     params:
                       status: SUCCESS
-                      errmsg: ''
+                      resmsgid: d02c643a-d51d-4c67-8a42-9f43e61f459e
                     responseCode: OK
                     result:
                       id: sb-telemetry.1
                       dataset_id: sb-telemetry
-                      version: 1
-                      type: dataset
                       name: sb-telemetry
-                      validation_config:
-                        validate: true
-                        mode: Strict
+                      type: dataset
                       extraction_config:
                         is_batch_event: true
                         extraction_key: events
@@ -484,6 +574,9 @@ paths:
                           drop_duplicates: true
                           dedup_key: id
                           dedup_period: 604800
+                      validation_config:
+                        validate: true
+                        mode: Strict
                       dedup_config:
                         drop_duplicates: true
                         dedup_key: mid
@@ -507,6 +600,8 @@ paths:
                             denorm_out_field: userdata
                           - denorm_key: actor.id
                             denorm_out_field: mid
+                          - denorm_key: actor.id
+                            denorm_out_field: edata
                       router_config:
                         topic: ''
                       dataset_config:
@@ -517,28 +612,92 @@ paths:
                         redis_db_port: 6379
                         index_data: true
                         redis_db: 0
-                      client_state: {}
                       tags:
-                        - tag1
-                        - tag2
+                        - tag3
+                        - tag4
                       status: Draft
+                      version: 1
                       created_by: SYSTEM
                       updated_by: SYSTEM
-                      created_date: '2024-04-01T23:33:29.770Z'
-                      updated_date: '2024-04-01T23:33:29.770Z'
                       published_date: null
+                      client_state: {}
+                      version_key: '1713510527662'
+                      created_date: '2024-04-18T23:45:00.389Z'
+                      updated_date: '2024-04-19T01:38:47.670Z'
                       transformations_config:
                         - field_key: eid
-                          transformation_function:
-                            type: mask
-                            expr: eid
-                            condition: null
+                          transformation_function: {}
                           mode: Strict
-                          metadata:
-                            _transformationType: mask
-                            _transformedFieldDataType: string
-                            _transformedFieldSchemaType: string
-                            section: transformation
+                          metadata: {}
+                example-1:
+                  summary: Read Live dataset
+                  value:
+                    id: api.datasets.read
+                    ver: v1
+                    ts: '2024-04-19T12:44:54+05:30'
+                    params:
+                      status: SUCCESS
+                      resmsgid: 3d0efbc5-dea8-4815-a749-b9f9ae16ccfe
+                    responseCode: OK
+                    result:
+                      id: telemetry01
+                      dataset_id: telemetry01
+                      type: dataset
+                      name: telemetry01
+                      validation_config:
+                        validate: true
+                        mode: Strict
+                        validation_mode: Strict
+                      extraction_config:
+                        is_batch_event: false
+                        extraction_key: ''
+                        dedup_config:
+                          drop_duplicates: false
+                          dedup_key: id
+                          dedup_period: 604800
+                      data_schema:
+                        $schema: https://json-schema.org/draft/2020-12/schema
+                        type: object
+                        properties:
+                          skill:
+                            type: string
+                            arrival_format: text
+                            data_type: string
+                          name:
+                            type: string
+                            arrival_format: text
+                            data_type: string
+                          skill_id:
+                            type: string
+                            arrival_format: text
+                            data_type: string
+                          Skill_id:
+                            type: string
+                            arrival_format: text
+                            data_type: string
+                        additionalProperties: false
+                      denorm_config:
+                        redis_db_host: localhost
+                        redis_db_port: 6379
+                        denorm_fields: []
+                      router_config:
+                        topic: telemetry01
+                      dataset_config:
+                        data_key: ''
+                        timestamp_key: obsrv_meta.syncts
+                        exclude_fields: []
+                        entry_topic: local.ingest
+                        redis_db_host: localhost
+                        redis_db_port: 6379
+                        index_data: true
+                        redis_db: 0
+                      tags: []
+                      status: Live
+                      created_by: SYSTEM
+                      updated_by: SYSTEM
+                      created_date: '2024-04-11T06:27:37.557Z'
+                      updated_date: '2024-04-11T06:27:37.557Z'
+                      transformations_config:
                         - field_key: mid
                           transformation_function:
                             type: mask
@@ -550,51 +709,33 @@ paths:
                             _transformedFieldDataType: string
                             _transformedFieldSchemaType: string
                             section: transformation
-                example-1:
-                  summary: Read Live dataset
-                  value:
-                    id: api.datasets.read
-                    ver: v1
-                    ts: 1712060439843
-                    params:
-                      status: SUCCESS
-                      errmsg: ''
-                    responseCode: OK
-                    result:
-                      id: sb-telemetry.1
-                      dataset_id: sb-telemetry
-                      type: datasets
-                      name: new
-                      validation_config: {}
-                      extraction_config: {}
-                      dedup_config: {}
-                      data_schema: {}
-                      denorm_config: {}
-                      router_config: {}
-                      dataset_config: {}
-                      tags: []
-                      status: Live
-                      created_by: System
-                      updated_by: System
-                      created_date: '2024-04-01T23:33:29.770Z'
-                      updated_date: '2024-04-01T23:33:29.770Z'
-                      published_date: '2024-04-01T23:33:29.770Z'
-                      transformations_config: []
                       version: 1
                 example-2:
                   summary: Read specific fields from the dataset
                   value:
                     id: api.datasets.read
                     ver: v1
-                    ts: 1712060598298
+                    ts: '2024-04-19T12:45:44+05:30'
                     params:
                       status: SUCCESS
-                      errmsg: ''
+                      resmsgid: da752dfe-0d88-4dd6-a6a8-d858f5960f7e
                     responseCode: OK
                     result:
                       name: sb-telemetry
                       type: dataset
                       id: sb-telemetry.1
+                example-3:
+                  summary: Read version_key from the dataset
+                  value:
+                    id: api.datasets.read
+                    ver: v1
+                    ts: '2024-04-19T12:47:48+05:30'
+                    params:
+                      status: SUCCESS
+                      resmsgid: a3ad1e17-671f-4294-a834-2ee3f255c9b3
+                    responseCode: OK
+                    result:
+                      version_key: '1713510527662'
         '400':
           description: Bad Request
           content:
@@ -604,14 +745,18 @@ paths:
               example:
                 id: api.datasets.read
                 ver: v1
-                ts: 1712060663861
+                ts: '2024-04-19T12:46:03+05:30'
                 params:
                   status: FAILED
-                  errmsg: >-
-                    The specified field [newname] in the dataset cannot be
-                    found.
+                  resmsgid: 302fec39-5070-4464-b02f-56b1d0418147
                 responseCode: BAD_REQUEST
                 result: {}
+                error:
+                  code: DATASET_INVALID_FIELDS
+                  message: >-
+                    The specified fields [newname] in the dataset cannot be
+                    found.
+                  trace: ''
         '404':
           description: Not Found
           content:
@@ -621,12 +766,16 @@ paths:
               example:
                 id: api.datasets.read
                 ver: v1
-                ts: 1712060707857
+                ts: '2024-04-19T12:46:14+05:30'
                 params:
                   status: FAILED
-                  errmsg: Dataset with the given dataset_id not found
+                  resmsgid: cd71f8c7-6aa9-4b3a-9825-b2caab67fe8c
                 responseCode: NOT_FOUND
                 result: {}
+                error:
+                  code: DATASET_NOT_FOUND
+                  message: Dataset with the given dataset_id not found
+                  trace: ''
         '500':
           description: Internal Server Error
           content:
@@ -636,12 +785,1038 @@ paths:
               example:
                 id: api.datasets.read
                 ver: v1
-                ts: 1712556501601
+                ts: '2024-04-19T12:46:34+05:30'
                 params:
                   status: FAILED
-                  errmsg: Failed to read dataset
+                  resmsgid: 29d82020-101d-4506-8fb8-6f3603057064
                 responseCode: INTERNAL_SERVER_ERROR
                 result: {}
+                error:
+                  code: DATASET_READ_FAILURE
+                  message: Failed to read dataset
+                  trace: ''
+  /v1/datasets/list:
+    post:
+      tags:
+        - Dataset CRUD APIs
+      summary: Dataset List
+      description: >-
+        This API allows you to list all datasets. User can apply filters on dataset status and type, sort the datasets as per requested order.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                id: api.datasets.list
+                ver: v1
+                ts: '2024-04-10T16:10:50+05:30'
+                params:
+                  mid: 4a7f14c3-d61e-4d4f-be78-181834eeff6d
+                request:
+                  filters:
+                    type: master-dataset
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+              examples:
+                example-0:
+                  summary: Dataset list success when no filters provided
+                  value:
+                    id: api.datasets.list
+                    ver: v1
+                    ts: '2024-04-19T12:54:56+05:30'
+                    params:
+                      status: SUCCESS
+                      msgid: 4a7f14c3-d61e-4d4f-be78-181834eeff6d
+                      resmsgid: e7a2c5c1-5aa9-4422-81a5-6f197d3b689e
+                    responseCode: OK
+                    result:
+                      data:
+                        - id: telemetry01
+                          dataset_id: telemetry01
+                          type: dataset
+                          name: telemetry01
+                          validation_config:
+                            validate: true
+                            mode: Strict
+                            validation_mode: Strict
+                          extraction_config:
+                            is_batch_event: false
+                            extraction_key: ''
+                            dedup_config:
+                              drop_duplicates: false
+                              dedup_key: id
+                              dedup_period: 604800
+                          data_schema:
+                            $schema: https://json-schema.org/draft/2020-12/schema
+                            type: object
+                            properties:
+                              skill:
+                                type: string
+                                arrival_format: text
+                                data_type: string
+                              name:
+                                type: string
+                                arrival_format: text
+                                data_type: string
+                              skill_id:
+                                type: string
+                                arrival_format: text
+                                data_type: string
+                              Skill_id:
+                                type: string
+                                arrival_format: text
+                                data_type: string
+                            additionalProperties: false
+                          denorm_config:
+                            redis_db_host: localhost
+                            redis_db_port: 6379
+                            denorm_fields: []
+                          router_config:
+                            topic: telemetry01
+                          dataset_config:
+                            data_key: ''
+                            timestamp_key: obsrv_meta.syncts
+                            exclude_fields: []
+                            entry_topic: local.ingest
+                            redis_db_host: localhost
+                            redis_db_port: 6379
+                            index_data: true
+                            redis_db: 0
+                          tags: []
+                          status: Live
+                          created_by: SYSTEM
+                          updated_by: SYSTEM
+                          created_date: '2024-04-11T06:27:37.557Z'
+                          updated_date: '2024-04-11T06:27:37.557Z'
+                          version: 1
+                          transformations_config:
+                            - field_key: mid
+                              transformation_function:
+                                type: mask
+                                expr: mid
+                                condition: null
+                              mode: Strict
+                              metadata:
+                                _transformationType: mask
+                                _transformedFieldDataType: string
+                                _transformedFieldSchemaType: string
+                                section: transformation
+                        - id: master-telemetrry
+                          dataset_id: master-telemetrry
+                          type: master-dataset
+                          name: master-telemetrry
+                          validation_config:
+                            validate: true
+                            mode: Strict
+                          extraction_config:
+                            is_batch_event: false
+                            extraction_key: ''
+                            dedup_config:
+                              drop_duplicates: false
+                              dedup_key: ''
+                              dedup_period: 604800
+                          data_schema:
+                            $schema: https://json-schema.org/draft/2020-12/schema
+                            type: object
+                            properties:
+                              skill:
+                                type: string
+                                arrival_format: text
+                                data_type: string
+                              name:
+                                type: string
+                                arrival_format: text
+                                data_type: string
+                              skill_id:
+                                type: string
+                                arrival_format: text
+                                data_type: string
+                              Skill_id:
+                                type: string
+                                arrival_format: text
+                                data_type: string
+                            additionalProperties: true
+                          denorm_config:
+                            redis_db_host: localhost
+                            redis_db_port: 6379
+                            denorm_fields: []
+                          router_config:
+                            topic: master-telemetrry
+                          dataset_config:
+                            data_key: skill
+                            timestamp_key: ''
+                            exclude_fields: []
+                            entry_topic: local.masterdata.ingest
+                            redis_db_host: localhost
+                            redis_db_port: 6379
+                            index_data: true
+                            redis_db: 4
+                          tags: []
+                          status: Live
+                          created_by: SYSTEM
+                          updated_by: SYSTEM
+                          created_date: '2024-04-11T09:16:36.904Z'
+                          updated_date: '2024-04-11T09:16:36.904Z'
+                          version: 1
+                        - id: master-telemetrry.1
+                          dataset_id: master-telemetrry
+                          name: master-telemetrry
+                          type: master-dataset
+                          extraction_config:
+                            is_batch_event: false
+                            extraction_key: ''
+                            dedup_config:
+                              drop_duplicates: false
+                              dedup_key: ''
+                              dedup_period: 604800
+                          validation_config:
+                            validate: true
+                            mode: Strict
+                          dedup_config:
+                            drop_duplicates: false
+                            dedup_key: ''
+                            dedup_period: 604800
+                          data_schema:
+                            $schema: https://json-schema.org/draft/2020-12/schema
+                            type: object
+                            properties:
+                              skill:
+                                type: string
+                                arrival_format: text
+                                data_type: string
+                              name:
+                                type: string
+                                arrival_format: text
+                                data_type: string
+                              skill_id:
+                                type: string
+                                arrival_format: text
+                                data_type: string
+                            additionalProperties: true
+                          denorm_config:
+                            redis_db_host: localhost
+                            redis_db_port: 6379
+                            denorm_fields: []
+                          router_config:
+                            topic: master-telemetrry
+                          dataset_config:
+                            data_key: skill
+                            timestamp_key: ''
+                            exclude_fields: []
+                            entry_topic: local.masterdata.ingest
+                            redis_db_host: localhost
+                            redis_db_port: 6379
+                            index_data: true
+                            redis_db: 4
+                          tags: []
+                          status: Publish
+                          version: 1
+                          created_by: SYSTEM
+                          updated_by: SYSTEM
+                          published_date: '2024-04-11T03:46:36.938Z'
+                          client_state:
+                            metadata:
+                              conflicts: {}
+                              event:
+                                mergedEvent:
+                                  skill: new
+                                  name: j
+                                  skill_id: aabc
+                                  Skill_id: bbc
+                              activePage: 1
+                            pages: {}
+                          version_key: '1713509698978'
+                          created_date: '2024-04-11T03:45:57.251Z'
+                          updated_date: '2024-04-11T09:21:11.167Z'
+                        - id: two.1
+                          dataset_id: two
+                          name: sb-telemetry
+                          type: dataset
+                          extraction_config:
+                            is_batch_event: true
+                            extraction_key: events
+                            dedup_config:
+                              drop_duplicates: true
+                              dedup_key: id
+                              dedup_period: 604800
+                          validation_config:
+                            validate: true
+                            mode: Strict
+                          dedup_config:
+                            drop_duplicates: true
+                            dedup_key: mid
+                            dedup_period: 604800
+                          data_schema:
+                            $schema: https://json-schema.org/draft/2020-12/schema
+                            type: object
+                            properties:
+                              eid:
+                                type: string
+                              ver:
+                                type: string
+                              required:
+                                - eid
+                            additionalProperties: true
+                          denorm_config:
+                            redis_db_host: localhost
+                            redis_db_port: 6379
+                            denorm_fields:
+                              - denorm_key: actor.id
+                                denorm_out_field: mid
+                              - denorm_key: actor.id
+                                denorm_out_field: edata
+                          router_config:
+                            topic: ''
+                          dataset_config:
+                            data_key: mid
+                            timestamp_key: ets
+                            entry_topic: local.ingest
+                            redis_db_host: localhost
+                            redis_db_port: 6379
+                            index_data: true
+                            redis_db: 0
+                          tags:
+                            - tag3
+                            - tag4
+                          status: Draft
+                          version: 1
+                          created_by: SYSTEM
+                          updated_by: SYSTEM
+                          published_date: null
+                          client_state: {}
+                          version_key: '1713509698978'
+                          created_date: '2024-04-15T02:22:48.270Z'
+                          updated_date: '2024-04-15T02:24:03.308Z'
+                          transformations_config:
+                            - field_key: eid
+                              transformation_function:
+                                type: mask
+                                expr: eid
+                                condition: null
+                              mode: Strict
+                              metadata:
+                                _transformationType: mask
+                                _transformedFieldDataType: string
+                                _transformedFieldSchemaType: string
+                                section: transformation
+                            - field_key: cid
+                              transformation_function:
+                                type: mask
+                                expr: eid
+                                condition: null
+                              mode: Strict
+                              metadata:
+                                _transformationType: mask
+                                _transformedFieldDataType: string
+                                _transformedFieldSchemaType: string
+                                section: transformation
+                        - id: telemetry01.1
+                          dataset_id: telemetry01
+                          name: telemetry01
+                          type: dataset
+                          extraction_config:
+                            is_batch_event: false
+                            extraction_key: ''
+                            dedup_config:
+                              drop_duplicates: false
+                              dedup_key: id
+                              dedup_period: 604800
+                          validation_config:
+                            validate: true
+                            mode: Strict
+                            validation_mode: Strict
+                          dedup_config:
+                            drop_duplicates: false
+                            dedup_key: ''
+                            dedup_period: 604800
+                          data_schema:
+                            $schema: https://json-schema.org/draft/2020-12/schema
+                            type: object
+                            properties:
+                              skill:
+                                type: string
+                                arrival_format: text
+                                data_type: string
+                              name:
+                                type: string
+                                arrival_format: text
+                                data_type: string
+                              skill_id:
+                                type: string
+                                arrival_format: text
+                                data_type: string
+                            additionalProperties: false
+                          denorm_config:
+                            redis_db_host: localhost
+                            redis_db_port: 6379
+                            denorm_fields: []
+                          router_config:
+                            topic: telemetry01
+                          dataset_config:
+                            data_key: ''
+                            timestamp_key: obsrv_meta.syncts
+                            exclude_fields: []
+                            entry_topic: local.ingest
+                            redis_db_host: localhost
+                            redis_db_port: 6379
+                            index_data: true
+                            redis_db: 0
+                          tags: []
+                          status: Publish
+                          version: 1
+                          created_by: SYSTEM
+                          updated_by: SYSTEM
+                          published_date: '2024-04-11T00:57:37.581Z'
+                          client_state:
+                            metadata:
+                              conflicts: {}
+                              event:
+                                mergedEvent:
+                                  skill: old
+                                  name: j
+                                  skill_id: abc
+                                  Skill_id: bbc
+                              activePage: 3
+                            pages: {}
+                          version_key: '1713509698978'
+                          created_date: '2024-04-11T00:54:06.404Z'
+                          updated_date: '2024-04-11T06:28:24.526Z'
+                        - id: sb-telemetry.1
+                          dataset_id: sb-telemetry
+                          name: sb-telemetry
+                          type: dataset
+                          extraction_config:
+                            is_batch_event: true
+                            extraction_key: events
+                            dedup_config:
+                              drop_duplicates: true
+                              dedup_key: id
+                              dedup_period: 604800
+                          validation_config:
+                            validate: true
+                            mode: Strict
+                          dedup_config:
+                            drop_duplicates: true
+                            dedup_key: mid
+                            dedup_period: 604800
+                          data_schema:
+                            $schema: https://json-schema.org/draft/2020-12/schema
+                            type: object
+                            properties:
+                              eid:
+                                type: string
+                              ver:
+                                type: string
+                              required:
+                                - eid
+                            additionalProperties: true
+                          denorm_config:
+                            redis_db_host: localhost
+                            redis_db_port: 6379
+                            denorm_fields:
+                              - denorm_key: actor.id
+                                denorm_out_field: userdata
+                              - denorm_key: actor.id
+                                denorm_out_field: mid
+                              - denorm_key: actor.id
+                                denorm_out_field: edata
+                          router_config:
+                            topic: ''
+                          dataset_config:
+                            data_key: mid
+                            timestamp_key: ets
+                            entry_topic: local.ingest
+                            redis_db_host: localhost
+                            redis_db_port: 6379
+                            index_data: true
+                            redis_db: 0
+                          tags:
+                            - tag3
+                            - tag4
+                          status: Draft
+                          version: 1
+                          created_by: SYSTEM
+                          updated_by: SYSTEM
+                          published_date: null
+                          client_state: {}
+                          version_key: '1713510527662'
+                          created_date: '2024-04-18T23:45:00.389Z'
+                          updated_date: '2024-04-19T01:38:47.670Z'
+                          transformations_config:
+                            - field_key: eid
+                              transformation_function: {}
+                              mode: Strict
+                              metadata: {}
+                      count: 6
+                example-1:
+                  summary: Dataset list success when status filter provided as array
+                  value:
+                    id: api.datasets.list
+                    ver: v1
+                    ts: '2024-04-19T12:55:39+05:30'
+                    params:
+                      status: SUCCESS
+                      msgid: 4a7f14c3-d61e-4d4f-be78-181834eeff6d
+                      resmsgid: 836f853f-9ad8-4567-a9bb-74c5d3bba25d
+                    responseCode: OK
+                    result:
+                      data:
+                        - id: telemetry01
+                          dataset_id: telemetry01
+                          type: dataset
+                          name: telemetry01
+                          validation_config:
+                            validate: true
+                            mode: Strict
+                            validation_mode: Strict
+                          extraction_config:
+                            is_batch_event: false
+                            extraction_key: ''
+                            dedup_config:
+                              drop_duplicates: false
+                              dedup_key: id
+                              dedup_period: 604800
+                          data_schema:
+                            $schema: https://json-schema.org/draft/2020-12/schema
+                            type: object
+                            properties:
+                              skill:
+                                type: string
+                                arrival_format: text
+                                data_type: string
+                              name:
+                                type: string
+                                arrival_format: text
+                                data_type: string
+                              skill_id:
+                                type: string
+                                arrival_format: text
+                                data_type: string
+                              Skill_id:
+                                type: string
+                                arrival_format: text
+                                data_type: string
+                            additionalProperties: false
+                          denorm_config:
+                            redis_db_host: localhost
+                            redis_db_port: 6379
+                            denorm_fields: []
+                          router_config:
+                            topic: telemetry01
+                          dataset_config:
+                            data_key: ''
+                            timestamp_key: obsrv_meta.syncts
+                            exclude_fields: []
+                            entry_topic: local.ingest
+                            redis_db_host: localhost
+                            redis_db_port: 6379
+                            index_data: true
+                            redis_db: 0
+                          tags: []
+                          status: Live
+                          created_by: SYSTEM
+                          updated_by: SYSTEM
+                          created_date: '2024-04-11T06:27:37.557Z'
+                          updated_date: '2024-04-11T06:27:37.557Z'
+                          version: 1
+                          transformations_config:
+                            - field_key: mid
+                              transformation_function:
+                                type: mask
+                                expr: mid
+                                condition: null
+                              mode: Strict
+                              metadata:
+                                _transformationType: mask
+                                _transformedFieldDataType: string
+                                _transformedFieldSchemaType: string
+                                section: transformation
+                        - id: master-telemetrry
+                          dataset_id: master-telemetrry
+                          type: master-dataset
+                          name: master-telemetrry
+                          validation_config:
+                            validate: true
+                            mode: Strict
+                          extraction_config:
+                            is_batch_event: false
+                            extraction_key: ''
+                            dedup_config:
+                              drop_duplicates: false
+                              dedup_key: ''
+                              dedup_period: 604800
+                          data_schema:
+                            $schema: https://json-schema.org/draft/2020-12/schema
+                            type: object
+                            properties:
+                              skill:
+                                type: string
+                                arrival_format: text
+                                data_type: string
+                              name:
+                                type: string
+                                arrival_format: text
+                                data_type: string
+                              skill_id:
+                                type: string
+                                arrival_format: text
+                                data_type: string
+                              Skill_id:
+                                type: string
+                                arrival_format: text
+                                data_type: string
+                            additionalProperties: true
+                          denorm_config:
+                            redis_db_host: localhost
+                            redis_db_port: 6379
+                            denorm_fields: []
+                          router_config:
+                            topic: master-telemetrry
+                          dataset_config:
+                            data_key: skill
+                            timestamp_key: ''
+                            exclude_fields: []
+                            entry_topic: local.masterdata.ingest
+                            redis_db_host: localhost
+                            redis_db_port: 6379
+                            index_data: true
+                            redis_db: 4
+                          tags: []
+                          status: Live
+                          created_by: SYSTEM
+                          updated_by: SYSTEM
+                          created_date: '2024-04-11T09:16:36.904Z'
+                          updated_date: '2024-04-11T09:16:36.904Z'
+                          version: 1
+                      count: 2
+                example-2:
+                  summary: Dataset list success when status filter provided as string
+                  value:
+                    id: api.datasets.list
+                    ver: v1
+                    ts: '2024-04-19T12:56:13+05:30'
+                    params:
+                      status: SUCCESS
+                      msgid: 4a7f14c3-d61e-4d4f-be78-181834eeff6d
+                      resmsgid: 469ef16b-4211-4b71-b063-bbd81cc9df02
+                    responseCode: OK
+                    result:
+                      data:
+                        - id: master-telemetrry.1
+                          dataset_id: master-telemetrry
+                          name: master-telemetrry
+                          type: master-dataset
+                          extraction_config:
+                            is_batch_event: false
+                            extraction_key: ''
+                            dedup_config:
+                              drop_duplicates: false
+                              dedup_key: ''
+                              dedup_period: 604800
+                          validation_config:
+                            validate: true
+                            mode: Strict
+                          dedup_config:
+                            drop_duplicates: false
+                            dedup_key: ''
+                            dedup_period: 604800
+                          data_schema:
+                            $schema: https://json-schema.org/draft/2020-12/schema
+                            type: object
+                            properties:
+                              skill:
+                                type: string
+                                arrival_format: text
+                                data_type: string
+                              name:
+                                type: string
+                                arrival_format: text
+                                data_type: string
+                              skill_id:
+                                type: string
+                                arrival_format: text
+                                data_type: string
+                            additionalProperties: true
+                          denorm_config:
+                            redis_db_host: localhost
+                            redis_db_port: 6379
+                            denorm_fields: []
+                          router_config:
+                            topic: master-telemetrry
+                          dataset_config:
+                            data_key: skill
+                            timestamp_key: ''
+                            exclude_fields: []
+                            entry_topic: local.masterdata.ingest
+                            redis_db_host: localhost
+                            redis_db_port: 6379
+                            index_data: true
+                            redis_db: 4
+                          tags: []
+                          status: Publish
+                          version: 1
+                          created_by: SYSTEM
+                          updated_by: SYSTEM
+                          published_date: '2024-04-11T03:46:36.938Z'
+                          client_state:
+                            metadata:
+                              conflicts: {}
+                              event:
+                                mergedEvent:
+                                  skill: new
+                                  name: j
+                                  skill_id: aabc
+                                  Skill_id: bbc
+                              activePage: 1
+                            pages: {}
+                          version_key: '1713509698978'
+                          created_date: '2024-04-11T03:45:57.251Z'
+                          updated_date: '2024-04-11T09:21:11.167Z'
+                        - id: telemetry01.1
+                          dataset_id: telemetry01
+                          name: telemetry01
+                          type: dataset
+                          extraction_config:
+                            is_batch_event: false
+                            extraction_key: ''
+                            dedup_config:
+                              drop_duplicates: false
+                              dedup_key: id
+                              dedup_period: 604800
+                          validation_config:
+                            validate: true
+                            mode: Strict
+                            validation_mode: Strict
+                          dedup_config:
+                            drop_duplicates: false
+                            dedup_key: ''
+                            dedup_period: 604800
+                          data_schema:
+                            $schema: https://json-schema.org/draft/2020-12/schema
+                            type: object
+                            properties:
+                              skill:
+                                type: string
+                                arrival_format: text
+                                data_type: string
+                              name:
+                                type: string
+                                arrival_format: text
+                                data_type: string
+                              skill_id:
+                                type: string
+                                arrival_format: text
+                                data_type: string
+                            additionalProperties: false
+                          denorm_config:
+                            redis_db_host: localhost
+                            redis_db_port: 6379
+                            denorm_fields: []
+                          router_config:
+                            topic: telemetry01
+                          dataset_config:
+                            data_key: ''
+                            timestamp_key: obsrv_meta.syncts
+                            exclude_fields: []
+                            entry_topic: local.ingest
+                            redis_db_host: localhost
+                            redis_db_port: 6379
+                            index_data: true
+                            redis_db: 0
+                          tags: []
+                          status: Publish
+                          version: 1
+                          created_by: SYSTEM
+                          updated_by: SYSTEM
+                          published_date: '2024-04-11T00:57:37.581Z'
+                          client_state:
+                            metadata:
+                              conflicts: {}
+                              event:
+                                mergedEvent:
+                                  skill: old
+                                  name: j
+                                  skill_id: abc
+                                  Skill_id: bbc
+                              activePage: 3
+                            pages: {}
+                          version_key: '1713509698978'
+                          created_date: '2024-04-11T00:54:06.404Z'
+                          updated_date: '2024-04-11T06:28:24.526Z'
+                      count: 2
+                example-3:
+                  summary: Dataset list success when type filter provided
+                  value:
+                    id: api.datasets.list
+                    ver: v1
+                    ts: '2024-04-19T12:57:28+05:30'
+                    params:
+                      status: SUCCESS
+                      msgid: 4a7f14c3-d61e-4d4f-be78-181834eeff6d
+                      resmsgid: 7d9aeb08-2952-485f-9944-4d118da7842e
+                    responseCode: OK
+                    result:
+                      data:
+                        - id: master-telemetrry.1
+                          dataset_id: master-telemetrry
+                          name: master-telemetrry
+                          type: master-dataset
+                          extraction_config:
+                            is_batch_event: false
+                            extraction_key: ''
+                            dedup_config:
+                              drop_duplicates: false
+                              dedup_key: ''
+                              dedup_period: 604800
+                          validation_config:
+                            validate: true
+                            mode: Strict
+                          dedup_config:
+                            drop_duplicates: false
+                            dedup_key: ''
+                            dedup_period: 604800
+                          data_schema:
+                            $schema: https://json-schema.org/draft/2020-12/schema
+                            type: object
+                            properties:
+                              skill:
+                                type: string
+                                arrival_format: text
+                                data_type: string
+                              name:
+                                type: string
+                                arrival_format: text
+                                data_type: string
+                              skill_id:
+                                type: string
+                                arrival_format: text
+                                data_type: string
+                            additionalProperties: true
+                          denorm_config:
+                            redis_db_host: localhost
+                            redis_db_port: 6379
+                            denorm_fields: []
+                          router_config:
+                            topic: master-telemetrry
+                          dataset_config:
+                            data_key: skill
+                            timestamp_key: ''
+                            exclude_fields: []
+                            entry_topic: local.masterdata.ingest
+                            redis_db_host: localhost
+                            redis_db_port: 6379
+                            index_data: true
+                            redis_db: 4
+                          tags: []
+                          status: Publish
+                          version: 1
+                          created_by: SYSTEM
+                          updated_by: SYSTEM
+                          published_date: '2024-04-11T03:46:36.938Z'
+                          client_state:
+                            metadata:
+                              conflicts: {}
+                              event:
+                                mergedEvent:
+                                  skill: new
+                                  name: j
+                                  skill_id: aabc
+                                  Skill_id: bbc
+                              activePage: 1
+                            pages: {}
+                          version_key: '1713509698978'
+                          created_date: '2024-04-11T03:45:57.251Z'
+                          updated_date: '2024-04-11T09:21:11.167Z'
+                      count: 1
+                example-4:
+                  summary: Dataset list success based on sortBy values
+                  value:
+                    id: api.datasets.list
+                    ver: v1
+                    ts: '2024-04-19T12:58:27+05:30'
+                    params:
+                      status: SUCCESS
+                      msgid: 4a7f14c3-d61e-4d4f-be78-181834eeff6d
+                      resmsgid: 270a4e50-f7e5-4562-ae75-7a967866d065
+                    responseCode: OK
+                    result:
+                      data:
+                        - id: master-telemetrry
+                          dataset_id: master-telemetrry
+                          type: master-dataset
+                          name: master-telemetrry
+                          validation_config:
+                            validate: true
+                            mode: Strict
+                          extraction_config:
+                            is_batch_event: false
+                            extraction_key: ''
+                            dedup_config:
+                              drop_duplicates: false
+                              dedup_key: ''
+                              dedup_period: 604800
+                          data_schema:
+                            $schema: https://json-schema.org/draft/2020-12/schema
+                            type: object
+                            properties:
+                              skill:
+                                type: string
+                                arrival_format: text
+                                data_type: string
+                              name:
+                                type: string
+                                arrival_format: text
+                                data_type: string
+                              skill_id:
+                                type: string
+                                arrival_format: text
+                                data_type: string
+                              Skill_id:
+                                type: string
+                                arrival_format: text
+                                data_type: string
+                            additionalProperties: true
+                          denorm_config:
+                            redis_db_host: localhost
+                            redis_db_port: 6379
+                            denorm_fields: []
+                          router_config:
+                            topic: master-telemetrry
+                          dataset_config:
+                            data_key: skill
+                            timestamp_key: ''
+                            exclude_fields: []
+                            entry_topic: local.masterdata.ingest
+                            redis_db_host: localhost
+                            redis_db_port: 6379
+                            index_data: true
+                            redis_db: 4
+                          tags: []
+                          status: Live
+                          created_by: SYSTEM
+                          updated_by: SYSTEM
+                          created_date: '2024-04-11T09:16:36.904Z'
+                          updated_date: '2024-04-11T09:16:36.904Z'
+                          version: 1
+                        - id: master-telemetrry.1
+                          dataset_id: master-telemetrry
+                          name: master-telemetrry
+                          type: master-dataset
+                          extraction_config:
+                            is_batch_event: false
+                            extraction_key: ''
+                            dedup_config:
+                              drop_duplicates: false
+                              dedup_key: ''
+                              dedup_period: 604800
+                          validation_config:
+                            validate: true
+                            mode: Strict
+                          dedup_config:
+                            drop_duplicates: false
+                            dedup_key: ''
+                            dedup_period: 604800
+                          data_schema:
+                            $schema: https://json-schema.org/draft/2020-12/schema
+                            type: object
+                            properties:
+                              skill:
+                                type: string
+                                arrival_format: text
+                                data_type: string
+                              name:
+                                type: string
+                                arrival_format: text
+                                data_type: string
+                              skill_id:
+                                type: string
+                                arrival_format: text
+                                data_type: string
+                            additionalProperties: true
+                          denorm_config:
+                            redis_db_host: localhost
+                            redis_db_port: 6379
+                            denorm_fields: []
+                          router_config:
+                            topic: master-telemetrry
+                          dataset_config:
+                            data_key: skill
+                            timestamp_key: ''
+                            exclude_fields: []
+                            entry_topic: local.masterdata.ingest
+                            redis_db_host: localhost
+                            redis_db_port: 6379
+                            index_data: true
+                            redis_db: 4
+                          tags: []
+                          status: Publish
+                          version: 1
+                          created_by: SYSTEM
+                          updated_by: SYSTEM
+                          published_date: '2024-04-11T03:46:36.938Z'
+                          client_state:
+                            metadata:
+                              conflicts: {}
+                              event:
+                                mergedEvent:
+                                  skill: new
+                                  name: j
+                                  skill_id: aabc
+                                  Skill_id: bbc
+                              activePage: 1
+                            pages: {}
+                          version_key: '1713509698978'
+                          created_date: '2024-04-11T03:45:57.251Z'
+                          updated_date: '2024-04-11T09:21:11.167Z'
+                      count: 2
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                id: api.datasets.list
+                ver: v1
+                ts: '2024-04-19T12:58:47+05:30'
+                params:
+                  status: FAILED
+                  resmsgid: f9e1fae9-4660-409d-bb4d-e29888983d4b
+                responseCode: BAD_REQUEST
+                result: {}
+                error:
+                  code: DATASET_LIST_INPUT_INVALID
+                  message: >-
+                    #properties/params/additionalProperties should NOT have
+                    additional properties
+                  trace: ''
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                id: api.datasets.list
+                ver: v1
+                ts: '2024-04-19T12:59:15+05:30'
+                params:
+                  status: FAILED
+                  msgid: 4a7f14c3-d61e-4d4f-be78-181834eeff6d
+                  resmsgid: 81c3a4a5-e8ac-41de-be00-6d0300ecb106
+                responseCode: INTERNAL_SERVER_ERROR
+                result: {}
+                error:
+                  code: DATASET_LIST_FAILURE
+                  message: Failed to list dataset
+                  trace: ''
   /444/v1/data/in/sb-telemetry-imported:
     post:
       tags:

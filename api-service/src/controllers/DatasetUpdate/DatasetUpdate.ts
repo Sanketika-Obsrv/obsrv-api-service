@@ -83,7 +83,7 @@ const datasetUpdate = async (req: Request, res: Response) => {
             return ResponseHandler.errorResponse({
                 code,
                 statusCode: 400,
-                message: `Dataset contains duplicate denorm out keys:[${duplicateDenormKeys}}]`,
+                message: `Dataset contains duplicate denorm out keys:[${duplicateDenormKeys}]`,
                 errCode: "BAD_REQUEST"
             } as ErrorObject, req, res);
         }
