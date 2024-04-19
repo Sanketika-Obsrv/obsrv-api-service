@@ -7,6 +7,7 @@ import DatasetRead from "../controllers/DatasetRead/DatasetRead";
 import { setApiId } from "../middlewares/setApiId";
 import DatasetList from "../controllers/DatasetList/DatasetList"
 import { dataExhaust } from "../controllers/DataExhaust/DataExhaustController";
+import { createQueryTemplate } from "../controllers/QueryTemplate/CreateQueryTemplateController";
 
 export const router = express.Router();
 
@@ -17,3 +18,4 @@ router.patch("/v1/datasets/update", setApiId("api.datasets.update"), DatasetUpda
 router.get("/v1/datasets/read/:dataset_id", setApiId("api.datasets.read"), DatasetRead)
 router.post("/v1/datasets/list", setApiId("api.datasets.list"), DatasetList)
 router.get('/v1/data/exhaust/:datasetId', setApiId("api.data.exhaust"), dataExhaust);
+router.post('/v1/template/create/:templateName', setApiId("query.template.create"), createQueryTemplate);
