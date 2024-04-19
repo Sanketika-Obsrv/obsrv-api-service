@@ -5,10 +5,13 @@ import moment from "moment";
 import { getDatasourceList } from "../../services/DatasourceService";
 import logger from "../../logger";
 import { getDatasourceListFromDruid } from "../../connections/druidConnection";
+import { apiId } from "./DataOutController";
 
 const momentFormat = "YYYY-MM-DD HH:MM:SS";
+let dataset_id: string;
 
-export const validateQuery = async (requestPayload: any) => {
+export const validateQuery = async (requestPayload: any, datasetId: string) => {
+    dataset_id = datasetId;
     const query = requestPayload?.query;
     const isValid = (_.isObject(query)) ? validateNativeQuery(requestPayload) : (_.isString(query)) ? validateSqlQuery(requestPayload) : false;
     const datasource = getDataSourceFromPayload(requestPayload);
@@ -86,12 +89,12 @@ const getDataSourceFromPayload = (queryPayload: any) => {
         let dataSource = query.substring(fromIndex).split(" ")[1];
         if (fromIndex !== -1 && dataSource) {
             dataSource = dataSource.replace(/\\/g, "");
-            return dataSource.replace(/"/g, "");
+            return dataset_id || dataSource.replace(/"/g, "");
         }
     }
     if (_.isObject(queryPayload.query)) {
         const dataSourceField: any = _.get(queryPayload, "query.dataSource", '');
-        return dataSourceField;
+        return dataset_id || dataSourceField;
     }
 }
 
@@ -122,8 +125,8 @@ const validateDateRange = (fromDate: moment.Moment, toDate: moment.Moment, allow
         return true
     }
     else {
-        logger.error(`Data range cannnot be more than ${allowedRange} days.`)
-        return { message: `Invalid date range! make sure your range cannot be more than ${allowedRange} days`, statusCode: 400, errCode: "BAD_REQUEST" };
+        logger.error({ apiId, message: `Data range cannnot be more than ${allowedRange} days.`, code: "INVALID_DATE_RANGE" })
+        return { message: `Invalid date range! make sure your range cannot be more than ${allowedRange} days`, statusCode: 400, errCode: "BAD_REQUEST", code: "INVALID_DATE_RANGE" };
     }
 };
 
@@ -145,14 +148,14 @@ const validateQueryRules = (queryPayload: any, limits: any) => {
     }
     const isValidDates = fromDate && toDate && fromDate.isValid() && toDate.isValid()
     return isValidDates ? validateDateRange(fromDate, toDate, allowedRange)
-        : { message: "Invalid date range! the date range cannot be a null value", statusCode: 400, errCode: "BAD_REQUEST" };
+        : { message: "Invalid date range! the date range cannot be a null value", statusCode: 400, errCode: "BAD_REQUEST", code: "INVALID_DATE_RANGE" };
 };
 
 const getDataSourceRef = async (datasourceName: string, granularity?: string) => {
     const dataSources = await getDatasourceList(datasourceName)
     if (_.isEmpty(dataSources)) {
-        logger.error(`Datasource ${datasourceName} not available in datasource live table`)
-        return { message: `Datasource ${datasourceName} not available for querying`, statusCode: 404, errCode: "NOT_FOUND" };
+        logger.error({ apiId, message: `Datasource ${datasourceName} not available in datasource live table`, code: "DATASOURCE_NOT_FOUND" })
+        return { message: `Datasource ${datasourceName} not available for querying`, statusCode: 404, errCode: "NOT_FOUND", code: "DATASOURCE_NOT_FOUND" };
     }
     const record = dataSources.filter((record: any) => {
         const aggregatedRecord = _.get(record, "metadata.aggregated")
@@ -172,12 +175,15 @@ const validateDatasource = async (datasource: any) => {
 
 const setDatasourceRef = async (dataSourceName: string, payload: any): Promise<any> => {
     try {
-        const granularity = _.get(payload, 'context.granularity')
+        const granularity = _.get(payload, 'context.table')
         const datasourceRef = await getDataSourceRef(dataSourceName, granularity);
         const datasource = await validateDatasource(datasourceRef);
+        if (_.isObject(datasourceRef)) {
+            return datasourceRef
+        }
         if (datasource) {
-            logger.error(`Datasource ${datasource} not available for querying in druid`)
-            return { message: `Datasource ${datasource} not available for querying`, statusCode: 404, errCode: "NOT_FOUND" };
+            logger.error({ apiId, message: `Datasource ${datasource} not available for querying in druid`, code: "DATASOURCE_NOT_FOUND" })
+            return { message: `Datasource ${datasource} not available for querying`, statusCode: 404, errCode: "NOT_FOUND", code: "DATASOURCE_NOT_FOUND" };
         }
         if (_.isString(payload?.query)) {
             payload.query = payload.query.replace(dataSourceName, datasourceRef)
@@ -187,6 +193,7 @@ const setDatasourceRef = async (dataSourceName: string, payload: any): Promise<a
         }
         return true;
     } catch (error: any) {
-        return { message: `Datasource not found`, statusCode: 404, errCode: "NOT_FOUND" };
+        logger.error({ apiId, message: `Datasource not found`, code: "DATASOURCE_NOT_FOUND" })
+        return { message: `Datasource not found`, statusCode: 404, errCode: "NOT_FOUND", code: "DATASOURCE_NOT_FOUND" };
     }
 }
