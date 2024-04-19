@@ -6,7 +6,7 @@ import httpStatus from "http-status";
 import { describe, it } from 'mocha';
 import { DatasetDraft } from "../../../models/DatasetDraft";
 import _ from "lodash";
-import { TestInputsForDatasetUpdate, msgid } from "./Fixtures";
+import { TestInputsForDatasetUpdate, msgid, validVersionKey } from "./Fixtures";
 import { DatasetTransformationsDraft } from "../../../models/TransformationDraft";
 import { apiId } from "../../../controllers/DatasetUpdate/DatasetUpdate"
 
@@ -23,7 +23,7 @@ describe("DATASET TRANSFORMATIONS UPDATE", () => {
     it("Success: Dataset transformations successfully added", (done) => {
         chai.spy.on(DatasetDraft, "findOne", () => {
             return Promise.resolve({
-                id: "telemetry", status: "Draft", version_key: "1713444815918"
+                id: "telemetry", status: "Draft", version_key: validVersionKey
             })
         })
         chai.spy.on(DatasetTransformationsDraft, "findAll", () => {
@@ -55,7 +55,7 @@ describe("DATASET TRANSFORMATIONS UPDATE", () => {
     it("Success: Dataset transformations successfully removed", (done) => {
         chai.spy.on(DatasetDraft, "findOne", () => {
             return Promise.resolve({
-                id: "telemetry", status: "Draft", version_key: "1713444815918"
+                id: "telemetry", status: "Draft", version_key: validVersionKey
             })
         })
         chai.spy.on(DatasetTransformationsDraft, "findAll", () => {
@@ -87,7 +87,7 @@ describe("DATASET TRANSFORMATIONS UPDATE", () => {
     it("Success: Dataset transformations successfully updated", (done) => {
         chai.spy.on(DatasetDraft, "findOne", () => {
             return Promise.resolve({
-                id: "telemetry", status: "Draft", version_key: "1713444815918"
+                id: "telemetry", status: "Draft", version_key: validVersionKey
             })
         })
         chai.spy.on(DatasetTransformationsDraft, "findAll", () => {
@@ -118,7 +118,7 @@ describe("DATASET TRANSFORMATIONS UPDATE", () => {
 
     it("Success: When payload contains same transformation field_key to be added, updated or removed", (done) => {
         chai.spy.on(DatasetDraft, "findOne", () => {
-            return Promise.resolve({ id: "telemetry", status: "Draft", version_key: "1713444815918" })
+            return Promise.resolve({ id: "telemetry", status: "Draft", version_key: validVersionKey })
         })
         chai.spy.on(DatasetTransformationsDraft, "findAll", () => {
             return Promise.resolve([{ field_key: "key2" }, { field_key: "key3" }])
@@ -155,7 +155,7 @@ describe("DATASET TRANSFORMATIONS UPDATE", () => {
     it("Failure: When transformation fields provided to add already exists", (done) => {
         chai.spy.on(DatasetDraft, "findOne", () => {
             return Promise.resolve({
-                id: "telemetry", status: "Draft", version_key: "1713444815918", tags: ["tag1", "tag2"], denorm_config: {
+                id: "telemetry", status: "Draft", version_key: validVersionKey, tags: ["tag1", "tag2"], denorm_config: {
                     denorm_fields: [{
                         "denorm_key": "actor.id",
                         "denorm_out_field": "mid"
@@ -185,7 +185,7 @@ describe("DATASET TRANSFORMATIONS UPDATE", () => {
     it("Failure: When transformation fields provided to update do not exists", (done) => {
         chai.spy.on(DatasetDraft, "findOne", () => {
             return Promise.resolve({
-                id: "telemetry", status: "Draft", version_key: "1713444815918", tags: ["tag1", "tag2"], denorm_config: {
+                id: "telemetry", status: "Draft", version_key: validVersionKey, tags: ["tag1", "tag2"], denorm_config: {
                     denorm_fields: [{
                         "denorm_key": "actor.id",
                         "denorm_out_field": "mid"
@@ -215,7 +215,7 @@ describe("DATASET TRANSFORMATIONS UPDATE", () => {
     it("Failure: When transformation fields provided to remove do not exists", (done) => {
         chai.spy.on(DatasetDraft, "findOne", () => {
             return Promise.resolve({
-                id: "telemetry", status: "Draft", version_key: "1713444815918", tags: ["tag1", "tag2"], denorm_config: {
+                id: "telemetry", status: "Draft", version_key: validVersionKey, tags: ["tag1", "tag2"], denorm_config: {
                     denorm_fields: [{
                         "denorm_key": "actor.id",
                         "denorm_out_field": "mid"

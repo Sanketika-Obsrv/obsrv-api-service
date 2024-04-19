@@ -7,7 +7,7 @@ export const requestStructure = {
     }
 }
 
-const validVersionKey = "1713444815918"
+export const validVersionKey = "1713444815918"
 
 export const TestInputsForDatasetUpdate = {
 

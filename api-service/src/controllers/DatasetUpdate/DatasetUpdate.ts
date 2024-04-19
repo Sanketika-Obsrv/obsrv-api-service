@@ -33,7 +33,7 @@ const datasetUpdate = async (req: Request, res: Response) => {
         const { dataset_id, version_key, ...rest } = datasetBody
         if (_.isEmpty(rest)) {
             const code = "DATASET_UPDATE_NO_FIELDS"
-            logger.error({ code, apiId, message: `Provide atleast one field in addition to the dataset_id:${dataset_id} to update the dataset` })
+            logger.error({ code, apiId, message: `Provide atleast one field in addition to the dataset_id:${dataset_id} and version_key:${version_key} to update the dataset` })
             return ResponseHandler.errorResponse({
                 code,
                 message: "Provide atleast one field in addition to the dataset_id to update the dataset",
@@ -130,7 +130,7 @@ const manageTransformations = async (transformations: Record<string, any>, datas
     }
 }
 
-const checkDatasetExists = async (dataset_id: string, version_key: number): Promise<Record<string, any>> => {
+const checkDatasetExists = async (dataset_id: string, version_key: string): Promise<Record<string, any>> => {
     const datasetExists: Record<string, any> | null = await getExistingDataset(dataset_id)
     if (datasetExists) {
         if (_.get(datasetExists, "version_key") !== version_key) {

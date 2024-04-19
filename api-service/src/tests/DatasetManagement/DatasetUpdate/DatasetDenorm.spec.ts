@@ -6,7 +6,7 @@ import httpStatus from "http-status";
 import { describe, it } from 'mocha';
 import { DatasetDraft } from "../../../models/DatasetDraft";
 import _ from "lodash";
-import { TestInputsForDatasetUpdate, msgid } from "./Fixtures";
+import { TestInputsForDatasetUpdate, msgid, validVersionKey } from "./Fixtures";
 import { apiId } from "../../../controllers/DatasetUpdate/DatasetUpdate"
 
 chai.use(spies);
@@ -22,7 +22,7 @@ describe("DATASET DENORM UPDATE", () => {
     it("Success: Dataset denorms successfully added", (done) => {
         chai.spy.on(DatasetDraft, "findOne", () => {
             return Promise.resolve({
-                id: "telemetry", status: "Draft", version_key: "1713444815918", denorm_config: { denorm_field: [] }
+                id: "telemetry", status: "Draft", version_key: validVersionKey, denorm_config: { denorm_field: [] }
             })
         })
         chai.spy.on(DatasetDraft, "update", () => {
@@ -48,7 +48,7 @@ describe("DATASET DENORM UPDATE", () => {
     it("Success: Dataset denorms successfully removed", (done) => {
         chai.spy.on(DatasetDraft, "findOne", () => {
             return Promise.resolve({
-                id: "telemetry", status: "Draft", version_key: "1713444815918", denorm_config: { denorm_fields: [{ denorm_out_field: "userdata" }] }
+                id: "telemetry", status: "Draft", version_key: validVersionKey, denorm_config: { denorm_fields: [{ denorm_out_field: "userdata" }] }
             })
         })
         chai.spy.on(DatasetDraft, "update", () => {
@@ -74,7 +74,7 @@ describe("DATASET DENORM UPDATE", () => {
     it("Success: When payload contains same denorms to be removed", (done) => {
         chai.spy.on(DatasetDraft, "findOne", () => {
             return Promise.resolve({
-                id: "telemetry", version_key: "1713444815918", status: "Draft", denorm_config: {
+                id: "telemetry", version_key: validVersionKey, status: "Draft", denorm_config: {
                     denorm_fields: [{
                         "denorm_key": "actor.id",
                         "denorm_out_field": "mid"
@@ -105,7 +105,7 @@ describe("DATASET DENORM UPDATE", () => {
 
     it("Failure: Dataset contains duplicate denorm field", (done) => {
         chai.spy.on(DatasetDraft, "findOne", () => {
-            return Promise.resolve({ status: "Draft", version_key: "1713444815918" })
+            return Promise.resolve({ status: "Draft", version_key: validVersionKey })
         })
         chai
             .request(app)
@@ -126,7 +126,7 @@ describe("DATASET DENORM UPDATE", () => {
     it("Failure: When denorm fields provided to add already exists", (done) => {
         chai.spy.on(DatasetDraft, "findOne", () => {
             return Promise.resolve({
-                id: "telemetry", status: "Draft", version_key: "1713444815918", tags: ["tag1", "tag2"], denorm_config: {
+                id: "telemetry", status: "Draft", version_key: validVersionKey, tags: ["tag1", "tag2"], denorm_config: {
                     denorm_fields: [{
                         "denorm_key": "actor.id",
                         "denorm_out_field": "userdata"
@@ -153,7 +153,7 @@ describe("DATASET DENORM UPDATE", () => {
     it("Failure: When denorm fields provided to delete does not exists", (done) => {
         chai.spy.on(DatasetDraft, "findOne", () => {
             return Promise.resolve({
-                id: "telemetry", status: "Draft", version_key: "1713444815918", tags: ["tag1", "tag2"], denorm_config: {
+                id: "telemetry", status: "Draft", version_key: validVersionKey, tags: ["tag1", "tag2"], denorm_config: {
                     denorm_fields: [{
                         "denorm_key": "actor.id",
                         "denorm_out_field": "id"
