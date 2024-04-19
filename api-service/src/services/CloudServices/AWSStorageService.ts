@@ -1,6 +1,6 @@
 import moment from "moment";
 import * as _ from "lodash";
-import { S3Client, GetObjectCommand, ListObjectsV2Command, } from "@aws-sdk/client-s3";
+import { S3Client, GetObjectCommand, ListObjectsV2Command, PutObjectCommand, HeadObjectCommand } from "@aws-sdk/client-s3";
 import { config as globalConfig } from "../../configs/Config";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner"
 import { getFileKey } from "../../utils/common"
@@ -28,6 +28,10 @@ export class AWSStorageService implements ICloudService {
 
     listAWSCommand(bucketName: string, prefix = "",) {
         return new ListObjectsV2Command({ Bucket: bucketName, Prefix: prefix, Delimiter: "/", });
+    }
+
+    getUploadFileCommand(bucketName: string, fileToPut: string, prefix = "", data = "") {
+        return new PutObjectCommand({ Bucket: bucketName, Key: prefix + fileToPut, Body: data });
     }
 
     async getSignedUrls(container: any, filesList: any) {
@@ -92,5 +96,20 @@ export class AWSStorageService implements ICloudService {
             })
         });
         return result;
+    }
+
+    //QUERY TEMPLATE CODE
+    async uploadFileToBucket(bucketName: string, fileToPut: string, prefix: string, data: any, cb: any) {
+        const command = this.getUploadFileCommand(bucketName, fileToPut, prefix, data);
+        await this.client.send(command).then((resp: any) => cb(null, resp))
+            .catch((err: any) => cb(err));
+    }
+
+    async fileExists(bucketName: string, fileToGet: string, prefix: string, cb: any) {
+        const params = { Bucket: bucketName, Key: prefix + fileToGet };
+        const command = new HeadObjectCommand(params);
+        logger.info({ msg: "AWS__StorageService - fileExists called for bucketName " + bucketName + " for file " + params.Key });
+        await this.client.send(command).then((resp: any) => cb(null, resp))
+            .catch((err: any) => cb(err));
     }
 }

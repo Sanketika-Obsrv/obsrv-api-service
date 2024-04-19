@@ -184,4 +184,30 @@ export class AzureStorageService implements ICloudService {
             .map((item: any) => { return item?.name });
         return result
     }
+
+    // QUERY TEMPLATE SERVICE CODE
+    async fileExists(bucketName: string, fileToGet: string, prefix: string, callback: any) {
+        if (!bucketName || !fileToGet || !callback) throw new Error('Invalid arguments');
+        logger.info({ msg: 'Azure__StorageService - fileExists called for container ' + bucketName + ' for file ' + fileToGet });
+        const containerClient = this.blobService.getContainerClient(bucketName);
+        const blobClient = containerClient.getBlobClient(`${prefix}${fileToGet}`);
+        try {
+            const isBlobExists = await blobClient.exists();
+            if (isBlobExists) {
+                callback(null, isBlobExists);
+            } else {
+                callback({ "$metadata": { httpStatusCode: 404 } }, isBlobExists);
+            }
+        } catch (error) {
+            callback(error);
+        }
+    }
+
+    async uploadFileToBucket(bucketName: string, fileToPut: string, prefix: string, data: any, callback: any) {
+        const containerClient = this.blobService.getContainerClient(bucketName);
+        const blockBlobClient = containerClient.getBlockBlobClient(`${prefix}${fileToPut}`);
+        await blockBlobClient.upload(data, data.length).then((resp: any) => {
+            callback(null, resp)
+        }).catch((err: any) => callback(err))
+    }
 }

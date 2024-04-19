@@ -115,4 +115,31 @@ export class GCPStorageService implements ICloudService {
         }
         return result
     }
+
+    // QUERY TEMPLATE SERVICE CODE
+    async fileExists(bucketName: string, fileToGet: string, prefix: string, callback: any) {
+        try {
+            const [files] = await this.storage.bucket(bucketName).getFiles({ prefix: `${prefix}${fileToGet}` });
+            if (_.isEmpty(files)) {
+                callback({ "$metadata": { httpStatusCode: 404 } }, false)
+            }
+            else {
+                callback(null, true)
+            }
+        }
+        catch (err) {
+            callback(err)
+        }
+    }
+
+    async uploadFileToBucket(bucketName: string, fileToPut: string, prefix: string, data: any, callback: any) {
+        const uploadPath = `${prefix}${fileToPut}`
+        try {
+            const uploadResponse = await this.storage.bucket(bucketName).file(uploadPath).save(data);
+            callback(null, uploadResponse)
+        }
+        catch (err) {
+            callback(err)
+        }
+    }
 }
