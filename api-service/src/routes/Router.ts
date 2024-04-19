@@ -11,7 +11,7 @@ import { dataExhaust } from "../controllers/DataExhaust/DataExhaustController";
 export const router = express.Router();
 
 router.post(`/v1/data/in/:datasetId`, setApiId("api.data.in"), dataIn);
-router.post('/v1/data/query', setApiId("api.data.out"), dataOut);
+router.post('/v1/data/query/:datasetId', setApiId("api.data.out"), dataOut);
 router.post("/v1/datasets/create", setApiId("api.datasets.create"), DatasetCreate)
 router.patch("/v1/datasets/update", setApiId("api.datasets.update"), DatasetUpdate)
 router.get("/v1/datasets/read/:dataset_id", setApiId("api.datasets.read"), DatasetRead)
