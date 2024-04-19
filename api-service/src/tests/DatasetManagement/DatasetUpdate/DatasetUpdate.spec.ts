@@ -22,7 +22,7 @@ describe("DATASET UPDATE API", () => {
 
     it("Dataset updation success: When minimal request payload provided", (done) => {
         chai.spy.on(DatasetDraft, "findOne", () => {
-            return Promise.resolve({ id: "telemetry", status: "Draft" })
+            return Promise.resolve({ id: "telemetry", status: "Draft", version_key: "1713444815918" })
         })
         chai.spy.on(DatasetDraft, "update", () => {
             return Promise.resolve({ dataValues: { id: "telemetry", message: "Dataset is updated successfully" } })
@@ -39,6 +39,7 @@ describe("DATASET UPDATE API", () => {
                 res.body.params.msgid.should.be.eq(msgid)
                 res.body.result.id.should.be.eq("telemetry")
                 res.body.result.message.should.be.eq("Dataset is updated successfully")
+                res.body.result.version_key.should.be.a("string")
                 done();
             });
     });
@@ -46,7 +47,7 @@ describe("DATASET UPDATE API", () => {
     it("Dataset updation success: When full request payload provided", (done) => {
         chai.spy.on(DatasetDraft, "findOne", () => {
             return Promise.resolve({
-                id: "telemetry", status: "Draft", tags: ["tag1", "tag2"], denorm_config: {
+                id: "telemetry", status: "Draft", version_key: "1713444815918", tags: ["tag1", "tag2"], denorm_config: {
                     denorm_fields: [{
                         "denorm_key": "actor.id",
                         "denorm_out_field": "mid"
@@ -81,6 +82,7 @@ describe("DATASET UPDATE API", () => {
                 res.body.params.msgid.should.be.eq(msgid)
                 res.body.result.id.should.be.eq("telemetry")
                 res.body.result.message.should.be.eq("Dataset is updated successfully")
+                res.body.result.version_key.should.be.a("string")
                 done();
             });
     });
@@ -89,7 +91,7 @@ describe("DATASET UPDATE API", () => {
         chai
             .request(app)
             .patch("/v1/datasets/update")
-            .send({ ...requestStructure, request: { dataset_id: "telemetry" } })
+            .send({ ...requestStructure, request: { dataset_id: "telemetry", version_key: "1713444815918" } })
             .end((err, res) => {
                 res.should.have.status(httpStatus.BAD_REQUEST);
                 res.body.should.be.a("object")
@@ -118,6 +120,26 @@ describe("DATASET UPDATE API", () => {
                 res.body.params.msgid.should.be.eq(msgid)
                 res.body.error.message.should.be.eq("Dataset does not exists to update")
                 res.body.error.code.should.be.eq("DATASET_NOT_EXISTS")
+                done();
+            });
+    });
+
+    it("Dataset updation failure: When dataset to update is outdated", (done) => {
+        chai.spy.on(DatasetDraft, "findOne", () => {
+            return Promise.resolve({ id: "telemetry", status: "Draft", version_key: "1813444815918" })
+        })
+        chai
+            .request(app)
+            .patch("/v1/datasets/update")
+            .send({ ...requestStructure, request: { dataset_id: "telemetry", version_key: "1713444815918", name: "telemetry" } })
+            .end((err, res) => {
+                res.should.have.status(httpStatus.CONFLICT);
+                res.body.should.be.a("object")
+                res.body.id.should.be.eq(apiId);
+                res.body.params.status.should.be.eq("FAILED")
+                res.body.params.msgid.should.be.eq(msgid)
+                res.body.error.message.should.be.eq("The dataset is outdated. Please try to fetch latest changes of the dataset and perform the updates")
+                res.body.error.code.should.be.eq("DATASET_OUTDATED")
                 done();
             });
     });
@@ -170,7 +192,7 @@ describe("DATASET UPDATE API", () => {
 
         it("Success: Dataset name updated successfully", (done) => {
             chai.spy.on(DatasetDraft, "findOne", () => {
-                return Promise.resolve({ id: "telemetry", status: "Draft" })
+                return Promise.resolve({ id: "telemetry", status: "Draft", version_key: "1713444815918" })
             })
             chai.spy.on(DatasetDraft, "update", () => {
                 return Promise.resolve({ dataValues: { id: "telemetry", message: "Dataset is updated successfully" } })
@@ -187,6 +209,7 @@ describe("DATASET UPDATE API", () => {
                     res.body.params.msgid.should.be.eq(msgid)
                     res.body.result.id.should.be.eq("telemetry")
                     res.body.result.message.should.be.eq("Dataset is updated successfully")
+                    res.body.result.version_key.should.be.a("string")
                     done();
                 });
         });
@@ -195,7 +218,7 @@ describe("DATASET UPDATE API", () => {
             chai
                 .request(app)
                 .patch("/v1/datasets/update")
-                .send({ ...requestStructure, request: { dataset_id: "telemetry", name: {} } })
+                .send({ ...requestStructure, request: { dataset_id: "telemetry", name: {}, version_key: "1713444815918" } })
                 .end((err, res) => {
                     res.should.have.status(httpStatus.BAD_REQUEST);
                     res.body.should.be.a("object")
@@ -218,7 +241,7 @@ describe("DATASET UPDATE API", () => {
         it("Success: Dataset data schema updated successfully", (done) => {
             chai.spy.on(DatasetDraft, "findOne", () => {
                 return Promise.resolve({
-                    id: "telemetry", status: "Draft"
+                    id: "telemetry", status: "Draft", version_key: "1713444815918"
                 })
             })
             chai.spy.on(DatasetDraft, "update", () => {
@@ -236,6 +259,7 @@ describe("DATASET UPDATE API", () => {
                     res.body.params.msgid.should.be.eq(msgid)
                     res.body.result.id.should.be.eq("telemetry")
                     res.body.result.message.should.be.eq("Dataset is updated successfully")
+                    res.body.result.version_key.should.be.a("string")
                     done();
                 });
         });
@@ -244,7 +268,7 @@ describe("DATASET UPDATE API", () => {
             chai
                 .request(app)
                 .patch("/v1/datasets/update")
-                .send({ ...requestStructure, request: { dataset_id: "sb-telemetry", data_schema: { a: "" } } })
+                .send({ ...requestStructure, request: { dataset_id: "sb-telemetry", version_key: "1713444815918", data_schema: { a: "" } } })
                 .end((err, res) => {
                     res.should.have.status(httpStatus.BAD_REQUEST);
                     res.body.should.be.a("object")
@@ -267,7 +291,7 @@ describe("DATASET UPDATE API", () => {
         it("Success: Dataset config updated successfully", (done) => {
             chai.spy.on(DatasetDraft, "findOne", () => {
                 return Promise.resolve({
-                    id: "telemetry", status: "Draft"
+                    id: "telemetry", status: "Draft", version_key: "1713444815918"
                 })
             })
             chai.spy.on(DatasetDraft, "update", () => {
@@ -285,6 +309,7 @@ describe("DATASET UPDATE API", () => {
                     res.body.params.msgid.should.be.eq(msgid)
                     res.body.result.id.should.be.eq("telemetry")
                     res.body.result.message.should.be.eq("Dataset is updated successfully")
+                    res.body.result.version_key.should.be.a("string")
                     done();
                 });
         });
@@ -293,7 +318,7 @@ describe("DATASET UPDATE API", () => {
             chai
                 .request(app)
                 .patch("/v1/datasets/update")
-                .send({ ...requestStructure, request: { dataset_id: "telemetry", dataset_config: { new: 1 } } })
+                .send({ ...requestStructure, request: { dataset_id: "telemetry", version_key: "1713444815918", dataset_config: { new: 1 } } })
                 .end((err, res) => {
                     res.should.have.status(httpStatus.BAD_REQUEST);
                     res.body.should.be.a("object")

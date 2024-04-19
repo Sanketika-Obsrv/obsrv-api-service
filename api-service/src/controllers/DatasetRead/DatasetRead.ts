@@ -19,7 +19,7 @@ const datasetRead = async (req: Request, res: Response) => {
         const { dataset_id } = req.params;
         const { fields, status = DatasetStatus.Live } = req.query;
 
-        const invalidFields = !_.isEmpty(fields) ? getInvalidFields({ datasetFields: fields }) : []
+        const invalidFields = !_.isEmpty(fields) ? getInvalidFields({ datasetFields: fields, status }) : []
         if (!_.isEmpty(invalidFields)) {
             const code = "DATASET_INVALID_FIELDS"
             logger.error({ code, apiId, message: `The specified fields [${invalidFields}] in the dataset cannot be found` })
@@ -71,8 +71,13 @@ const getDatasetModel = (status: string | any) => {
 }
 
 const getInvalidFields = (payload: Record<string, any>): Record<string, any> => {
-    const { datasetFields } = payload
-    const invalidFields = _.difference(_.split(datasetFields, ","), validDatasetFields)
+    const { datasetFields, status } = payload
+    const fieldValues = _.split(datasetFields, ",")
+    if (!(status == DatasetStatus.Draft || status == DatasetStatus.Publish)) {
+        validDatasetFields.splice(_.indexOf(validDatasetFields, "version_key", 1))
+        return _.difference(fieldValues, validDatasetFields)
+    }
+    const invalidFields = _.difference(fieldValues, validDatasetFields)
     return invalidFields;
 }
 

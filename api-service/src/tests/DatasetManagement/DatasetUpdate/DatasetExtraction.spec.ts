@@ -22,7 +22,7 @@ describe("DATASET EXTRACTION CONFIG UPDATE", () => {
     it("Success: Dataset extraction configs updated if it is a batch event", (done) => {
         chai.spy.on(DatasetDraft, "findOne", () => {
             return Promise.resolve({
-                id: "telemetry", status: "Draft"
+                id: "telemetry", status: "Draft", version_key: "1713444815918"
             })
         })
         chai.spy.on(DatasetDraft, "update", () => {
@@ -40,6 +40,7 @@ describe("DATASET EXTRACTION CONFIG UPDATE", () => {
                 res.body.params.msgid.should.be.eq(msgid)
                 res.body.result.id.should.be.eq("telemetry")
                 res.body.result.message.should.be.eq("Dataset is updated successfully")
+                res.body.result.version_key.should.be.a("string")
                 done();
             });
     });
@@ -47,7 +48,7 @@ describe("DATASET EXTRACTION CONFIG UPDATE", () => {
     it("Success: Dataset extraction configs updated with default values if it is not batch event", (done) => {
         chai.spy.on(DatasetDraft, "findOne", () => {
             return Promise.resolve({
-                id: "telemetry", status: "Draft"
+                id: "telemetry", status: "Draft", version_key: "1713444815918"
             })
         })
         chai.spy.on(DatasetDraft, "update", () => {
@@ -56,7 +57,7 @@ describe("DATASET EXTRACTION CONFIG UPDATE", () => {
         chai
             .request(app)
             .patch("/v1/datasets/update")
-            .send({ ...requestStructure, request: { dataset_id: "telemetry", extraction_config: { "is_batch_event": false } } })
+            .send({ ...requestStructure, request: { dataset_id: "telemetry", version_key: "1713444815918", extraction_config: { "is_batch_event": false } } })
             .end((err, res) => {
                 res.should.have.status(httpStatus.OK);
                 res.body.should.be.a("object")
@@ -65,6 +66,7 @@ describe("DATASET EXTRACTION CONFIG UPDATE", () => {
                 res.body.params.msgid.should.be.eq(msgid)
                 res.body.result.id.should.be.eq("telemetry")
                 res.body.result.message.should.be.eq("Dataset is updated successfully")
+                res.body.result.version_key.should.be.a("string")
                 done();
             });
     });
@@ -74,7 +76,7 @@ describe("DATASET EXTRACTION CONFIG UPDATE", () => {
         chai
             .request(app)
             .patch("/v1/datasets/update")
-            .send({ ...requestStructure, request: { dataset_id: "telemetry", extraction_config: { "is_batch_event": true } } })
+            .send({ ...requestStructure, request: { dataset_id: "telemetry", version_key: "1713444815918", extraction_config: { "is_batch_event": true } } })
             .end((err, res) => {
                 res.should.have.status(httpStatus.BAD_REQUEST);
                 res.body.should.be.a("object")

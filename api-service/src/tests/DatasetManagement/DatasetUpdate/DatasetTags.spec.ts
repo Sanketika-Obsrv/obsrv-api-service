@@ -22,7 +22,7 @@ describe("DATASET TAGS UPDATE", () => {
     it("Success: Dataset tags successfully added", (done) => {
         chai.spy.on(DatasetDraft, "findOne", () => {
             return Promise.resolve({
-                id: "telemetry", status: "Draft", denorm_config: { denorm_fields: [] }
+                id: "telemetry", status: "Draft", version_key: "1713444815918", denorm_config: { denorm_fields: [] }
             })
         })
         chai.spy.on(DatasetDraft, "update", () => {
@@ -40,6 +40,7 @@ describe("DATASET TAGS UPDATE", () => {
                 res.body.params.msgid.should.be.eq(msgid)
                 res.body.result.id.should.be.eq("telemetry")
                 res.body.result.message.should.be.eq("Dataset is updated successfully")
+                res.body.result.version_key.should.be.a("string")
                 done();
             });
     });
@@ -47,7 +48,7 @@ describe("DATASET TAGS UPDATE", () => {
     it("Success: Dataset tags successfully removed", (done) => {
         chai.spy.on(DatasetDraft, "findOne", () => {
             return Promise.resolve({
-                id: "telemetry", status: "Draft", tags: ["tag1", "tag2"]
+                id: "telemetry", status: "Draft", version_key: "1713444815918", tags: ["tag1", "tag2"]
             })
         })
         chai.spy.on(DatasetDraft, "update", () => {
@@ -65,6 +66,7 @@ describe("DATASET TAGS UPDATE", () => {
                 res.body.params.msgid.should.be.eq(msgid)
                 res.body.result.id.should.be.eq("telemetry")
                 res.body.result.message.should.be.eq("Dataset is updated successfully")
+                res.body.result.version_key.should.be.a("string")
                 done();
             });
     });
@@ -72,7 +74,7 @@ describe("DATASET TAGS UPDATE", () => {
     it("Success: When payload contains same tags to be added or removed", (done) => {
         chai.spy.on(DatasetDraft, "findOne", () => {
             return Promise.resolve({
-                id: "telemetry", status: "Draft", tags: ["tag1", "tag2"]
+                id: "telemetry", status: "Draft", version_key: "1713444815918", tags: ["tag1", "tag2"]
             })
         })
         chai.spy.on(DatasetDraft, "update", () => {
@@ -90,6 +92,7 @@ describe("DATASET TAGS UPDATE", () => {
                 res.body.params.msgid.should.be.eq(msgid)
                 res.body.result.id.should.be.eq("telemetry")
                 res.body.result.message.should.be.eq("Dataset is updated successfully")
+                res.body.result.version_key.should.be.a("string")
                 done();
             });
     });
@@ -97,7 +100,7 @@ describe("DATASET TAGS UPDATE", () => {
     it("Failure: When tags provided to add already exists", (done) => {
         chai.spy.on(DatasetDraft, "findOne", () => {
             return Promise.resolve({
-                id: "telemetry", status: "Draft", tags: ["tag3", "tag1"]
+                id: "telemetry", status: "Draft", version_key: "1713444815918", tags: ["tag3", "tag1"]
             })
         })
         chai
@@ -119,7 +122,7 @@ describe("DATASET TAGS UPDATE", () => {
     it("Failure: When tags provided to delete does not exists", (done) => {
         chai.spy.on(DatasetDraft, "findOne", () => {
             return Promise.resolve({
-                id: "telemetry", status: "Draft", tags: ["tag5"]
+                id: "telemetry", status: "Draft", version_key: "1713444815918", tags: ["tag5"]
             })
         })
         chai

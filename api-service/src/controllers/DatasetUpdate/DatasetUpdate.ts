@@ -30,7 +30,7 @@ const datasetUpdate = async (req: Request, res: Response) => {
         }
 
         const datasetBody = req.body.request
-        const { dataset_id, ...rest } = datasetBody
+        const { dataset_id, version_key, ...rest } = datasetBody
         if (_.isEmpty(rest)) {
             const code = "DATASET_UPDATE_NO_FIELDS"
             logger.error({ code, apiId, message: `Provide atleast one field in addition to the dataset_id:${dataset_id} to update the dataset` })
@@ -42,7 +42,7 @@ const datasetUpdate = async (req: Request, res: Response) => {
             } as ErrorObject, req, res);
         }
 
-        const { isDatasetExists, datasetStatus } = await checkDatasetExists(dataset_id);
+        const { isDatasetExists, datasetStatus, invalidVersionKey } = await checkDatasetExists(dataset_id, version_key);
         if (!isDatasetExists) {
             const code = "DATASET_NOT_EXISTS"
             logger.error({ code, apiId, message: `Dataset does not exists with id:${dataset_id}` })
@@ -62,6 +62,17 @@ const datasetUpdate = async (req: Request, res: Response) => {
                 message: "Dataset cannot be updated as it is not in draft state",
                 statusCode: 400,
                 errCode: "BAD_REQUEST"
+            } as ErrorObject, req, res);
+        }
+
+        if (invalidVersionKey) {
+            const code = "DATASET_OUTDATED"
+            logger.error({ code, apiId, message: `The dataset:${dataset_id} with version_key:${version_key} is outdated. Please try to fetch latest changes of the dataset and perform the updates` })
+            return ResponseHandler.errorResponse({
+                code,
+                message: "The dataset is outdated. Please try to fetch latest changes of the dataset and perform the updates",
+                statusCode: 409,
+                errCode: "CONFLICT"
             } as ErrorObject, req, res);
         }
 
@@ -85,7 +96,7 @@ const datasetUpdate = async (req: Request, res: Response) => {
 
         await DatasetDraft.update(datasetPayload, { where: { id: dataset_id } })
         logger.info({ apiId, message: `Dataset updated successfully with id:${dataset_id}` })
-        ResponseHandler.successResponse(req, res, { status: httpStatus.OK, data: { message: "Dataset is updated successfully", id: dataset_id } });
+        ResponseHandler.successResponse(req, res, { status: httpStatus.OK, data: { message: "Dataset is updated successfully", id: dataset_id, version_key: _.get(datasetPayload, "version_key") } });
     } catch (error: any) {
         const code = _.get(error, "code") || errorCode
         logger.error({ ...error, apiId, code })
@@ -119,9 +130,12 @@ const manageTransformations = async (transformations: Record<string, any>, datas
     }
 }
 
-const checkDatasetExists = async (dataset_id: string): Promise<Record<string, any>> => {
+const checkDatasetExists = async (dataset_id: string, version_key: number): Promise<Record<string, any>> => {
     const datasetExists: Record<string, any> | null = await getExistingDataset(dataset_id)
     if (datasetExists) {
+        if (_.get(datasetExists, "version_key") !== version_key) {
+            return { isDatasetExists: true, datasetStatus: datasetExists.status, invalidVersionKey: true }
+        }
         return { isDatasetExists: true, datasetStatus: datasetExists.status }
     } else {
         return { isDatasetExists: false, datasetStatus: "" }
@@ -136,7 +150,8 @@ const getDatasetUpdatedConfigs = async (payload: Record<string, any>): Promise<R
         extraction_config: extraction_config ? setExtractionConfigs(extraction_config) : null,
         dedup_config: dedup_config ? setDedupConfigs(dedup_config) : null,
         tags: tags ? getUpdatedTags(tags, _.get(existingDataset, "tags")) : null,
-        denorm_config: denorm_config ? setDenormConfigs(denorm_config, _.get(existingDataset, ["denorm_config"])) : null
+        denorm_config: denorm_config ? setDenormConfigs(denorm_config, _.get(existingDataset, ["denorm_config"])) : null,
+        version_key: Date.now().toString()
     }
     return _.pickBy({ ...payload, ...updatedConfigs }, _.identity)
 }
