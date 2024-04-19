@@ -42,7 +42,7 @@ const datasetUpdate = async (req: Request, res: Response) => {
             } as ErrorObject, req, res);
         }
 
-        const { isDatasetExists, datasetStatus, invalidVersionKey } = await checkDatasetExists(dataset_id, version_key);
+        const { isDatasetExists, datasetStatus, invalidVersionKey, validVersionKey } = await checkDatasetExists(dataset_id, version_key);
         if (!isDatasetExists) {
             const code = "DATASET_NOT_EXISTS"
             logger.error({ code, apiId, message: `Dataset does not exists with id:${dataset_id}` })
@@ -67,7 +67,7 @@ const datasetUpdate = async (req: Request, res: Response) => {
 
         if (invalidVersionKey) {
             const code = "DATASET_OUTDATED"
-            logger.error({ code, apiId, message: `The dataset:${dataset_id} with version_key:${version_key} is outdated. Please try to fetch latest changes of the dataset and perform the updates` })
+            logger.error({ code, apiId, message: `The dataset:${dataset_id} with version_key:${version_key} is outdated. Please try to fetch latest changes of the dataset with version key:${validVersionKey} and perform the updates` })
             return ResponseHandler.errorResponse({
                 code,
                 message: "The dataset is outdated. Please try to fetch latest changes of the dataset and perform the updates",
@@ -133,8 +133,9 @@ const manageTransformations = async (transformations: Record<string, any>, datas
 const checkDatasetExists = async (dataset_id: string, version_key: string): Promise<Record<string, any>> => {
     const datasetExists: Record<string, any> | null = await getExistingDataset(dataset_id)
     if (datasetExists) {
-        if (_.get(datasetExists, "version_key") !== version_key) {
-            return { isDatasetExists: true, datasetStatus: datasetExists.status, invalidVersionKey: true }
+        const validVersionKey = _.get(datasetExists, "version_key")
+        if (validVersionKey !== version_key) {
+            return { isDatasetExists: true, datasetStatus: datasetExists.status, invalidVersionKey: true, validVersionKey }
         }
         return { isDatasetExists: true, datasetStatus: datasetExists.status }
     } else {
