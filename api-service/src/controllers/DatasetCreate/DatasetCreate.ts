@@ -58,7 +58,7 @@ const datasetCreate = async (req: Request, res: Response) => {
         const data = { ...datasetPayload, version_key: Date.now().toString() }
         const response = await DatasetDraft.create(data)
         logger.info({ apiId, message: `Dataset Created Successfully with id:${_.get(response, ["dataValues", "id"])}` })
-        ResponseHandler.successResponse(req, res, { status: httpStatus.OK, data: { id: _.get(response, ["dataValues", "id"]), version_key: data.version_key || "" } });
+        ResponseHandler.successResponse(req, res, { status: httpStatus.OK, data: { id: _.get(response, ["dataValues", "id"]) || "", version_key: data.version_key } });
     } catch (error: any) {
         logger.error(error)
         let errorMessage = error;
