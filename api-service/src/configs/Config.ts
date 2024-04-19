@@ -76,6 +76,9 @@ export const config = {
     "container_prefix": process.env.container_prefix || "", // Path to the folder inside container/bucket. Empty if data at root level
     "storage_url_expiry": process.env.storage_url_expiry ? parseInt(process.env.storage_url_expiry) : 3600, // in seconds, Default 1hr of expiry for Signed URLs.
     "maxQueryDateRange": process.env.exhaust_query_range ? parseInt(process.env.exhaust_query_range) : 31, // in days. Defines the maximum no. of days the files can be fetched
-    "exclude_exhaust_types": process.env.exclude_exhaust_types ? process.env.exclude_exhaust_types.split(",") : ["system-stats", "masterdata-system-stats", "system-events",] // list of folder type names to skip exhaust service
+    "exclude_exhaust_types": process.env.exclude_exhaust_types ? process.env.exclude_exhaust_types.split(",") : ["system-stats", "masterdata-system-stats", "system-events",], // list of folder type names to skip exhaust service
+    "template_container_prefix": process.env.template_container_prefix || "query_templates/",
+    "template_required_variables": process.env.template_required_vars ? process.env.template_required_vars.split(",") : ["DATASET", "STARTDATE", "ENDDATE",],
+    "template_supported_queries": process.env.template_supported_queries ? process.env.template_supported_queries.split(",") : ["json", "sql"],
   },
 }
