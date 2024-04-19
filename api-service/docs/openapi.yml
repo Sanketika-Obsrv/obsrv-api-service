@@ -33,44 +33,50 @@ paths:
             schema:
               type: object
               example:
-                dataset_id: sb-telemetry
-                type: dataset
-                name: sb-telemetry
-                validation_config:
-                  validate: true
-                  mode: Strict
-                extraction_config:
-                  is_batch_event: true
-                  extraction_key: events
+                id: api.datasets.create
+                ver: v1
+                ts: '2024-04-10T16:10:50+05:30'
+                params:
+                  msgid: 4a7f14c3-d61e-4d4f-be78-181834eeff6d
+                request:
+                  dataset_id: sb-telemetry
+                  type: dataset
+                  name: sb-telemetry
+                  validation_config:
+                    validate: true
+                    mode: Strict
+                  extraction_config:
+                    is_batch_event: true
+                    extraction_key: events
+                    dedup_config:
+                      drop_duplicates: true
+                      dedup_key: id
                   dedup_config:
                     drop_duplicates: true
-                    dedup_key: id
-                dedup_config:
-                  drop_duplicates: true
-                  dedup_key: mid
-                data_schema:
-                  $schema: https://json-schema.org/draft/2020-12/schema
-                  type: object
-                  properties:
-                    eid:
-                      type: string
-                    ver:
-                      type: string
-                    required:
-                      - eid
-                  additionalProperties: true
-                denorm_config:
-                  denorm_fields:
-                    - denorm_key: actor.id
-                      denorm_out_field: userdata
-                    - denorm_key: actor.id
-                      denorm_out_field: mid
-                dataset_config:
-                  data_key: mid
-                  timestamp_key: ets
-                tags:
-                  - tag1
-                  - tag2
+                    dedup_key: mid
+                  data_schema:
+                    $schema: https://json-schema.org/draft/2020-12/schema
+                    type: object
+                    properties:
+                      eid:
+                        type: string
+                      ver:
+                        type: string
+                      required:
+                        - eid
+                    additionalProperties: true
+                  denorm_config:
+                    denorm_fields:
+                      - denorm_key: actor.id
+                        denorm_out_field: userdata
+                      - denorm_key: actor.id
+                        denorm_out_field: mid
+                  dataset_config:
+                    data_key: mid
+                    timestamp_key: ets
+                  tags:
+                    - tag1
+                    - tag2
       responses:
         '200':
           description: OK
@@ -202,67 +208,74 @@ paths:
             schema:
               type: object
               example:
-                dataset_id: sb-telemetry.1
-                name: sb-telemetry
-                validation_config:
-                  validate: true
-                  mode: Strict
-                extraction_config:
-                  is_batch_event: true
-                  extraction_key: events
+                id: api.datasets.update
+                ver: v1
+                ts: '2024-04-10T16:10:50+05:30'
+                params:
+                  msgid: 4a7f14c3-d61e-4d4f-be78-181834eeff6d
+                request:
+                  dataset_id: sb-telemetry.1
+                  version_key: '1713465933736'
+                  name: sb-telemetry
+                  validation_config:
+                    validate: true
+                    mode: Strict
+                  extraction_config:
+                    is_batch_event: true
+                    extraction_key: events
+                    dedup_config:
+                      drop_duplicates: true
+                      dedup_key: id
                   dedup_config:
                     drop_duplicates: true
-                    dedup_key: id
-                dedup_config:
-                  drop_duplicates: true
-                  dedup_key: mid
-                data_schema:
-                  $schema: https://json-schema.org/draft/2020-12/schema
-                  type: object
-                  properties:
-                    eid:
-                      type: string
-                    ver:
-                      type: string
-                    required:
-                      - eid
-                  additionalProperties: true
-                denorm_config:
-                  denorm_fields:
+                    dedup_key: mid
+                  data_schema:
+                    $schema: https://json-schema.org/draft/2020-12/schema
+                    type: object
+                    properties:
+                      eid:
+                        type: string
+                      ver:
+                        type: string
+                      required:
+                        - eid
+                    additionalProperties: true
+                  denorm_config:
+                    denorm_fields:
+                      - values:
+                          denorm_key: actor.id
+                          denorm_out_field: userdata
+                        action: remove
+                      - values:
+                          denorm_key: actor.id
+                          denorm_out_field: edata
+                        action: add
+                  transformation_config:
                     - values:
-                        denorm_key: actor.id
-                        denorm_out_field: userdata
+                        field_key: eid
+                        transformation_function:
+                          type: mask
+                          expr: eid
+                          condition: null
+                        mode: Strict
+                        metadata:
+                          _transformationType: mask
+                          _transformedFieldDataType: string
+                          _transformedFieldSchemaType: string
+                          section: transformation
+                      action: add
+                  dataset_config:
+                    data_key: mid
+                    timestamp_key: ets
+                  tags:
+                    - values:
+                        - tag1
+                        - tag2
                       action: remove
                     - values:
-                        denorm_key: actor.id
-                        denorm_out_field: edata
+                        - tag3
+                        - tag4
                       action: add
-                transformation_config:
-                  - values:
-                      field_key: eid
-                      transformation_function:
-                        type: mask
-                        expr: eid
-                        condition: null
-                      mode: Strict
-                      metadata:
-                        _transformationType: mask
-                        _transformedFieldDataType: string
-                        _transformedFieldSchemaType: string
-                        section: transformation
-                    action: add
-                dataset_config:
-                  data_key: mid
-                  timestamp_key: ets
-                tags:
-                  - values:
-                      - tag1
-                      - tag2
-                    action: remove
-                  - values:
-                      - tag3
-                      - tag4
-                    action: add
       responses:
         '200':
           description: OK
@@ -801,7 +814,8 @@ paths:
         - Dataset CRUD APIs
       summary: Dataset List
       description: >-
-        This API allows you to list all datasets. User can apply filters on dataset status and type, sort the datasets as per requested order.
+        This API allows you to list all datasets. User can apply filters on
+        dataset status and type, sort the datasets as per requested order.
       requestBody:
         required: true
         content:
@@ -813,7 +827,7 @@ paths:
                 ver: v1
                 ts: '2024-04-10T16:10:50+05:30'
                 params:
-                  mid: 4a7f14c3-d61e-4d4f-be78-181834eeff6d
+                  msgid: 4a7f14c3-d61e-4d4f-be78-181834eeff6d
                 request:
                   filters:
                     type: master-dataset
