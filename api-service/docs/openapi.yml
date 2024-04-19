@@ -92,7 +92,7 @@ paths:
                     responseCode: OK
                     result:
                       id: sb-telemetry.1
-                      version_id: '1713442037275'
+                      version_key: '1713442037275'
                 example-1:
                   summary: Master Dataset Success
                   value:
@@ -106,7 +106,7 @@ paths:
                     responseCode: OK
                     result:
                       id: sb-telemetry-master.1
-                      version_id: '1713442037275'
+                      version_key: '1713442037275'
         '400':
           description: Bad Request
           content:
