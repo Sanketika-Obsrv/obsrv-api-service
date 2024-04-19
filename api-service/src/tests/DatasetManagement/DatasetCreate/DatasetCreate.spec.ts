@@ -45,6 +45,7 @@ describe("DATASET CREATE API", () => {
                     res.body.params.status.should.be.eq(fixture.status)
                     res.body.params.msgid.should.be.eq(fixture.msgid)
                     res.body.result.id.should.be.eq("telemetry")
+                    res.body.result.version_key.should.be.a("string")
                     done();
                 });
         });

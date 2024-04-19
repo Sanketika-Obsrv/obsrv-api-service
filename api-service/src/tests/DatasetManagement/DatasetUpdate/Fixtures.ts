@@ -7,11 +7,14 @@ export const requestStructure = {
     }
 }
 
+export const validVersionKey = "1713444815918"
+
 export const TestInputsForDatasetUpdate = {
 
     MINIMAL_DATASET_UPDATE_REQUEST: {
         ...requestStructure, request: {
             "dataset_id": "telemetry",
+            "version_key": validVersionKey,
             "name": "telemetry"
         }
     },
@@ -19,6 +22,7 @@ export const TestInputsForDatasetUpdate = {
     DATASET_UPDATE_TAG_ADD: {
         ...requestStructure, request: {
             "dataset_id": "telemetry",
+            "version_key": validVersionKey,
             "tags": [
                 {
                     "values": [
@@ -33,6 +37,7 @@ export const TestInputsForDatasetUpdate = {
     DATASET_UPDATE_TAG_REMOVE: {
         ...requestStructure, request: {
             "dataset_id": "telemetry",
+            "version_key": validVersionKey,
             "tags": [
                 {
                     "values": [
@@ -47,6 +52,7 @@ export const TestInputsForDatasetUpdate = {
     DATASET_UPDATE_DENORM_ADD: {
         ...requestStructure, request: {
             "dataset_id": "telemetry",
+            "version_key": validVersionKey,
             "denorm_config": {
                 "denorm_fields": [
                     {
@@ -64,6 +70,7 @@ export const TestInputsForDatasetUpdate = {
     DATASET_UPDATE_DENORM_REMOVE: {
         ...requestStructure, request: {
             "dataset_id": "telemetry",
+            "version_key": validVersionKey,
             "denorm_config": {
                 "denorm_fields": [
                     {
@@ -81,6 +88,7 @@ export const TestInputsForDatasetUpdate = {
     DATASET_UPDATE_TRANSFORMATIONS_ADD: {
         ...requestStructure, request: {
             "dataset_id": "telemetry",
+            "version_key": validVersionKey,
             "transformation_config": [
                 {
                     "values": {
@@ -98,6 +106,7 @@ export const TestInputsForDatasetUpdate = {
         ...requestStructure,
         request: {
             "dataset_id": "telemetry",
+            "version_key": validVersionKey,
             "dedup_config": {
                 "drop_duplicates": true,
                 "dedup_key": "mid"
@@ -108,6 +117,7 @@ export const TestInputsForDatasetUpdate = {
     DATASET_UPDATE_EXTRACTION_DROP_DUPLICATES: {
         ...requestStructure, request: {
             "dataset_id": "telemetry",
+            "version_key": validVersionKey,
             "extraction_config": {
                 "is_batch_event": true,
                 "extraction_key": "events",
@@ -122,6 +132,7 @@ export const TestInputsForDatasetUpdate = {
     DATASET_UPDATE_VALIDATION_VALIDATE: {
         ...requestStructure, request: {
             "dataset_id": "telemetry",
+            "version_key": validVersionKey,
             "validation_config": {
                 "validate": true,
                 "mode": "Strict"
@@ -132,6 +143,7 @@ export const TestInputsForDatasetUpdate = {
     DATASET_UPDATE_DATA_SCHEMA_VALID: {
         ...requestStructure, request: {
             "dataset_id": "telemetry",
+            "version_key": validVersionKey,
             "data_schema": {
                 "$schema": "https://json-schema.org/draft/2020-12/schema",
                 "type": "object",
@@ -154,6 +166,7 @@ export const TestInputsForDatasetUpdate = {
     DATASET_UPDATE_DATASET_CONFIG_VALID: {
         ...requestStructure, request: {
             "dataset_id": "telemetry",
+            "version_key": validVersionKey,
             "dataset_config": {
                 "data_key": "mid",
                 "timestamp_key": "ets"
@@ -164,6 +177,7 @@ export const TestInputsForDatasetUpdate = {
     DATASET_UPDATE_TRANSFORMATIONS_REMOVE: {
         ...requestStructure, request: {
             "dataset_id": "telemetry",
+            "version_key": validVersionKey,
             "transformation_config": [
                 {
                     "values": {
@@ -180,6 +194,7 @@ export const TestInputsForDatasetUpdate = {
     DATASET_UPDATE_TRANSFORMATIONS_UPDATE: {
         ...requestStructure, request: {
             "dataset_id": "telemetry",
+            "version_key": validVersionKey,
             "transformation_config": [
                 {
                     "values": {
@@ -197,6 +212,7 @@ export const TestInputsForDatasetUpdate = {
         ...requestStructure,
         request: {
             "dataset_id": "telemetry",
+            "version_key": validVersionKey,
             "name": "sb-telemetry",
             "validation_config": {
                 "validate": true,
@@ -303,6 +319,7 @@ export const TestInputsForDatasetUpdate = {
     DATASET_UPDATE_DUPLICATE_DENORM_KEY: {
         ...requestStructure, request: {
             "dataset_id": "telemetry",
+            "version_key": validVersionKey,
             "denorm_config": {
                 "denorm_fields": [
                     {
@@ -327,6 +344,7 @@ export const TestInputsForDatasetUpdate = {
     DATASET_UPDATE_WITH_SAME_TAGS_ADD: {
         ...requestStructure, request: {
             "dataset_id": "telemetry",
+            "version_key": validVersionKey,
             "name": "sb-telemetry",
             "tags": [
                 {
@@ -350,6 +368,7 @@ export const TestInputsForDatasetUpdate = {
     DATASET_UPDATE_WITH_SAME_DENORM_REMOVE: {
         ...requestStructure, request: {
             "dataset_id": "telemetry",
+            "version_key": validVersionKey,
             "name": "sb-telemetry",
             "denorm_config": {
                 "denorm_fields": [
@@ -375,6 +394,7 @@ export const TestInputsForDatasetUpdate = {
     DATASET_UPDATE_WITH_SAME_TRANSFORMATION_ADD_REMOVE: {
         ...requestStructure, request: {
             "dataset_id": "telemetry",
+            "version_key": validVersionKey,
             "name": "sb-telemetry",
             "transformation_config": [
                 {

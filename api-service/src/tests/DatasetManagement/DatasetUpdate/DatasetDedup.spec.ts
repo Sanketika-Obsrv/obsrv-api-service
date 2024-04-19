@@ -6,7 +6,7 @@ import httpStatus from "http-status";
 import { describe, it } from 'mocha';
 import { DatasetDraft } from "../../../models/DatasetDraft";
 import _ from "lodash";
-import { TestInputsForDatasetUpdate, msgid, requestStructure } from "./Fixtures";
+import { TestInputsForDatasetUpdate, msgid, requestStructure, validVersionKey } from "./Fixtures";
 import { apiId, invalidInputErrCode } from "../../../controllers/DatasetUpdate/DatasetUpdate"
 
 chai.use(spies);
@@ -22,7 +22,7 @@ describe("DATASET DEDUPE CONFIG UPDATE", () => {
     it("Success: Dataset dedupe configs updated with dedup key if duplicates need to be dropped", (done) => {
         chai.spy.on(DatasetDraft, "findOne", () => {
             return Promise.resolve({
-                id: "telemetry", status: "Draft"
+                id: "telemetry", status: "Draft", version_key: validVersionKey
             })
         })
         chai.spy.on(DatasetDraft, "update", () => {
@@ -40,6 +40,7 @@ describe("DATASET DEDUPE CONFIG UPDATE", () => {
                 res.body.params.status.should.be.eq("SUCCESS")
                 res.body.result.id.should.be.eq("telemetry")
                 res.body.result.message.should.be.eq("Dataset is updated successfully")
+                res.body.result.version_key.should.be.a("string")
                 done();
             });
     });
@@ -47,7 +48,7 @@ describe("DATASET DEDUPE CONFIG UPDATE", () => {
     it("Success: Dataset dedupe configs updated with default values if duplicates need to be dropped", (done) => {
         chai.spy.on(DatasetDraft, "findOne", () => {
             return Promise.resolve({
-                id: "telemetry", status: "Draft"
+                id: "telemetry", status: "Draft", version_key: validVersionKey
             })
         })
         chai.spy.on(DatasetDraft, "update", () => {
@@ -56,7 +57,7 @@ describe("DATASET DEDUPE CONFIG UPDATE", () => {
         chai
             .request(app)
             .patch("/v1/datasets/update")
-            .send({ ...requestStructure, request: { dataset_id: "telemetry", dedup_config: { drop_duplicates: false } } })
+            .send({ ...requestStructure, request: { dataset_id: "telemetry", version_key: validVersionKey, dedup_config: { drop_duplicates: false } } })
             .end((err, res) => {
                 console.log(res.body.result)
                 res.should.have.status(httpStatus.OK);
@@ -66,17 +67,18 @@ describe("DATASET DEDUPE CONFIG UPDATE", () => {
                 res.body.params.msgid.should.to.eq(msgid)
                 res.body.result.id.should.be.eq("telemetry")
                 res.body.result.message.should.be.eq("Dataset is updated successfully")
+                res.body.result.version_key.should.be.a("string")
                 done();
             });
     });
-    
+
 
 
     it("Failure: Dedup key not provided when duplicates need to be dropped", (done) => {
         chai
             .request(app)
             .patch("/v1/datasets/update")
-            .send({ ...requestStructure, request: { dataset_id: "telemetry", dedup_config: { drop_duplicates: true } } })
+            .send({ ...requestStructure, request: { dataset_id: "telemetry", version_key: validVersionKey, dedup_config: { drop_duplicates: true } } })
             .end((err, res) => {
                 res.should.have.status(httpStatus.BAD_REQUEST);
                 res.body.should.be.a("object")
@@ -88,5 +90,5 @@ describe("DATASET DEDUPE CONFIG UPDATE", () => {
                 done();
             });
     });
-    
+
 })
