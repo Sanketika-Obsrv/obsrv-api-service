@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import logger from "../../logger";
-import { getDraftDataset, getDuplicateDenormKey } from "../../services/DatasetService";
+import { getDraftDataset, getDuplicateDenormKey, setReqDatasetId } from "../../services/DatasetService";
 import _ from "lodash";
 import DatasetCreate from "./DatasetCreateValidationSchema.json";
 import { schemaValidation } from "../../services/ValidationService";
@@ -16,6 +16,9 @@ export const apiId = "api.datasets.create"
 
 const datasetCreate = async (req: Request, res: Response) => {
     try {
+        const datasetId = _.get(req, ["body", "request", "dataset_id"])
+        setReqDatasetId(req, datasetId)
+        
         const isRequestValid: Record<string, any> = schemaValidation(req.body, DatasetCreate)
 
         if (!isRequestValid.isValid) {

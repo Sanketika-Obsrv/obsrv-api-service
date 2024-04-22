@@ -10,7 +10,7 @@ import { DatasetDraft } from "../../models/DatasetDraft";
 import logger from "../../logger";
 import { defaultDatasetConfig } from "../../configs/DatasetConfigDefault";
 import { DatasetTransformationsDraft } from "../../models/TransformationDraft";
-import { getDraftTransformations } from "../../services/DatasetService";
+import { getDraftTransformations, setReqDatasetId } from "../../services/DatasetService";
 
 export const apiId = "api.datasets.update";
 export const invalidInputErrCode = "DATASET_UPDATE_INPUT_INVALID"
@@ -18,6 +18,9 @@ export const errorCode = "DATASET_UPDATE_FAILURE"
 
 const datasetUpdate = async (req: Request, res: Response) => {
     try {
+        const datasetId = _.get(req, ["body", "request", "dataset_id"])
+        setReqDatasetId(req, datasetId)
+
         const isRequestValid: Record<string, any> = schemaValidation(req.body, DatasetUpdate)
         if (!isRequestValid.isValid) {
             logger.error({ code: invalidInputErrCode, apiId, message: isRequestValid.message })
