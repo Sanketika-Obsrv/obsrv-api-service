@@ -100,11 +100,12 @@ const isValidTemplate = (templateData: string, type: string) => {
         } catch (err: any) { console.log(err); validTemplate = false; }
         return validTemplate;
     }
+    else {
+        return !validTemplate
+    }
 }
 
 export const validateTemplate = async (req: Request, validateData: boolean) => {
-    try{
-    console.log("request", typeof(req.body))
     let { templateName } = req.params;
     let { type = "json" } = req.query;
     let templateData: string = req.body.toString()
@@ -118,9 +119,4 @@ export const validateTemplate = async (req: Request, validateData: boolean) => {
     templateData = stringifyVars(templateData, type);
     const fileExists = await existingTemplate(getFileName(templateName));
     return { templateData, templateName, fileExists, validTemplate, type };
-    }
-    catch(e){
-        console.log({e})
-        throw e
-    }
 }
