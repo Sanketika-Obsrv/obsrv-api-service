@@ -9,12 +9,21 @@ export const config = {
   "version": "1.0",
   "query_api": {
     "druid": {
+      "queryType": "realtime",
       "host": process.env.druid_host || "http://localhost",
       "port": process.env.druid_port || 8888,
       "sql_query_path": "/druid/v2/sql/",
       "native_query_path": "/druid/v2",
       "list_datasources_path": "/druid/v2/datasources",
       "submit_ingestion": "druid/indexer/v1/supervisor"
+    },
+    "lakehouse": {
+      "queryType": "lakehouse",
+      "host": process.env.lakehouse_host || "http://localhost",
+      "port": process.env.lakehouse_port || 8080,
+      "catalog": process.env.lakehouse_catalog || "hudi_connector",
+      "schema": process.env.lakehouse_schema || "obsrv",
+      "default_user": process.env.lakehouse_default_user || "admin"
     }
   },
   "db_connector_config": {

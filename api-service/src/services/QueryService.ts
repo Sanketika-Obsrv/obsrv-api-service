@@ -6,6 +6,7 @@ import { ResponseHandler } from "../helpers/ResponseHandler";
 import { IConnector } from "../models/DatasetModels";
 import { ErrorResponseHandler } from "../helpers/ErrorResponseHandler";
 import { updateTelemetryAuditEvent } from "./telemetry";
+import { executeLakehouseQuery } from "../helpers/LakehouseUtil";
 
 const telemetryObject = { id: null, type: "datasource", ver: "1.0.0" };
 
@@ -34,9 +35,15 @@ export class QueryService {
 
   public executeSqlQuery = async (req: Request, res: Response, next: NextFunction) => {
     try {
+      let result: any = {}
       updateTelemetryAuditEvent({ request: req, object: { ...telemetryObject, id: _.get(req, 'body.context.dataSource')} });
-      const result = await this.connector.post(config.query_api.druid.sql_query_path, req.body.querySql);
-      ResponseHandler.successResponse(req, res, { status: result.status, data: result.data });
+      if (req.body?.context?.dataSourceType === config.query_api.lakehouse.queryType) {
+        result.data = await executeLakehouseQuery(req.body.querySql.query)
+      }
+      else{
+      result = await this.connector.post(config.query_api.druid.sql_query_path, req.body.querySql);
+      }
+      ResponseHandler.successResponse(req, res, { status: result.status || 200, data: result.data });
     } catch (error: any) { this.errorHandler.handleError(req, res, next, error, false); }
   }
 }

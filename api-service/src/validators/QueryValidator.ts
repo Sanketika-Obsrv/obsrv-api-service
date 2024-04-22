@@ -166,23 +166,33 @@ export class QueryValidator implements IValidator {
     public async setDatasourceRef(dataSource: string, payload: any): Promise<ValidationStatus> {
         try {
             const granularity = _.get(payload, 'context.granularity')
-            let dataSourceRef = await this.getDataSourceRef(dataSource, granularity);
-            await this.validateDatasource(dataSourceRef)
-            if (payload.querySql) {
+            const dataSourceType = _.get(payload, 'context.dataSourceType', config.query_api.druid.queryType)
+            let dataSourceRef = await this.getDataSourceRef(dataSource, granularity, dataSourceType);
+            if(dataSourceType === config.query_api.druid.queryType) await this.validateDatasource(dataSourceRef)
+            if (payload?.querySql && dataSourceType === config.query_api.druid.queryType) {
                 payload.querySql.query = payload.querySql.query.replace(dataSource, dataSourceRef)
+            }
+            else if(payload?.querySql && dataSourceType === config.query_api.lakehouse.queryType) {
+                payload.querySql.query = payload.querySql.query.replace(dataSource, dataSourceRef).replace(/"/g, "")
             }
             else {
                 payload.query.dataSource = dataSourceRef
             }
             return { isValid: true };
         } catch (error: any) {
-            console.log(error?.message)
             return { isValid: false, message: error.message || "error ocuured while fetching datasource record", code: error.code || httpStatus[ "400_NAME" ] };
         }
     }
 
-    public async getDataSourceRef(datasource: string, granularity: string | undefined): Promise<string> {
-        const records: any = await dbConnector.readRecords("datasources", { "filters": { "dataset_id": datasource } })
+    public async getDataSourceRef(datasource: string, granularity: string | undefined, dataSourceType: string): Promise<string> {
+        let storageType = dataSourceType === config.query_api.lakehouse.queryType ? config.datasource_storage_types.datalake : config.datasource_storage_types.druid
+        const records: any = await dbConnector.readRecords("datasources", { "filters": { "dataset_id": datasource, "type": storageType } })
+        if (records.length == 0) {
+            const error = { ...constants.INVALID_DATASOURCE }
+            error.message = error.message.replace('${datasource}', datasource)
+            throw error
+        }
+        if(storageType === config.datasource_storage_types.datalake) return `${config.query_api.lakehouse.catalog}.${config.query_api.lakehouse.schema}.${records[0].datasource_ref}_ro`
         const record = records.filter((record: any) => {
             const aggregatedRecord = _.get(record, "metadata.aggregated")
             if(granularity)

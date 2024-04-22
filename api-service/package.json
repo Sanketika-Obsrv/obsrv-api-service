@@ -38,6 +38,7 @@
     "multiparty": "4.2.1",
     "pg": "^8.8.0",
     "prom-client": "^14.2.0",
+    "trino-client": "^0.2.2",
     "uuid": "3.1.0",
     "winston": "~2.4.3",
     "winston-daily-rotate-file": "~3.2.1"
