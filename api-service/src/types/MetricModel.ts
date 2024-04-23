@@ -12,3 +12,7 @@ export interface Metric {
     metricLabels: Labels,
     duration: number
 }
+
+export enum Entity {
+    Data_in = "data-in", Data_out = "data-out", Management = "management"
+}

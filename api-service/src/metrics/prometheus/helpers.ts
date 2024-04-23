@@ -1,9 +1,9 @@
 import { NextFunction, Response } from "express";
 import { incrementApiCalls, incrementFailedApiCalls, incrementSuccessfulApiCalls, setQueryResponseTime } from ".";
 import _ from "lodash";
-import { Metric } from "../../types/MetricModel";
+import { Entity, Metric } from "../../types/MetricModel";
 
-export const onRequest = ({ entity = "management" }: any) => (req: any, res: Response, next: NextFunction) => {
+export const onRequest = ({ entity = Entity.Management }: any) => (req: any, res: Response, next: NextFunction) => {
     const startTime = Date.now();
     req.startTime = startTime;
     req.entity = entity;
