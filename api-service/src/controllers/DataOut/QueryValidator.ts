@@ -198,6 +198,6 @@ const setDatasourceRef = async (dataSourceName: string, payload: any): Promise<a
         return true;
     } catch (error: any) {
         logger.error({ apiId, message: `Datasource not found`, code: errCode.notFound })
-        return { message: `Datasource not found`, statusCode: 404, errCode: "NOT_FOUND", code: errCode.notFound };
+        return { message: `Table not found`, statusCode: 404, errCode: "NOT_FOUND", code: errCode.notFound };
     }
 }

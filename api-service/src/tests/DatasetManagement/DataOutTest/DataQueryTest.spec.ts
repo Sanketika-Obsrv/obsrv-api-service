@@ -95,7 +95,7 @@ describe("QUERY API TESTS", () => {
             .end((err, res) => {
                 res.should.have.status(404);
                 res.body.params.status.should.be.eq("FAILED");
-                res.body.error.message.should.be.eq("Datasource not found");
+                res.body.error.message.should.be.eq("Table not found");
                 res.body.responseCode.should.be.eq("NOT_FOUND");
                 res.body.error.code.should.be.eq("DATA_OUT_SOURCE_NOT_FOUND");
                 nock.cleanAll();
