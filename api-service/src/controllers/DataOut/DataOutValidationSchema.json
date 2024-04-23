@@ -1,21 +1,69 @@
 {
-    "type": "object",
-    "properties": {
-      "query": {
-        "oneOf": [
-          { "type": "string" },
-          { "type": "object" }
-        ]
+  "type": "object",
+  "required": [
+    "id",
+    "ver",
+    "ts",
+    "params",
+    "context",
+    "query"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "enum": [
+        "api.data.out"
+      ]
+    },
+    "ver": {
+      "type": "string"
+    },
+    "ts": {
+      "type": "string"
+    },
+    "params": {
+      "type": "object",
+      "properties": {
+        "msgid": {
+          "type": "string"
+        }
       },
-      "context": {
-        "type": "object",
-        "properties": {
-          "granularity": {
-            "type": "string",
-            "enum": ["five_minute", "ten_minute", "fifteen_minute", "thirty_minute", "hour", "six_hour", "eight_hour", "day", "week", "month", "quarter", "year"]
-          }
+      "required": [
+        "msgid"
+      ],
+      "additionalProperties": false
+    },
+    "query": {
+      "oneOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "object"
+        }
+      ]
+    },
+    "context": {
+      "type": "object",
+      "properties": {
+        "table": {
+          "type": "string",
+          "enum": [
+            "five_minute",
+            "ten_minute",
+            "fifteen_minute",
+            "thirty_minute",
+            "hour",
+            "six_hour",
+            "eight_hour",
+            "day",
+            "week",
+            "month",
+            "quarter",
+            "year"
+          ]
         }
       }
-    },
-    "required": ["query"]
+    }
   }
+}
