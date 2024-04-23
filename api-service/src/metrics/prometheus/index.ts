@@ -13,10 +13,10 @@ const configureRegistry = (register: client.Registry) => {
 }
 
 
-const incrementApiCalls = (labels: Record<string, any> = {}) => totalApiCallsMetric.labels(labels).inc();
-const setQueryResponseTime = (duration: any, labels: Record<string, any> = {}) => queryResponseTimeMetric.labels(labels).set(duration);
-const incrementFailedApiCalls = (labels: Record<string, any>) => failedApiCallsMetric.labels(labels).inc();
-const incrementSuccessfulApiCalls = (labels: Record<string, any>) => successApiCallsMetric.labels(labels).inc();
+const incrementApiCalls = ({ labels = {} }: Record<string, any>) => totalApiCallsMetric.labels(labels).inc();
+const setQueryResponseTime = ({ labels = {}, duration }: Record<string, any>) => queryResponseTimeMetric.labels(labels).set(duration);
+const incrementFailedApiCalls = ({ labels = {} }: Record<string, any>) => failedApiCallsMetric.labels(labels).inc();
+const incrementSuccessfulApiCalls = ({ labels = {} }: Record<string, any>) => successApiCallsMetric.labels(labels).inc();
 
 //register the metrics
 configureRegistry(register);
