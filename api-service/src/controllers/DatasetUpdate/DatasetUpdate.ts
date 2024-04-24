@@ -10,7 +10,7 @@ import { DatasetDraft } from "../../models/DatasetDraft";
 import logger from "../../logger";
 import { defaultDatasetConfig } from "../../configs/DatasetConfigDefault";
 import { DatasetTransformationsDraft } from "../../models/TransformationDraft";
-import { getDraftTransformations } from "../../services/DatasetService";
+import { getDraftTransformations, setReqDatasetId } from "../../services/DatasetService";
 
 export const apiId = "api.datasets.update";
 export const invalidInputErrCode = "DATASET_UPDATE_INPUT_INVALID"
@@ -18,6 +18,9 @@ export const errorCode = "DATASET_UPDATE_FAILURE"
 
 const datasetUpdate = async (req: Request, res: Response) => {
     try {
+        const datasetId = _.get(req, ["body", "request", "dataset_id"])
+        setReqDatasetId(req, datasetId)
+
         const isRequestValid: Record<string, any> = schemaValidation(req.body, DatasetUpdate)
         if (!isRequestValid.isValid) {
             logger.error({ code: invalidInputErrCode, apiId, message: isRequestValid.message })
@@ -42,7 +45,7 @@ const datasetUpdate = async (req: Request, res: Response) => {
             } as ErrorObject, req, res);
         }
 
-        const { isDatasetExists, datasetStatus, invalidVersionKey } = await checkDatasetExists(dataset_id, version_key);
+        const { isDatasetExists, datasetStatus, invalidVersionKey, validVersionKey } = await checkDatasetExists(dataset_id, version_key);
         if (!isDatasetExists) {
             const code = "DATASET_NOT_EXISTS"
             logger.error({ code, apiId, message: `Dataset does not exists with id:${dataset_id}` })
@@ -67,7 +70,7 @@ const datasetUpdate = async (req: Request, res: Response) => {
 
         if (invalidVersionKey) {
             const code = "DATASET_OUTDATED"
-            logger.error({ code, apiId, message: `The dataset:${dataset_id} with version_key:${version_key} is outdated. Please try to fetch latest changes of the dataset and perform the updates` })
+            logger.error({ code, apiId, message: `The dataset:${dataset_id} with version_key:${version_key} is outdated. Please try to fetch latest changes of the dataset with version key:${validVersionKey} and perform the updates` })
             return ResponseHandler.errorResponse({
                 code,
                 message: "The dataset is outdated. Please try to fetch latest changes of the dataset and perform the updates",
@@ -83,7 +86,7 @@ const datasetUpdate = async (req: Request, res: Response) => {
             return ResponseHandler.errorResponse({
                 code,
                 statusCode: 400,
-                message: `Dataset contains duplicate denorm out keys:[${duplicateDenormKeys}}]`,
+                message: `Dataset contains duplicate denorm out keys:[${duplicateDenormKeys}]`,
                 errCode: "BAD_REQUEST"
             } as ErrorObject, req, res);
         }
@@ -133,8 +136,9 @@ const manageTransformations = async (transformations: Record<string, any>, datas
 const checkDatasetExists = async (dataset_id: string, version_key: string): Promise<Record<string, any>> => {
     const datasetExists: Record<string, any> | null = await getExistingDataset(dataset_id)
     if (datasetExists) {
-        if (_.get(datasetExists, "version_key") !== version_key) {
-            return { isDatasetExists: true, datasetStatus: datasetExists.status, invalidVersionKey: true }
+        const validVersionKey = _.get(datasetExists, "version_key")
+        if (validVersionKey !== version_key) {
+            return { isDatasetExists: true, datasetStatus: datasetExists.status, invalidVersionKey: true, validVersionKey }
         }
         return { isDatasetExists: true, datasetStatus: datasetExists.status }
     } else {

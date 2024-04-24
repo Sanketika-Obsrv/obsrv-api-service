@@ -10,6 +10,7 @@ import { DatasetTransformationsDraft } from "../../models/TransformationDraft";
 import { DatasetTransformations } from "../../models/Transformation";
 import { DatasetDraft } from "../../models/DatasetDraft";
 import { Dataset } from "../../models/Dataset";
+import { setReqDatasetId } from "../../services/DatasetService";
 
 export const apiId = "api.datasets.read";
 export const errorCode = "DATASET_READ_FAILURE"
@@ -18,6 +19,8 @@ const datasetRead = async (req: Request, res: Response) => {
     try {
         const { dataset_id } = req.params;
         const { fields, status = DatasetStatus.Live } = req.query;
+
+        setReqDatasetId(req, dataset_id)
 
         const invalidFields = !_.isEmpty(fields) ? getInvalidFields({ datasetFields: fields, status }) : []
         if (!_.isEmpty(invalidFields)) {

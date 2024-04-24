@@ -8,10 +8,10 @@ import _ from "lodash";
 
 const ResponseHandler = {
   successResponse: (req: Request, res: Response, result: Result) => {
-    const { entity, body } = req as any;
-    entity && onSuccess(req)
+    const { body, entity } = req as any;
     const msgid = _.get(body, ["params", "msgid"])
     res.status(result.status || 200).json(ResponseHandler.refactorResponse({ id: (req as any).id, result: result.data, msgid }));
+    entity && onSuccess(req, res)
   },
 
   routeNotFound: (req: Request, res: Response, next: NextFunction) => {
@@ -27,9 +27,9 @@ const ResponseHandler = {
     const { statusCode, message, errCode, code = "INTERNAL_SERVER_ERROR", trace = "" } = error;
     const { id, entity, body } = req as any;
     const msgid = _.get(body, ["params", "msgid"])
-    entity && onFailure(req)
     const response = ResponseHandler.refactorResponse({ id, msgid, params: { status: "FAILED" }, responseCode: errCode || httpStatus["500_NAME"] })
     res.status(statusCode || httpStatus.INTERNAL_SERVER_ERROR).json({ ...response, error: { code, message, trace } });
+    entity && onFailure(req, res)
   },
 
   setApiId: (id: string) => (req: Request, res: Response, next: NextFunction) => {
@@ -39,7 +39,7 @@ const ResponseHandler = {
 
   flatResponse: (req: Request, res: Response, result: Result) => {
     const { entity } = req as any;
-    entity && onSuccess(req)
+    entity && onSuccess(req, res)
     res.status(result.status).send(result.data);
   },
 }
