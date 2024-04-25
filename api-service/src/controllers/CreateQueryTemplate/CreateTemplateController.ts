@@ -34,6 +34,7 @@ export const createQueryTemplate = async (req: Request, res: Response) => {
 
         const data = transformRequest(req);
         await QueryTemplate.create(data)
+        logger.info({ apiId, message: `Query template created successfully` })
         return ResponseHandler.successResponse(req, res, { status: 200, data: { message: "The query template has been saved successfully" } });
     }
     catch (error) {
