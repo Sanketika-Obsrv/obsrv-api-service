@@ -2,9 +2,13 @@ import { sequelize } from "../connections/databaseConnection";
 import { DataTypes } from 'sequelize';
 
 export const QueryTemplate = sequelize.define('query_templates', {
-    template_name: {
+    template_id: {
         type: DataTypes.STRING,
         primaryKey: true,
+        allowNull: false
+    },
+    template_name: {
+        type: DataTypes.STRING,
         allowNull: false
     },
     query: {

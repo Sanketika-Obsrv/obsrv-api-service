@@ -1,14 +1,12 @@
-import { config } from "../../configs/Config";
 import * as _ from "lodash";
 
 const template_required_variables = process.env.template_required_vars ? process.env.template_required_vars.split(",") : ["DATASET", "STARTDATE", "ENDDATE",];
-const template_supported_queries = process.env.template_supported_queries ? process.env.template_supported_queries.split(",") : ["json", "sql"]
 
-export const validateTemplate = async (req: Request, validateData: boolean) => {
+export const validateTemplate = async (req: Request) => {
     const type: any = _.get(req, "request.query_type");
     const query = _.get(req, 'request');
-    let templateData: string = JSON.stringify(query);
-    let validTemplate = isValidTemplate(templateData, type);
+    const templateData: string = JSON.stringify(query);
+    const validTemplate = isValidTemplate(templateData, type);
     return { validTemplate };
 }
 
