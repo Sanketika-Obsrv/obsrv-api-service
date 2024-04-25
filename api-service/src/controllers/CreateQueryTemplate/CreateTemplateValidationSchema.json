@@ -1,0 +1,74 @@
+{
+    "type": "object",
+    "properties": {
+        "id": {
+            "type": "string",
+            "enum": [
+                "query.template.create"
+            ]
+        },
+        "ver": {
+            "type": "string"
+        },
+        "ts": {
+            "type": "string"
+        },
+        "params": {
+            "type": "object",
+            "properties": {
+                "msgid": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "msgid"
+            ],
+            "additionalProperties": false
+        },
+        "request": {
+            "type": "object",
+            "oneOf": [
+                {
+                    "properties": {
+                        "query_type": {
+                            "type": "string",
+                            "enum": [
+                                "sql"
+                            ]
+                        },
+                        "query": {
+                            "type": "string"
+                        }
+                    },
+                    "additionalProperties": false
+                },
+                {
+                    "properties": {
+                        "query_type": {
+                            "type": "string",
+                            "enum": [
+                                "json"
+                            ]
+                        },
+                        "query": {
+                            "type": "object"
+                        }
+                    },
+                    "additionalProperties": false
+                }
+            ],
+            "required": [
+                "query_type",
+                "query"
+            ]
+        }
+    },
+    "required": [
+        "id",
+        "ver",
+        "ts",
+        "params",
+        "request"
+    ],
+    "additionalProperties": false
+}
