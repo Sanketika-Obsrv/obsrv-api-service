@@ -7,35 +7,42 @@ import { getQueryTemplate } from "../../services/QueryTemplateService";
 import * as _ from "lodash";
 import { validateTemplate } from "./QueryTemplateValidator";
 import { QueryTemplate } from "../../models/QueryTemplate";
+import slug from "slug";
 const apiId = "query.template.create";
 
 export const createQueryTemplate = async (req: Request, res: Response) => {
     try {
-        const templateName = req.params?.templateName;
+        const isValidName = validateName(req.params?.templateName);
+        if (!isValidName) {
+            logger.error({ apiId, message: "Invalid name provided", code: "QUERY_TEMPLATE_INVALID_INPUT" })
+            return ResponseHandler.errorResponse({ message: "Template name should contain alphanumeric characters and single space between characters", statusCode: 400, errCode: "BAD_REQUEST", code: "QUERY_TEMPLATE_INVALID_INPUT" }, req, res);
+        }
+        const templateName: string = req.params?.templateName;
+        const templateId: string = slug(templateName, '-');
         const requestBody = req.body;
         const isValidSchema = schemaValidation(requestBody, validationSchema)
-        console.log({ isValidSchema })
+        
         if (!isValidSchema?.isValid) {
             logger.error({ apiId, message: isValidSchema?.message, code: "QUERY_TEMPLATE_INVALID_INPUT" })
             return ResponseHandler.errorResponse({ message: isValidSchema?.message, statusCode: 400, errCode: "BAD_REQUEST", code: "QUERY_TEMPLATE_INVALID_INPUT" }, req, res);
         }
 
-        const isTemplateExists = await getQueryTemplate(templateName)
+        const isTemplateExists = await getQueryTemplate(templateId)
         if (isTemplateExists !== null) {
             logger.error({ apiId, message: `Template ${templateName} already exists`, code: "QUERY_TEMPLATE_ALREADY_EXISTS" })
             return ResponseHandler.errorResponse({ message: `Template ${templateName} already exists`, statusCode: 409, errCode: "CONFLICT", code: "QUERY_TEMPLATE_ALREADY_EXISTS" }, req, res);
         }
 
-        const { validTemplate } = await validateTemplate(requestBody, true);
+        const { validTemplate } = await validateTemplate(requestBody);
         if (!validTemplate) {
             logger.error({ apiId, message: `Invalid template provided, A template should consist of variables ["DATASET", "STARTDATE", "ENDDATE"] and type of json,sql`, code: "QUERY_TEMPLATE_INVALID" })
             return ResponseHandler.errorResponse({ statusCode: 400, message: `Invalid template provided, A template should consist of variables ["DATASET", "STARTDATE", "ENDDATE"] and type of json,sql`, errCode: "BAD_REQUEST", code: "QUERY_TEMPLATE_INVALID" }, req, res)
         }
 
-        const data = transformRequest(req);
+        const data = transformRequest(requestBody, templateName);
         await QueryTemplate.create(data)
         logger.info({ apiId, message: `Query template created successfully` })
-        return ResponseHandler.successResponse(req, res, { status: 200, data: { message: "The query template has been saved successfully" } });
+        return ResponseHandler.successResponse(req, res, { status: 200, data: { template_id: templateId, template_name: templateName, message: `The query template has been saved successfully` } });
     }
     catch (error) {
         logger.error(error)
@@ -48,14 +55,21 @@ export const createQueryTemplate = async (req: Request, res: Response) => {
     }
 }
 
-const transformRequest = (req: any) => {
-    const templateName = _.get(req, "params.templateName");
-    const type: any = _.get(req, "body.request.query_type");
-    const query = _.get(req, "body.request.query")
+const transformRequest = (req: any, templateName: string) => {
+    console.log({ templateName })
+    const type: any = _.get(req, "request.query_type");
+    const query = _.get(req, "request.query")
     const data = {
+        template_id: slug(templateName, '-'),
         template_name: templateName,
         query_type: type,
         query: query
     }
     return data
+}
+
+const validateName = (name: string) => {
+    // Regular expression to match alphanumeric characters, and single space between characters
+    let regex = /^(?!.*\s{2,})[a-zA-Z0-9_ -]+$/;
+    return regex.test(name);
 }
