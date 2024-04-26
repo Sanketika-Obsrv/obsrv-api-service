@@ -17,7 +17,7 @@ export const router = express.Router();
 
 router.post(`/v1/data/in/:datasetId`, setApiId("api.data.in"), onRequest({ entity: Entity.Data_in }), dataIn);
 router.post('/v1/data/query/:datasetId', setApiId("api.data.out"), onRequest({ entity: Entity.Data_out }), dataOut);
-router.post("/v1/datasets/create", setApiId("api.datasets.create"), onRequest({ entity: Entity.Management }), setResmsgid, DatasetCreate)
+router.post("/v1/datasets/create", setApiId("api.datasets.create"), onRequest({ entity: Entity.Management }), DatasetCreate)
 router.patch("/v1/datasets/update", setApiId("api.datasets.update"), onRequest({ entity: Entity.Management }), DatasetUpdate)
 router.get("/v1/datasets/read/:dataset_id", setApiId("api.datasets.read"), onRequest({ entity: Entity.Management }), DatasetRead)
 router.post("/v1/datasets/list", setApiId("api.datasets.list"), onRequest({ entity: Entity.Management }), DatasetList)
