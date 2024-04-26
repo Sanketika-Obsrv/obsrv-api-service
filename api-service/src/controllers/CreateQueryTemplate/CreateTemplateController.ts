@@ -21,7 +21,7 @@ export const createQueryTemplate = async (req: Request, res: Response) => {
         const templateId: string = slug(templateName, '-');
         const requestBody = req.body;
         const isValidSchema = schemaValidation(requestBody, validationSchema)
-        
+
         if (!isValidSchema?.isValid) {
             logger.error({ apiId, message: isValidSchema?.message, code: "QUERY_TEMPLATE_INVALID_INPUT" })
             return ResponseHandler.errorResponse({ message: isValidSchema?.message, statusCode: 400, errCode: "BAD_REQUEST", code: "QUERY_TEMPLATE_INVALID_INPUT" }, req, res);
@@ -70,6 +70,6 @@ const transformRequest = (req: any, templateName: string) => {
 
 const validateName = (name: string) => {
     // Regular expression to match alphanumeric characters, and single space between characters
-    let regex = /^(?!.*\s{2,})[a-zA-Z0-9_ -]+$/;
+    const regex = /^(?!.*\s{2,})[a-zA-Z0-9_ -]+$/;
     return regex.test(name);
 }
