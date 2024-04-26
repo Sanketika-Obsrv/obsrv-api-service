@@ -1,6 +1,5 @@
 import * as _ from "lodash";
-
-const template_required_variables = process.env.template_required_vars ? process.env.template_required_vars.split(",") : ["DATASET", "STARTDATE", "ENDDATE",];
+import { config } from "../../configs/Config";
 
 export const validateTemplate = async (req: Request) => {
     const type: any = _.get(req, "request.query_type");
@@ -12,7 +11,7 @@ export const validateTemplate = async (req: Request) => {
 
 const isValidTemplate = (templateData: string, type: string) => {
     let validTemplate = false;
-    const requiredVars = requiredVariablesExist(template_required_variables, getTemplateVariables(templateData));
+    const requiredVars = requiredVariablesExist(config?.template_config?.template_required_variables, getTemplateVariables(templateData));
     if (!requiredVars) return validTemplate;
     if (type === "json") {
         let data = _.cloneDeep(stringifyVars(templateData, type));
@@ -24,7 +23,7 @@ const isValidTemplate = (templateData: string, type: string) => {
         try {
             JSON.parse(data);
             validTemplate = true;
-        } catch (err: any) { console.log(err); validTemplate = false; }
+        } catch (err: any) { validTemplate = false; }
         return validTemplate;
     }
     else {
