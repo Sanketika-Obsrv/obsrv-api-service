@@ -30,6 +30,9 @@
             "oneOf": [
                 {
                     "properties": {
+                        "template_name": {
+                            "type": "string"
+                        },
                         "query_type": {
                             "type": "string",
                             "enum": [
@@ -44,6 +47,9 @@
                 },
                 {
                     "properties": {
+                        "template_name": {
+                            "type": "string"
+                        },
                         "query_type": {
                             "type": "string",
                             "enum": [
