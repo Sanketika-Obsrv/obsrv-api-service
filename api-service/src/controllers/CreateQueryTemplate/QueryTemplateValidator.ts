@@ -9,7 +9,7 @@ export const validateTemplate = async (req: Request) => {
 }
 
 const isValidTemplate = (templateData: string) => {
-    let validTemplate = false;
+    const validTemplate = false;
     const requiredVars = requiredVariablesExist(config?.template_config?.template_required_variables, getTemplateVariables(templateData));
     if (!requiredVars) return validTemplate;
     else {
