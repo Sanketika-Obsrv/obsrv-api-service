@@ -8,7 +8,6 @@ const apiId = "query.template.read";
 export const readQueryTemplate = async (req: Request, res: Response) => {
     try {
         const template_id = _.get(req, 'params.templateId');
-        const msgid = _.get(req, "body.params.msgid");
         const resmsgid = _.get(res, "resmsgid");
 
         const isTemplateExists = await getQueryTemplate(template_id);
