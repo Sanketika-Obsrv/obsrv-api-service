@@ -11,7 +11,9 @@ export const validateTemplate = async (req: Request) => {
 const isValidTemplate = (templateData: string) => {
     const validTemplate = false;
     const requiredVars = requiredVariablesExist(config?.template_config?.template_required_variables, getTemplateVariables(templateData));
-    if (!requiredVars) return validTemplate;
+    if (!requiredVars) {
+        return validTemplate;
+    }
     else {
         return !validTemplate
     }
@@ -26,7 +28,11 @@ const getTemplateVariables = (templateData: string) => {
 }
 
 const requiredVariablesExist = (requiredVars: string[], templateVariables: string[]) => {
-    if (_.size(_.difference(requiredVars, templateVariables)) === 0)
+    if (_.size(_.difference(requiredVars, templateVariables)) === 0) {
+
         return true;
-    else return false;
+    }
+    else {
+        return false;
+    }
 }
