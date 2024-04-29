@@ -2,42 +2,19 @@ import * as _ from "lodash";
 import { config } from "../../configs/Config";
 
 export const validateTemplate = async (req: Request) => {
-    const type: any = _.get(req, "request.query_type");
-    const query = _.get(req, 'request');
-    const templateData: string = JSON.stringify(query);
-    const validTemplate = isValidTemplate(templateData, type);
+    const query = _.get(req, 'request.query');
+    const templateData: any = _.isObject(query) ? JSON.stringify(query) : query;
+    const validTemplate = isValidTemplate(templateData);
     return { validTemplate };
 }
 
-const isValidTemplate = (templateData: string, type: string) => {
+const isValidTemplate = (templateData: string) => {
     let validTemplate = false;
     const requiredVars = requiredVariablesExist(config?.template_config?.template_required_variables, getTemplateVariables(templateData));
     if (!requiredVars) return validTemplate;
-    if (type === "json") {
-        let data = _.cloneDeep(stringifyVars(templateData, type));
-        getTemplateVariables(data).map((variable: string) => {
-            const varRegex = new RegExp(`"{{${variable}}}"`, 'ig');
-            data = data.replace(varRegex, `""`);
-            data = data.replace(/"""/g, `"`);
-        });
-        JSON.parse(data);
-        validTemplate = true;
-        return validTemplate;
-    }
     else {
         return !validTemplate
     }
-}
-
-const stringifyVars = (templateData: string, queryType: string) => {
-    getTemplateVariables(templateData).map((variable: string) => {
-        const varRegex = new RegExp(`{{${variable}}}`, 'ig');
-        if (queryType === "json" && (variable === "STARTDATE" || variable === "ENDDATE")) {
-            return templateData = templateData.replace(varRegex, `{{${variable}}}`);
-        }
-        return templateData = templateData.replace(varRegex, `"{{${variable}}}"`);
-    });
-    return templateData;
 }
 
 const getTemplateVariables = (templateData: string) => {
