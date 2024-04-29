@@ -12,10 +12,10 @@ export const readQueryTemplate = async (req: Request, res: Response) => {
 
         const isTemplateExists = await getQueryTemplate(template_id);
         if (isTemplateExists === null) {
-            logger.error({ apiId, msgid, resmsgid, requestBody: req?.body, message: `Template ${template_id} does not exists`, code: "QUERY_TEMPLATE_NOT_EXISTS" })
+            logger.error({ apiId, resmsgid, requestBody: req?.body, message: `Template ${template_id} does not exists`, code: "QUERY_TEMPLATE_NOT_EXISTS" })
             return ResponseHandler.errorResponse({ message: `Template ${template_id} does not exists`, statusCode: 404, errCode: "NOT_FOUND", code: "QUERY_TEMPLATE_NOT_EXISTS" }, req, res);
         }
-        logger.info({ apiId, msgid, resmsgid, requestBody: req?.body, message: `Template read successfully with id: ${template_id}` })
+        logger.info({ apiId, resmsgid, requestBody: req?.body, message: `Template read successfully with id: ${template_id}` })
         return ResponseHandler.successResponse(req, res, { status: 200, data: isTemplateExists?.dataValues });
     }
     catch (error) {
