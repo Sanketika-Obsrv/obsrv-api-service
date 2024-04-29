@@ -11,8 +11,8 @@ export const listQueryTemplates = async (req: Request, res: Response) => {
         const limit: any = _.get(req, "query.limit")
         const offset: any = _.get(req, "query.offset")
 
-        const isTemplateExists = await listTemplates(limit, offset);
-        const templateData = _.map(isTemplateExists, (data) => {
+        const templates = await listTemplates(limit, offset);
+        const templateData = _.map(templates, (data) => {
             return data?.dataValues
         })
 
