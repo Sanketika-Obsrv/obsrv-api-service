@@ -8,3 +8,22 @@ export const getQueryTemplate = async (template_id: string): Promise<any> => {
     });
     return template
 }
+
+export const deleteTemplate = async (template_id: string): Promise<any> => {
+    const template = await QueryTemplate.destroy({
+        where: {
+            template_id: template_id,
+        },
+    });
+    return template
+}
+
+export const listTemplates = async (limit: number, offset: number): Promise<any> => {
+    const template = await QueryTemplate.findAll({
+        where: {
+        },
+        limit: limit || 10,
+        offset: offset || 10,
+    });
+    return template
+}
