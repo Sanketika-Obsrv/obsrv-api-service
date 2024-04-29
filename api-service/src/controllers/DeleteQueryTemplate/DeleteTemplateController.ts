@@ -10,8 +10,8 @@ export const deleteQueryTemplate = async (req: Request, res: Response) => {
     try {
         const resmsgid = _.get(res, "resmsgid");
 
-        const isTemplateExists = await deleteTemplate(template_id);
-        if (isTemplateExists === 0) {
+        const deleteResponse = await deleteTemplate(template_id);
+        if (deleteResponse === 0) {
             logger.error({ apiId, resmsgid, template_id, message: `Template ${template_id} does not exists`, code: "QUERY_TEMPLATE_NOT_EXISTS" })
             return ResponseHandler.errorResponse({ message: `Template ${template_id} does not exists`, statusCode: 404, errCode: "NOT_FOUND", code: "QUERY_TEMPLATE_NOT_EXISTS" }, req, res);
         }
