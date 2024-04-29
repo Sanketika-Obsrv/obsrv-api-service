@@ -54,8 +54,7 @@
         "id",
         "ver",
         "ts",
-        "params",
-        "request"
+        "params"
     ],
     "additionalProperties": false
 }
