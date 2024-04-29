@@ -16,16 +16,11 @@ export const listQueryTemplates = async (req: Request, res: Response) => {
             return data?.dataValues
         })
 
-        logger.info({ apiId, resmsgid, requestBody: req?.body, message: `Templates are listed successfully` })
+        logger.info({ apiId, resmsgid, message: `Templates are listed successfully` })
         return ResponseHandler.successResponse(req, res, { status: 200, data: templateData });
     }
     catch (error) {
-        logger.error({ error, apiId, resmsgid: _.get(res, "resmsgid"), requestBody: req?.body })
-        let errorMessage: any = error;
-        const statusCode = _.get(error, "statusCode")
-        if (!statusCode || statusCode == 500) {
-            errorMessage = { code: "QUERY_TEMPLATE_CREATION_FAILED", message: "Failed to read query template" }
-        }
-        ResponseHandler.errorResponse(errorMessage, req, res);
+        logger.error({ error, apiId, resmsgid: _.get(res, "resmsgid") })
+        ResponseHandler.errorResponse({ code: "QUERY_TEMPLATE_LIST_FAILED", message: "Failed to list query templates" }, req, res);
     }
 }
