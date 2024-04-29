@@ -19,7 +19,7 @@ export const createQueryTemplate = async (req: Request, res: Response) => {
         const templateName = _.get(req, "body.request.template_name");
         const templateId: string = slug(templateName, '_');
         const requestBody = req.body;
-        let isValidSchema = schemaValidation(requestBody, validationSchema);
+        const isValidSchema = schemaValidation(requestBody, validationSchema);
 
         if (!isValidSchema?.isValid) {
             if (_.includes(isValidSchema.message, "template_name")) {
