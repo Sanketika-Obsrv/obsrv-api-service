@@ -22,8 +22,8 @@ export const listTemplates = async (limit: number, offset: number): Promise<any>
     const template = await QueryTemplate.findAll({
         where: {
         },
-        limit: limit || 10,
-        offset: offset || 10,
+        limit: limit || 100,
+        offset: offset || 0,
     });
     return template
 }

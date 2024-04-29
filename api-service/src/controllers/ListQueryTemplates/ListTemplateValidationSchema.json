@@ -4,7 +4,7 @@
         "id": {
             "type": "string",
             "enum": [
-                "api.query.template.create"
+                "api.query.template.list"
             ]
         },
         "ver": {
@@ -30,44 +30,23 @@
             "oneOf": [
                 {
                     "properties": {
-                        "template_name": {
-                            "type": "string",
-                            "pattern": "^(?!.*\\s{2,})[a-zA-Z0-9_ -]+$"
+                        "limit": {
+                            "type": "number"
                         },
-                        "query_type": {
-                            "type": "string",
-                            "enum": [
-                                "sql"
-                            ]
-                        },
-                        "query": {
-                            "type": "string"
+                        "offset": {
+                            "type": "number"
                         }
                     },
                     "additionalProperties": false
                 },
                 {
                     "properties": {
-                        "template_name": {
-                            "type": "string",
-                            "pattern": "^(?!.*\\s{2,})[a-zA-Z0-9_ -]+$"
-                        },
-                        "query_type": {
-                            "type": "string",
-                            "enum": [
-                                "json"
-                            ]
-                        },
-                        "query": {
-                            "type": "object"
+                        "offset": {
+                            "type": "number"
                         }
                     },
                     "additionalProperties": false
                 }
-            ],
-            "required": [
-                "query_type",
-                "query"
             ]
         }
     },

@@ -3,7 +3,7 @@ import * as _ from "lodash";
 import { deleteTemplate } from "../../services/QueryTemplateService";
 import logger from "../../logger";
 import { ResponseHandler } from "../../helpers/ResponseHandler";
-const apiId = "query.template.delete";
+const apiId = "api.query.template.delete";
 
 export const deleteQueryTemplate = async (req: Request, res: Response) => {
     const template_id = _.get(req, 'params.templateId');

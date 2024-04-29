@@ -24,10 +24,10 @@ router.patch("/v1/datasets/update", setDataToRequestObject("api.datasets.update"
 router.get("/v1/datasets/read/:dataset_id", setDataToRequestObject("api.datasets.read"), onRequest({ entity: Entity.Management }), DatasetRead)
 router.post("/v1/datasets/list", setDataToRequestObject("api.datasets.list"), onRequest({ entity: Entity.Management }), DatasetList)
 router.get('/v1/data/exhaust/:datasetId', setDataToRequestObject("api.data.exhaust"), onRequest({ entity: Entity.Management }), dataExhaust);
-router.post('/v1/template/create', setDataToRequestObject("query.template.create"), createQueryTemplate);
-router.get('/v1/template/read/:templateId', setDataToRequestObject("query.template.read"), readQueryTemplate);
-router.delete('/v1/template/delete/:templateId', setDataToRequestObject("query.template.delete"), deleteQueryTemplate);
-router.get('/v1/template/list', setDataToRequestObject("query.template.list"), listQueryTemplates);
+router.post('/v1/template/create', setDataToRequestObject("api.query.template.create"), createQueryTemplate);
+router.get('/v1/template/read/:templateId', setDataToRequestObject("api.query.template.read"), readQueryTemplate);
+router.delete('/v1/template/delete/:templateId', setDataToRequestObject("api.query.template.delete"), deleteQueryTemplate);
+router.post('/v1/template/list', setDataToRequestObject("api.query.template.list"), listQueryTemplates);
 
 //Scrape metrics to prometheus
 router.get('/metrics', metricsScrapeHandler)

@@ -3,7 +3,7 @@ import * as _ from "lodash";
 import { getQueryTemplate } from "../../services/QueryTemplateService";
 import logger from "../../logger";
 import { ResponseHandler } from "../../helpers/ResponseHandler";
-const apiId = "query.template.read";
+const apiId = "api.query.template.read";
 
 export const readQueryTemplate = async (req: Request, res: Response) => {
     const template_id = _.get(req, 'params.templateId');
