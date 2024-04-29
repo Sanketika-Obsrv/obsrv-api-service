@@ -20,10 +20,8 @@ const isValidTemplate = (templateData: string, type: string) => {
             data = data.replace(varRegex, `""`);
             data = data.replace(/"""/g, `"`);
         });
-        try {
-            JSON.parse(data);
-            validTemplate = true;
-        } catch (err: any) { validTemplate = false; }
+        JSON.parse(data);
+        validTemplate = true;
         return validTemplate;
     }
     else {

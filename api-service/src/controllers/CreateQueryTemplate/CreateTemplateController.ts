@@ -17,16 +17,14 @@ export const createQueryTemplate = async (req: Request, res: Response) => {
         const msgid = _.get(req, "body.params.msgid");
         const resmsgid = _.get(res, "resmsgid");
         const templateName = _.get(req, "body.request.template_name");
-        const isValidName = validateName(templateName);
-        if (!isValidName) {
-            logger.error({ apiId, msgid, resmsgid, requestBody: req?.body, message: "Invalid name provided", code: "QUERY_TEMPLATE_INVALID_INPUT" })
-            return ResponseHandler.errorResponse({ message: "Template name should contain alphanumeric characters and single space between characters", statusCode: 400, errCode: "BAD_REQUEST", code: "QUERY_TEMPLATE_INVALID_INPUT" }, req, res);
-        }
         const templateId: string = slug(templateName, '_');
         const requestBody = req.body;
-        const isValidSchema = schemaValidation(requestBody, validationSchema)
+        let isValidSchema = schemaValidation(requestBody, validationSchema);
 
         if (!isValidSchema?.isValid) {
+            if (_.includes(isValidSchema.message, "template_name")) {
+                _.set(isValidSchema, "message", "Template name should contain alphanumeric characters and single space between characters")
+            }
             logger.error({ apiId, msgid, resmsgid, requestBody: req?.body, message: isValidSchema?.message, code: "QUERY_TEMPLATE_INVALID_INPUT" })
             return ResponseHandler.errorResponse({ message: isValidSchema?.message, statusCode: 400, errCode: "BAD_REQUEST", code: "QUERY_TEMPLATE_INVALID_INPUT" }, req, res);
         }
@@ -69,10 +67,4 @@ const transformRequest = (req: any, templateName: string) => {
         query: query
     }
     return data
-}
-
-const validateName = (name: string) => {
-    // Regular expression to match alphanumeric characters, and single space between characters
-    const regex = /^(?!.*\s{2,})[a-zA-Z0-9_ -]+$/;
-    return regex.test(name);
 }
