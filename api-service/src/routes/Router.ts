@@ -11,6 +11,7 @@ import { metricsScrapeHandler } from "../metrics/prometheus";
 import { Entity } from "../types/MetricModel";
 import { createQueryTemplate } from "../controllers/CreateQueryTemplate/CreateTemplateController";
 import { setDataToRequestObject } from "../middlewares/setDataToRequestObject";
+import { readQueryTemplate } from "../controllers/ReadQueryTemplate/ReadTemplateController";
 
 export const router = express.Router();
 
@@ -22,6 +23,7 @@ router.get("/v1/datasets/read/:dataset_id", setDataToRequestObject("api.datasets
 router.post("/v1/datasets/list", setDataToRequestObject("api.datasets.list"), onRequest({ entity: Entity.Management }), DatasetList)
 router.get('/v1/data/exhaust/:datasetId', setDataToRequestObject("api.data.exhaust"), onRequest({ entity: Entity.Management }), dataExhaust);
 router.post('/v1/template/create', setDataToRequestObject("query.template.create"), createQueryTemplate);
+router.get('/v1/template/read/:templateId', setDataToRequestObject("query.template.read"), readQueryTemplate);
 
 
 //Scrape metrics to prometheus
