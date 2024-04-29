@@ -20,7 +20,7 @@ export const deleteQueryTemplate = async (req: Request, res: Response) => {
         return ResponseHandler.successResponse(req, res, { status: 200, data: { message: `Template ${template_id} deleted successfully` } });
     }
     catch (error) {
-        logger.error({ error, apiId, resmsgid: _.get(res, "resmsgid"), template_id })
+        logger.error({ error, apiId, resmsgid: _.get(res, "resmsgid"), template_id, message: "Failed to delete query template", code: "QUERY_TEMPLATE_DELETE_FAILED" })
         ResponseHandler.errorResponse({ code: "QUERY_TEMPLATE_DELETE_FAILED", message: "Failed to delete query template" }, req, res);
     }
 }

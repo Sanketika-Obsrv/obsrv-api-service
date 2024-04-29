@@ -19,7 +19,7 @@ export const readQueryTemplate = async (req: Request, res: Response) => {
         return ResponseHandler.successResponse(req, res, { status: 200, data: template?.dataValues });
     }
     catch (error) {
-        logger.error({ error, apiId, template_id, resmsgid: _.get(res, "resmsgid") })
+        logger.error({ error, apiId, template_id, resmsgid: _.get(res, "resmsgid"), code: "QUERY_TEMPLATE_READ_FAILED", message: "Failed to read query template" })
         ResponseHandler.errorResponse({ code: "QUERY_TEMPLATE_READ_FAILED", message: "Failed to read query template" }, req, res);
     }
 }

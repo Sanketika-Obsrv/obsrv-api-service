@@ -30,7 +30,7 @@ export const listQueryTemplates = async (req: Request, res: Response) => {
         return ResponseHandler.successResponse(req, res, { status: 200, data: templateData });
     }
     catch (error) {
-        logger.error({ error, apiId, resmsgid: _.get(res, "resmsgid"), requestBody })
+        logger.error({ error, apiId, resmsgid: _.get(res, "resmsgid"), requestBody, code: "QUERY_TEMPLATE_LIST_FAILED", message: "Failed to list query templates" })
         ResponseHandler.errorResponse({ code: "QUERY_TEMPLATE_LIST_FAILED", message: "Failed to list query templates" }, req, res);
     }
 }
