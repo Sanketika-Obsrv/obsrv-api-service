@@ -36,7 +36,8 @@ export const defaultMasterConfig = {
         "redis_db_host": config.redis_config.redis_host,
         "redis_db_port": config.redis_config.redis_port,
         "index_data": true,
-        "redis_db": 3
+        "redis_db": 3,
+        "fileUploadPath": ""
     },
     "status": DatasetStatus.Draft,
     "version": 1,
@@ -79,7 +80,8 @@ export const defaultDatasetConfig = {
         "redis_db_host": config.redis_config.redis_host,
         "redis_db_port": config.redis_config.redis_port,
         "index_data": true,
-        "redis_db": 0
+        "redis_db": 0,
+        "fileUploadPath": ""
     },
     "status": DatasetStatus.Draft,
     "version": 1,

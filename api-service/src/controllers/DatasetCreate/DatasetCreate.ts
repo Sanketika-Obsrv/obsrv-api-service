@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import logger from "../../logger";
-import { getDraftDataset, getDuplicateDenormKey, setReqDatasetId } from "../../services/DatasetService";
+import { getDraftDataset, getDuplicateConfigs, getDuplicateDenormKey, setReqDatasetId } from "../../services/DatasetService";
 import _ from "lodash";
 import DatasetCreate from "./DatasetCreateValidationSchema.json";
 import { schemaValidation } from "../../services/ValidationService";
@@ -11,6 +11,7 @@ import { defaultDatasetConfig, defaultMasterConfig } from "../../configs/Dataset
 import { DatasetType } from "../../types/DatasetModels";
 import { query } from "../../connections/databaseConnection";
 import { ErrorObject } from "../../types/ResponseModel";
+import { DatasetTransformationsDraft } from "../../models/TransformationDraft";
 
 export const apiId = "api.datasets.create"
 
@@ -18,7 +19,7 @@ const datasetCreate = async (req: Request, res: Response) => {
     try {
         const datasetId = _.get(req, ["body", "request", "dataset_id"])
         setReqDatasetId(req, datasetId)
-        
+
         const isRequestValid: Record<string, any> = schemaValidation(req.body, DatasetCreate)
 
         if (!isRequestValid.isValid) {
@@ -60,6 +61,12 @@ const datasetCreate = async (req: Request, res: Response) => {
         const datasetPayload: any = await getDefaultValue(datasetBody);
         const data = { ...datasetPayload, version_key: Date.now().toString() }
         const response = await DatasetDraft.create(data)
+
+        const transformationConfig: any = getTransformationConfig({ transformationPayload: _.get(datasetBody, "transformations_config"), datasetId: _.get(datasetPayload, "id") })
+        if (!_.isEmpty(transformationConfig)) {
+            await DatasetTransformationsDraft.bulkCreate(transformationConfig);
+        }
+
         logger.info({ apiId, message: `Dataset Created Successfully with id:${_.get(response, ["dataValues", "id"])}` })
         ResponseHandler.successResponse(req, res, { status: httpStatus.OK, data: { id: _.get(response, ["dataValues", "id"]) || "", version_key: data.version_key } });
     } catch (error: any) {
@@ -86,7 +93,8 @@ const mergeDatasetConfigs = (defaultConfig: Record<string, any>, requestPayload:
     const { id, dataset_id, version = 1 } = requestPayload;
     const recordId = !id && `${dataset_id}.${version}`
     const modifyPayload = { ...requestPayload, ...(recordId && { id: recordId }) }
-    const datasetConfigs = _.merge(defaultConfig, modifyPayload)
+    const defaults = _.cloneDeep(defaultConfig)
+    const datasetConfigs = _.merge(defaults, modifyPayload)
     return datasetConfigs
 }
 
@@ -120,7 +128,32 @@ const getDefaultHandler = (datasetType: string) => {
 const getDefaultValue = async (payload: Record<string, any>) => {
     const datasetType = _.get(payload, "type");
     const getDatasetDefaults = getDefaultHandler(datasetType)
-    return await getDatasetDefaults(payload)
+    const datasetDefaults = await getDatasetDefaults(payload)
+    return _.omit(datasetDefaults, ["transformations_config"])
+}
+
+const getTransformationConfig = (configs: Record<string, any>): Record<string, any> => {
+    const { transformationPayload, datasetId } = configs
+    if (transformationPayload) {
+
+        let transformations: any = []
+        const transformationFieldKeys = _.flatten(_.map(transformationPayload, fields => _.get(fields, ["field_key"])))
+        const duplicateFieldKeys: Array<string> = getDuplicateConfigs(transformationFieldKeys)
+
+        if (!_.isEmpty(duplicateFieldKeys)) {
+            logger.info({ apiId, message: `Duplicate transformations provided by user are [${duplicateFieldKeys}]` })
+        }
+
+        _.forEach(transformationPayload, payload => {
+            const fieldKey = _.get(payload, "field_key")
+            const transformationExists = _.some(transformations, field => _.get(field, "field_key") == fieldKey)
+            if (!transformationExists) {
+                transformations = _.flatten(_.concat(transformations, { ...payload, id: `${datasetId}_${fieldKey}`, dataset_id: datasetId }))
+            }
+        })
+        return transformations
+    }
+    return []
 }
 
 export default datasetCreate;

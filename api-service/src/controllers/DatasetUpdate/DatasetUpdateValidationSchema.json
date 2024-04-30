@@ -163,6 +163,10 @@
             "timestamp_key": {
               "type": "string",
               "minLength": 1
+            },
+            "fileUploadPath":{
+              "type": "string",
+              "minLength": 1
             }
           },
           "additionalProperties": false

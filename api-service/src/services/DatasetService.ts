@@ -36,3 +36,7 @@ export const setReqDatasetId = (req: Request, dataset_id: string) => {
         return _.set(req, "dataset_id", dataset_id)
     }
 }
+
+export const getDuplicateConfigs = (configs: Array<string | any>) => {
+    return _.compact(_.filter(configs, (item: string, index: number) => _.indexOf(configs, item) !== index));
+}
