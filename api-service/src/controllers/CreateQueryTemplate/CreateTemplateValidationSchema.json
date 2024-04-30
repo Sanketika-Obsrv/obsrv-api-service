@@ -4,7 +4,7 @@
         "id": {
             "type": "string",
             "enum": [
-                "query.template.create"
+                "api.query.template.create"
             ]
         },
         "ver": {

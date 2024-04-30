@@ -1,0 +1,88 @@
+{
+    "type": "object",
+    "properties": {
+        "id": {
+            "type": "string",
+            "enum": [
+                "api.query.template.list"
+            ]
+        },
+        "ver": {
+            "type": "string"
+        },
+        "ts": {
+            "type": "string"
+        },
+        "params": {
+            "type": "object",
+            "properties": {
+                "msgid": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "msgid"
+            ],
+            "additionalProperties": false
+        },
+        "request": {
+            "type": "object",
+            "properties": {
+                "filters": {
+                    "type": "object",
+                    "properties": {
+                        "query_type": {
+                            "type": "string",
+                            "enum": [
+                                "json",
+                                "sql"
+                            ]
+                        }
+                    },
+                    "additionalProperties": false
+                },
+                "order": {
+                    "type": "array",
+                    "items": {
+                        "type": "array",
+                        "minItems": 2,
+                        "maxItems": 2,
+                        "items": [
+                            {
+                                "type": "string",
+                                "enum": [
+                                    "created_date",
+                                    "updated_date"
+                                ]
+                            },
+                            {
+                                "type": "string",
+                                "enum": [
+                                    "ASC",
+                                    "DESC"
+                                ]
+                            }
+                        ]
+                    }
+                },
+                "limit": {
+                    "type": "number",
+                    "minimum": 5,
+                    "maximum": 500
+                },
+                "offset": {
+                    "type": "number",
+                    "minimum": 0
+                }
+            },
+            "additionalProperties": false
+        }
+    },
+    "required": [
+        "id",
+        "ver",
+        "ts",
+        "params"
+    ],
+    "additionalProperties": false
+}
