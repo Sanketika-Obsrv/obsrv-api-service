@@ -14,6 +14,7 @@ import { setDataToRequestObject } from "../middlewares/setDataToRequestObject";
 import { readQueryTemplate } from "../controllers/ReadQueryTemplate/ReadTemplateController";
 import { deleteQueryTemplate } from "../controllers/DeleteQueryTemplate/DeleteTemplateController";
 import { listQueryTemplates } from "../controllers/ListQueryTemplates/ListTemplatesController";
+import { queryTemplate } from "../controllers/QueryTemplate/QueryTemplateController";
 
 export const router = express.Router();
 
@@ -28,6 +29,7 @@ router.post('/v1/template/create', setDataToRequestObject("api.query.template.cr
 router.get('/v1/template/read/:templateId', setDataToRequestObject("api.query.template.read"), readQueryTemplate);
 router.delete('/v1/template/delete/:templateId', setDataToRequestObject("api.query.template.delete"), deleteQueryTemplate);
 router.post('/v1/template/list', setDataToRequestObject("api.query.template.list"), listQueryTemplates);
+router.post('/v1/template/query/:templateId', setDataToRequestObject("api.query.template.query"), queryTemplate);
 
 //Scrape metrics to prometheus
 router.get('/metrics', metricsScrapeHandler)
