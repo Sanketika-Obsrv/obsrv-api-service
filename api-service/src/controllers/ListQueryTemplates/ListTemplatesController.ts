@@ -5,7 +5,7 @@ import { ResponseHandler } from "../../helpers/ResponseHandler";
 import { schemaValidation } from "../../services/ValidationService";
 import validationSchema from "./ListTemplateValidationSchema.json";
 import { QueryTemplate } from "../../models/QueryTemplate";
-const apiId = "api.query.template.read";
+const apiId = "api.query.template.list";
 
 export const listQueryTemplates = async (req: Request, res: Response) => {
     const requestBody = req.body;
