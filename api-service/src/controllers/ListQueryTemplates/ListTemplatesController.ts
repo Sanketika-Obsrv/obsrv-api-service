@@ -36,7 +36,7 @@ const getTemplateList = async (req: Record<string, any>) => {
     const limit: any = _.get(req, "limit");
     const offset: any = _.get(req, "offset");
     const order: any = _.get(req, "order");
-    const { filters = {}, sortBy = [] } = req || {};
+    const { filters = {} } = req || {};
     const templates = await QueryTemplate.findAll({ limit: limit || 100, offset: offset || 0, order, ...(filters && { where: filters }) })
     return templates
 }
