@@ -72,8 +72,7 @@
                 },
                 "offset": {
                     "type": "number",
-                    "minimum": 0,
-                    "maximum": 10
+                    "minimum": 0
                 }
             },
             "additionalProperties": false
