@@ -27,27 +27,55 @@
         },
         "request": {
             "type": "object",
-            "oneOf": [
-                {
+            "properties": {
+                "filters": {
+                    "type": "object",
                     "properties": {
-                        "limit": {
-                            "type": "number"
-                        },
-                        "offset": {
-                            "type": "number"
+                        "query_type": {
+                            "type": "string",
+                            "enum": [
+                                "json",
+                                "sql"
+                            ]
                         }
                     },
                     "additionalProperties": false
                 },
-                {
-                    "properties": {
-                        "offset": {
-                            "type": "number"
-                        }
-                    },
-                    "additionalProperties": false
+                "sortBy": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "field": {
+                                "type": "string",
+                                "enum": [
+                                    "created_date",
+                                    "updated_date"
+                                ]
+                            },
+                            "order": {
+                                "type": "string",
+                                "enum": [
+                                    "asc",
+                                    "desc"
+                                ]
+                            }
+                        },
+                        "additionalProperties": false,
+                        "required": [
+                            "field",
+                            "order"
+                        ]
+                    }
+                },
+                "limit": {
+                    "type": "number"
+                },
+                "offset": {
+                    "type": "number"
                 }
-            ]
+            },
+            "additionalProperties": false
         }
     },
     "required": [
