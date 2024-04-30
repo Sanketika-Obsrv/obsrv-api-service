@@ -20,7 +20,7 @@ export const validateQuery = async (requestPayload: any, datasetId: string) => {
     const isValid = (_.isObject(query)) ? validateNativeQuery(requestPayload) : (_.isString(query)) ? validateSqlQuery(requestPayload) : false;
     const datasource = getDataSourceFromPayload(requestPayload);
     if (isValid === true) {
-        return setDatasourceRef(datasource, requestPayload);
+        return setDatasourceRef(datasource || datasetId, requestPayload);
     }
     return isValid;
 }
@@ -72,6 +72,10 @@ const setQueryLimits = (queryPayload: any) => {
 
     if (_.isString(queryPayload?.query)) {
         const vocabulary = queryPayload?.query.split(" ");
+        const isLimitPresent = _.includes(vocabulary, "{{LIMIT}}") || _.includes(vocabulary, "LIMIT")
+        if (isLimitPresent) {
+            return queryPayload?.query
+        }
         const queryLimitIndex = vocabulary.indexOf("LIMIT");
         const queryLimit = Number(vocabulary[queryLimitIndex + 1]);
         if (isNaN(queryLimit)) {
@@ -193,7 +197,8 @@ const setDatasourceRef = async (dataSourceName: string, payload: any): Promise<a
             payload.query = payload.query.replace(dataSourceName, datasourceRef)
         }
         if (_.isObject(payload?.query)) {
-            payload.query.dataSource = datasourceRef
+            _.set(payload.query, "dataSource", datasourceRef)
+            _.set(payload.query, "granularity", granularity)
         }
         return true;
     } catch (error: any) {
