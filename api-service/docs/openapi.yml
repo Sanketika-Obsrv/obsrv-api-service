@@ -1919,7 +1919,6 @@ paths:
                     status: FAILED
                     resmsgid: 98020cf9-4239-4b6e-beea-c687d21fafa3
                   responseCode: BAD_REQUEST
-                  result: {}
                   error:
                     code: DATA_INGESTION_INVALID_INPUT
                     message: "#required should have required property 'id'"
@@ -1942,7 +1941,6 @@ paths:
                         msgid: e180ecac-8f41-4f21-9a21-0b3a1a368917
                         resmsgid: 98020cf9-4239-4b6e-beea-c687d21fafa3
                       responseCode: BAD_REQUEST
-                      result: {}
                       error:
                         code: DATASET_NOT_FOUND
                         message: Dataset with id not found
@@ -1958,7 +1956,6 @@ paths:
                         msgid: e180ecac-8f41-4f21-9a21-0b3a1a368917
                         resmsgid: 98020cf9-4239-4b6e-beea-c687d21fafa3
                       responseCode: BAD_REQUEST
-                      result: {}
                       error:
                         code: ENTRY_TOPIC_NOT_FOUND
                         message: Entry topic is not defined
@@ -2101,10 +2098,11 @@ paths:
                     value:
                       id: api.data.out
                       ver: v1
-                      ts: 1711973520793
+                      ts: 1711971972855
                       params:
-                        status: SUCCESS
-                        errmsg: ''
+                        status: "SUCCESS"
+                        msgid: "e180ecac-8f41-4f21-9a21-0b3a1a368917"
+                        resmsgid: "ba6391e2-8c35-4c3f-8883-f503b4ffd6a5"
                       responseCode: OK
                       result:
                         - timestamp: '2022-01-01T00:00:00.000Z'
@@ -2118,18 +2116,20 @@ paths:
                   type: object
                 examples:
                   example-0:
-                    summary: 'Failure: invalid date range'
+                    summary: 'Failure: invalid date range (sql)'
                     value:
                       id: api.data.out
                       ver: v1
                       ts: 1711972193426
                       params:
                         status: FAILED
-                        errmsg: >-
-                          Invalid date range! make sure your range cannot be more
-                          than 30 days
+                        msgid: e180ecac-8f41-4f21-9a21-0b3a1a368917
+                        resmsgid: 5aaf81d1-675d-4071-883a-f92d96656aa4
                       responseCode: BAD_REQUEST
-                      result: {}
+                      error:
+                        code: INVALID_DATE_RANGE
+                        message: Invalid date range! make sure your range cannot be more than 30 days
+                        trace: ""
                   example-1:
                     summary: 'Failure: Invalid date range (native)'
                     value:
@@ -2138,11 +2138,13 @@ paths:
                       ts: 1711972501847
                       params:
                         status: FAILED
-                        errmsg: >-
-                          Invalid date range! make sure your range cannot be more
-                          than 30 days
+                        msgid: e180ecac-8f41-4f21-9a21-0b3a1a368917
+                        resmsgid: 5aaf81d1-675d-4071-883a-f92d96656aa4
                       responseCode: BAD_REQUEST
-                      result: {}
+                      error:
+                        code: INVALID_DATE_RANGE
+                        message: Invalid date range! make sure your range cannot be more than 30 days
+                        trace: ""
           '404':
             description: Not Found
             content:
@@ -2158,11 +2160,13 @@ paths:
                       ts: 1711972085550
                       params:
                         status: FAILED
-                        errmsg: >-
-                          Datasource rollups-configured.1_rollup_week not
-                          available for querying
-                      responseCode: NOT_FOUND
-                      result: {}
+                        msgid: e180ecac-8f41-4f21-9a21-0b3a1a368917
+                        resmsgid: 5aaf81d1-675d-4071-883a-f92d96656aa4
+                      responseCode: BAD_REQUEST
+                      error:
+                        code: DATASOURCE_NOT_FOUND
+                        message: Datasource taxt_trip not found
+                        trace: ""
                   example-1:
                     summary: 'Failure: Datasource not found in live table'
                     value:
@@ -2171,9 +2175,13 @@ paths:
                       ts: 1711975034302
                       params:
                         status: FAILED
-                        errmsg: Datasource undefined not found
-                      responseCode: NOT_FOUND
-                      result: {}
+                        msgid: e180ecac-8f41-4f21-9a21-0b3a1a368917
+                        resmsgid: 5aaf81d1-675d-4071-883a-f92d96656aa4
+                      responseCode: BAD_REQUEST
+                      error:
+                        code: DATASOURCE_NOT_FOUND
+                        message: Datasource taxt_trip not found
+                        trace: ""
                   example-2:
                     summary: 'Failure: Datasource not found in live table (native)'
                     value:
@@ -2182,9 +2190,13 @@ paths:
                       ts: 1711974978635
                       params:
                         status: FAILED
-                        errmsg: Datasource telemetry-eventssss not found
-                      responseCode: NOT_FOUND
-                      result: {}
+                        msgid: e180ecac-8f41-4f21-9a21-0b3a1a368917
+                        resmsgid: 5aaf81d1-675d-4071-883a-f92d96656aa4
+                      responseCode: BAD_REQUEST
+                      error:
+                        code: DATASOURCE_NOT_FOUND
+                        message: Datasource taxt_trip.1_day not available for querying
+                        trace: ""
                   example-3:
                     summary: 'Failure: Datasource not found in druid(native)'
                     value:
@@ -2193,11 +2205,13 @@ paths:
                       ts: 1711972569115
                       params:
                         status: FAILED
-                        errmsg: >-
-                          Datasource telemetry-events.1_rollup_day not available
-                          for querying
-                      responseCode: NOT_FOUND
-                      result: {}
+                        msgid: e180ecac-8f41-4f21-9a21-0b3a1a368917
+                        resmsgid: 5aaf81d1-675d-4071-883a-f92d96656aa4
+                      responseCode: BAD_REQUEST
+                      error:
+                        code: DATASOURCE_NOT_FOUND
+                        message: Datasource taxt_trip.1_day not available for querying
+                        trace: ""
                       
   /v1/template/read/{templateId}:
     get:
@@ -2274,7 +2288,6 @@ paths:
                   status: FAILED
                   resmsgid: bc6a4621-4ac5-4959-b467-1134ea874960
                 responseCode: NOT_FOUND
-                result: {}
                 error:
                   code: QUERY_TEMPLATE_NOT_EXISTS
                   message: Template sql100 does not exists
@@ -2360,7 +2373,6 @@ paths:
                       msgid: 4a7f14c3-d61e-4d4f-be78-181834eeff6d
                       resmsgid: 62e18342-7e25-4122-8fca-6fb12fac3ff0
                     responseCode: BAD_REQUEST
-                    result: {}
                     error:
                       code: QUERY_TEMPLATE_INVALID
                       message: >-
@@ -2378,7 +2390,6 @@ paths:
                       msgid: 4a7f14c3-d61e-4d4f-be78-181834eeff6d
                       resmsgid: d2b598b5-62c1-4c5d-b0b3-5d7d109a2bc2
                     responseCode: BAD_REQUEST
-                    result: {}
                     error:
                       code: QUERY_TEMPLATE_INVALID_INPUT
                       message: >-
@@ -2400,7 +2411,6 @@ paths:
                   msgid: 4a7f14c3-d61e-4d4f-be78-181834eeff6d
                   resmsgid: 18b6b123-4df5-4124-b6ec-73b667250e1c
                 responseCode: CONFLICT
-                result: {}
                 error:
                   code: QUERY_TEMPLATE_ALREADY_EXISTS
                   message: Template josnaks-aaa already exists
@@ -3032,7 +3042,6 @@ paths:
                   status: FAILED
                   resmsgid: 6c62ff4d-0a63-4384-a365-7bbef951f288
                 responseCode: NOT_FOUND
-                result: {}
                 error:
                   code: QUERY_TEMPLATE_NOT_EXISTS
                   message: Template json_template does not exists
