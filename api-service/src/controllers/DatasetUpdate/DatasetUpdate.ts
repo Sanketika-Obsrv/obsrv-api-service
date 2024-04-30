@@ -10,7 +10,7 @@ import { DatasetDraft } from "../../models/DatasetDraft";
 import logger from "../../logger";
 import { defaultDatasetConfig } from "../../configs/DatasetConfigDefault";
 import { DatasetTransformationsDraft } from "../../models/TransformationDraft";
-import { getDraftTransformations, setReqDatasetId } from "../../services/DatasetService";
+import { getDraftTransformations, getDuplicateConfigs, setReqDatasetId } from "../../services/DatasetService";
 
 export const apiId = "api.datasets.update";
 export const invalidInputErrCode = "DATASET_UPDATE_INPUT_INVALID"
@@ -386,10 +386,6 @@ const mergeExistingDataset = async (configs: Record<string, any>): Promise<Recor
 
 export const getExistingDataset = async (id: string) => {
     return DatasetDraft.findOne({ where: { id }, raw: true })
-}
-
-const getDuplicateConfigs = (configs: Array<string | any>) => {
-    return _.compact(_.filter(configs, (item: string, index: number) => _.indexOf(configs, item) !== index));
 }
 
 export default datasetUpdate;
