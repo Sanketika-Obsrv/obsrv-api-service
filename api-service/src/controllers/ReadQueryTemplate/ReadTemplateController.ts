@@ -15,7 +15,7 @@ export const readQueryTemplate = async (req: Request, res: Response) => {
             logger.error({ apiId, resmsgid, template_id, message: `Template ${template_id} does not exists`, code: "QUERY_TEMPLATE_NOT_EXISTS" })
             return ResponseHandler.errorResponse({ message: `Template ${template_id} does not exists`, statusCode: 404, errCode: "NOT_FOUND", code: "QUERY_TEMPLATE_NOT_EXISTS" }, req, res);
         }
-        logger.info({ apiId, resmsgid, template_id, message: `Template read successfully with id: ${template_id}` })
+        logger.info({ apiId, resmsgid, template_id, message: `Template read successfully with id: ${template_id}`, response: { status: 200, data: template?.dataValues } })
         return ResponseHandler.successResponse(req, res, { status: 200, data: template?.dataValues });
     }
     catch (error) {

@@ -35,12 +35,8 @@ export const listQueryTemplates = async (req: Request, res: Response) => {
 const getTemplateList = async (req: Record<string, any>) => {
     const limit: any = _.get(req, "limit");
     const offset: any = _.get(req, "offset");
+    const order: any = _.get(req, "order");
     const { filters = {}, sortBy = [] } = req || {};
-    const templates = await QueryTemplate.findAll({ limit: limit || 100, offset: offset || 0, ...(filters && { where: filters }) })
-    if (sortBy) {
-        const fieldValues = _.map(sortBy, field => _.get(field, "field"))
-        const orderValues = _.map(sortBy, field => _.get(field, "order"))
-        return _.orderBy(templates, fieldValues, orderValues)
-    }
+    const templates = await QueryTemplate.findAll({ limit: limit || 100, offset: offset || 0, order, ...(filters && { where: filters }) })
     return templates
 }

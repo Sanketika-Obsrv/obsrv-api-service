@@ -41,38 +41,39 @@
                     },
                     "additionalProperties": false
                 },
-                "sortBy": {
+                "order": {
                     "type": "array",
                     "items": {
-                        "type": "object",
-                        "properties": {
-                            "field": {
+                        "type": "array",
+                        "minItems": 2,
+                        "maxItems": 2,
+                        "items": [
+                            {
                                 "type": "string",
                                 "enum": [
                                     "created_date",
                                     "updated_date"
                                 ]
                             },
-                            "order": {
+                            {
                                 "type": "string",
                                 "enum": [
-                                    "asc",
-                                    "desc"
+                                    "ASC",
+                                    "DESC"
                                 ]
                             }
-                        },
-                        "additionalProperties": false,
-                        "required": [
-                            "field",
-                            "order"
                         ]
                     }
                 },
                 "limit": {
-                    "type": "number"
+                    "type": "number",
+                    "minimum": 5,
+                    "maximum": 500
                 },
                 "offset": {
-                    "type": "number"
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 10
                 }
             },
             "additionalProperties": false
