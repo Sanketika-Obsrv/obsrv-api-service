@@ -1,21 +1,22 @@
 import { Request, Response } from "express";
 import logger from "../../logger";
 import { ResponseHandler } from "../../helpers/ResponseHandler";
-import { setApiId } from "../../services/DatasetService";
 import { schemaValidation } from "../../services/ValidationService";
 import validationSchema from "./DataOutValidationSchema.json";
 import { validateQuery } from "./QueryValidator";
 import * as _ from "lodash";
 import { executeNativeQuery, executeSqlQuery } from "../../connections/druidConnection";
 
+export const apiId = "api.data.out";
 const dataOut = async (req: Request, res: Response) => {
     try {
-        setApiId(req, "api.data.out");
+        const datasetId = req.params?.datasetId;
         const isValidSchema = schemaValidation(req.body, validationSchema);
         if (!isValidSchema?.isValid) {
-            return ResponseHandler.errorResponse({ message: isValidSchema?.message, statusCode: 400, errCode: "BAD_REQUEST" }, req, res);
+            logger.error({ apiId, message: isValidSchema?.message, code: "DATA_OUT_INVALID_INPUT" })
+            return ResponseHandler.errorResponse({ message: isValidSchema?.message, statusCode: 400, errCode: "BAD_REQUEST", code: "DATA_OUT_INVALID_INPUT" }, req, res);
         }
-        const isValidQuery: any = await validateQuery(req.body);
+        const isValidQuery: any = await validateQuery(req.body, datasetId);
         const query = _.get(req, "body.query", "")
 
         if (isValidQuery === true && _.isObject(query)) {
@@ -35,12 +36,18 @@ const dataOut = async (req: Request, res: Response) => {
         }
 
         else {
-            return ResponseHandler.errorResponse({ message: isValidQuery?.message, statusCode: isValidQuery?.statusCode, errCode: isValidQuery?.errCode }, req, res);
+            logger.error({ apiId, message: isValidQuery?.message, code: isValidQuery?.code })
+            return ResponseHandler.errorResponse({ message: isValidQuery?.message, statusCode: isValidQuery?.statusCode, errCode: isValidQuery?.errCode, code: isValidQuery?.code }, req, res);
         }
     }
     catch (err: any) {
-        logger.error({ err })
-        return ResponseHandler.errorResponse({ message: "Unable to process the query.", statusCode: 500, errCode: "INTERNAL_SERVER_ERROR" }, req, res);
+        logger.error({ ...err, apiId, code: "INTERNAL_SERVER_ERROR" })
+        let errorMessage = err;
+        const statusCode = _.get(err, "statusCode")
+        if (!statusCode || statusCode == 500) {
+            errorMessage = { code: "INTERNAL_SERVER_ERROR", message: "Unable to process the query." }
+        }
+        ResponseHandler.errorResponse(errorMessage, req, res);
     }
 }
 

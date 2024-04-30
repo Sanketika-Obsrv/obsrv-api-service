@@ -6,7 +6,7 @@ import httpStatus from "http-status";
 import { describe, it } from 'mocha';
 import { DatasetDraft } from "../../../models/DatasetDraft";
 import _ from "lodash";
-import { TestInputsForDatasetUpdate } from "./Fixtures";
+import { TestInputsForDatasetUpdate, msgid, validVersionKey } from "./Fixtures";
 import { apiId } from "../../../controllers/DatasetUpdate/DatasetUpdate"
 
 chai.use(spies);
@@ -22,7 +22,7 @@ describe("DATASET DENORM UPDATE", () => {
     it("Success: Dataset denorms successfully added", (done) => {
         chai.spy.on(DatasetDraft, "findOne", () => {
             return Promise.resolve({
-                id: "telemetry", status: "Draft", denorm_config: { denorm_field: [] }
+                id: "telemetry", status: "Draft", version_key: validVersionKey, denorm_config: { denorm_field: [] }
             })
         })
         chai.spy.on(DatasetDraft, "update", () => {
@@ -37,8 +37,10 @@ describe("DATASET DENORM UPDATE", () => {
                 res.body.should.be.a("object")
                 res.body.id.should.be.eq(apiId);
                 res.body.params.status.should.be.eq("SUCCESS")
+                res.body.params.msgid.should.be.eq(msgid)
                 res.body.result.id.should.be.eq("telemetry")
                 res.body.result.message.should.be.eq("Dataset is updated successfully")
+                res.body.result.version_key.should.be.a("string")
                 done();
             });
     });
@@ -46,7 +48,7 @@ describe("DATASET DENORM UPDATE", () => {
     it("Success: Dataset denorms successfully removed", (done) => {
         chai.spy.on(DatasetDraft, "findOne", () => {
             return Promise.resolve({
-                id: "telemetry", status: "Draft", denorm_config: { denorm_fields: [{ denorm_out_field: "userdata" }] }
+                id: "telemetry", status: "Draft", version_key: validVersionKey, denorm_config: { denorm_fields: [{ denorm_out_field: "userdata" }] }
             })
         })
         chai.spy.on(DatasetDraft, "update", () => {
@@ -61,8 +63,10 @@ describe("DATASET DENORM UPDATE", () => {
                 res.body.should.be.a("object")
                 res.body.id.should.be.eq(apiId);
                 res.body.params.status.should.be.eq("SUCCESS")
+                res.body.params.msgid.should.be.eq(msgid)
                 res.body.result.id.should.be.eq("telemetry")
                 res.body.result.message.should.be.eq("Dataset is updated successfully")
+                res.body.result.version_key.should.be.a("string")
                 done();
             });
     });
@@ -70,7 +74,7 @@ describe("DATASET DENORM UPDATE", () => {
     it("Success: When payload contains same denorms to be removed", (done) => {
         chai.spy.on(DatasetDraft, "findOne", () => {
             return Promise.resolve({
-                id: "telemetry", status: "Draft", denorm_config: {
+                id: "telemetry", version_key: validVersionKey, status: "Draft", denorm_config: {
                     denorm_fields: [{
                         "denorm_key": "actor.id",
                         "denorm_out_field": "mid"
@@ -90,8 +94,10 @@ describe("DATASET DENORM UPDATE", () => {
                 res.body.should.be.a("object")
                 res.body.id.should.be.eq(apiId);
                 res.body.params.status.should.be.eq("SUCCESS")
+                res.body.params.msgid.should.be.eq(msgid)
                 res.body.result.id.should.be.eq("telemetry")
                 res.body.result.message.should.be.eq("Dataset is updated successfully")
+                res.body.result.version_key.should.be.a("string")
                 done();
             });
     });
@@ -99,7 +105,7 @@ describe("DATASET DENORM UPDATE", () => {
 
     it("Failure: Dataset contains duplicate denorm field", (done) => {
         chai.spy.on(DatasetDraft, "findOne", () => {
-            return Promise.resolve({ status: "Draft" })
+            return Promise.resolve({ status: "Draft", version_key: validVersionKey })
         })
         chai
             .request(app)
@@ -110,7 +116,9 @@ describe("DATASET DENORM UPDATE", () => {
                 res.body.should.be.a("object")
                 res.body.id.should.be.eq(apiId);
                 res.body.params.status.should.be.eq("FAILED")
-                expect(res.body.params.errmsg).to.match(/^Dataset contains duplicate denorm out keys(.+)$/)
+                res.body.params.msgid.should.be.eq(msgid)
+                expect(res.body.error.message).to.match(/^Dataset contains duplicate denorm out keys(.+)$/)
+                res.body.error.code.should.be.eq("DATASET_DUPLICATE_DENORM_KEY")
                 done();
             });
     });
@@ -118,7 +126,7 @@ describe("DATASET DENORM UPDATE", () => {
     it("Failure: When denorm fields provided to add already exists", (done) => {
         chai.spy.on(DatasetDraft, "findOne", () => {
             return Promise.resolve({
-                id: "telemetry", status: "Draft", tags: ["tag1", "tag2"], denorm_config: {
+                id: "telemetry", status: "Draft", version_key: validVersionKey, tags: ["tag1", "tag2"], denorm_config: {
                     denorm_fields: [{
                         "denorm_key": "actor.id",
                         "denorm_out_field": "userdata"
@@ -135,7 +143,9 @@ describe("DATASET DENORM UPDATE", () => {
                 res.body.should.be.a("object")
                 res.body.id.should.be.eq(apiId);
                 res.body.params.status.should.be.eq("FAILED")
-                res.body.params.errmsg.should.be.eq("Denorm fields already exist")
+                res.body.params.msgid.should.be.eq(msgid)
+                res.body.error.message.should.be.eq("Denorm fields already exist")
+                res.body.error.code.should.be.eq("DATASET_DENORM_EXISTS")
                 done();
             });
     });
@@ -143,7 +153,7 @@ describe("DATASET DENORM UPDATE", () => {
     it("Failure: When denorm fields provided to delete does not exists", (done) => {
         chai.spy.on(DatasetDraft, "findOne", () => {
             return Promise.resolve({
-                id: "telemetry", status: "Draft", tags: ["tag1", "tag2"], denorm_config: {
+                id: "telemetry", status: "Draft", version_key: validVersionKey, tags: ["tag1", "tag2"], denorm_config: {
                     denorm_fields: [{
                         "denorm_key": "actor.id",
                         "denorm_out_field": "id"
@@ -160,7 +170,9 @@ describe("DATASET DENORM UPDATE", () => {
                 res.body.should.be.a("object")
                 res.body.id.should.be.eq(apiId);
                 res.body.params.status.should.be.eq("FAILED")
-                res.body.params.errmsg.should.be.eq("Denorm fields do not exist to remove")
+                res.body.params.msgid.should.be.eq(msgid)
+                res.body.error.message.should.be.eq("Denorm fields do not exist to remove")
+                res.body.error.code.should.be.eq("DATASET_DENORM_DO_NOT_EXIST")
                 done();
             });
     });

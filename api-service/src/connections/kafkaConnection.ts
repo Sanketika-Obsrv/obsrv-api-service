@@ -1,9 +1,11 @@
 import { Kafka } from "kafkajs";
 import { connectionConfig } from '../configs/ConnectionsConfig'
 import logger from "../logger";
-
+import { CompressionTypes, CompressionCodecs } from "kafkajs";
+import { SnappyCodec } from "kafkajs-snappy-typescript";
 const kafka = new Kafka(connectionConfig.kafka.config);
 const producer = kafka.producer();
+CompressionCodecs[CompressionTypes.Snappy] = new SnappyCodec().codec;
 
 let isConnected = false;
 
@@ -26,6 +28,8 @@ const send = async (payload: Record<string, any>, topic: string) => {
     }
     const result = await producer.send({
       topic: topic,
+      acks: -1, //do not change
+      compression: CompressionTypes.Snappy,
       messages: [{ value: JSON.stringify(payload) }]
     });
     return result;

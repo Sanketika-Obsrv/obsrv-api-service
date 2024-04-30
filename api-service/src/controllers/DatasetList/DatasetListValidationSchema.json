@@ -1,0 +1,81 @@
+{
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "enum": ["api.datasets.list"]
+    },
+    "ver": {
+      "type": "string"
+    },
+    "ts": {
+      "type": "string"
+    },
+    "params": {
+      "type": "object",
+      "properties": {
+        "msgid": {
+          "type": "string"
+        }
+      },
+      "required": ["msgid"],
+      "additionalProperties": false
+    },
+    "request": {
+      "type": "object",
+      "properties": {
+        "filters": {
+          "type": "object",
+          "properties": {
+            "status": {
+              "anyOf": [
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "enum": ["Draft", "Live", "Publish", "Retired"]
+                  }
+                },
+                {
+                  "type": "string",
+                  "enum": ["Draft", "Live", "Retired", "Publish"]
+                }
+              ]
+            },
+            "type": {
+              "type": "string",
+              "enum": ["dataset", "master-dataset"]
+            }
+          },
+          "additionalProperties": false
+        },
+        "sortBy": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "field": {
+                "type": "string",
+                "enum": [
+                  "created_date",
+                  "updated_date",
+                  "published_date",
+                  "name"
+                ]
+              },
+              "order": {
+                "type": "string",
+                "enum": ["asc", "desc"]
+              }
+            },
+            "additionalProperties": false,
+            "required": ["field", "order"]
+          }
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "required": ["id", "ver", "ts", "params", "request"],
+  "additionalProperties": false
+}

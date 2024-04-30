@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import logger from "../../logger";
-import { getDraftDataset, getDuplicateDenormKey } from "../../services/DatasetService";
+import { getDraftDataset, getDuplicateDenormKey, setReqDatasetId } from "../../services/DatasetService";
 import _ from "lodash";
 import DatasetCreate from "./DatasetCreateValidationSchema.json";
 import { schemaValidation } from "../../services/ValidationService";
@@ -16,20 +16,29 @@ export const apiId = "api.datasets.create"
 
 const datasetCreate = async (req: Request, res: Response) => {
     try {
-        const datasetBody = req.body;
-        const isRequestValid: Record<string, any> = schemaValidation(datasetBody, DatasetCreate)
+        const datasetId = _.get(req, ["body", "request", "dataset_id"])
+        setReqDatasetId(req, datasetId)
+        
+        const isRequestValid: Record<string, any> = schemaValidation(req.body, DatasetCreate)
 
         if (!isRequestValid.isValid) {
+            const code = "DATASET_INVALID_INPUT"
+            logger.error({ code, apiId, message: isRequestValid.message })
             return ResponseHandler.errorResponse({
+                code,
                 message: isRequestValid.message,
                 statusCode: 400,
                 errCode: "BAD_REQUEST"
             } as ErrorObject, req, res);
         }
 
-        const isDataSetExists = await checkDatasetExists(_.get(req, ["body", "dataset_id"]));
+        const datasetBody = req.body.request;
+        const isDataSetExists = await checkDatasetExists(_.get(datasetBody, ["dataset_id"]));
         if (isDataSetExists) {
+            const code = "DATASET_EXISTS"
+            logger.error({ code, apiId, message: `Dataset Already exists with id:${_.get(datasetBody, "dataset_id")}` })
             return ResponseHandler.errorResponse({
+                code,
                 message: "Dataset already exists",
                 statusCode: 409,
                 errCode: "CONFLICT"
@@ -38,24 +47,27 @@ const datasetCreate = async (req: Request, res: Response) => {
 
         const duplicateDenormKeys = getDuplicateDenormKey(_.get(datasetBody, "denorm_config"))
         if (!_.isEmpty(duplicateDenormKeys)) {
-            logger.error(`Duplicate denorm output fields found. Duplicate Denorm out fields are [${duplicateDenormKeys}]`)
+            const code = "DATASET_DUPLICATE_DENORM_KEY"
+            logger.error({ code, apiId, message: `Duplicate denorm output fields found. Duplicate Denorm out fields are [${duplicateDenormKeys}]` })
             return ResponseHandler.errorResponse({
+                code,
                 statusCode: 400,
-                message: "Duplicate denorm output fields found",
+                message: "Duplicate denorm key found",
                 errCode: "BAD_REQUEST"
             } as ErrorObject, req, res);
         }
 
         const datasetPayload: any = await getDefaultValue(datasetBody);
-        const response = await DatasetDraft.create(datasetPayload)
-        logger.info(`Dataset Created Successfully with id:${_.get(response, ["dataValues", "id"])}`)
-        ResponseHandler.successResponse(req, res, { status: httpStatus.OK, data: { id: _.get(response, ["dataValues", "id"]) || "" } });
+        const data = { ...datasetPayload, version_key: Date.now().toString() }
+        const response = await DatasetDraft.create(data)
+        logger.info({ apiId, message: `Dataset Created Successfully with id:${_.get(response, ["dataValues", "id"])}` })
+        ResponseHandler.successResponse(req, res, { status: httpStatus.OK, data: { id: _.get(response, ["dataValues", "id"]) || "", version_key: data.version_key } });
     } catch (error: any) {
         logger.error(error)
         let errorMessage = error;
         const statusCode = _.get(error, "statusCode")
         if (!statusCode || statusCode == 500) {
-            errorMessage = { message: "Failed to create dataset" }
+            errorMessage = { code: "DATASET_CREATION_FAILURE", message: "Failed to create dataset" }
         }
         ResponseHandler.errorResponse(errorMessage, req, res);
     }
@@ -64,7 +76,6 @@ const datasetCreate = async (req: Request, res: Response) => {
 const checkDatasetExists = async (dataset_id: string): Promise<boolean> => {
     const datasetExists = await getDraftDataset(dataset_id)
     if (datasetExists) {
-        logger.error(`Dataset Already exists with id:${_.get(datasetExists, "id")}`)
         return true;
     } else {
         return false

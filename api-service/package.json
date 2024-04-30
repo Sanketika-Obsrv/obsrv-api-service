@@ -21,6 +21,8 @@
     "express": "^4.18.2",
     "http-status": "^1.5.3",
     "kafkajs": "^2.2.4",
+    "kafkajs-snappy": "^1.1.0",
+    "kafkajs-snappy-typescript": "^1.0.3",
     "knex": "^2.4.2",
     "lodash": "^4.17.21",
     "moment": "^2.29.4",
@@ -29,6 +31,7 @@
     "pg-hstore": "^2.3.4",
     "prom-client": "^14.2.0",
     "sequelize": "^6.37.1",
+    "slug": "^9.0.0",
     "uuid": "3.1.0",
     "winston": "^3.12.0",
     "winston-daily-rotate-file": "~3.2.1"
@@ -38,6 +41,10 @@
     "@babel/traverse": "7.23.2"
   },
   "devDependencies": {
+    "@aws-sdk/client-s3": "^3.540.0",
+    "@aws-sdk/s3-request-presigner": "^3.540.0",
+    "@azure/storage-blob": "^12.17.0",
+    "@google-cloud/storage": "^7.9.0",
     "@types/chai": "^4.3.3",
     "@types/chai-as-promised": "^7.1.5",
     "@types/chai-spies": "^1.0.3",
@@ -53,6 +60,7 @@
     "@types/node": "^18.11.9",
     "@types/pg": "^8.6.6",
     "@types/sinon": "^17.0.3",
+    "@types/slug": "^5.0.8",
     "@types/uuid": "^9.0.1",
     "@typescript-eslint/eslint-plugin": "^7.1.1",
     "@typescript-eslint/parser": "^7.1.1",
@@ -67,10 +75,10 @@
     "nock": "^13.2.9",
     "nodemon": "^3.0.1",
     "nyc": "^15.1.0",
+    "sinon": "^17.0.1",
     "ts-node": "^10.9.1",
     "tsconfig-paths": "^4.1.0",
-    "typescript": "^4.8.4",
-    "sinon": "^17.0.1"
+    "typescript": "^4.8.4"
   },
   "nyc": {
     "exclude": [

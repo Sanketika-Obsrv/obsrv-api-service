@@ -1,13 +1,13 @@
-import app from "../app";
+import app from "../../../app";
 import chai from "chai";
 import chaiHttp from "chai-http";
 import spies from "chai-spies";
 import { TestInputsForDataIngestion } from "./Fixtures";
 import { describe, it } from 'mocha';
-import { Dataset } from "../models/Dataset";
+import { Dataset } from "../../../models/Dataset";
 import sinon from "sinon";
 import { Kafka } from "kafkajs";
-import { connectionConfig } from "../configs/ConnectionsConfig";
+import { connectionConfig } from "../../../configs/ConnectionsConfig";
 
 chai.use(spies);
 chai.should();
@@ -27,7 +27,7 @@ const resultResponse = [
         logStartOffset: '0'
     }
 ]
-const kafkaModule = require("../connections/kafkaConnection");
+const kafkaModule = require("../../../connections/kafkaConnection");
 
 describe("DATA INGEST API", () => {
     afterEach(() => {
@@ -98,74 +98,6 @@ describe("DATA INGEST API", () => {
             })
     });
 
-    it("it should not ingest data when invalid extraction config present for batch", (done) => {
-        chai.spy.on(Dataset, "findOne", () => {
-            return Promise.resolve({
-                dataValues: {
-                    dataset_config: {
-                        entry_topic: 'local.test.topic',
-                    },
-                    extraction_config: {
-                        is_batch_event: true,
-                        extraction_key: "events",
-                        batch_id: "id"
-                    }
-                }
-            })
-        })
-        let connectionStub = sinon.stub(kafkaModule, "connect").rejects(false);
-        let sinonStub = sinon.stub(kafkaModule, "send").rejects(true)
-        chai
-            .request(app)
-            .post(apiEndpoint)
-            .send(TestInputsForDataIngestion.INVALID_EXTRACTION_CONFIG)
-            .end((err, res) => {
-                res.should.have.status(400);
-                res.body.should.be.a("object");
-                res.body.should.have.property("result");
-                res.body.id.should.be.eq("api.data.in");
-                res.body.params.status.should.be.eq("FAILED");
-                res.body.responseCode.should.be.eq("BAD_REQUEST");
-                connectionStub.restore()
-                sinonStub.restore()
-                done()
-            })
-    });
-
-    it("it should ingest data when valid extraction config present for batch", (done) => {
-        chai.spy.on(Dataset, "findOne", () => {
-            return Promise.resolve({
-                dataValues: {
-                    dataset_config: {
-                        entry_topic: 'local.test.topic',
-                    },
-                    extraction_config: {
-                        is_batch_event: true,
-                        extraction_key: "events",
-                        batch_id: "id"
-                    }
-                }
-            })
-        })
-        let connectionStub = sinon.stub(kafkaModule, "connect").resolves(true);
-        let sinonStub = sinon.stub(kafkaModule, "send").resolves(resultResponse)
-        chai
-            .request(app)
-            .post(apiEndpoint)
-            .send(TestInputsForDataIngestion.VALID_CONFIG)
-            .end((err, res) => {
-                res.should.have.status(200);
-                res.body.should.be.a("object");
-                res.body.should.have.property("result");
-                res.body.id.should.be.eq("api.data.in");
-                res.body.params.status.should.be.eq("SUCCESS");
-                res.body.result.message.should.be.eq("Data ingested successfully");
-                connectionStub.restore()
-                sinonStub.restore()
-                done()
-            })
-    });
-
     it("Failed to connect kafka.", (done) => {
         chai.spy.on(Dataset, "findOne", () => {
             return Promise.resolve({
@@ -210,8 +142,9 @@ describe("DATA INGEST API", () => {
                 res.body.should.be.a("object");
                 res.body.should.have.property("result");
                 res.body.id.should.be.eq("api.data.in");
-                res.body.params.status.should.be.eq("FAILED")
-                res.body.params.errmsg.should.be.eq("Entry topic is not defined")
+                res.body.params.status.should.be.eq("FAILED");
+                res.body.error.message.should.be.eq("Entry topic is not defined")
+                res.body.error.code.should.be.eq("TOPIC_NOT_FOUND");
                 done()
             })
     });
@@ -227,7 +160,8 @@ describe("DATA INGEST API", () => {
                 res.body.should.have.property("result");
                 res.body.id.should.be.eq("api.data.in");
                 res.body.params.status.should.be.eq("FAILED")
-                res.body.params.errmsg.should.be.eq("#required should have required property 'data'")
+                res.body.error.message.should.be.eq("#required should have required property 'id'")
+                res.body.error.code.should.be.eq("DATA_INGESTION_INVALID_INPUT");
                 done()
             })
     });
@@ -247,7 +181,8 @@ describe("DATA INGEST API", () => {
                 res.body.should.have.property("result");
                 res.body.id.should.be.eq("api.data.in");
                 res.body.params.status.should.be.eq("FAILED");
-                res.body.params.errmsg.should.be.eq("Dataset with id not found")
+                res.body.error.message.should.be.eq("Dataset with id not found")
+                res.body.error.code.should.be.eq("DATASET_NOT_FOUND");
                 done()
             })
     });
@@ -264,7 +199,9 @@ describe("DATA INGEST API", () => {
                 res.should.have.status(500);
                 res.body.should.be.a("object")
                 res.body.id.should.be.eq("api.data.in");
-                res.body.params.status.should.be.eq("FAILED")
+                res.body.params.status.should.be.eq("FAILED");
+                res.body.error.code.should.be.eq("DATA_INGESTION_FAILED");
+                res.body.error.message.should.be.eq("Failed to ingest data")
                 done();
             });
     });

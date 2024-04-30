@@ -6,8 +6,8 @@ import httpStatus from "http-status";
 import { describe, it } from 'mocha';
 import { DatasetDraft } from "../../../models/DatasetDraft";
 import _ from "lodash";
-import { TestInputsForDatasetUpdate } from "./Fixtures";
-import { apiId } from "../../../controllers/DatasetUpdate/DatasetUpdate"
+import { TestInputsForDatasetUpdate, msgid, requestStructure, validVersionKey } from "./Fixtures";
+import { apiId, invalidInputErrCode } from "../../../controllers/DatasetUpdate/DatasetUpdate"
 
 chai.use(spies);
 chai.should();
@@ -22,7 +22,7 @@ describe("DATASET VALIDATION CONFIG UPDATE", () => {
     it("Success: Dataset validation configs updated when validation is true", (done) => {
         chai.spy.on(DatasetDraft, "findOne", () => {
             return Promise.resolve({
-                id: "telemetry", status: "Draft"
+                id: "telemetry", status: "Draft", version_key: validVersionKey
             })
         })
         chai.spy.on(DatasetDraft, "update", () => {
@@ -38,7 +38,9 @@ describe("DATASET VALIDATION CONFIG UPDATE", () => {
                 res.body.id.should.be.eq(apiId);
                 res.body.params.status.should.be.eq("SUCCESS")
                 res.body.result.id.should.be.eq("telemetry")
+                res.body.params.msgid.should.be.eq(msgid)
                 res.body.result.message.should.be.eq("Dataset is updated successfully")
+                res.body.result.version_key.should.be.a("string")
                 done();
             });
     });
@@ -46,7 +48,7 @@ describe("DATASET VALIDATION CONFIG UPDATE", () => {
     it("Success: Dataset validation configs updated with default values when validation is false", (done) => {
         chai.spy.on(DatasetDraft, "findOne", () => {
             return Promise.resolve({
-                id: "telemetry", status: "Draft"
+                id: "telemetry", status: "Draft", version_key: validVersionKey
             })
         })
         chai.spy.on(DatasetDraft, "update", () => {
@@ -55,14 +57,16 @@ describe("DATASET VALIDATION CONFIG UPDATE", () => {
         chai
             .request(app)
             .patch("/v1/datasets/update")
-            .send({ dataset_id: "telemetry", validation_config: { "validate": false } })
+            .send({ ...requestStructure, request: { dataset_id: "telemetry", version_key: validVersionKey, validation_config: { "validate": false } } })
             .end((err, res) => {
                 res.should.have.status(httpStatus.OK);
                 res.body.should.be.a("object")
                 res.body.id.should.be.eq(apiId);
                 res.body.params.status.should.be.eq("SUCCESS")
+                res.body.params.msgid.should.be.eq(msgid)
                 res.body.result.id.should.be.eq("telemetry")
                 res.body.result.message.should.be.eq("Dataset is updated successfully")
+                res.body.result.version_key.should.be.a("string")
                 done();
             });
     });
@@ -72,13 +76,15 @@ describe("DATASET VALIDATION CONFIG UPDATE", () => {
         chai
             .request(app)
             .patch("/v1/datasets/update")
-            .send({ dataset_id: "telemetry", validation_config: { "validate": true } })
+            .send({ ...requestStructure, request: { dataset_id: "telemetry", version_key: validVersionKey, validation_config: { "validate": true } } })
             .end((err, res) => {
                 res.should.have.status(httpStatus.BAD_REQUEST);
                 res.body.should.be.a("object")
                 res.body.id.should.be.eq(apiId);
                 res.body.params.status.should.be.eq("FAILED")
-                expect(res.body.params.errmsg).to.match(/^#properties(.+)'.mode'$/)
+                res.body.params.msgid.should.be.eq(msgid)
+                expect(res.body.error.message).to.match(/^#properties(.+)'.mode'$/)
+                res.body.error.code.should.be.eq(invalidInputErrCode)
                 done();
             });
     });

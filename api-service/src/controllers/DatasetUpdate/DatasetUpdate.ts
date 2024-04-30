@@ -10,36 +10,47 @@ import { DatasetDraft } from "../../models/DatasetDraft";
 import logger from "../../logger";
 import { defaultDatasetConfig } from "../../configs/DatasetConfigDefault";
 import { DatasetTransformationsDraft } from "../../models/TransformationDraft";
-import { getDraftTransformations } from "../../services/DatasetService";
+import { getDraftTransformations, setReqDatasetId } from "../../services/DatasetService";
 
 export const apiId = "api.datasets.update";
+export const invalidInputErrCode = "DATASET_UPDATE_INPUT_INVALID"
+export const errorCode = "DATASET_UPDATE_FAILURE"
 
 const datasetUpdate = async (req: Request, res: Response) => {
     try {
-        const datasetBody = req.body;
-        const isRequestValid: Record<string, any> = schemaValidation(datasetBody, DatasetUpdate)
+        const datasetId = _.get(req, ["body", "request", "dataset_id"])
+        setReqDatasetId(req, datasetId)
+
+        const isRequestValid: Record<string, any> = schemaValidation(req.body, DatasetUpdate)
         if (!isRequestValid.isValid) {
+            logger.error({ code: invalidInputErrCode, apiId, message: isRequestValid.message })
             return ResponseHandler.errorResponse({
+                code: invalidInputErrCode,
                 message: isRequestValid.message,
                 statusCode: 400,
                 errCode: "BAD_REQUEST"
             } as ErrorObject, req, res);
         }
 
-        const { dataset_id, ...rest } = datasetBody
+        const datasetBody = req.body.request
+        const { dataset_id, version_key, ...rest } = datasetBody
         if (_.isEmpty(rest)) {
-            logger.error(`Provide atleast one field in addition to the dataset_id:${dataset_id} to update the dataset`)
+            const code = "DATASET_UPDATE_NO_FIELDS"
+            logger.error({ code, apiId, message: `Provide atleast one field in addition to the dataset_id:${dataset_id} and version_key:${version_key} to update the dataset` })
             return ResponseHandler.errorResponse({
+                code,
                 message: "Provide atleast one field in addition to the dataset_id to update the dataset",
                 statusCode: 400,
                 errCode: "BAD_REQUEST"
             } as ErrorObject, req, res);
         }
 
-        const { isDatasetExists, datasetStatus } = await checkDatasetExists(dataset_id);
+        const { isDatasetExists, datasetStatus, invalidVersionKey, validVersionKey } = await checkDatasetExists(dataset_id, version_key);
         if (!isDatasetExists) {
-            logger.error(`Dataset does not exists with id:${dataset_id}`)
+            const code = "DATASET_NOT_EXISTS"
+            logger.error({ code, apiId, message: `Dataset does not exists with id:${dataset_id}` })
             return ResponseHandler.errorResponse({
+                code,
                 message: "Dataset does not exists to update",
                 statusCode: 404,
                 errCode: "NOT_FOUND"
@@ -47,20 +58,35 @@ const datasetUpdate = async (req: Request, res: Response) => {
         }
 
         if (isDatasetExists && datasetStatus != DatasetStatus.Draft) {
-            logger.error(`Dataset with id:${dataset_id} cannot be updated as it is not in draft state`)
+            const code = "DATASET_NOT_IN_DRAFT_STATE_TO_UPDATE"
+            logger.error({ code, apiId, message: `Dataset with id:${dataset_id} cannot be updated as it is not in draft state` })
             return ResponseHandler.errorResponse({
+                code,
                 message: "Dataset cannot be updated as it is not in draft state",
                 statusCode: 400,
                 errCode: "BAD_REQUEST"
             } as ErrorObject, req, res);
         }
 
+        if (invalidVersionKey) {
+            const code = "DATASET_OUTDATED"
+            logger.error({ code, apiId, message: `The dataset:${dataset_id} with version_key:${version_key} is outdated. Please try to fetch latest changes of the dataset with version key:${validVersionKey} and perform the updates` })
+            return ResponseHandler.errorResponse({
+                code,
+                message: "The dataset is outdated. Please try to fetch latest changes of the dataset and perform the updates",
+                statusCode: 409,
+                errCode: "CONFLICT"
+            } as ErrorObject, req, res);
+        }
+
         const duplicateDenormKeys = getDuplicateDenormKey(_.get(datasetBody, "denorm_config"))
         if (!_.isEmpty(duplicateDenormKeys)) {
-            logger.error(`Duplicate denorm output fields found. Duplicate Denorm out fields are [${duplicateDenormKeys}]`)
+            const code = "DATASET_DUPLICATE_DENORM_KEY"
+            logger.error({ code, apiId, message: `Duplicate denorm output fields found. Duplicate Denorm out fields are [${duplicateDenormKeys}]` })
             return ResponseHandler.errorResponse({
+                code,
                 statusCode: 400,
-                message: `Dataset contains duplicate denorm out keys:[${duplicateDenormKeys}}]`,
+                message: `Dataset contains duplicate denorm out keys:[${duplicateDenormKeys}]`,
                 errCode: "BAD_REQUEST"
             } as ErrorObject, req, res);
         }
@@ -72,13 +98,15 @@ const datasetUpdate = async (req: Request, res: Response) => {
         await manageTransformations(transformationConfigs, dataset_id);
 
         await DatasetDraft.update(datasetPayload, { where: { id: dataset_id } })
-        ResponseHandler.successResponse(req, res, { status: httpStatus.OK, data: { message: "Dataset is updated successfully", id: dataset_id } });
+        logger.info({ apiId, message: `Dataset updated successfully with id:${dataset_id}` })
+        ResponseHandler.successResponse(req, res, { status: httpStatus.OK, data: { message: "Dataset is updated successfully", id: dataset_id, version_key: _.get(datasetPayload, "version_key") } });
     } catch (error: any) {
-        logger.error(error)
+        const code = _.get(error, "code") || errorCode
+        logger.error({ ...error, apiId, code })
         let errorMessage = error;
         const statusCode = _.get(error, "statusCode")
         if (!statusCode || statusCode == 500) {
-            errorMessage = { message: "Failed to update dataset" }
+            errorMessage = { code, message: "Failed to update dataset" }
         }
         ResponseHandler.errorResponse(errorMessage, req, res);
     }
@@ -105,9 +133,13 @@ const manageTransformations = async (transformations: Record<string, any>, datas
     }
 }
 
-const checkDatasetExists = async (dataset_id: string): Promise<Record<string, any>> => {
+const checkDatasetExists = async (dataset_id: string, version_key: string): Promise<Record<string, any>> => {
     const datasetExists: Record<string, any> | null = await getExistingDataset(dataset_id)
     if (datasetExists) {
+        const validVersionKey = _.get(datasetExists, "version_key")
+        if (validVersionKey !== version_key) {
+            return { isDatasetExists: true, datasetStatus: datasetExists.status, invalidVersionKey: true, validVersionKey }
+        }
         return { isDatasetExists: true, datasetStatus: datasetExists.status }
     } else {
         return { isDatasetExists: false, datasetStatus: "" }
@@ -122,7 +154,8 @@ const getDatasetUpdatedConfigs = async (payload: Record<string, any>): Promise<R
         extraction_config: extraction_config ? setExtractionConfigs(extraction_config) : null,
         dedup_config: dedup_config ? setDedupConfigs(dedup_config) : null,
         tags: tags ? getUpdatedTags(tags, _.get(existingDataset, "tags")) : null,
-        denorm_config: denorm_config ? setDenormConfigs(denorm_config, _.get(existingDataset, ["denorm_config"])) : null
+        denorm_config: denorm_config ? setDenormConfigs(denorm_config, _.get(existingDataset, ["denorm_config"])) : null,
+        version_key: Date.now().toString()
     }
     return _.pickBy({ ...payload, ...updatedConfigs }, _.identity)
 }
@@ -173,18 +206,18 @@ const getUpdatedTags = (newTagsPayload: Record<string, any>, datasetTags: Array<
 
     const duplicateTagsToAdd: Array<string> = getDuplicateConfigs(tagsToAdd)
     if (!_.isEmpty(duplicateTagsToAdd)) {
-        logger.info(`Duplicate tags provided by user to add are [${duplicateTagsToAdd}]`)
+        logger.info({ apiId, message: `Duplicate tags provided by user to add are [${duplicateTagsToAdd}]` })
     }
 
     const duplicateTagsToRemove: Array<string> = getDuplicateConfigs(tagsToRemove)
     if (!_.isEmpty(duplicateTagsToRemove)) {
-        logger.info(`Duplicate tags provided by user to remove are [${duplicateTagsToRemove}]`)
+        logger.info({ apiId, message: `Duplicate tags provided by user to remove are [${duplicateTagsToRemove}]` })
     }
 
     const checkTagToAdd = _.intersection(datasetTags, _.uniq(tagsToAdd))
     if (_.size(checkTagToAdd)) {
-        logger.error(`Dataset tags ${[checkTagToAdd]} already exists`)
         throw {
+            code: "DATASET_TAGS_EXISTS",
             message: "Dataset tags already exist",
             statusCode: 400,
             errCode: "BAD_REQUEST"
@@ -193,8 +226,8 @@ const getUpdatedTags = (newTagsPayload: Record<string, any>, datasetTags: Array<
 
     const checkTagToRemove = _.intersection(datasetTags, _.uniq(tagsToRemove))
     if (_.size(checkTagToRemove) !== _.size(_.uniq(tagsToRemove))) {
-        logger.error(`Dataset tags ${[tagsToRemove]} does not exist to remove`)
         throw {
+            code: "DATASET_TAGS_DO_NOT_EXIST",
             message: "Dataset tags do not exist to remove",
             statusCode: 404,
             errCode: "NOT_FOUND"
@@ -219,7 +252,7 @@ const getTransformationConfigs = async (newTransformationPayload: Record<string,
 
     const duplicateFieldKeys: Array<string> = getDuplicateConfigs(transformationFieldKeys)
     if (!_.isEmpty(duplicateFieldKeys)) {
-        logger.info(`Duplicate transformations provided by user are [${duplicateFieldKeys}]`)
+        logger.info({ apiId, message: `Duplicate transformations provided by user are [${duplicateFieldKeys}]` })
     }
 
     const getTransformationPayload = (action: string) => {
@@ -239,8 +272,8 @@ const getTransformationConfigs = async (newTransformationPayload: Record<string,
     const checkTransformationToUpdate = checkTransformations(transformationsToUpdate)
 
     if (_.size(checkTransformationToAdd)) {
-        logger.error(`Dataset transformations ${[checkTransformationToAdd]} already exists`)
         throw {
+            code: "DATASET_TRANSFORMATIONS_EXIST",
             message: "Dataset transformations already exists",
             statusCode: 400,
             errCode: "BAD_REQUEST"
@@ -249,8 +282,8 @@ const getTransformationConfigs = async (newTransformationPayload: Record<string,
 
     const transformationExistsToUpdate = _.every(transformationsToUpdate, payload => _.includes(checkTransformationToUpdate, payload.field_key))
     if (!transformationExistsToUpdate) {
-        logger.error(`Dataset transformations ${[transformationsToUpdate]} does not exist to update`)
         throw {
+            code: "DATASET_TRANSFORMATIONS_DO_NOT_EXIST",
             message: "Dataset transformations do not exist to update",
             statusCode: 404,
             errCode: "NOT_FOUND"
@@ -259,8 +292,8 @@ const getTransformationConfigs = async (newTransformationPayload: Record<string,
 
     const isTransformationExistsToRemove = _.every(transformationsToRemove, payload => _.includes(checkTransformationToRemove, payload.field_key))
     if (!isTransformationExistsToRemove) {
-        logger.error(`Dataset transformations ${[transformationsToRemove]} does not exist to remove`)
         throw {
+            code: "DATASET_TRANSFORMATIONS_DO_NOT_EXIST",
             message: "Dataset transformations do not exist to remove",
             statusCode: 404,
             errCode: "NOT_FOUND"
@@ -305,7 +338,7 @@ const setDenormConfigs = (newDenormPayload: Record<string, any>, datasetDenormCo
     const denormFieldsToRemove = _.map(denormsToRemove, field => field.denorm_out_field)
     const duplicateFieldKeys: Array<string> = getDuplicateConfigs(denormFieldsToRemove)
     if (!_.isEmpty(duplicateFieldKeys)) {
-        logger.info(`Duplicate denorm out fields provided by user are [${duplicateFieldKeys}]`)
+        logger.info({ apiId, message: `Duplicate denorm out fields provided by user are [${duplicateFieldKeys}]` })
     }
 
     const checkDenormKeys = (denormKeys: Record<string, any>) => {
@@ -315,8 +348,8 @@ const setDenormConfigs = (newDenormPayload: Record<string, any>, datasetDenormCo
     const checkDenormsToRemove = checkDenormKeys(denormsToRemove)
 
     if (_.size(checkDenormsToAdd)) {
-        logger.error(`Denorm fields [${checkDenormsToAdd}] already exist`)
         throw {
+            code: "DATASET_DENORM_EXISTS",
             message: "Denorm fields already exist",
             statusCode: 400,
             errCode: "BAD_REQUEST"
@@ -325,8 +358,8 @@ const setDenormConfigs = (newDenormPayload: Record<string, any>, datasetDenormCo
 
     const isDenormExists = _.every(denormsToRemove, payload => _.includes(checkDenormsToRemove, payload.denorm_out_field))
     if (!isDenormExists) {
-        logger.error(`Denorm fields [${denormFieldsToRemove}] do not exist to remove`)
         throw {
+            code: "DATASET_DENORM_DO_NOT_EXIST",
             message: "Denorm fields do not exist to remove",
             statusCode: 404,
             errCode: "NOT_FOUND"
