@@ -18,11 +18,14 @@ const liveDatasetStatus = ["Live", "Retired"]
 const draftDatasetStatus = ["Draft", "Publish"]
 
 const datasetList = async (req: Request, res: Response) => {
+    const requestBody = req.body;
+    const msgid = _.get(req, ["body", "params", "msgid"]);
+    const resmsgid = _.get(res, "resmsgid");
     try {
         const isRequestValid: Record<string, any> = schemaValidation(req.body, DatasetCreate)
         if (!isRequestValid.isValid) {
             const code = "DATASET_LIST_INPUT_INVALID"
-            logger.error({ code, apiId, message: isRequestValid.message })
+            logger.error({ code, apiId, msgid, requestBody, resmsgid, message: isRequestValid.message })
             return ResponseHandler.errorResponse({
                 code,
                 message: isRequestValid.message,
@@ -31,12 +34,13 @@ const datasetList = async (req: Request, res: Response) => {
             } as ErrorObject, req, res);
         }
 
-        const requestBody = req.body.request;
-        const datasetList = await getDatasetList(requestBody)
-        logger.info({ apiId, message: `Datasets are listed successfully with a dataset count (${_.size(datasetList)})` })
-        ResponseHandler.successResponse(req, res, { status: httpStatus.OK, data: { data: datasetList, count: _.size(datasetList) } });
+        const datasetBody = req.body.request;
+        const datasetList = await getDatasetList(datasetBody)
+        const responseData = { data: datasetList, count: _.size(datasetList) }
+        logger.info({ apiId, msgid, requestBody, resmsgid, message: `Datasets are listed successfully with a dataset count (${_.size(datasetList)})`, response: responseData })
+        ResponseHandler.successResponse(req, res, { status: httpStatus.OK, data: responseData });
     } catch (error: any) {
-        logger.error({ ...error, apiId, code: errorCode });
+        logger.error({ ...error, apiId, code: errorCode, msgid, requestBody, resmsgid });
         let errorMessage = error;
         const statusCode = _.get(error, "statusCode")
         if (!statusCode || statusCode == 500) {
