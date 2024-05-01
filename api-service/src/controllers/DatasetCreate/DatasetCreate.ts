@@ -16,6 +16,9 @@ import { DatasetTransformationsDraft } from "../../models/TransformationDraft";
 export const apiId = "api.datasets.create"
 
 const datasetCreate = async (req: Request, res: Response) => {
+    const requestBody = req.body
+    const msgid = _.get(req, ["body", "params", "msgid"]);
+    const resmsgid = _.get(res, "resmsgid");
     try {
         const datasetId = _.get(req, ["body", "request", "dataset_id"])
         setReqDatasetId(req, datasetId)
@@ -24,7 +27,7 @@ const datasetCreate = async (req: Request, res: Response) => {
 
         if (!isRequestValid.isValid) {
             const code = "DATASET_INVALID_INPUT"
-            logger.error({ code, apiId, message: isRequestValid.message })
+            logger.error({ code, apiId, msgid, requestBody, resmsgid, message: isRequestValid.message })
             return ResponseHandler.errorResponse({
                 code,
                 message: isRequestValid.message,
@@ -37,7 +40,7 @@ const datasetCreate = async (req: Request, res: Response) => {
         const isDataSetExists = await checkDatasetExists(_.get(datasetBody, ["dataset_id"]));
         if (isDataSetExists) {
             const code = "DATASET_EXISTS"
-            logger.error({ code, apiId, message: `Dataset Already exists with id:${_.get(datasetBody, "dataset_id")}` })
+            logger.error({ code, apiId, msgid, requestBody, resmsgid, message: `Dataset Already exists with id:${_.get(datasetBody, "dataset_id")}` })
             return ResponseHandler.errorResponse({
                 code,
                 message: "Dataset already exists",
@@ -49,7 +52,7 @@ const datasetCreate = async (req: Request, res: Response) => {
         const duplicateDenormKeys = getDuplicateDenormKey(_.get(datasetBody, "denorm_config"))
         if (!_.isEmpty(duplicateDenormKeys)) {
             const code = "DATASET_DUPLICATE_DENORM_KEY"
-            logger.error({ code, apiId, message: `Duplicate denorm output fields found. Duplicate Denorm out fields are [${duplicateDenormKeys}]` })
+            logger.error({ code, apiId, msgid, requestBody, resmsgid, message: `Duplicate denorm output fields found. Duplicate Denorm out fields are [${duplicateDenormKeys}]` })
             return ResponseHandler.errorResponse({
                 code,
                 statusCode: 400,
@@ -67,14 +70,16 @@ const datasetCreate = async (req: Request, res: Response) => {
             await DatasetTransformationsDraft.bulkCreate(transformationConfig);
         }
 
-        logger.info({ apiId, message: `Dataset Created Successfully with id:${_.get(response, ["dataValues", "id"])}` })
-        ResponseHandler.successResponse(req, res, { status: httpStatus.OK, data: { id: _.get(response, ["dataValues", "id"]) || "", version_key: data.version_key } });
+        const responseData = { id: _.get(response, ["dataValues", "id"]) || "", version_key: data.version_key }
+        logger.info({ apiId, msgid, requestBody, resmsgid, message: `Dataset Created Successfully with id:${_.get(response, ["dataValues", "id"])}`, response: responseData })
+        ResponseHandler.successResponse(req, res, { status: httpStatus.OK, data: responseData });
     } catch (error: any) {
-        logger.error(error)
+        const code = _.get(error, "code") || "DATASET_CREATION_FAILURE"
+        logger.error({ ...error, apiId, code, msgid, requestBody, resmsgid })
         let errorMessage = error;
         const statusCode = _.get(error, "statusCode")
         if (!statusCode || statusCode == 500) {
-            errorMessage = { code: "DATASET_CREATION_FAILURE", message: "Failed to create dataset" }
+            errorMessage = { code, message: "Failed to create dataset" }
         }
         ResponseHandler.errorResponse(errorMessage, req, res);
     }

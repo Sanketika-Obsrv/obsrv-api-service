@@ -1,5 +1,5 @@
 import httpStatus from "http-status";
-import { Request, Response } from "express";
+import { Request, Response, response } from "express";
 import { ResponseHandler } from "../../helpers/ResponseHandler";
 import { schemaValidation } from "../../services/ValidationService";
 import DatasetUpdate from "./DatasetUpdateValidationSchema.json";
@@ -17,13 +17,16 @@ export const invalidInputErrCode = "DATASET_UPDATE_INPUT_INVALID"
 export const errorCode = "DATASET_UPDATE_FAILURE"
 
 const datasetUpdate = async (req: Request, res: Response) => {
+    const requestBody = req.body
+    const msgid = _.get(req, ["body", "params", "msgid"]);
+    const resmsgid = _.get(res, "resmsgid");
     try {
         const datasetId = _.get(req, ["body", "request", "dataset_id"])
         setReqDatasetId(req, datasetId)
 
         const isRequestValid: Record<string, any> = schemaValidation(req.body, DatasetUpdate)
         if (!isRequestValid.isValid) {
-            logger.error({ code: invalidInputErrCode, apiId, message: isRequestValid.message })
+            logger.error({ code: invalidInputErrCode, apiId, msgid, requestBody, resmsgid, message: isRequestValid.message })
             return ResponseHandler.errorResponse({
                 code: invalidInputErrCode,
                 message: isRequestValid.message,
@@ -36,7 +39,7 @@ const datasetUpdate = async (req: Request, res: Response) => {
         const { dataset_id, version_key, ...rest } = datasetBody
         if (_.isEmpty(rest)) {
             const code = "DATASET_UPDATE_NO_FIELDS"
-            logger.error({ code, apiId, message: `Provide atleast one field in addition to the dataset_id:${dataset_id} and version_key:${version_key} to update the dataset` })
+            logger.error({ code, apiId, msgid, requestBody, resmsgid, message: `Provide atleast one field in addition to the dataset_id:${dataset_id} and version_key:${version_key} to update the dataset` })
             return ResponseHandler.errorResponse({
                 code,
                 message: "Provide atleast one field in addition to the dataset_id to update the dataset",
@@ -48,7 +51,7 @@ const datasetUpdate = async (req: Request, res: Response) => {
         const { isDatasetExists, datasetStatus, invalidVersionKey, validVersionKey } = await checkDatasetExists(dataset_id, version_key);
         if (!isDatasetExists) {
             const code = "DATASET_NOT_EXISTS"
-            logger.error({ code, apiId, message: `Dataset does not exists with id:${dataset_id}` })
+            logger.error({ code, apiId, msgid, requestBody, resmsgid, message: `Dataset does not exists with id:${dataset_id}` })
             return ResponseHandler.errorResponse({
                 code,
                 message: "Dataset does not exists to update",
@@ -59,7 +62,7 @@ const datasetUpdate = async (req: Request, res: Response) => {
 
         if (isDatasetExists && datasetStatus != DatasetStatus.Draft) {
             const code = "DATASET_NOT_IN_DRAFT_STATE_TO_UPDATE"
-            logger.error({ code, apiId, message: `Dataset with id:${dataset_id} cannot be updated as it is not in draft state` })
+            logger.error({ code, apiId, msgid, requestBody, resmsgid, message: `Dataset with id:${dataset_id} cannot be updated as it is not in draft state` })
             return ResponseHandler.errorResponse({
                 code,
                 message: "Dataset cannot be updated as it is not in draft state",
@@ -70,7 +73,7 @@ const datasetUpdate = async (req: Request, res: Response) => {
 
         if (invalidVersionKey) {
             const code = "DATASET_OUTDATED"
-            logger.error({ code, apiId, message: `The dataset:${dataset_id} with version_key:${version_key} is outdated. Please try to fetch latest changes of the dataset with version key:${validVersionKey} and perform the updates` })
+            logger.error({ code, apiId, msgid, requestBody, resmsgid, message: `The dataset:${dataset_id} with version_key:${version_key} is outdated. Please try to fetch latest changes of the dataset with version key:${validVersionKey} and perform the updates` })
             return ResponseHandler.errorResponse({
                 code,
                 message: "The dataset is outdated. Please try to fetch latest changes of the dataset and perform the updates",
@@ -82,7 +85,7 @@ const datasetUpdate = async (req: Request, res: Response) => {
         const duplicateDenormKeys = getDuplicateDenormKey(_.get(datasetBody, "denorm_config"))
         if (!_.isEmpty(duplicateDenormKeys)) {
             const code = "DATASET_DUPLICATE_DENORM_KEY"
-            logger.error({ code, apiId, message: `Duplicate denorm output fields found. Duplicate Denorm out fields are [${duplicateDenormKeys}]` })
+            logger.error({ code, apiId, msgid, requestBody, resmsgid, message: `Duplicate denorm output fields found. Duplicate Denorm out fields are [${duplicateDenormKeys}]` })
             return ResponseHandler.errorResponse({
                 code,
                 statusCode: 400,
@@ -98,11 +101,13 @@ const datasetUpdate = async (req: Request, res: Response) => {
         await manageTransformations(transformationConfigs, dataset_id);
 
         await DatasetDraft.update(datasetPayload, { where: { id: dataset_id } })
-        logger.info({ apiId, message: `Dataset updated successfully with id:${dataset_id}` })
-        ResponseHandler.successResponse(req, res, { status: httpStatus.OK, data: { message: "Dataset is updated successfully", id: dataset_id, version_key: _.get(datasetPayload, "version_key") } });
+
+        const responsedata = { message: "Dataset is updated successfully", id: dataset_id, version_key: _.get(datasetPayload, "version_key") }
+        logger.info({ apiId, msgid, requestBody, resmsgid, message: `Dataset updated successfully with id:${dataset_id}`, response: responsedata })
+        ResponseHandler.successResponse(req, res, { status: httpStatus.OK, data: responsedata });
     } catch (error: any) {
         const code = _.get(error, "code") || errorCode
-        logger.error({ ...error, apiId, code })
+        logger.error({ ...error, apiId, code, msgid, requestBody, resmsgid })
         let errorMessage = error;
         const statusCode = _.get(error, "statusCode")
         if (!statusCode || statusCode == 500) {
