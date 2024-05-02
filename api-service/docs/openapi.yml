@@ -2502,7 +2502,7 @@ paths:
                         updated_by: SYSTEM
                         created_date: '2024-04-25T06:31:20.819Z'
                         updated_date: '2024-04-25T06:31:20.819Z'
-                      - template_id: yashash-k
+                      - template_id: json_template
                         template_name: YASHASH  k
                         query: >-
                           {"queryType":"select","datasetId":"{{DATASET}}","intervals":"{{STARTDATE}}/{{ENDDATE}}","limit":"{{LIMITS}}"}
@@ -2719,7 +2719,7 @@ paths:
                         updated_by: SYSTEM
                         created_date: '2024-04-25T06:31:20.819Z'
                         updated_date: '2024-04-25T06:31:20.819Z'
-                      - template_id: yashash-k
+                      - template_id: json_template
                         template_name: YASHASH  k
                         query: >-
                           {"queryType":"select","datasetId":"{{DATASET}}","intervals":"{{STARTDATE}}/{{ENDDATE}}","limit":"{{LIMITS}}"}
@@ -3027,7 +3027,7 @@ paths:
                   resmsgid: 3e2859df-f494-4c47-ae64-e2c34f4ef1cb
                 responseCode: OK
                 result:
-                  message: Template yashash-k deleted successfully
+                  message: Template json_template deleted successfully
         '404':
           description: Not Found
           content:
