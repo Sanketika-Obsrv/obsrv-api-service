@@ -3046,3 +3046,353 @@ paths:
                   code: QUERY_TEMPLATE_NOT_EXISTS
                   message: Template json_template does not exists
                   trace: ''
+  /v1/template/update:
+    patch:
+      tags:
+        - Query Templates
+      summary: update template
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                id: api.query.template.update
+                ver: v1
+                ts: '2024-04-10T16:10:50+05:30'
+                params:
+                  msgid: 4a7f14c3-d61e-4d4f-be78-181834eeff6d
+                request:
+                  template_id: sql11template1
+                  template_name: sql_update_test_template
+                  query_type: sql
+                  query: >-
+                    SELECT * FROM {{DATASET}} WHERE __time BETWEEN TIMESTAMP
+                    {{STARTDATE}} AND TIMESTAMP {{ENDDATE}} lIMIT {{LIMIT}}
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                id: api.query.template.update
+                ver: v1
+                ts: '2024-05-02T13:16:31+05:30'
+                params:
+                  status: SUCCESS
+                  msgid: 4a7f14c3-d61e-4d4f-be78-181834eeff6d
+                  resmsgid: ab869754-d2f0-4b9a-b38b-04d9e5901b5d
+                responseCode: OK
+                result:
+                  message: Query template updated successfully
+                  templateId: sql11template1
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+              examples:
+                example-0:
+                  summary: 'Failure: query should present when query_type provided'
+                  value:
+                    id: api.query.template.update
+                    ver: v1
+                    ts: '2024-05-02T11:30:36+05:30'
+                    params:
+                      status: FAILED
+                      msgid: 4a7f14c3-d61e-4d4f-be78-181834eeff6d
+                      resmsgid: f11f5287-77cd-43f0-b7f6-6d6b94b9cea2
+                    responseCode: BAD_REQUEST
+                    result: {}
+                    error:
+                      code: QUERY_TEMPLATE_INVALID_INPUT
+                      message: >-
+                        #properties/request/dependencies should have property
+                        query when property query_type is present
+                      trace: ''
+                example-1:
+                  summary: 'Failure: query_type should present when query is given'
+                  value:
+                    id: api.query.template.update
+                    ver: v1
+                    ts: '2024-05-02T11:33:23+05:30'
+                    params:
+                      status: FAILED
+                      msgid: 4a7f14c3-d61e-4d4f-be78-181834eeff6d
+                      resmsgid: 937cf790-867b-450b-afc9-86a96d02f636
+                    responseCode: BAD_REQUEST
+                    result: {}
+                    error:
+                      code: QUERY_TEMPLATE_INVALID_INPUT
+                      message: >-
+                        #properties/request/dependencies should have property
+                        query_type when property query is present
+                      trace: ''
+                example-2:
+                  summary: 'Failure: template name validation failure'
+                  value:
+                    id: api.query.template.update
+                    ver: v1
+                    ts: '2024-05-02T11:34:18+05:30'
+                    params:
+                      status: FAILED
+                      msgid: 4a7f14c3-d61e-4d4f-be78-181834eeff6d
+                      resmsgid: 9f3ae5aa-2e98-4204-8f87-b11e5bb3865a
+                    responseCode: BAD_REQUEST
+                    result: {}
+                    error:
+                      code: QUERY_TEMPLATE_INVALID_INPUT
+                      message: >-
+                        Template name should contain alphanumeric characters and
+                        single space between characters
+                      trace: ''
+                example-3:
+                  summary: 'Failure: required template_id'
+                  value:
+                    id: api.query.template.update
+                    ver: v1
+                    ts: '2024-05-02T11:38:16+05:30'
+                    params:
+                      status: FAILED
+                      msgid: 4a7f14c3-d61e-4d4f-be78-181834eeff6d
+                      resmsgid: 94b71f80-bd1e-4283-8f3d-83833b60d08c
+                    responseCode: BAD_REQUEST
+                    result: {}
+                    error:
+                      code: QUERY_TEMPLATE_INVALID_INPUT
+                      message: >-
+                        #properties/request/required should have required
+                        property 'template_id'
+                      trace: ''
+                example-4:
+                  summary: 'Failure: required variables not exists'
+                  value:
+                    id: api.query.template.update
+                    ver: v1
+                    ts: '2024-05-02T13:13:22+05:30'
+                    params:
+                      status: FAILED
+                      msgid: 4a7f14c3-d61e-4d4f-be78-181834eeff6d
+                      resmsgid: dff3c22a-c198-4d1c-b87a-07d725f868f7
+                    responseCode: BAD_REQUEST
+                    result: {}
+                    error:
+                      code: QUERY_TEMPLATE_INVALID
+                      message: >-
+                        Invalid template provided, A template should consist of
+                        variables DATASET,STARTDATE,ENDDATE and type of json,sql
+                      trace: ''
+  /v1/template/query/{templateId}:
+    post:
+      tags:
+        - Query Templates
+      summary: query template
+      parameters:
+        - required: true
+          schema:
+            title: templateId
+            type: string
+          name: templateId
+          in: path
+        - name: startdate
+          in: query
+          schema:
+            type: string
+          example: '2020-12-31'
+        - name: enddate
+          in: query
+          schema:
+            type: string
+          example: '2024-12-31'
+        - name: dataset
+          in: query
+          schema:
+            type: string
+          example: test
+        - name: table
+          in: query
+          schema:
+            type: string
+          example: day
+        - name: limit
+          in: query
+          schema:
+            type: integer
+          example: '100'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+              examples:
+                example-0:
+                  summary: 'Success : Template SQL query without limit'
+                  value:
+                    id: api.query.template.query
+                    ver: v1
+                    ts: '2024-04-30T10:37:45+05:30'
+                    params:
+                      status: SUCCESS
+                      resmsgid: 5f2c332d-800e-4191-9202-6877f8e4d916
+                    responseCode: OK
+                    result:
+                      - timestamp: '2023-09-16T00:00:00.000Z'
+                        result:
+                          school_id: 2
+                example-1:
+                  summary: 'Success : Template SQL query with limit'
+                  value:
+                    id: api.query.template.query
+                    ver: v1
+                    ts: '2024-04-30T12:13:24+05:30'
+                    params:
+                      status: SUCCESS
+                      resmsgid: 0020d5ad-49a3-4a83-940f-fdf5d0721b00
+                    responseCode: OK
+                    result:
+                      - __time: '2023-09-16T13:59:22.322Z'
+                        school_id: 10021
+                        school_category: secondary
+                        grade: 1
+                        gender: others
+                        total_students: 694
+                        students_marked: 694
+                        students_present: 137
+                        state_id: '15'
+                        district_id: '2002'
+                        block_id: '70'
+                        cluster_id: '485'
+                        obsrv.meta.source.connector: null
+                        obsrv.meta.source.id: null
+                      - __time: '2023-09-16T13:59:22.322Z'
+                        school_id: 10021
+                        school_category: secondary
+                        grade: 1
+                        gender: others
+                        total_students: 694
+                        students_marked: 694
+                        students_present: 137
+                        state_id: '15'
+                        district_id: '2002'
+                        block_id: '70'
+                        cluster_id: '485'
+                        obsrv.meta.source.connector: null
+                        obsrv.meta.source.id: null
+                example-2:
+                  summary: 'Success : Template native query with limit'
+                  value:
+                    id: api.query.template.query
+                    ver: v1
+                    ts: '2024-05-02T12:38:32+05:30'
+                    params:
+                      status: SUCCESS
+                      resmsgid: 90280446-9afa-4a0e-848a-68b80c31cce4
+                    responseCode: OK
+                    result:
+                      - timestamp: '2023-09-16T00:00:00.000Z'
+                        result:
+                          school_id: 2
+                example-3:
+                  summary: 'Success : Template sql without limit'
+                  value:
+                    id: api.query.template.query
+                    ver: v1
+                    ts: '2024-05-02T12:43:14+05:30'
+                    params:
+                      status: SUCCESS
+                      resmsgid: 5817fcee-d5e3-494b-8b58-83e242d2e765
+                    responseCode: OK
+                    result:
+                      - __time: '2023-09-16T13:59:22.322Z'
+                        school_id: 10021
+                        school_category: secondary
+                        grade: 1
+                        gender: others
+                        total_students: 694
+                        students_marked: 694
+                        students_present: 137
+                        state_id: '15'
+                        district_id: '2002'
+                        block_id: '70'
+                        cluster_id: '485'
+                        obsrv.meta.source.connector: null
+                        obsrv.meta.source.id: null
+                      - __time: '2023-09-16T13:59:22.322Z'
+                        school_id: 10021
+                        school_category: secondary
+                        grade: 1
+                        gender: others
+                        total_students: 694
+                        students_marked: 694
+                        students_present: 137
+                        state_id: '15'
+                        district_id: '2002'
+                        block_id: '70'
+                        cluster_id: '485'
+                        obsrv.meta.source.connector: null
+                        obsrv.meta.source.id: null
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+              examples:
+                example-0:
+                  summary: 'Failure: invalid date range (native template)'
+                  value:
+                    id: api.query.template.query
+                    ver: v1
+                    ts: '2024-05-02T12:59:14+05:30'
+                    params:
+                      status: FAILED
+                      resmsgid: 4379e16b-2fa3-46a8-8ded-bc53f56283e9
+                    responseCode: BAD_REQUEST
+                    result: {}
+                    error:
+                      code: DATA_OUT_INVALID_DATE_RANGE
+                      message: >-
+                        Invalid date range! make sure your range cannot be more
+                        than 30 days
+                      trace: ''
+                example-1:
+                  summary: 'Failure: invalid date range (sql template)'
+                  value:
+                    id: api.query.template.query
+                    ver: v1
+                    ts: '2024-05-02T13:02:27+05:30'
+                    params:
+                      status: FAILED
+                      resmsgid: 24464e56-3722-486a-bc49-f321dc8a11bf
+                    responseCode: BAD_REQUEST
+                    result: {}
+                    error:
+                      code: DATA_OUT_INVALID_DATE_RANGE
+                      message: >-
+                        Invalid date range! make sure your range cannot be more
+                        than 30 days
+                      trace: ''
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                id: api.query.template.query
+                ver: v1
+                ts: '2024-05-02T13:17:13+05:30'
+                params:
+                  status: FAILED
+                  resmsgid: e7aeee9e-79ca-46e3-9e2a-0d043f738ce6
+                responseCode: NOT_FOUND
+                result: {}
+                error:
+                  code: DATA_OUT_SOURCE_NOT_FOUND
+                  message: Datasource test01 not available for querying
+                  trace: ''
