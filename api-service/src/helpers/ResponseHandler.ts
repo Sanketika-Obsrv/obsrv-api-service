@@ -3,7 +3,6 @@ import httpStatus from "http-status";
 import { IResponse, Result } from "../types/DatasetModels";
 import { onFailure, onSuccess } from "../metrics/prometheus/helpers";
 import moment from "moment";
-import { v4 as uuidv4 } from 'uuid';
 import _ from "lodash";
 
 const ResponseHandler = {
