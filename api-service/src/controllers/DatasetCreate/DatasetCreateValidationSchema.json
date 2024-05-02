@@ -155,8 +155,11 @@
               "minLength": 1
             },
             "fileUploadPath": {
-              "type": "string",
-              "minLength": 1
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
             }
           },
           "required": ["data_key", "timestamp_key"],

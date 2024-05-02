@@ -48,7 +48,7 @@ export const TestInputsForDatasetCreate = {
             "dataset_config": {
                 "data_key": "",
                 "timestamp_key": "ets",
-                "fileUploadPath": "/config/file.json"
+                "fileUploadPath": ["/config/file.json"]
             },
             "tags": []
         }
@@ -84,7 +84,7 @@ export const TestInputsForDatasetCreate = {
             "dataset_config": {
                 "data_key": "",
                 "timestamp_key": "ets",
-                "fileUploadPath": "/config/file.json"
+                "fileUploadPath": ["/config/file.json"]
             },
             "transformations_config": [
                 {
