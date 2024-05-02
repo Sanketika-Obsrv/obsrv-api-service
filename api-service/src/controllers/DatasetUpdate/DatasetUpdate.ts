@@ -1,5 +1,5 @@
 import httpStatus from "http-status";
-import { Request, Response, response } from "express";
+import { Request, Response } from "express";
 import { ResponseHandler } from "../../helpers/ResponseHandler";
 import { schemaValidation } from "../../services/ValidationService";
 import DatasetUpdate from "./DatasetUpdateValidationSchema.json";
