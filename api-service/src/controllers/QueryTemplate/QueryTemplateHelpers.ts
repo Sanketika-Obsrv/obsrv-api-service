@@ -66,10 +66,6 @@ const replaceVariables = (queryParams: Record<string, any>, templateData: Record
         if (variable === "DATASET") {
             return query = query.replace(varRegex, `${queryParams[variable]}`);
         }
-
-        else {
-            return query = query.replace(varRegex, `${queryParams[variable]}`);
-        }
     });
 
     additionalVariables.forEach((variable: string) => {
