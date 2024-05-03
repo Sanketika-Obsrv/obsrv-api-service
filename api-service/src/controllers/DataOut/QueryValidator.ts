@@ -17,10 +17,10 @@ const errCode = {
 export const validateQuery = async (requestPayload: any, datasetId: string) => {
     dataset_id = datasetId;
     const query = requestPayload?.query;
-    const isValid = (_.isObject(query)) ? validateNativeQuery(requestPayload) : (_.isString(query)) ? validateSqlQuery(requestPayload) : false;
+        const isValid = (_.isObject(query)) ? validateNativeQuery(requestPayload) : (_.isString(query)) ? validateSqlQuery(requestPayload) : false;
     const datasource = getDataSourceFromPayload(requestPayload);
     if (isValid === true) {
-        return setDatasourceRef(datasource || datasetId, requestPayload);
+        return setDatasourceRef(datasource, requestPayload);
     }
     return isValid;
 }
@@ -28,7 +28,7 @@ export const validateQuery = async (requestPayload: any, datasetId: string) => {
 const validateNativeQuery = (data: any) => {
     setQueryLimits(data)
     const dataSourceLimits: any = getDataSourceLimits(getDataSourceFromPayload(data));
-    if (!_.isEmpty(dataSourceLimits) && dataSourceLimits !== undefined) {
+        if (!_.isEmpty(dataSourceLimits) && dataSourceLimits !== undefined) {
         const isValidDate = validateQueryRules(data, dataSourceLimits.queryRules[data.query.queryType as keyof IQueryTypeRules])
         return isValidDate
     }
@@ -101,7 +101,7 @@ const getDataSourceFromPayload = (queryPayload: any) => {
         }
     }
     if (_.isObject(queryPayload.query)) {
-        const dataSourceField: any = _.get(queryPayload, "query.dataSource", '');
+        const dataSourceField: any = _.get(queryPayload, "query.datasetId", '');
         return dataset_id || dataSourceField;
     }
 }
