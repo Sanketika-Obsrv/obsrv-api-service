@@ -8,22 +8,22 @@ const requiredVariables: any = _.get(config, "template_config.template_required_
 const additionalVariables: any = _.get(config, "template_config.template_additional_variables") || [];
 
 export const handleTemplateQuery = async (req: Request, res: Response, templateData: Record<string, any>, queryType: string,) => {
-    const qParams: any = req.query;
-    Object.entries(req.query).map(([key, value]) => { qParams[_.toUpper(key)] = value });
-    const query = replaceVariables(qParams, templateData, queryType);
+    const queryParams: any = req.query;
+    Object.entries(req.query).map(([key, value]) => { queryParams[_.toUpper(key)] = value });
+    const query = replaceVariables(queryParams, templateData, queryType);
     if (queryType === "json") {
         req.body = {
             query: JSON.parse(query.replace(/\\/g, "")),
-            context: { datasetId: _.get(qParams, "DATASET"), table: _.get(qParams, "TABLE") },
+            context: { datasetId: _.get(queryParams, "DATASET"), table: _.get(queryParams, "TABLE") },
         };
     }
     if (queryType === "sql") {
         req.body = {
             query: query.replace(/\\/g, ""),
-            context: { datasetId: _.get(qParams, "DATASET"), table: _.get(qParams, "TABLE") },
+            context: { datasetId: _.get(queryParams, "DATASET"), table: _.get(queryParams, "TABLE") },
         };
     }
-    const validationStatus = await validateQuery(req.body, _.get(qParams, "DATASET"));
+    const validationStatus = await validateQuery(req.body, _.get(queryParams, "DATASET"));
     if (typeof validationStatus === 'object') {
         throw {
             code: validationStatus?.code,
@@ -42,7 +42,7 @@ export const handleTemplateQuery = async (req: Request, res: Response, templateD
     }
 }
 
-const replaceVariables = (qParams: Record<string, any>, templateData: Record<string, any>, queryType: string) => {
+const replaceVariables = (queryParams: Record<string, any>, templateData: Record<string, any>, queryType: string) => {
     let query: any = templateData;
     if (queryType === "json")
         query = JSON.stringify(templateData);
@@ -50,32 +50,32 @@ const replaceVariables = (qParams: Record<string, any>, templateData: Record<str
     requiredVariables.forEach((variable: string) => {
         if (queryType === "json" && (variable === "STARTDATE" || variable === "ENDDATE")) {
             const varRegex = new RegExp(`{{${variable}}}`, 'ig');
-            return query = query.replace(varRegex, `${qParams[variable]}`);
+            return query = query.replace(varRegex, `${queryParams[variable]}`);
         }
 
         const varRegex = new RegExp(`{{${variable}}}`, 'ig');
         if (queryType === "sql" && (variable === "STARTDATE" || variable === "ENDDATE")) {
-            return query = query.replace(varRegex, `'${qParams[variable]}'`);
+            return query = query.replace(varRegex, `'${queryParams[variable]}'`);
         }
 
         if (queryType === "sql" && variable === "DATASET") {
             query = query.replaceAll('"', "")
-            return query = query.replace(varRegex, `"${qParams[variable]}"`);
+            return query = query.replace(varRegex, `"${queryParams[variable]}"`);
         }
 
         if (variable === "DATASET") {
-            return query = query.replace(varRegex, `${qParams[variable]}`);
+            return query = query.replace(varRegex, `${queryParams[variable]}`);
         }
 
         else {
-            return query = query.replace(varRegex, `${qParams[variable]}`);
+            return query = query.replace(varRegex, `${queryParams[variable]}`);
         }
     });
 
     additionalVariables.forEach((variable: string) => {
         const varRegex = new RegExp(`{{${variable}}}`, 'ig');
         if ((queryType === "json" || queryType === "sql") && variable === "LIMIT") {
-            query = query.replace(varRegex, `${qParams[variable]}`);
+            query = query.replace(varRegex, `${queryParams[variable]}`);
         }
     })
 

@@ -10,7 +10,7 @@ import { QueryTemplate } from "../../models/QueryTemplate";
 import slug from "slug";
 import { config } from "../../configs/Config";
 const apiId = "api.query.template.create";
-const requiredVariables = _.get(config, "template_config?.template_required_variables");
+const requiredVariables = _.get(config, "template_config.template_required_variables");
 
 export const createQueryTemplate = async (req: Request, res: Response) => {
     try {
