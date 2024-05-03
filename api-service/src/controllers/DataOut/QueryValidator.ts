@@ -17,10 +17,10 @@ const errCode = {
 export const validateQuery = async (requestPayload: any, datasetId: string) => {
     dataset_id = datasetId;
     const query = requestPayload?.query;
-        const isValid = (_.isObject(query)) ? validateNativeQuery(requestPayload) : (_.isString(query)) ? validateSqlQuery(requestPayload) : false;
-    const datasource = getDataSourceFromPayload(requestPayload);
+    const isValid = (_.isObject(query)) ? validateNativeQuery(requestPayload) : (_.isString(query)) ? validateSqlQuery(requestPayload) : false;
+    const datasetName = getDataSourceFromPayload(requestPayload);
     if (isValid === true) {
-        return setDatasourceRef(datasource, requestPayload);
+        return setDatasourceRef(datasetName, requestPayload);
     }
     return isValid;
 }
@@ -28,7 +28,7 @@ export const validateQuery = async (requestPayload: any, datasetId: string) => {
 const validateNativeQuery = (data: any) => {
     setQueryLimits(data)
     const dataSourceLimits: any = getDataSourceLimits(getDataSourceFromPayload(data));
-        if (!_.isEmpty(dataSourceLimits) && dataSourceLimits !== undefined) {
+    if (!_.isEmpty(dataSourceLimits) && dataSourceLimits !== undefined) {
         const isValidDate = validateQueryRules(data, dataSourceLimits.queryRules[data.query.queryType as keyof IQueryTypeRules])
         return isValidDate
     }
@@ -159,11 +159,11 @@ const validateQueryRules = (queryPayload: any, limits: any) => {
         : { message: "Invalid date range! the date range cannot be a null value", statusCode: 400, errCode: "BAD_REQUEST", code: errCode.invalidDateRange };
 };
 
-const getDataSourceRef = async (datasourceName: string, granularity?: string) => {
-    const dataSources = await getDatasourceList(datasourceName)
+const getDataSourceRef = async (datasetName: string, granularity?: string) => {
+    const dataSources = await getDatasourceList(datasetName)
     if (_.isEmpty(dataSources)) {
-        logger.error({ apiId, message: `Datasource ${datasourceName} not available in datasource live table`, code: errCode.notFound })
-        return { message: `Datasource ${datasourceName} not available for querying`, statusCode: 404, errCode: "NOT_FOUND", code: errCode.notFound };
+        logger.error({ apiId, message: `Dataset ${datasetName} is not available in datasource live table`, code: errCode.notFound })
+        return { message: `Dataset ${datasetName} is not available for querying`, statusCode: 404, errCode: "NOT_FOUND", code: errCode.notFound };
     }
     const record = dataSources.filter((record: any) => {
         const aggregatedRecord = _.get(record, "metadata.aggregated")
@@ -181,20 +181,20 @@ const validateDatasource = async (datasource: any) => {
     }
 }
 
-const setDatasourceRef = async (dataSourceName: string, payload: any): Promise<any> => {
+const setDatasourceRef = async (datasetName: string, payload: any): Promise<any> => {
     try {
         const granularity = _.get(payload, 'context.table')
-        const datasourceRef = await getDataSourceRef(dataSourceName, granularity);
+        const datasourceRef = await getDataSourceRef(datasetName, granularity);
         const datasource = await validateDatasource(datasourceRef);
         if (_.isObject(datasourceRef)) {
             return datasourceRef
         }
         if (datasource) {
-            logger.error({ apiId, message: `Datasource ${datasource} not available for querying in druid`, code: errCode.notFound })
-            return { message: `Datasource ${datasource} not available for querying`, statusCode: 404, errCode: "NOT_FOUND", code: errCode.notFound };
+            logger.error({ apiId, message: `Dataset ${datasetName} with table ${granularity} is not available for querying in druid`, code: errCode.notFound })
+            return { message: `Dataset ${datasetName} with table ${granularity} is not available for querying`, statusCode: 404, errCode: "NOT_FOUND", code: errCode.notFound };
         }
         if (_.isString(payload?.query)) {
-            payload.query = payload.query.replace(dataSourceName, datasourceRef)
+            payload.query = payload.query.replace(datasetName, datasourceRef)
         }
         if (_.isObject(payload?.query)) {
             _.set(payload.query, "dataSource", datasourceRef)

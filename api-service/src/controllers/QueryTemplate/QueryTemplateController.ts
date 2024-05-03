@@ -4,22 +4,31 @@ import logger from "../../logger";
 import { ResponseHandler } from "../../helpers/ResponseHandler";
 import * as _ from "lodash";
 import { handleTemplateQuery } from "./QueryTemplateHelpers";
+import { config } from "../../configs/Config";
 const apiId = "api.query.template.query";
-
+const requiredVariables = _.get(config, "template_config.template_required_variables");
 
 export const queryTemplate = async (req: Request, res: Response) => {
     const template_id = req?.params?.templateId;
     try {
         const template = await getQueryTemplate(template_id);
         const resmsgid = _.get(res, "resmsgid");
+        const { startdate, enddate, dataset } = req.query;
+
+        if (!startdate || !enddate || !dataset) {
+            logger.error({ apiId, resmsgid, template_id, message: `Query params should includes data like ${requiredVariables}`, code: "QUERY_TEMPLATE_INVALID_INPUT" })
+            return ResponseHandler.errorResponse({ message: `Query params should includes data like ${requiredVariables}`, statusCode: 400, errCode: "BAD_REQUEST", code: "QUERY_TEMPLATE_INVALID_INPUT" }, req, res);
+        }
+
         if (template === null) {
             logger.error({ apiId, resmsgid, template_id, message: `Template ${template_id} does not exists`, code: "QUERY_TEMPLATE_NOT_EXISTS" })
             return ResponseHandler.errorResponse({ message: `Template ${template_id} does not exists`, statusCode: 404, errCode: "NOT_FOUND", code: "QUERY_TEMPLATE_NOT_EXISTS" }, req, res);
         }
-        const resposne = await handleTemplateQuery(req, res, template?.dataValues?.query, template?.dataValues?.query_type)
+
+        const response = await handleTemplateQuery(req, res, template?.dataValues?.query, template?.dataValues?.query_type)
         logger.info({ apiId, resmsgid, template_id, message: `Query executed successfully` })
         return ResponseHandler.successResponse(req, res, {
-            status: 200, data: resposne?.data
+            status: 200, data: response?.data
         });
     }
     catch (error: any) {
