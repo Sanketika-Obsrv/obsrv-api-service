@@ -16,8 +16,8 @@ export const queryTemplate = async (req: Request, res: Response) => {
         const { startdate, enddate, dataset } = req.query;
 
         if (!startdate || !enddate || !dataset) {
-            logger.error({ apiId, resmsgid, template_id, message: `Query params should includes data like ${requiredVariables}`, code: "QUERY_TEMPLATE_INVALID_INPUT" })
-            return ResponseHandler.errorResponse({ message: `Query params should includes data like ${requiredVariables}`, statusCode: 400, errCode: "BAD_REQUEST", code: "QUERY_TEMPLATE_INVALID_INPUT" }, req, res);
+            logger.error({ apiId, resmsgid, template_id, message: `Query params should includes ${requiredVariables}`, code: "QUERY_TEMPLATE_INVALID_INPUT" })
+            return ResponseHandler.errorResponse({ message: `Query params should includes ${requiredVariables}`, statusCode: 400, errCode: "BAD_REQUEST", code: "QUERY_TEMPLATE_INVALID_INPUT" }, req, res);
         }
 
         if (template === null) {
