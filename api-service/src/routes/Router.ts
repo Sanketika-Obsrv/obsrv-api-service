@@ -10,6 +10,7 @@ import { dataExhaust } from "../controllers/DataExhaust/DataExhaustController";
 import { onRequest } from "../metrics/prometheus/helpers";
 import { metricsScrapeHandler } from "../metrics/prometheus";
 import { Entity } from "../types/MetricModel";
+import SampleUploadURL from "../controllers/SampleUploadURL/sampleUploadURL";
 
 export const router = express.Router();
 
@@ -20,6 +21,7 @@ router.patch("/v1/datasets/update", setApiId("api.datasets.update"), onRequest({
 router.get("/v1/datasets/read/:dataset_id", setApiId("api.datasets.read"), onRequest({ entity: Entity.Management }), DatasetRead)
 router.post("/v1/datasets/list", setApiId("api.datasets.list"), onRequest({ entity: Entity.Management }), DatasetList)
 router.get('/v1/data/exhaust/:datasetId', setApiId("api.data.exhaust"), onRequest({ entity: Entity.Management }), dataExhaust);
+router.post('/v1/datasets/sample/upload-url', onRequest({ entity: Entity.Management }), SampleUploadURL);
 
 //Scrape metrics to prometheus
 router.get('/metrics', metricsScrapeHandler)
