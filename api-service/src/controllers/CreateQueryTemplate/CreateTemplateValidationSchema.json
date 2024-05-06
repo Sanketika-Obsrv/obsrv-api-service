@@ -1,0 +1,82 @@
+{
+    "type": "object",
+    "properties": {
+        "id": {
+            "type": "string",
+            "enum": [
+                "api.query.template.create"
+            ]
+        },
+        "ver": {
+            "type": "string"
+        },
+        "ts": {
+            "type": "string"
+        },
+        "params": {
+            "type": "object",
+            "properties": {
+                "msgid": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "msgid"
+            ],
+            "additionalProperties": false
+        },
+        "request": {
+            "type": "object",
+            "oneOf": [
+                {
+                    "properties": {
+                        "template_name": {
+                            "type": "string",
+                            "pattern": "^(?!.*\\s{2,})[a-zA-Z0-9_ -]+$"
+                        },
+                        "query_type": {
+                            "type": "string",
+                            "enum": [
+                                "sql"
+                            ]
+                        },
+                        "query": {
+                            "type": "string"
+                        }
+                    },
+                    "additionalProperties": false
+                },
+                {
+                    "properties": {
+                        "template_name": {
+                            "type": "string",
+                            "pattern": "^(?!.*\\s{2,})[a-zA-Z0-9_ -]+$"
+                        },
+                        "query_type": {
+                            "type": "string",
+                            "enum": [
+                                "json"
+                            ]
+                        },
+                        "query": {
+                            "type": "object"
+                        }
+                    },
+                    "additionalProperties": false
+                }
+            ],
+            "required": [
+                "query_type",
+                "query"
+            ]
+        }
+    },
+    "required": [
+        "id",
+        "ver",
+        "ts",
+        "params",
+        "request"
+    ],
+    "additionalProperties": false
+}
