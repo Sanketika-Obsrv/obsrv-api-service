@@ -5,7 +5,7 @@ import { ResponseHandler } from "../../helpers/ResponseHandler";
 import * as _ from "lodash";
 import { handleTemplateQuery } from "./QueryTemplateHelpers";
 import { config } from "../../configs/Config";
-const apiId = "api.query.template.query";
+export const apiId = "api.query.template.query";
 const requiredVariables = _.get(config, "template_config.template_required_variables");
 
 export const queryTemplate = async (req: Request, res: Response) => {

@@ -4,14 +4,20 @@ import * as _ from "lodash"
 import { ErrorObject } from "../../types/ResponseModel";
 import { executeNativeQuery, executeSqlQuery } from "../../connections/druidConnection";
 import { config } from "../../configs/Config";
+import logger from "../../logger";
+import { apiId } from "./QueryTemplateController";
 const requiredVariables: any = _.get(config, "template_config.template_required_variables") || [];
 const additionalVariables: any = _.get(config, "template_config.template_additional_variables") || [];
 
 export const handleTemplateQuery = async (req: Request, res: Response, templateData: Record<string, any>, queryType: string,) => {
     const queryParams: any = req.query;
+    const template_id = _.get(req, "params.templateId");
+    const resmsgid: any = _.get(res, "resmsgid");
+
     Object.entries(req.query).map(([key, value]) => { queryParams[_.toUpper(key)] = value });
-    const query = replaceVariables(queryParams, templateData, queryType);
+    let query = replaceVariables(queryParams, templateData, queryType, resmsgid, template_id);
     if (queryType === "json") {
+        query = JSON.stringify(query)
         req.body = {
             query: JSON.parse(query.replace(/\\/g, "")),
             context: { datasetId: _.get(queryParams, "DATASET"), table: _.get(queryParams, "TABLE") },
@@ -25,6 +31,7 @@ export const handleTemplateQuery = async (req: Request, res: Response, templateD
     }
     const validationStatus = await validateQuery(req.body, _.get(queryParams, "DATASET"));
     if (typeof validationStatus === 'object') {
+        logger.error({ apiId, resmsgid, template_id, message: validationStatus?.message, code: validationStatus?.code })
         throw {
             code: validationStatus?.code,
             message: validationStatus?.message,
@@ -42,11 +49,8 @@ export const handleTemplateQuery = async (req: Request, res: Response, templateD
     }
 }
 
-const replaceVariables = (queryParams: Record<string, any>, templateData: Record<string, any>, queryType: string) => {
+const replaceVariables = (queryParams: Record<string, any>, templateData: Record<string, any>, queryType: string, resmsgid: string, template_id: string) => {
     let query: any = templateData;
-    if (queryType === "json")
-        query = JSON.stringify(templateData);
-
     requiredVariables.forEach((variable: string) => {
         if (queryType === "json" && (variable === "STARTDATE" || variable === "ENDDATE")) {
             const varRegex = new RegExp(`{{${variable}}}`, 'ig');
@@ -76,6 +80,17 @@ const replaceVariables = (queryParams: Record<string, any>, templateData: Record
     })
 
     if (queryType === "json")
-        query = JSON.parse(query);
+        try {
+            query = JSON.parse(query);
+        }
+        catch (err) {
+            logger.error({ apiId, resmsgid, template_id, message: `Failed to parse the query`, code: "QUERY_TEMPLATE_INVALID_INPUT" })
+            throw {
+                code: "QUERY_TEMPLATE_INVALID_INPUT",
+                message: "Failed to parse the query",
+                statusCode: 400,
+                errCode: "BAD_REQUEST"
+            } as ErrorObject
+        }
     return query;
 }
