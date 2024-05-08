@@ -164,7 +164,7 @@
               "type": "string",
               "minLength": 1
             },
-            "fileUploadPath": {
+            "file_upload_path": {
               "type": "array",
               "items": {
                 "type": "string",
