@@ -100,8 +100,8 @@ export class AzureStorageService implements ICloudService {
         return presignedURL;
     }
 
-    async getSignedUrls(container: any, filesList: any) {
-        const signedUrlsPromises = filesList.map((fileNameWithPrefix: any) => {
+    generateSignedURLs(container: any, filesList: any) {
+        const signedURLs = filesList.map((fileNameWithPrefix: any) => {
             return new Promise((resolve, reject) => {
                 this.getPreSignedUrl(container, fileNameWithPrefix)
                     .then((presignedURL) => {
@@ -113,6 +113,11 @@ export class AzureStorageService implements ICloudService {
                     });
             });
         });
+        return signedURLs;
+    }
+
+    async getSignedUrls(container: any, filesList: any) {
+        const signedUrlsPromises = this.generateSignedURLs(container, filesList)
         const signedUrlsList = await Promise.all(signedUrlsPromises);
         const files: any[] = []
         const periodWiseFiles: any = {};

@@ -26,36 +26,50 @@ export class GCPStorageService implements ICloudService {
         this.storage = new Storage({ credentials: credentials });
     }
 
+    async getPreSignedUrl(container: string, fileName: string) {
+        const options = {
+            version: 'v4',
+            action: 'read',
+            expires: Date.now() + 1000 * 60 * 60, // one hour
+        };
+        const [url] = await this.storage
+            .bucket(container)
+            .file(fileName)
+            .getSignedUrl(options);
+        return url;
+    }
+
+    generateSignedURLs(container: string, filesList: any) {
+        const signedURLs = filesList.map((fileName: any) => {
+            return new Promise((resolve, reject) => {
+                this.getPreSignedUrl(container, fileName)
+                    .then((url) => {
+                        resolve({ [fileName]: url })
+                    })
+                    .catch((error) => {
+                        reject({ error: error.message });
+                    })
+            })
+        })
+        return signedURLs;
+    }
+
     async getSignedUrls(container: string, filesList: any) {
-        const generateSignedUrl = async (fileName: string) => {
-            const options = {
-                version: 'v4',
-                action: 'read',
-                expires: Date.now() + 1000 * 60 * 60, // one hour
-            };
+        const signedURLPromises = this.generateSignedURLs(container, filesList)
 
-            try {
-                const [url] = await this.storage
-                    .bucket(container)
-                    .file(fileName)
-                    .getSignedUrl(options);
-                return url;
-            } catch (error) {
-                logger.error(`Error generating signed URL for ${fileName}: ${error}`);
-                console.error(error);
-                return null;
-            }
-        }
-
-        async function generateSignedUrls(fileNames: any) {
-            const signedUrls = await Promise.all(fileNames.map((fileName: any) => generateSignedUrl(fileName)));
+        async function generateSignedUrls() {
+            const signedUrls = await Promise.all(signedURLPromises);
             return signedUrls;
         }
 
-        return generateSignedUrls(filesList)
-            .then(signedUrls => {
+        return generateSignedUrls()
+            .then(signedUrlList => {
                 const periodWiseFiles: any = {};
                 const files: any = [];
+                const signedUrls = _.flattenDeep(_.map(signedUrlList, url => {
+                    const values = _.values(url)
+                    return values
+                }))
                 signedUrls.forEach(async (fileObject) => {
                     const period = getFileKey(fileObject);
                     if (_.has(periodWiseFiles, period))

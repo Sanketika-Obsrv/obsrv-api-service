@@ -30,8 +30,8 @@ export class AWSStorageService implements ICloudService {
         return new ListObjectsV2Command({ Bucket: bucketName, Prefix: prefix, Delimiter: "/", });
     }
 
-    async getSignedUrls(container: any, filesList: any) {
-        const signedUrlsPromises = filesList.map((fileNameWithPrefix: any) => {
+    generateSignedURLs(container: any, filesList: any) {
+        const signedURLs = filesList.map((fileNameWithPrefix: any) => {
             return new Promise((resolve) => {
                 const generateSignedUrl = async () => {
                     const command = this.getAWSCommand(container, fileNameWithPrefix);
@@ -42,6 +42,11 @@ export class AWSStorageService implements ICloudService {
                 generateSignedUrl();
             });
         });
+        return signedURLs
+    }
+
+    async getSignedUrls(container: any, filesList: any) {
+        const signedUrlsPromises = this.generateSignedURLs(container, filesList)
         const signedUrlsList = await Promise.all(signedUrlsPromises);
         const periodWiseFiles: any = {};
         const files: any[] = [];
