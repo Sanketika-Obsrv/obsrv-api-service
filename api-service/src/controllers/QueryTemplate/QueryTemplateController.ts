@@ -17,7 +17,7 @@ export const queryTemplate = async (req: Request, res: Response) => {
 
         const isValidSchema = schemaValidation(requestBody, validationSchema);
         if (!isValidSchema?.isValid) {
-            logger.error({ apiId, msgid, resmsgid, requestBody, message: isValidSchema?.message, code: "QUERY_TEMPLATE_INVALID_INPUT" })
+            logger.error({ apiId, msgid, resmsgid, template_id, requestBody, message: isValidSchema?.message, code: "QUERY_TEMPLATE_INVALID_INPUT" })
             return ResponseHandler.errorResponse({ message: isValidSchema?.message, statusCode: 400, errCode: "BAD_REQUEST", code: "QUERY_TEMPLATE_INVALID_INPUT" }, req, res);
         }
 
