@@ -183,7 +183,7 @@ const validateDatasource = async (datasource: any) => {
 
 const setDatasourceRef = async (datasetId: string, payload: any): Promise<any> => {
     try {
-        const granularity = _.get(payload, 'context.table')
+        const granularity = _.get(payload, 'context.aggregationLevel')
         const datasourceRef = await getDataSourceRef(datasetId, granularity);
         const datasource = await validateDatasource(datasourceRef);
         if (_.isObject(datasourceRef)) {
