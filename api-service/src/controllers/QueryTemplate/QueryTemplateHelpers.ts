@@ -20,13 +20,13 @@ export const handleTemplateQuery = async (req: Request, res: Response, templateD
         query = JSON.stringify(query)
         body = {
             query: JSON.parse(query.replace(/\\/g, "")),
-            context: { datasetId: _.get(queryParams, "DATASET"), table: _.get(queryParams, "AGGREGATIONLEVEL") },
+            context: { datasetId: _.get(queryParams, "DATASET"), aggregationLevel: _.get(queryParams, "AGGREGATIONLEVEL") },
         };
     }
     if (queryType === "sql") {
         body = {
             query: query.replace(/\\/g, ""),
-            context: { datasetId: _.get(queryParams, "DATASET"), table: _.get(queryParams, "AGGREGATIONLEVEL") },
+            context: { datasetId: _.get(queryParams, "DATASET"), aggregationLevel: _.get(queryParams, "AGGREGATIONLEVEL") },
         };
     }
     const validationStatus = await validateQuery(body, _.get(queryParams, "DATASET"));
