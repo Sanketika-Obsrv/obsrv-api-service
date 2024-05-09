@@ -16,20 +16,21 @@ export const handleTemplateQuery = async (req: Request, res: Response, templateD
 
     Object.entries(req.query).map(([key, value]) => { queryParams[_.toUpper(key)] = value });
     let query = replaceVariables(queryParams, templateData, queryType, resmsgid, template_id);
+    let body: any = {};
     if (queryType === "json") {
         query = JSON.stringify(query)
-        req.body = {
+        body = {
             query: JSON.parse(query.replace(/\\/g, "")),
             context: { datasetId: _.get(queryParams, "DATASET"), table: _.get(queryParams, "TABLE") },
         };
     }
     if (queryType === "sql") {
-        req.body = {
+        body = {
             query: query.replace(/\\/g, ""),
             context: { datasetId: _.get(queryParams, "DATASET"), table: _.get(queryParams, "TABLE") },
         };
     }
-    const validationStatus = await validateQuery(req.body, _.get(queryParams, "DATASET"));
+    const validationStatus = await validateQuery(body, _.get(queryParams, "DATASET"));
     if (typeof validationStatus === 'object') {
         logger.error({ apiId, resmsgid, template_id, message: validationStatus?.message, code: validationStatus?.code })
         throw {
@@ -41,10 +42,10 @@ export const handleTemplateQuery = async (req: Request, res: Response, templateD
     }
 
     if (queryType === "json" && validationStatus === true) {
-        return await executeNativeQuery(req.body.query)
+        return await executeNativeQuery(body?.query)
     }
     if (queryType === "sql" && validationStatus === true) {
-        const query = req?.body?.query
+        const query = body?.query
         return await executeSqlQuery({ query })
     }
 }
@@ -84,7 +85,7 @@ const replaceVariables = (queryParams: Record<string, any>, templateData: Record
             query = JSON.parse(query);
         }
         catch (err) {
-            logger.error({ apiId, resmsgid, template_id, message: `Failed to parse the query`, code: "QUERY_TEMPLATE_INVALID_INPUT" })
+            logger.error({ err, apiId, resmsgid, template_id, message: `Failed to parse the query`, code: "QUERY_TEMPLATE_INVALID_INPUT" })
             throw {
                 code: "QUERY_TEMPLATE_INVALID_INPUT",
                 message: "Failed to parse the query",

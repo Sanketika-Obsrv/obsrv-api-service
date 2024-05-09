@@ -11,15 +11,17 @@ const requiredVariables = _.get(config, "template_config.template_required_varia
 export const queryTemplate = async (req: Request, res: Response) => {
     const template_id = req?.params?.templateId;
     try {
-        const template = await getQueryTemplate(template_id);
         const resmsgid = _.get(res, "resmsgid");
-        const { startdate, enddate, dataset } = req.query;
+        const { startdate, enddate, dataset, table } = req.query;
+        const expectedParams = [...requiredVariables, "TABLE"];
+        const actualParamsReceived = _.keys(req.query).map((param) => { return param.toUpperCase() });
 
-        if (!startdate || !enddate || !dataset) {
-            logger.error({ apiId, resmsgid, template_id, message: `Query params should includes ${requiredVariables}`, code: "QUERY_TEMPLATE_INVALID_INPUT" })
-            return ResponseHandler.errorResponse({ message: `Query params should includes ${requiredVariables}`, statusCode: 400, errCode: "BAD_REQUEST", code: "QUERY_TEMPLATE_INVALID_INPUT" }, req, res);
+        if (!startdate || !enddate || !dataset || !table) {
+            logger.error({ apiId, resmsgid, template_id, message: `Query params should includes ${expectedParams} but got ${actualParamsReceived}`, code: "QUERY_TEMPLATE_INVALID_INPUT" })
+            return ResponseHandler.errorResponse({ message: `Query params should includes ${expectedParams} but got ${actualParamsReceived}`, statusCode: 400, errCode: "BAD_REQUEST", code: "QUERY_TEMPLATE_INVALID_INPUT" }, req, res);
         }
 
+        const template = await getQueryTemplate(template_id);
         if (template === null) {
             logger.error({ apiId, resmsgid, template_id, message: `Template ${template_id} does not exists`, code: "QUERY_TEMPLATE_NOT_EXISTS" })
             return ResponseHandler.errorResponse({ message: `Template ${template_id} does not exists`, statusCode: 404, errCode: "NOT_FOUND", code: "QUERY_TEMPLATE_NOT_EXISTS" }, req, res);
