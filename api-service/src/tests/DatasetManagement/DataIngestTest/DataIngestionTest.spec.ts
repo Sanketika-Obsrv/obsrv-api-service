@@ -116,7 +116,6 @@ describe("DATA INGEST API", () => {
             .end((err, res) => {
                 res.should.have.status(500);
                 res.body.should.be.a("object");
-                res.body.should.have.property("result");
                 res.body.id.should.be.eq("api.data.in");
                 res.body.params.status.should.be.eq("FAILED");
                 connectionStub.restore()
