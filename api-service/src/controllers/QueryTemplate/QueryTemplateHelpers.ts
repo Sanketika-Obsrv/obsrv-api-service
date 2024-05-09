@@ -10,11 +10,10 @@ const requiredVariables: any = _.get(config, "template_config.template_required_
 const additionalVariables: any = _.get(config, "template_config.template_additional_variables") || [];
 
 export const handleTemplateQuery = async (req: Request, res: Response, templateData: Record<string, any>, queryType: string,) => {
-    const queryParams: any = req.query;
+    const queryParams: any = _.get(req, "body.request");
     const template_id = _.get(req, "params.templateId");
     const resmsgid: any = _.get(res, "resmsgid");
-
-    Object.entries(req.query).map(([key, value]) => { queryParams[_.toUpper(key)] = value });
+    Object.entries(queryParams).map(([key, value]) => { queryParams[_.toUpper(key)] = value });
     let query = replaceVariables(queryParams, templateData, queryType, resmsgid, template_id);
     let body: any = {};
     if (queryType === "json") {
