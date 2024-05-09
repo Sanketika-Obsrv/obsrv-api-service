@@ -35,7 +35,7 @@ export const updateQueryTemplate = async (req: Request, res: Response) => {
 
         const { validTemplate } = await validateTemplate(requestBody);
         if (!validTemplate) {
-            logger.error({ apiId, msgid, resmsgid, requestBody: req?.body, message: `Invalid template provided, A template should consist of variables ${requiredVariables} and type of json,sql`, code: "-QUERY_TEMPLATE_INVALID_INPUT" })
+            logger.error({ apiId, msgid, resmsgid, requestBody: req?.body, message: `Invalid template provided, A template should consist of variables ${requiredVariables} and type of json,sql`, code: "QUERY_TEMPLATE_INVALID_INPUT" })
             return ResponseHandler.errorResponse({ statusCode: 400, message: `Invalid template provided, A template should consist of variables ${requiredVariables} and type of json,sql`, errCode: "BAD_REQUEST", code: "QUERY_TEMPLATE_INVALID_INPUT" }, req, res)
         }
 
