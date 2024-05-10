@@ -29,7 +29,7 @@ router.post('/v1/template/create', setDataToRequestObject("api.query.template.cr
 router.get('/v1/template/read/:templateId', setDataToRequestObject("api.query.template.read"), readQueryTemplate);
 router.delete('/v1/template/delete/:templateId', setDataToRequestObject("api.query.template.delete"), deleteQueryTemplate);
 router.post('/v1/template/list', setDataToRequestObject("api.query.template.list"), listQueryTemplates);
-router.patch('/v1/template/update', setDataToRequestObject("api.query.template.update"), updateQueryTemplate);
+router.patch('/v1/template/update/:templateId', setDataToRequestObject("api.query.template.update"), updateQueryTemplate);
 
 //Scrape metrics to prometheus
 router.get('/metrics', metricsScrapeHandler)

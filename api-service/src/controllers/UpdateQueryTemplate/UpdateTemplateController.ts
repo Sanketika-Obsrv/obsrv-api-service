@@ -16,7 +16,7 @@ export const updateQueryTemplate = async (req: Request, res: Response) => {
     try {
         const msgid = _.get(req, "body.params.msgid");
         const resmsgid = _.get(res, "resmsgid");
-        const templateId = _.get(req, "body.request.template_id");
+        const templateId = _.get(req, "params.templateId");
         const isValidSchema = schemaValidation(requestBody, validationSchema);
 
         if (!isValidSchema?.isValid) {
