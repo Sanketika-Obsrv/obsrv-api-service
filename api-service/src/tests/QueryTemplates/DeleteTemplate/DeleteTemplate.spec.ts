@@ -42,7 +42,7 @@ describe("DELETE QUERY TEMPLATE API", () => {
     })
 
     it("Delete template failure: Requested template does not exists", (done) => {
-        chai.spy.on(QueryTemplate, "findOne", () => {
+        chai.spy.on(QueryTemplate, "destroy", () => {
             return Promise.resolve(0)
         })
 
