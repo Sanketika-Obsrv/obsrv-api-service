@@ -60,7 +60,7 @@ export const createTemplateFixtures = {
             "msgid": "4a7f14c3-d61e-4d4f-be78-181834eeff6d"
         },
         "request": {
-            "template_name": "json11templatea",
+            "template_name": "json11template",
             "query_type": "json",
             "query": {
                 "queryType": "select",

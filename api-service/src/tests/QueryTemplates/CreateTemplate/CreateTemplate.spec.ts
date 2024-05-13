@@ -82,6 +82,9 @@ describe("CREATE QUERY TEMPLATE API", () => {
     })
 
     it("Create template Failure: Required variables not exists", (done) => {
+        chai.spy.on(QueryTemplate, "findOne", () => {
+            return Promise.resolve(null)
+        })
         chai
             .request(app)
             .post("/v1/template/create")
