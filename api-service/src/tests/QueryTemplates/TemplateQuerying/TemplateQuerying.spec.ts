@@ -9,7 +9,8 @@ import { Datasource } from "../../../models/Datasource";
 import nock from "nock";
 import { config } from "../../../configs/Config";
 import { templateQueryApiFixtures } from "./Fixtures";
-const apiId = 'api.query.template.query'
+const apiId = 'api.query.template.query';
+const msgid = "4a7f14c3-d61e-4d4f-be78-181834eeff6d"
 
 chai.use(spies);
 chai.should();
@@ -67,6 +68,8 @@ describe("QUERY TEMPLATE API", () => {
                 res.body.responseCode.should.be.eq("OK");
                 res.body.params.status.should.be.eq("SUCCESS")
                 res.body.result.should.be.a("array");
+                res.body.params.msgid.should.be.eq(msgid);
+                res.body.params.should.have.property("resmsgid");
                 done();
             });
     })
@@ -109,6 +112,8 @@ describe("QUERY TEMPLATE API", () => {
                 res.body.responseCode.should.be.eq("OK");
                 res.body.params.status.should.be.eq("SUCCESS")
                 res.body.result.should.be.a("array");
+                res.body.params.msgid.should.be.eq(msgid);
+                res.body.params.should.have.property("resmsgid");
                 done();
             });
     })
@@ -139,7 +144,9 @@ describe("QUERY TEMPLATE API", () => {
                 res.body.responseCode.should.be.eq("BAD_REQUEST");
                 res.body.params.status.should.be.eq("FAILED")
                 res.body.error.message.should.be.eq("Failed to parse the query");
-                res.body.error.code.should.be.eq("QUERY_TEMPLATE_INVALID_INPUT")
+                res.body.error.code.should.be.eq("QUERY_TEMPLATE_INVALID_INPUT");
+                res.body.params.msgid.should.be.eq(msgid);
+                res.body.params.should.have.property("resmsgid");
                 done();
             });
     })
@@ -156,7 +163,9 @@ describe("QUERY TEMPLATE API", () => {
                 res.body.responseCode.should.be.eq("BAD_REQUEST");
                 res.body.params.status.should.be.eq("FAILED")
                 res.body.error.message.should.be.eq("#properties/request/required should have required property 'startdate'");
-                res.body.error.code.should.be.eq("QUERY_TEMPLATE_INVALID_INPUT")
+                res.body.error.code.should.be.eq("QUERY_TEMPLATE_INVALID_INPUT");
+                res.body.params.msgid.should.be.eq(msgid);
+                res.body.params.should.have.property("resmsgid");
                 done();
             });
     })
@@ -176,7 +185,9 @@ describe("QUERY TEMPLATE API", () => {
                 res.body.responseCode.should.be.eq("NOT_FOUND");
                 res.body.params.status.should.be.eq("FAILED")
                 res.body.error.message.should.be.eq("Template sql1 does not exists");
-                res.body.error.code.should.be.eq("QUERY_TEMPLATE_NOT_EXISTS")
+                res.body.error.code.should.be.eq("QUERY_TEMPLATE_NOT_EXISTS");
+                res.body.params.msgid.should.be.eq(msgid);
+                res.body.params.should.have.property("resmsgid");
                 done();
             });
     })
@@ -196,7 +207,9 @@ describe("QUERY TEMPLATE API", () => {
                 res.body.responseCode.should.be.eq("INTERNAL_SERVER_ERROR");
                 res.body.params.status.should.be.eq("FAILED")
                 res.body.error.message.should.be.eq("Unable to process the query");
-                res.body.error.code.should.be.eq("INTERNAL_SERVER_ERROR")
+                res.body.error.code.should.be.eq("INTERNAL_SERVER_ERROR");
+                res.body.params.msgid.should.be.eq(msgid);
+                res.body.params.should.have.property("resmsgid");
                 done();
             });
     })
