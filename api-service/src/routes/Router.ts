@@ -29,7 +29,7 @@ router.post('/v1/template/create', setDataToRequestObject("api.query.template.cr
 router.get('/v1/template/read/:templateId', setDataToRequestObject("api.query.template.read"), readQueryTemplate);
 router.delete('/v1/template/delete/:templateId', setDataToRequestObject("api.query.template.delete"), deleteQueryTemplate);
 router.post('/v1/template/list', setDataToRequestObject("api.query.template.list"), listQueryTemplates);
-router.post('/v1/datasets/sample/upload-url', onRequest({ entity: Entity.Management }), SampleUploadURL);
+router.post('/v1/datasets/sample/upload-url', setDataToRequestObject("api.datasets.upload-url"), onRequest({ entity: Entity.Management }), SampleUploadURL);
 
 //Scrape metrics to prometheus
 router.get('/metrics', metricsScrapeHandler)
