@@ -29,7 +29,8 @@ export class DataSourceService {
             const datasources = new Datasources(req.body)
             const payload: any = datasources.setValues()
             updateTelemetryAuditEvent({ request: req, object: { ...telemetryObject, id: _.get(payload, 'id'), } });
-            if(payload.type === config.datasource_storage_types.druid) await this.validateDatasource(payload)
+            if(payload.type === config.datasource_storage_types.druid) await this.validateDruidDatasource(payload)
+            else this.validateLakehouseDatasource(payload)
             await this.dbUtil.save(req, res, next, payload)
         } catch (error: any) { this.errorHandler.handleError(req, res, next, error) }
     }
@@ -37,7 +38,8 @@ export class DataSourceService {
         try {
             const datasources = new Datasources(req.body)
             const payload: Record<string, any> = datasources.setValues()
-            if(payload.type === config.datasource_storage_types.druid) await this.validateDatasource(payload)
+            if(payload.type === config.datasource_storage_types.druid) await this.validateDruidDatasource(payload)
+            else this.validateLakehouseDatasource(payload)
             await findAndSetExistingRecord({ dbConnector: this.dbConnector, table: this.table, request: req, filters: { "id": _.get(payload, 'id') }, object: { ...telemetryObject, id: _.get(payload, 'id') } });
             await this.dbUtil.upsert(req, res, next, payload)
         } catch (error: any) { this.errorHandler.handleError(req, res, next, error) }
@@ -56,18 +58,28 @@ export class DataSourceService {
             await this.dbUtil.list(req, res, next, payload)
         } catch (error: any) { this.errorHandler.handleError(req, res, next, error, false) }
     }
-    public validateDatasource = async (payload: Record<string, any>) => {
+    public validateDruidDatasource = async (payload: Record<string, any>) => {
         let datasetRecord = await ingestorService.getDatasetConfig(payload.dataset_id);
         if (_.isEmpty(datasetRecord)) {
             throw constants.DATASET_NOT_FOUND;
         }
-        if (!_.isUndefined(payload.datasource_ref) && !_.isUndefined(payload.ingestion_spec.spec.dataSchema.dataSource) && payload.datasource_ref !== payload.ingestion_spec.spec.dataSchema.dataSource) {
+        if (!_.isUndefined(payload.datasource_ref) && !_.isUndefined(payload.ingestion_spec?.spec?.dataSchema?.dataSource) && payload.datasource_ref !== payload.ingestion_spec?.spec?.dataSchema?.dataSource) {
             throw constants.INVALID_DATASOURCE_REF;
         }
         if (
-            !_.isUndefined(payload.dataset_id) && !_.isUndefined(payload.ingestion_spec) && datasetRecord.router_config.topic !== payload.ingestion_spec.spec.ioConfig.topic) {
+            !_.isUndefined(payload.dataset_id) && !_.isUndefined(payload.ingestion_spec) && datasetRecord.router_config.topic !== payload.ingestion_spec?.spec?.ioConfig?.topic) {
             throw constants.INVALID_TOPIC;
         }
     }
 
+    public validateLakehouseDatasource = (payload: Record<string, any>) => {
+        if (_.isUndefined(payload.ingestion_spec.schema.table) || _.isEmpty(payload.ingestion_spec.schema.table)) {
+            payload.ingestion_spec.schema.table = payload.datasource_ref
+        }
+        else if (payload.ingestion_spec.schema.table !== payload.datasource_ref) {
+            throw constants.INVALID_TABLE
+        }
+        payload.ingestion_spec.schema.table = payload.ingestion_spec.schema.table.replace(/-/g, '_')
+        payload.datasource_ref = payload.datasource_ref.replace(/-/g, '_')
+    }
 }

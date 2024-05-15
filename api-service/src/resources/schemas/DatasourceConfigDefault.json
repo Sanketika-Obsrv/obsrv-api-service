@@ -17,5 +17,6 @@
     "metadata": {
         "aggregated": false,
         "granularity": "day"
-    }
+    },
+    "type": "druid"
 }

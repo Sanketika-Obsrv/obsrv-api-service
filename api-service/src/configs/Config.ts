@@ -18,7 +18,7 @@ export const config = {
       "submit_ingestion": "druid/indexer/v1/supervisor"
     },
     "lakehouse": {
-      "queryType": "lakehouse",
+      "queryType": "datalake",
       "host": process.env.lakehouse_host || "http://localhost",
       "port": process.env.lakehouse_port || 8080,
       "catalog": process.env.lakehouse_catalog || "hudi_connector",

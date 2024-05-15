@@ -54,49 +54,77 @@
       "type": "object"
     }
   },
-  "required": ["dataset_id", "datasource", "type"],
+  "required": ["dataset_id", "datasource"],
+  
   "if": {
     "properties": {
-      "type": { "const": "datalake" }
+      "type": {
+        "const": "druid"
+      }
     }
   },
   "then": {
     "properties": {
       "ingestion_spec": {
-        "type": "object",
-        "properties": {
-          "dataset": {
-            "type": "string"
-          },
-          "schema": {
-            "type": "object",
-            "properties": {
-              "partitionColumn": { "type": "string" },
-              "primaryKey": { "type": "string" },
-              "timestampColumn": { "type": "string" }
-            },
-            "required": ["partitionColumn", "primaryKey", "timestampColumn"]
-          }
-        },
-        "required": ["dataset", "schema"]
+        "type": "object"
       }
-    },
-    "required": ["type"]
+    }
   },
   "else": {
-    "type": "object",
     "if": {
       "properties": {
-        "type": { "const": "druid" }
+        "type": {
+          "const": "datalake"
+        }
       }
     },
     "then": {
       "properties": {
         "ingestion_spec": {
-          "type": "object"
+          "type": "object",
+          "properties": {
+            "dataset": {
+              "type": "string"
+            },
+            "schema": {
+              "type": "object",
+              "properties": {
+                "table": {
+                  "type": "string"
+                },
+                "partitionColumn": {
+                  "type": "string"
+                },
+                "primaryKey": {
+                  "type": "string"
+                },
+                "timestampColumn": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "partitionColumn",
+                "primaryKey",
+                "timestampColumn"
+              ]
+            }
+          },
+          "required": [
+            "dataset",
+            "schema"
+          ]
         }
-      },
-      "required": ["type"]
+      }
+    },
+    "else": {
+      "properties": {
+        "type": {
+          "enum": [
+            "datalake",
+            "druid"
+          ]
+        }
+      }
     }
   }
 }

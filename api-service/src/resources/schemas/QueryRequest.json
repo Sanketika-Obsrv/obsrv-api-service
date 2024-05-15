@@ -29,7 +29,7 @@
         },
         "dataSourceType": {
           "type": "string",
-          "enum": ["realtime", "lakehouse"]
+          "enum": ["realtime", "datalake"]
         }
       }
     }
