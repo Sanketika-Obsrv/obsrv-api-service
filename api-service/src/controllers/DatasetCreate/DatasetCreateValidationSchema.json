@@ -153,15 +153,55 @@
             "timestamp_key": {
               "type": "string",
               "minLength": 1
+            },
+            "file_upload_path": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
             }
           },
           "required": ["data_key", "timestamp_key"],
           "additionalProperties": false
         },
+        "transformations_config": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "field_key": {
+                "type": "string",
+                "minLength": 1
+              },
+              "transformation_function": {
+                "type": "object"
+              },
+              "mode": {
+                "type": "string",
+                "enum": [
+                  "Strict",
+                  "Lenient"
+                ]
+              },
+              "metadata": {
+                "type": "object"
+              }
+            },
+            "additionalProperties": false,
+            "required": [
+              "field_key",
+              "transformation_function",
+              "mode",
+              "metadata"
+            ]
+          }
+        },
         "tags": {
           "type": "array",
           "items": {
-            "type": "string"
+            "type": "string",
+            "minLength":1
           }
         }
       },
