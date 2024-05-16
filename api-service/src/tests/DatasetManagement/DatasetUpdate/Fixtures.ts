@@ -295,7 +295,8 @@ export const TestInputsForDatasetUpdate = {
             ],
             "dataset_config": {
                 "data_key": "mid",
-                "timestamp_key": "ets"
+                "timestamp_key": "ets",
+                "file_upload_path": ["/config/file.json"]
             },
             "tags": [
                 {
