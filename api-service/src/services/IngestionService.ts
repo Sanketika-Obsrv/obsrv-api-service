@@ -81,7 +81,7 @@ const filterFlattenSpec = (column: Record<string, any>, indexCol: string) => {
 const filterMetricsCols = (spec: Record<string, any>) => {
     const metrics = _.filter(spec, cols => cols.fieldType === "metrics")
     const metricCols = _.map(metrics, (value) => value["dimensions"])
-    let updatedMetrics: any[] = []
+    const updatedMetrics: any[] = []
     _.map(metricCols, (value) => {
         value["fieldName"] = value["fieldName"] || value["name"];
         updatedMetrics.push(value);
@@ -100,7 +100,7 @@ const getObjByKey = (sample: any, key: string) => {
 }
 
 export const generateFlattenSchema = (sample: Map<string, any>) => {
-    let array = new Array();
+    const array: any[] = [];
     const flattenValues = (data: any, path: string) => {
         _.map(data, (value, key) => {
             if (_.isPlainObject(value) && _.has(value, 'properties')) {
@@ -128,7 +128,7 @@ const flattenSchema = (expr: string, path: string) => {
 }
 
 export const generateExpression = (sample: Map<string, any>, indexCol: string): Map<string, any> => {
-    let flattendedSchema = new Map();
+    const flattendedSchema = new Map();
     const recursive = (data: any, path: string) => {
         _.map(data, (value, key) => {
             if (_.isPlainObject(value) && (_.has(value, 'properties'))) {
@@ -192,7 +192,7 @@ const getObjectType = (type: string): string => {
         case "object": return "json";
         case "boolean": return "string";
         default: return type;
-    };
+    }
 }
 
 export const getIngestionTemplate = (payload: Record<string, any>) => {

@@ -47,7 +47,7 @@ export const TestInputsForDatasetCreate = {
             },
             "dataset_config": {
                 "data_key": "",
-                "timestamp_key": "ets"
+                "timestamp_key": "eid"
             },
             "tags": []
         }
@@ -148,7 +148,7 @@ export const TestInputsForDatasetCreate = {
             },
             "dataset_config": {
                 "data_key": "",
-                "timestamp_key": "ets"
+                "timestamp_key": "eid"
             }
         }
     },
@@ -188,7 +188,7 @@ export const TestInputsForDatasetCreate = {
             },
             "dataset_config": {
                 "data_key": "",
-                "timestamp_key": "ets"
+                "timestamp_key": "eid"
             },
         }
     },
@@ -238,7 +238,7 @@ export const TestInputsForDatasetCreate = {
             },
             "dataset_config": {
                 "data_key": "",
-                "timestamp_key": "ets"
+                "timestamp_key": "eid"
             },
             "tags": []
         }

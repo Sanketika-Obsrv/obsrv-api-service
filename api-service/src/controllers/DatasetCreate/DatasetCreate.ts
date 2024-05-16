@@ -11,9 +11,9 @@ import { defaultDatasetConfig, defaultMasterConfig } from "../../configs/Dataset
 import { DatasetType } from "../../types/DatasetModels";
 import { query } from "../../connections/databaseConnection";
 import { ErrorObject } from "../../types/ResponseModel";
-import { config } from "../../configs/Config";
 import { generateIngestionSpec } from "../../services/IngestionService";
 import { DatasourceDraft } from "../../models/DatasourceDraft";
+import { ingestionConfig } from "../../configs/IngestionConfig";
 
 export const apiId = "api.datasets.create"
 
@@ -140,7 +140,7 @@ const generateDataSource = (payload: Record<string, any>) => {
 
 const getDataSource = (ingestionPayload: Record<string, any>) => {
     const { ingestionSpec, id } = ingestionPayload
-    const dataSource = `${id}_${config.ingestion_config.granularitySpec.segmentGranularity}`
+    const dataSource = `${id}_${ingestionConfig.granularitySpec.segmentGranularity}`
     const dataSourceId = `${id}_${dataSource}`
     return {
         id: dataSourceId,

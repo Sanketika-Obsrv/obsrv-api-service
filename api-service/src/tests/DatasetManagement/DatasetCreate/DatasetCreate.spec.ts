@@ -9,6 +9,7 @@ import { DatasetDraft } from "../../../models/DatasetDraft";
 import { sequelize } from "../../../connections/databaseConnection";
 import _ from "lodash";
 import { apiId } from "../../../controllers/DatasetCreate/DatasetCreate"
+import { DatasourceDraft } from "../../../models/DatasourceDraft";
 
 chai.use(spies);
 chai.should();
@@ -32,6 +33,9 @@ describe("DATASET CREATE API", () => {
             })
             chai.spy.on(DatasetDraft, "create", () => {
                 return Promise.resolve({ dataValues: { id: "telemetry" } })
+            })
+            chai.spy.on(DatasourceDraft, "create", () => {
+                return Promise.resolve({})
             })
 
             chai
