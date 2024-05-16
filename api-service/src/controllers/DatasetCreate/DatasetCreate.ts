@@ -11,6 +11,9 @@ import { defaultDatasetConfig, defaultMasterConfig } from "../../configs/Dataset
 import { DatasetType } from "../../types/DatasetModels";
 import { query } from "../../connections/databaseConnection";
 import { ErrorObject } from "../../types/ResponseModel";
+import { config } from "../../configs/Config";
+import { generateIngestionSpec } from "../../services/IngestionService";
+import { DatasourceDraft } from "../../models/DatasourceDraft";
 
 export const apiId = "api.datasets.create"
 
@@ -60,6 +63,11 @@ const datasetCreate = async (req: Request, res: Response) => {
         const datasetPayload: any = await getDefaultValue(datasetBody);
         const data = { ...datasetPayload, version_key: Date.now().toString() }
         const response = await DatasetDraft.create(data)
+
+        const { dataset_config, data_schema, id, dataset_id } = data
+        const datasourcePayload = generateDataSource({ indexCol: _.get(dataset_config, ["timestamp_key"]), data_schema, id, dataset_id })
+        await DatasourceDraft.create(datasourcePayload)
+
         logger.info({ apiId, message: `Dataset Created Successfully with id:${_.get(response, ["dataValues", "id"])}` })
         ResponseHandler.successResponse(req, res, { status: httpStatus.OK, data: { id: _.get(response, ["dataValues", "id"]) || "", version_key: data.version_key } });
     } catch (error: any) {
@@ -121,6 +129,26 @@ const getDefaultValue = async (payload: Record<string, any>) => {
     const datasetType = _.get(payload, "type");
     const getDatasetDefaults = getDefaultHandler(datasetType)
     return await getDatasetDefaults(payload)
+}
+
+const generateDataSource = (payload: Record<string, any>) => {
+    const { id } = payload
+    const ingestionSpec = generateIngestionSpec(payload)
+    const dataSource = getDataSource({ ingestionSpec, id })
+    return dataSource
+}
+
+const getDataSource = (ingestionPayload: Record<string, any>) => {
+    const { ingestionSpec, id } = ingestionPayload
+    const dataSource = `${id}_${config.ingestion_config.granularitySpec.segmentGranularity}`
+    const dataSourceId = `${id}_${dataSource}`
+    return {
+        id: dataSourceId,
+        datasource: dataSource,
+        dataset_id: id,
+        ingestion_spec: ingestionSpec,
+        datasource_ref: dataSource
+    }
 }
 
 export default datasetCreate;
