@@ -1,6 +1,7 @@
 import _ from "lodash";
+import { ingestionConfig } from "../configs/IngestionConfig";
 import { config } from "../configs/Config";
-const defaultIndexCol = config.ingestion_config.indexCol["Event Arrival Time"]
+const defaultIndexCol = ingestionConfig.indexCol["Event Arrival Time"]
 
 const connectorSpecObj = {
     "flattenSpec": {
@@ -68,8 +69,8 @@ const filterFlattenSpec = (column: Record<string, any>, indexCol: string) => {
     let flattenSpec = getObjByKey(column, "flattenSpec")
     if (indexCol === defaultIndexCol) {
         const indexColDefaultSpec = {
-            "expr": config.syncts_path,
-            "name": config.ingestion_config.indexCol["Event Arrival Time"],
+            "expr": ingestionConfig.syncts_path,
+            "name": ingestionConfig.indexCol["Event Arrival Time"],
             "type": "path"
         }
         flattenSpec = _.concat(flattenSpec, indexColDefaultSpec)
@@ -197,7 +198,7 @@ const getObjectType = (type: string): string => {
 export const getIngestionTemplate = (payload: Record<string, any>) => {
     const { id, generatedSpec, indexCol, dataset_id } = payload
     const { dimensions, metrics, flattenSpec } = generatedSpec
-    const dataSource = `${id}_${config.ingestion_config.granularitySpec.segmentGranularity}`
+    const dataSource = `${id}_${ingestionConfig.granularitySpec.segmentGranularity}`
     return {
         "type": "kafka",
         "spec": {
@@ -210,8 +211,8 @@ export const getIngestionTemplate = (payload: Record<string, any>) => {
             },
             "tuningConfig": {
                 "type": "kafka",
-                "maxBytesInMemory": config.ingestion_config.maxBytesInMemory,
-                "maxRowsPerSegment": config.ingestion_config.tuningConfig.maxRowPerSegment,
+                "maxBytesInMemory": ingestionConfig.maxBytesInMemory,
+                "maxRowsPerSegment": ingestionConfig.tuningConfig.maxRowPerSegment,
                 "logParseExceptions": true
             },
             "ioConfig": getIOConfigObj(flattenSpec, dataset_id)
@@ -222,9 +223,9 @@ export const getIngestionTemplate = (payload: Record<string, any>) => {
 const getGranularityObj = () => {
     return {
         "type": "uniform",
-        "segmentGranularity": config.ingestion_config.granularitySpec.segmentGranularity,
-        "queryGranularity": config.ingestion_config.query_granularity,
-        "rollup": config.ingestion_config.granularitySpec.rollup
+        "segmentGranularity": ingestionConfig.granularitySpec.segmentGranularity,
+        "queryGranularity": ingestionConfig.query_granularity,
+        "rollup": ingestionConfig.granularitySpec.rollup
     }
 }
 
@@ -233,11 +234,11 @@ const getIOConfigObj = (flattenSpec: Record<string, any>, topic: string): Record
         "type": "kafka",
         "topic": topic,
         "consumerProperties": { "bootstrap.servers": config.telemetry_service_config.kafka.config.brokers[0] },
-        "taskCount": config.ingestion_config.tuningConfig.taskCount,
+        "taskCount": ingestionConfig.tuningConfig.taskCount,
         "replicas": 1,
-        "taskDuration": config.ingestion_config.ioconfig.taskDuration,
-        "useEarliestOffset": config.ingestion_config.use_earliest_offset,
-        "completionTimeout": config.ingestion_config.completion_timeout,
+        "taskDuration": ingestionConfig.ioconfig.taskDuration,
+        "useEarliestOffset": ingestionConfig.use_earliest_offset,
+        "completionTimeout": ingestionConfig.completion_timeout,
         "inputFormat": {
             "type": "json", "flattenSpec": {
                 "useFieldDiscovery": true, "fields": flattenSpec
