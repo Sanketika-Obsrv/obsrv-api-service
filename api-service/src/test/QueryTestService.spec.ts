@@ -680,7 +680,6 @@ describe("QUERY API", () => {
                 .post(config.apiDruidSqlEndPoint)
                 .send(JSON.parse(TestDruidQuery.EMPTY_SQL_QUERY))
                 .end((err, res) => {
-                    console.log(res.body)
                     res.should.have.status(httpStatus.BAD_REQUEST);
                     res.body.should.be.a("object");
                     res.body.id.should.be.eq(routesConfig.query.sql_query.api_id);
@@ -703,7 +702,6 @@ describe("QUERY API", () => {
                 .post(config.apiDruidSqlEndPoint)
                 .send(JSON.parse(TestDruidQuery.VALID_QUERY_DATALAKE))
                 .end((err, res) => {
-                    console.log(res.body)
                     res.should.have.status(httpStatus.OK);
                     res.body.should.be.a("object");
                     res.body.responseCode.should.be.eq(httpStatus["200_NAME"]);
