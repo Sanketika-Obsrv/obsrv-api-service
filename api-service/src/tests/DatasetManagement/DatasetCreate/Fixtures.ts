@@ -53,6 +53,41 @@ export const TestInputsForDatasetCreate = {
         }
     },
 
+    VALID_DATASET_WITH_DEFAULT_TS: {
+        "id": "api.datasets.create",
+        "ver": "v1",
+        "ts": "2024-04-10T16:10:50+05:30",
+        "params": {
+            "msgid": "4a7f14c3-d61e-4d4f-be78-181834eeff6d"
+        },
+        "request": {
+            "dataset_id": "sb-ddd",
+            "type": "dataset",
+            "name": "sb-telemetry2",
+            "data_schema": {
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "type": "object",
+                "properties": {
+                    "eid": {
+                        "type": "string"
+                    },
+                    "ver": {
+                        "type": "string"
+                    },
+                    "required": [
+                        "eid"
+                    ]
+                },
+                "additionalProperties": true
+            },
+            "dataset_config": {
+                "data_key": "",
+                "timestamp_key": "obsrv_meta.syncts"
+            },
+            "tags": []
+        }
+    },
+
     VALID_MINIMAL_DATASET: {
         "id": "api.datasets.create",
         "ver": "v1",
@@ -256,6 +291,41 @@ export const TestInputsForDatasetCreate = {
         }
     },
 
+    DATASET_WITH_INVALID_TIMESTAMP: {
+        "id": "api.datasets.create",
+        "ver": "v1",
+        "ts": "2024-04-10T16:10:50+05:30",
+        "params": {
+            "msgid": "4a7f14c3-d61e-4d4f-be78-181834eeff6d"
+        },
+        "request": {
+            "dataset_id": "sb-ddd",
+            "type": "dataset",
+            "name": "sb-telemetry2",
+            "data_schema": {
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "type": "object",
+                "properties": {
+                    "eid": {
+                        "type": "string"
+                    },
+                    "ver": {
+                        "type": "string"
+                    },
+                    "required": [
+                        "eid"
+                    ]
+                },
+                "additionalProperties": true
+            },
+            "dataset_config": {
+                "data_key": "",
+                "timestamp_key": "lastAccessed"
+            },
+            "tags": []
+        }
+    },
+
     DATASET_WITH_DUPLICATE_DENORM_KEY: {
         "id": "api.datasets.create",
         "ver": "v1",
@@ -346,6 +416,13 @@ export const DATASET_CREATE_SUCCESS_FIXTURES = [
     {
         "title": "Dataset creation success: When id is not present in request payload and is generated using dataset_id",
         "requestPayload": TestInputsForDatasetCreate.VALID_MORE_THAN_MINIMAL_DATASET,
+        "httpStatus": httpStatus.OK,
+        "status": "SUCCESS",
+        "msgid": "4a7f14c3-d61e-4d4f-be78-181834eeff6d"
+    },
+    {
+        "title": "Dataset creation success: Geenerating ingestion spec successfully using the data schema",
+        "requestPayload": TestInputsForDatasetCreate.VALID_DATASET_WITH_DEFAULT_TS,
         "httpStatus": httpStatus.OK,
         "status": "SUCCESS",
         "msgid": "4a7f14c3-d61e-4d4f-be78-181834eeff6d"

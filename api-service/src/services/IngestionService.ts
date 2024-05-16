@@ -34,9 +34,10 @@ export const generateIngestionSpec = (payload: Record<string, any>) => {
     const isValidTimestamp = checkTimestampCol({ indexCol, data_schema })
     if (!isValidTimestamp) {
         throw {
-            "message": "Provided timestamp key not found in the schema",
-            "status": 400,
-            "code": "BAD_REQUEST"
+            "code": "DATASET_TIMESTAMP_NOT_FOUND",
+            "message": "Provided timestamp key not found in the data schema",
+            "statusCode": 400,
+            "errCode": "BAD_REQUEST"
         }
     }
     const simplifiedSpec = generateExpression(_.get(data_schema, "properties"), indexCol);
