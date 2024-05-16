@@ -227,6 +227,26 @@ describe('Datasource APIS', () => {
                     done();
                 });
         })
+        it("should create datalake datasource", (done)=>{
+            chai.spy.on(dbConnector, "execute", () => {
+                return Promise.resolve([])
+            })
+            chai
+                .request(app)
+                .post(config.apiDatasourceSaveEndPoint)
+                .send(TestDataSource.VALID_DATALAKE_SCHEMA)
+                .end((err, res) => {
+                    res.should.have.status(httpStatus.OK);
+                    res.body.should.be.a("object");
+                    res.body.responseCode.should.be.eq(httpStatus[ "200_NAME" ]);
+                    res.body.should.have.property("result");
+                    res.body.id.should.be.eq(routesConfig.config.datasource.save.api_id);
+                    res.body.params.status.should.be.eq(constants.STATUS.SUCCESS)
+                    res.body.result.message.should.be.eq(constants.RECORD_SAVED)
+                    chai.spy.restore(dbConnector, "execute");
+                    done();
+                });
+        })
     })
     describe("Datasource update API", () => {
         it("should not update records in database", (done) => {
@@ -276,7 +296,7 @@ describe('Datasource APIS', () => {
                     done();
                 });
         });
-    
+
         it("should not update records when request object does not contain required fields", (done) => {
             chai.spy.on(ingestorService, "getDatasetConfig", () => {
                 return { "id": ":telemetry", "dataset_config": { "entry_topic": "telemetry" }, "router_config": { "topic": "telemetry" } }
@@ -296,7 +316,64 @@ describe('Datasource APIS', () => {
                     done();
                 });
         });
-    
+        it("should update datalake datasource", (done)=>{
+            chai.spy.on(dbConnector, "execute", () => {
+                return Promise.resolve([])
+            })
+            chai
+                .request(app)
+                .patch(config.apiDatasourceUpdateEndPoint)
+                .send(TestDataSource.VALID_DATALAKE_SCHEMA)
+                .end((err, res) => {
+                    res.should.have.status(httpStatus.OK);
+                    res.body.should.be.a("object");
+                    res.body.responseCode.should.be.eq(httpStatus[ "200_NAME" ]);
+                    res.body.should.have.property("result");
+                    res.body.id.should.be.eq(routesConfig.config.datasource.update.api_id);
+                    res.body.params.status.should.be.eq(constants.STATUS.SUCCESS)
+                    res.body.result.message.should.be.eq(constants.RECORD_UPDATED)
+                    chai.spy.restore(dbConnector, "execute");
+                    done();
+                });
+        })
+        it("should not update records when given invalid schema in case of datalake", (done) => {
+            chai.spy.on(dbConnector, "execute", () => {
+                return Promise.resolve([])
+            })
+            chai
+                .request(app)
+                .patch(config.apiDatasourceUpdateEndPoint)
+                .send(TestDataSource.INVALID_DATALAKE_SCHEMA)
+                .end((err, res) => {
+                    res.should.have.status(httpStatus.BAD_REQUEST);
+                    res.body.should.be.a("object");
+                    res.body.responseCode.should.be.eq(httpStatus[ "400_NAME" ]);
+                    res.body.should.have.property("result");
+                    res.body.id.should.be.eq(routesConfig.config.datasource.update.api_id);
+                    res.body.params.status.should.be.eq(constants.STATUS.FAILURE)
+                    chai.spy.restore(dbConnector, "execute");
+                    done();
+                });
+        })
+        it("should handle case when table name is not passed", (done)=>{
+            chai.spy.on(dbConnector, "execute", () => {
+                return Promise.resolve([])
+            })
+            chai
+                .request(app)
+                .patch(config.apiDatasourceUpdateEndPoint)
+                .send(TestDataSource.UNDEFINED_TABLE)
+                .end((err, res) => {
+                    res.should.have.status(httpStatus.OK);
+                    res.body.should.be.a("object");
+                    res.body.responseCode.should.be.eq(httpStatus[ "200_NAME" ]);
+                    res.body.should.have.property("result");
+                    res.body.id.should.be.eq(routesConfig.config.datasource.update.api_id);
+                    res.body.params.status.should.be.eq(constants.STATUS.SUCCESS)
+                    chai.spy.restore(dbConnector, "execute");
+                    done();
+                });
+        })
     })
     describe("Datasource read API", () => {
         it("should successfully retrieve records from database", (done) => {

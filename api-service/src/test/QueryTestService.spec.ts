@@ -11,6 +11,7 @@ import { dbConnector } from "../routes/Router";
 import { QueryValidator } from "../validators/QueryValidator";
 import chaiSpies from 'chai-spies'
 import { describe, it } from 'mocha';
+import * as lakehouseutil from "../helpers/LakehouseUtil";
 chai.use(chaiSpies)
 chai.should();
 chai.use(chaiHttp);
@@ -610,5 +611,130 @@ describe("QUERY API", () => {
             .then((result) => {
                 result.isValid.should.be.equal(false)
             })
+    }),
+    describe("Datalake query API POST /data/v1/sql-query", () => {
+
+        it("it should retrieve data from datalake when a valid sql query is given", (done) => {
+            chai.spy.on(dbConnector, "readRecords", () => {
+                return [{ "datasource_ref": "sample_ref" }]
+            })
+            chai.spy.on(lakehouseutil, "executeLakehouseQuery", () => {
+                return Promise.resolve([{ totalRatingsCount: 10 }])
+            })
+            chai
+                .request(app)
+                .post(config.apiDruidSqlEndPoint)
+                .send(JSON.parse(TestDruidQuery.VALID_QUERY_DATALAKE))
+                .end((err, res) => {
+                    res.should.have.status(httpStatus.OK);
+                    res.body.should.be.a("object");
+                    res.body.responseCode.should.be.eq(httpStatus["200_NAME"]);
+                    res.body.result.length.should.be.lessThan(101);
+                    res.body.id.should.be.eq(routesConfig.query.sql_query.api_id);
+                    chai.spy.restore(dbConnector, "readRecords")
+                    chai.spy.restore(lakehouseutil, "executeLakehouseQuery")
+                    done();
+                });
+        })
+        it("it should handle error scenarios in datalake query", (done)=>{
+            chai.spy.on(dbConnector, "readRecords", () => {
+                return [{ "datasource_ref": "sample_ref" }]
+            })
+            chai.spy.on(lakehouseutil, "executeLakehouseQuery", () => {
+                throw new Error("error occured while fetching records")
+            })
+            chai
+                .request(app)
+                .post(config.apiDruidSqlEndPoint)
+                .send(JSON.parse(TestDruidQuery.VALID_QUERY_DATALAKE))
+                .end((err, res) => {
+                    res.should.have.status(httpStatus.INTERNAL_SERVER_ERROR);
+                    res.body.should.be.a("object");
+                    res.body.id.should.be.eq(routesConfig.query.sql_query.api_id);
+                    res.body.responseCode.should.be.eq(httpStatus["500_NAME"]);
+                    res.body.params.status.should.be.eq(constants.STATUS.FAILURE);
+                    res.body.result.should.be.empty;
+                    chai.spy.restore(dbConnector, "readRecords")
+                    chai.spy.restore(lakehouseutil, "executeLakehouseQuery")
+                    done();
+                })
+        })
+        it("should throw error incase of invalid datasource type", (done)=>{
+            chai
+                .request(app)
+                .post(config.apiDruidSqlEndPoint)
+                .send(JSON.parse(TestDruidQuery.INVALID_DATASOURCE_TYPE))
+                .end((err, res) => {
+                    res.should.have.status(httpStatus.BAD_REQUEST);
+                    res.body.should.be.a("object");
+                    res.body.id.should.be.eq(routesConfig.query.sql_query.api_id);
+                    res.body.responseCode.should.be.eq(httpStatus["400_NAME"]);
+                    res.body.params.status.should.be.eq(constants.STATUS.FAILURE);
+                    res.body.result.should.be.empty;
+                    done();
+                })
+        })
+        it("should throw error incase of empty sql query", (done)=>{
+            chai
+                .request(app)
+                .post(config.apiDruidSqlEndPoint)
+                .send(JSON.parse(TestDruidQuery.EMPTY_SQL_QUERY))
+                .end((err, res) => {
+                    console.log(res.body)
+                    res.should.have.status(httpStatus.BAD_REQUEST);
+                    res.body.should.be.a("object");
+                    res.body.id.should.be.eq(routesConfig.query.sql_query.api_id);
+                    res.body.responseCode.should.be.eq(httpStatus["400_NAME"]);
+                    res.body.params.status.should.be.eq(constants.STATUS.FAILURE);
+                    res.body.result.should.be.empty;
+                    
+                    done();
+                })
+        })
+        it("should handle native scenarios in case of trino query", (done)=>{
+            chai.spy.on(dbConnector, "readRecords", () => {
+                return [{ "datasource_ref": "sample_ref" }]
+            })
+            chai.spy.on(lakehouseutil, "executeLakehouseQuery", () => {
+                return Promise.resolve([{ totalRatingsCount: 10 }])
+            })
+            chai
+                .request(app)
+                .post(config.apiDruidSqlEndPoint)
+                .send(JSON.parse(TestDruidQuery.VALID_QUERY_DATALAKE))
+                .end((err, res) => {
+                    console.log(res.body)
+                    res.should.have.status(httpStatus.OK);
+                    res.body.should.be.a("object");
+                    res.body.responseCode.should.be.eq(httpStatus["200_NAME"]);
+                    res.body.result.length.should.be.lessThan(101);
+                    res.body.id.should.be.eq(routesConfig.query.sql_query.api_id);
+                    chai.spy.restore(dbConnector, "readRecords")
+                    chai.spy.restore(lakehouseutil, "executeLakehouseQuery")
+                    done();
+                });
+        })
+        it("should consider sql query as case insensitive", (done)=>{
+            chai.spy.on(dbConnector, "readRecords", () => {
+                return [{ "datasource_ref": "sample_ref" }]
+            })
+            chai.spy.on(lakehouseutil, "executeLakehouseQuery", () => {
+                return Promise.resolve([{ totalRatingsCount: 10 }])
+            })
+            chai
+                .request(app)
+                .post(config.apiDruidSqlEndPoint)
+                .send(JSON.parse(TestDruidQuery.CASE_INSENSITIVE_SQL_QUERY))
+                .end((err, res) => {
+                    res.should.have.status(httpStatus.OK);
+                    res.body.should.be.a("object");
+                    res.body.responseCode.should.be.eq(httpStatus["200_NAME"]);
+                    res.body.result.length.should.be.lessThan(101);
+                    res.body.id.should.be.eq(routesConfig.query.sql_query.api_id);
+                    chai.spy.restore(dbConnector, "readRecords")
+                    chai.spy.restore(lakehouseutil, "executeLakehouseQuery")
+                    done();
+                });
+        })
     })
 })
