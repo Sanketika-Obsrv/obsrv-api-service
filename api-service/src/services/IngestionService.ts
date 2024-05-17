@@ -1,6 +1,8 @@
 import _ from "lodash";
 import { ingestionConfig } from "../configs/IngestionConfig";
 import { config } from "../configs/Config";
+import { ErrorObject } from "../types/ResponseModel";
+import logger from "../logger";
 const defaultIndexCol = ingestionConfig.indexCol["Event Arrival Time"]
 
 const connectorSpecObj = {
@@ -38,7 +40,7 @@ export const generateIngestionSpec = (payload: Record<string, any>) => {
             "message": "Provided timestamp key not found in the data schema",
             "statusCode": 400,
             "errCode": "BAD_REQUEST"
-        }
+        } as ErrorObject
     }
     const simplifiedSpec = generateExpression(_.get(data_schema, "properties"), indexCol);
     const generatedSpec = process(simplifiedSpec, indexCol)
@@ -130,14 +132,14 @@ const flattenSchema = (expr: string, path: string) => {
 
 export const generateExpression = (sample: Map<string, any>, indexCol: string): Map<string, any> => {
     const flattendedSchema = new Map();
-    const recursive = (data: any, path: string) => {
+    const flattenExpression = (data: any, path: string) => {
         _.map(data, (value, key) => {
             if (_.isPlainObject(value) && (_.has(value, 'properties'))) {
-                recursive(value['properties'], `${path}.${key}`);
+                flattenExpression(value['properties'], `${path}.${key}`);
             } else if (_.isPlainObject(value)) {
                 if (value.type === 'array') {
                     if (_.has(value, 'items') && _.has(value["items"], 'properties')) {
-                        recursive(value["items"]['properties'], `${path}.${key}[*]`);
+                        flattenExpression(value["items"]['properties'], `${path}.${key}[*]`);
                     } else {
                         const objectType = getObjectType(value.type)
                         const specObject = createSpecObj({ expression: `${path}.['${key}'][*]`, objectType, name: `${path}.${key}`, indexCol })
@@ -147,7 +149,7 @@ export const generateExpression = (sample: Map<string, any>, indexCol: string): 
                     const objectType = getObjectType(value.type)
                     const specObject = createSpecObj({ expression: `${path}.['${key}']`, objectType, name: `${path}.${key}`, indexCol })
                     flattendedSchema.set(`${path}.${key}`, specObject)
-                    console.warn(`Found empty object without properties in the schema..Key: ${key}, Object: ${JSON.stringify(value)}`)
+                    logger.warn(`Found empty object without properties in the schema with Key: ${key}, Object: ${JSON.stringify(value)}`)
                 }
                 else {
                     const objectType = getObjectType(value.type)
@@ -157,17 +159,13 @@ export const generateExpression = (sample: Map<string, any>, indexCol: string): 
             }
         })
     }
-    recursive(sample, "$")
+    flattenExpression(sample, "$")
     flattendedSchema.set("obsrv.meta.source.connector", connectorSpecObj).set("obsrv.meta.source.connector.instance", connectorInstanceSpecObj)
     return flattendedSchema
 }
 
 const createSpecObj = (payload: Record<string, any>): any => {
     const { expression, objectType, name, indexCol } = payload
-    let dataType = objectType;
-    if (expression.indexOf("[*]") > -1) {
-        dataType = "array"
-    }
     const specObj = {
         "flattenSpec": {
             "type": "path",
@@ -175,7 +173,7 @@ const createSpecObj = (payload: Record<string, any>): any => {
             "name": _.replace(name.replace("[*]", ""), "$.", "")
         },
         "dimensions": {
-            "type": dataType,
+            "type": objectType,
             "name": _.replace(name.replace("[*]", ""), "$.", "")
         },
         "fieldType": "dimensions"

@@ -9,7 +9,7 @@ import { ResponseHandler } from "../../helpers/ResponseHandler";
 import httpStatus from "http-status";
 import { defaultDatasetConfig, defaultMasterConfig } from "../../configs/DatasetConfigDefault";
 import { DatasetType } from "../../types/DatasetModels";
-import { query } from "../../connections/databaseConnection";
+import { query, sequelize } from "../../connections/databaseConnection";
 import { ErrorObject } from "../../types/ResponseModel";
 import { generateIngestionSpec } from "../../services/IngestionService";
 import { DatasourceDraft } from "../../models/DatasourceDraft";
@@ -66,16 +66,22 @@ const datasetCreate = async (req: Request, res: Response) => {
 
         const datasetPayload: any = await getDefaultValue(datasetBody);
         const data = { ...datasetPayload, version_key: Date.now().toString() }
-        const response = await DatasetDraft.create(data)
 
         const { dataset_config, data_schema, id, dataset_id } = data
         const datasourcePayload = generateDataSource({ indexCol: _.get(dataset_config, ["timestamp_key"]), data_schema, id, dataset_id })
-        await DatasourceDraft.create(datasourcePayload)
-        
+
         const transformationConfig: any = getTransformationConfig({ transformationPayload: _.get(datasetBody, "transformations_config"), datasetId: _.get(datasetPayload, "id") })
-        if (!_.isEmpty(transformationConfig)) {
-            await DatasetTransformationsDraft.bulkCreate(transformationConfig);
-        }
+
+        const response = await sequelize.transaction(async t => {
+            const result = await DatasetDraft.create(data, { transaction: t })
+            await DatasourceDraft.create(datasourcePayload, { transaction: t })
+            logger.info({ apiId, message: `Datasource created successsfully for the dataset:${id}` })
+            if (!_.isEmpty(transformationConfig)) {
+                await DatasetTransformationsDraft.bulkCreate(transformationConfig), { transaction: t };
+                logger.info({ apiId, message: `Dataset transformations records created successsfully for dataset:${id}` })
+            }
+            return result
+        })
 
         const responseData = { id: _.get(response, ["dataValues", "id"]) || "", version_key: data.version_key }
         logger.info({ apiId, msgid, requestBody, resmsgid, message: `Dataset Created Successfully with id:${_.get(response, ["dataValues", "id"])}`, response: responseData })

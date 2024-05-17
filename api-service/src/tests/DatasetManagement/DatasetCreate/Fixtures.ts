@@ -118,7 +118,7 @@ export const TestInputsForDatasetCreate = {
             },
             "dataset_config": {
                 "data_key": "",
-                "timestamp_key": "ets",
+                "timestamp_key": "eid",
                 "file_upload_path": ["/config/file.json"]
             },
             "transformations_config": [
@@ -168,6 +168,10 @@ export const TestInputsForDatasetCreate = {
                     ]
                 },
                 "additionalProperties": true
+            },
+            "dataset_config": {
+                "data_key": "",
+                "timestamp_key": "eid"
             }
         }
     },
@@ -198,6 +202,10 @@ export const TestInputsForDatasetCreate = {
                     ]
                 },
                 "additionalProperties": true
+            },
+            "dataset_config": {
+                "data_key": "",
+                "timestamp_key": "eid"
             }
         }
     },

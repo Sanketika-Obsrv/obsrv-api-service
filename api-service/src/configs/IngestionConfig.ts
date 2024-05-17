@@ -5,7 +5,7 @@ export const ingestionConfig = {
     "indexCol": { "Event Arrival Time": "obsrv_meta.syncts" },
     "granularitySpec": {
         "rollup": false,
-        "segmentGranularity": env.segment_granularity || "DAY"
+        "segmentGranularity": env.segment_granularity || "day"
     },
     "ioconfig": { "topic": "", "taskDuration": "PT1H" },
     "tuningConfig": { "maxRowPerSegment": 5000000, "taskCount": 1 },
