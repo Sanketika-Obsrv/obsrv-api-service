@@ -31,11 +31,8 @@ describe("DATASET CREATE API", () => {
             chai.spy.on(sequelize, "query", () => {
                 return Promise.resolve([{ nextVal: 9 }])
             })
-            chai.spy.on(DatasetDraft, "create", () => {
+            chai.spy.on(sequelize, "transaction", () => {
                 return Promise.resolve({ dataValues: { id: "telemetry" } })
-            })
-            chai.spy.on(DatasourceDraft, "create", () => {
-                return Promise.resolve({})
             })
 
             chai
