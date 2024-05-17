@@ -54,8 +54,8 @@ export const datasetCopy = async (req: Request, res: Response) => {
             datasetSourceConfigRecords = await getDraftDatasetSourceConfigList(dataset_id);
             datasetTransformationsRecords = await getDraftTransformations(dataset_id);
         }
-        
-        updateRecords({ datasetTransformationsRecords, datasetSourceConfigRecords, dataSourceRecords, dataset }, datasetId, newDatasetId)
+
+        updateRecords({ datasetTransformationsRecords, datasetSourceConfigRecords, dataSourceRecords, dataset }, datasetId, newDatasetId, isLive)
         await saveRecords({ dataset, datasetTransformationsRecords, datasetSourceConfigRecords, dataSourceRecords });
         return ResponseHandler.successResponse(req, res, { status: 200, data: { dataset_id: _.get(dataset, "id"), message: `Dataset clone successful` } });
     }

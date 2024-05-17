@@ -3,8 +3,8 @@ import { DatasetStatus } from "../../types/DatasetModels";
 import { defaultMasterConfig } from "../../configs/DatasetConfigDefault";
 const version = defaultMasterConfig.version;
 
-export const setRequiredFieldsForDatasetRecord = (datasetRecord: any, newDatasetId: string, datasetId: any) => {
-    const dataset_id = newDatasetId || `${datasetId}_copy`;
+export const setRequiredFieldsForDatasetRecord = (datasetRecord: any, newDatasetId: string, datasetId: any, isLive: boolean) => {
+    const dataset_id = isLive ? (newDatasetId || datasetId) : (newDatasetId || `${datasetId}_copy`);
     _.set(datasetRecord, 'status', DatasetStatus.Draft)
     _.set(datasetRecord, 'updated_date', new Date())
     _.set(datasetRecord, "dataset_id", dataset_id)
@@ -12,7 +12,6 @@ export const setRequiredFieldsForDatasetRecord = (datasetRecord: any, newDataset
     _.set(datasetRecord, "name", dataset_id)
     _.set(datasetRecord, "version_key", Date.now().toString())
 }
-
 
 export const updateDataset = (dataset: Record<string, any>): void => {
     _.set(dataset, 'id', dataset.dataset_id + "." + version);
@@ -23,9 +22,9 @@ export const updateDataset = (dataset: Record<string, any>): void => {
     _.set(dataset, 'version', version);
 }
 
-export const updateRecords = ({ datasetTransformationsRecords, datasetSourceConfigRecords, dataSourceRecords, dataset }: any, datasetId: string, newDatasetId: string): void => {
+export const updateRecords = ({ datasetTransformationsRecords, datasetSourceConfigRecords, dataSourceRecords, dataset }: any, datasetId: string, newDatasetId: string, isLive: boolean): void => {
     _.map([dataset], (dataset) => {
-        setRequiredFieldsForDatasetRecord(dataset, newDatasetId, datasetId)
+        setRequiredFieldsForDatasetRecord(dataset, newDatasetId, datasetId, isLive)
     })
     _.map(datasetTransformationsRecords, (datasetTransformation) => {
         _.set(datasetTransformation, 'dataset_id', _.get(dataset, 'id'));
