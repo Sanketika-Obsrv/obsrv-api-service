@@ -27,6 +27,10 @@ export const Dataset = sequelize.define("datasets", {
         type: DataTypes.JSON,
         defaultValue: {}
     },
+    dedup_config: {
+        type: DataTypes.JSON,
+        defaultValue: {}
+    },
     denorm_config: {
         type: DataTypes.JSON,
         defaultValue: {}
