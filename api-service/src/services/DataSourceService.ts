@@ -74,12 +74,7 @@ export class DataSourceService {
 
     public validateLakehouseDatasource = (payload: Record<string, any>) => {
         if (_.isUndefined(payload.ingestion_spec.schema.table) || _.isEmpty(payload.ingestion_spec.schema.table)) {
-            payload.ingestion_spec.schema.table = payload.datasource_ref
+            payload.ingestion_spec.schema.table = payload.datasource_ref.replace(/-/g, '_')
         }
-        else if (payload.ingestion_spec.schema.table !== payload.datasource_ref) {
-            throw constants.INVALID_TABLE
-        }
-        payload.ingestion_spec.schema.table = payload.ingestion_spec.schema.table.replace(/-/g, '_')
-        payload.datasource_ref = payload.datasource_ref.replace(/-/g, '_')
     }
 }

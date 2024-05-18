@@ -181,7 +181,8 @@ export class QueryValidator implements IValidator {
                 payload.querySql.query = payload.querySql.query.replace(dataSource, dataSourceRef)
             }
             else if(payload?.querySql && dataSourceType === config.query_api.lakehouse.queryType) {
-                payload.querySql.query = payload.querySql.query.replace(dataSource, dataSourceRef).replace(/"/g, "")
+                // hudi tables doesn't support table names contain '-' so we need to replace it with '_'
+                payload.querySql.query = payload.querySql.query.replace(dataSource, dataSourceRef).replace(/"/g, "").replace(/-/g, "_")
             }
             else {
                 payload.query.dataSource = dataSourceRef

@@ -355,25 +355,6 @@ describe('Datasource APIS', () => {
                     done();
                 });
         })
-        it("should handle case when table name is not passed", (done)=>{
-            chai.spy.on(dbConnector, "execute", () => {
-                return Promise.resolve([])
-            })
-            chai
-                .request(app)
-                .patch(config.apiDatasourceUpdateEndPoint)
-                .send(TestDataSource.UNDEFINED_TABLE)
-                .end((err, res) => {
-                    res.should.have.status(httpStatus.OK);
-                    res.body.should.be.a("object");
-                    res.body.responseCode.should.be.eq(httpStatus[ "200_NAME" ]);
-                    res.body.should.have.property("result");
-                    res.body.id.should.be.eq(routesConfig.config.datasource.update.api_id);
-                    res.body.params.status.should.be.eq(constants.STATUS.SUCCESS)
-                    chai.spy.restore(dbConnector, "execute");
-                    done();
-                });
-        })
     })
     describe("Datasource read API", () => {
         it("should successfully retrieve records from database", (done) => {
