@@ -34,6 +34,11 @@ export const eventsValidationAgainstSchema = async (req: Request, res: Response)
             schema = _.get(dataset, "data_schema")
         }
 
+        if (dataset === null) {
+            logger.error({ apiId, resmsgid, requestBody, message: `Dataset ${datasetId} does not exists`, code: "DATASET_NOT_EXISTS" })
+            return ResponseHandler.errorResponse({ message: `Dataset ${datasetId} does not exists`, statusCode: 404, errCode: "NOT_FOUND", code: "DATASET_NOT_EXISTS" }, req, res);
+        }
+
         const validateEventAgainstSchema = schemaValidation(event, _.omit(schema, "$schema"));
         logger.info({ apiId, msgid, resmsgid, requestBody, message: validateEventAgainstSchema?.message })
         ResponseHandler.successResponse(req, res, { status: 200, data: { message: validateEventAgainstSchema?.message } });
