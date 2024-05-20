@@ -207,7 +207,7 @@ const getObjectType = (type: string): string => {
 export const getDruidIngestionTemplate = (payload: Record<string, any>) => {
     const { id, generatedSpec, indexCol, dataset_id } = payload
     const { dimensions, metrics, flattenSpec } = generatedSpec
-    const dataSource = `${id}_${ingestionConfig.granularitySpec.segmentGranularity}`
+    const dataSource = `${id}_${_.toLower(ingestionConfig.granularitySpec.segmentGranularity)}`
     return {
         "type": "kafka",
         "spec": {
