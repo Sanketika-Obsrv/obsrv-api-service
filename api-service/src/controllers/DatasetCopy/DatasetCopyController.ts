@@ -35,8 +35,8 @@ export const datasetCopy = async (req: Request, res: Response) => {
         const isValidSchema = schemaValidation(requestBody, validationSchema);
 
         if (!isValidSchema?.isValid) {
-            logger.error({ apiId, msgid, resmsgid, requestBody, message: isValidSchema?.message, code: "QUERY_TEMPLATE_INVALID_INPUT" })
-            return ResponseHandler.errorResponse({ message: isValidSchema?.message, statusCode: 400, errCode: "BAD_REQUEST", code: "QUERY_TEMPLATE_INVALID_INPUT" }, req, res);
+            logger.error({ apiId, msgid, resmsgid, requestBody, message: isValidSchema?.message, code: "DATASET_COPY_INVALID_INPUT" })
+            return ResponseHandler.errorResponse({ message: isValidSchema?.message, statusCode: 400, errCode: "BAD_REQUEST", code: "DATASET_COPY_INVALID_INPUT" }, req, res);
         }
 
         if (isLive) {
