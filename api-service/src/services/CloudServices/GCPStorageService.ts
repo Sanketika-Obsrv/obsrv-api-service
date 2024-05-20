@@ -40,10 +40,11 @@ export class GCPStorageService implements ICloudService {
     }
 
     generateSignedURLs(container: string, filesList: any) {
-        const signedURLs = filesList.map((fileName: any) => {
+        const signedURLs = filesList.map((fileNameWithPrefix: any) => {
             return new Promise((resolve, reject) => {
-                this.getPreSignedUrl(container, fileName)
+                this.getPreSignedUrl(container, fileNameWithPrefix)
                     .then((url) => {
+                        const fileName = fileNameWithPrefix.split("/").pop();
                         resolve({ [fileName]: url })
                     })
                     .catch((error) => {

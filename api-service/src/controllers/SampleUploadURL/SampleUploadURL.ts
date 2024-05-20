@@ -42,11 +42,17 @@ const sampleUploadURL = async (req: Request, res: Response) => {
             } as ErrorObject, req, res);
         }
 
-        const preSignedUrls = await Promise.all(cloudProvider.generateSignedURLs(config.cloud_config.container, fileList))
-        const signedUrlList = _.map(preSignedUrls, list => ({
-            fileName: _.keys(list)[0],
-            preSignedUrl: _.values(list)[0]
-        }))
+        const updatedFileList = transformFiles(fileList)
+        logger.info(`Updated file names with path:${updatedFileList}`)
+        const preSignedUrls = await Promise.all(cloudProvider.generateSignedURLs(config.cloud_config.container, updatedFileList))
+        const signedUrlList = _.map(preSignedUrls, list => {
+            const fileName = _.keys(list)[0]
+            return {
+                filePath: getFilePath(fileName),
+                fileName,
+                preSignedUrl: _.values(list)[0]
+            }
+        })
 
         logger.info({ apiId, requestBody, msgid, resmsgid, message: `Dataset sample upload url generated successfully for files:${fileList}` })
         ResponseHandler.successResponse(req, res, { status: httpStatus.OK, data: signedUrlList })
@@ -59,6 +65,14 @@ const sampleUploadURL = async (req: Request, res: Response) => {
         }
         ResponseHandler.errorResponse(errorMessage, req, res);
     }
+}
+
+const getFilePath = (file: string) => {
+    return `${config.cloud_config.container}/${config.cloud_config.container_prefix}/${file}`
+}
+
+const transformFiles = (fileList: Array<string | any>) => {
+    return _.map(fileList, file => getFilePath(file))
 }
 
 export default sampleUploadURL
