@@ -97,6 +97,6 @@ const saveRecords = async (payload: any) => {
     }
     catch (error: any) {
         logger.error({ error: error?.errors, apiId, resmsgid: _.get(requestBody, "params.resmsgid"), requestBody, message: "Failed to clone dataset", code: "DATASET_COPY_FAILURE" })
-        throw { message: `Failed to clone dataset`, statusCode: 400, errCode: "NOT_FOUND", code: "DATASET_COPY_FAILURE" } as ErrorObject;
+        throw { message: `Failed to clone dataset`, statusCode: 400, errCode: "BAD_REQUEST", code: "DATASET_COPY_FAILURE" } as ErrorObject;
     }
 }
