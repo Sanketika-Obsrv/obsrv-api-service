@@ -4,11 +4,12 @@ import { DatasetDraft } from "../models/DatasetDraft";
 import { DatasetTransformationsDraft } from "../models/TransformationDraft";
 import { Request } from "express";
 
-export const getDataset = async (datasetId: string): Promise<any> => {
+export const getDataset = async (datasetId: string, raw = false): Promise<any> => {
     const dataset = await Dataset.findOne({
         where: {
             id: datasetId,
         },
+        raw: raw
     });
     return dataset
 }

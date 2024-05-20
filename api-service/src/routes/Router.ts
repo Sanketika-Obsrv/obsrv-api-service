@@ -15,6 +15,7 @@ import { readQueryTemplate } from "../controllers/ReadQueryTemplate/ReadTemplate
 import { deleteQueryTemplate } from "../controllers/DeleteQueryTemplate/DeleteTemplateController";
 import { listQueryTemplates } from "../controllers/ListQueryTemplates/ListTemplatesController";
 import { updateQueryTemplate } from "../controllers/UpdateQueryTemplate/UpdateTemplateController";
+import { eventsValidationAgainstSchema } from "../controllers/EventsValidationAgainstSchema/EventsValidationAgainstSchemaController";
 
 export const router = express.Router();
 
@@ -30,6 +31,7 @@ router.get('/v1/template/read/:templateId', setDataToRequestObject("api.query.te
 router.delete('/v1/template/delete/:templateId', setDataToRequestObject("api.query.template.delete"), deleteQueryTemplate);
 router.post('/v1/template/list', setDataToRequestObject("api.query.template.list"), listQueryTemplates);
 router.patch('/v1/template/update/:templateId', setDataToRequestObject("api.query.template.update"), updateQueryTemplate);
+router.post('/v1/schema/validate', setDataToRequestObject("api.schema.validator"), eventsValidationAgainstSchema);
 
 //Scrape metrics to prometheus
 router.get('/metrics', metricsScrapeHandler)
