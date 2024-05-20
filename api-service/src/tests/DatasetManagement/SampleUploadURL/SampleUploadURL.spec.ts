@@ -25,7 +25,8 @@ describe("DATASET SAMPLE UPLOAD-URL API", () => {
         chai.spy.on(cloudProvider, "generateSignedURLs", (container, fileList) => {
             const signedUrlPromise = _.map(fileList, (file: any) => {
                 return new Promise(resolve => {
-                    resolve({ [file]: `https://obsrv-data.s3.ap-south-1.amazonaws.com/${file}?X-Amz-Algorithm=AWS4-HMAC` });
+                    const fileName: any = _.split(file, "/").pop()
+                    resolve({ [fileName]: `https://obsrv-data.s3.ap-south-1.amazonaws.com///${fileName}?X-Amz-Algorithm=AWS4-HMAC` });
                 });
             });
             return signedUrlPromise;
@@ -44,12 +45,14 @@ describe("DATASET SAMPLE UPLOAD-URL API", () => {
                 const result = JSON.stringify(res.body.result)
                 result.should.be.eq(JSON.stringify([
                     {
+                        "filePath":"//telemetry.json",
                         "fileName": 'telemetry.json',
-                        "preSignedUrl": 'https://obsrv-data.s3.ap-south-1.amazonaws.com/telemetry.json?X-Amz-Algorithm=AWS4-HMAC'
+                        "preSignedUrl": 'https://obsrv-data.s3.ap-south-1.amazonaws.com///telemetry.json?X-Amz-Algorithm=AWS4-HMAC'
                     },
                     {
+                        "filePath": '//school-data.json',
                         "fileName": 'school-data.json',
-                        "preSignedUrl": 'https://obsrv-data.s3.ap-south-1.amazonaws.com/school-data.json?X-Amz-Algorithm=AWS4-HMAC'
+                        "preSignedUrl": 'https://obsrv-data.s3.ap-south-1.amazonaws.com///school-data.json?X-Amz-Algorithm=AWS4-HMAC'
                     }
                 ]))
                 done();
@@ -60,7 +63,8 @@ describe("DATASET SAMPLE UPLOAD-URL API", () => {
         chai.spy.on(cloudProvider, "generateSignedURLs", (container, fileList) => {
             const signedUrlPromise = _.map(fileList, (file: any) => {
                 return new Promise(resolve => {
-                    resolve({ 'telemetry.json': 'https://obsrv-data.s3.ap-south-1.amazonaws.com/telemetry.json?X-Amz-Algorithm=AWS4-HMAC' });
+                    const fileName: any = _.split(file, "/").pop()
+                    resolve({ [fileName]: `https://obsrv-data.s3.ap-south-1.amazonaws.com///${fileName}?X-Amz-Algorithm=AWS4-HMAC` });
                 });
             });
             return signedUrlPromise;
@@ -79,8 +83,9 @@ describe("DATASET SAMPLE UPLOAD-URL API", () => {
                 const result = JSON.stringify(res.body.result)
                 result.should.be.eq(JSON.stringify([
                     {
+                        "filePath": '//telemetry.json',
                         "fileName": 'telemetry.json',
-                        "preSignedUrl": 'https://obsrv-data.s3.ap-south-1.amazonaws.com/telemetry.json?X-Amz-Algorithm=AWS4-HMAC'
+                        "preSignedUrl": 'https://obsrv-data.s3.ap-south-1.amazonaws.com///telemetry.json?X-Amz-Algorithm=AWS4-HMAC'
                     }
                 ]))
                 done();
