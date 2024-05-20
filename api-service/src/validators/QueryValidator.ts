@@ -63,7 +63,8 @@ export class QueryValidator implements IValidator {
             if (!isFromClausePresent) {
                 return { isValid: false, message: "Invalid SQL Query", code: httpStatus["400_NAME"] };
             }
-            const dataset = query.substring(query.indexOf("FROM")).split(" ")[1].replace(/\\/g, "");
+            const fromIndex = query.search(fromClause); 
+            const dataset = query.substring(fromIndex + 4).trim().split(/\s+/)[0].replace(/\\/g, "");  
             if (_.isEmpty(dataset)) {
                 return { isValid: false, message: "Dataset name must be present in the SQL Query", code: httpStatus["400_NAME"] };
             }
@@ -85,7 +86,9 @@ export class QueryValidator implements IValidator {
             fromDate = moment(extractedDateRange[0], this.momentFormat);
             toDate = moment(extractedDateRange[1], this.momentFormat);
         } else {
-            let vocabulary = queryPayload.querySql.query.split(" ");
+            let query = queryPayload.querySql.query; 
+            query = query.toUpperCase().replace(/\s+/g, " ").trim();
+            let vocabulary = query.split(/\s+/);
             let fromDateIndex = vocabulary.indexOf("TIMESTAMP");
             let toDateIndex = vocabulary.lastIndexOf("TIMESTAMP");
             fromDate = moment(vocabulary[fromDateIndex + 1], this.momentFormat);
@@ -100,8 +103,9 @@ export class QueryValidator implements IValidator {
         if (queryPayload.querySql) {
             let query = queryPayload.querySql.query;
             query = query.replace(/\s+/g, " ").trim();
-            let dataSource = query.substring(query.indexOf("FROM")).split(" ")[1].replace(/\\/g, "");
-            return dataSource.replace(/"/g, "");
+            const fromIndex = query.search(/\bFROM\b/i);
+            const dataSource = query.substring(fromIndex).split(/\s+/)[1].replace(/\\/g, "").replace(/"/g, "");
+            return dataSource;
         } else {
             const dataSourceField: any = queryPayload.query.dataSource
             if (typeof dataSourceField == 'object') { return dataSourceField.name }
@@ -141,14 +145,18 @@ export class QueryValidator implements IValidator {
                 queryPayload.query.limit = limits.maxResultRowLimit;
             }
         } else {
-            let vocabulary = queryPayload.querySql.query.split(" ");
-            let queryLimitIndex = vocabulary.indexOf("LIMIT");
-            let queryLimit = Number(vocabulary[queryLimitIndex + 1]);
+            const limitClause = /\bLIMIT\b/i;
+            const vocabulary = queryPayload.querySql.query.split(/\s+/); // Splitting the query by whitespace
+            const queryLimitIndex = vocabulary.findIndex(word => limitClause.test(word));
+            const queryLimit = Number(vocabulary[queryLimitIndex + 1]);
+            
             if (isNaN(queryLimit)) {
-                const updatedVocabulary = [...vocabulary, "LIMIT", limits.maxResultRowLimit].join(" ");
-                queryPayload.querySql.query = updatedVocabulary;
+                // If "LIMIT" clause doesn't exist or its value is not a number, update the query
+                const updatedVocabulary = [...vocabulary, "LIMIT", limits.maxResultRowLimit];
+                queryPayload.querySql.query = updatedVocabulary.join(" ");
             } else {
-                let newLimit = this.getLimit(queryLimit, limits.maxResultRowLimit);
+                // If "LIMIT" clause exists and its value is a number, update the limit
+                const newLimit = this.getLimit(queryLimit, limits.maxResultRowLimit);
                 vocabulary[queryLimitIndex + 1] = newLimit.toString();
                 queryPayload.querySql.query = vocabulary.join(" ");
             }

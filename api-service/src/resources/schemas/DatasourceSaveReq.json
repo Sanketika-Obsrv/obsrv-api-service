@@ -48,6 +48,10 @@
                     "type": "string"
                 }
             }
+        },
+        "type": {
+            "type": "string",
+            "enum": ["druid", "datalake"]
         }
     },
     "required": [

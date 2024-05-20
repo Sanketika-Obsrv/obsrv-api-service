@@ -8,6 +8,7 @@ export class Datasources {
     private id: string
     private dataset_id: string
     private ingestion_spec: object
+    private type: string
     private datasource: string
     private datasource_ref: string
     private retention_period: object
@@ -30,6 +31,7 @@ export class Datasources {
         }
         this.dataset_id = payload.dataset_id
         this.ingestion_spec = payload.ingestion_spec
+        this.type = payload.type
         this.datasource = payload.datasource
         this.datasource_ref = payload.datasource_ref
         this.retention_period = payload.retentionPeriod
@@ -44,7 +46,7 @@ export class Datasources {
         this.metadata = payload.metadata
     }
     public getValues() {
-        return Object.assign(this.removeNullValues({ id: this.id, dataset_id: this.dataset_id, ingestion_spec: this.ingestion_spec, datasource: this.datasource, datasource_ref: this.datasource_ref, retention_period: this.retention_period, archival_policy: this.archival_policy, purge_policy: this.purge_policy, backup_config: this.backup_config, status: this.status, version: this.version, created_by: this.created_by, updated_by: this.updated_by, published_date: this.published_date, metadata: this.metadata }), { "updated_date": new Date })
+        return Object.assign(this.removeNullValues({ id: this.id, dataset_id: this.dataset_id, ingestion_spec: this.ingestion_spec, type: this.type, datasource: this.datasource, datasource_ref: this.datasource_ref, retention_period: this.retention_period, archival_policy: this.archival_policy, purge_policy: this.purge_policy, backup_config: this.backup_config, status: this.status, version: this.version, created_by: this.created_by, updated_by: this.updated_by, published_date: this.published_date, metadata: this.metadata }), { "updated_date": new Date })
     }
 
     public setValues() {

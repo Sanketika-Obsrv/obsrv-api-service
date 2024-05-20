@@ -58,6 +58,10 @@ export const config = {
     normalDataset: "dataset",
     masterDataset: "master-dataset"
   },
+  "datasource_storage_types": {
+    druid: "druid",
+    datalake: "datalake"
+  },
   "redis_config": {
     "redis_host": process.env.redis_host || 'localhost',
     "redis_port": process.env.redis_port || 6379
