@@ -15,8 +15,8 @@ import { DatasourceDraft } from "../../models/DatasourceDraft";
 import { DatasetSourceConfigDraft } from "../../models/DatasetSourceConfigDraft";
 import { ErrorObject } from "../../types/ResponseModel";
 import { DatasetStatus } from "../../types/DatasetModels";
-import { defaultMasterConfig } from "../../configs/DatasetConfigDefault";
-const version = defaultMasterConfig.version;
+import { defaultDatasetConfig } from "../../configs/DatasetConfigDefault";
+const version = defaultDatasetConfig.version;
 export const apiId = "api.dataset.copy";
 let requestBody: any;
 
