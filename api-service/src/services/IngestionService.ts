@@ -44,8 +44,18 @@ export const generateIngestionSpec = (payload: Record<string, any>) => {
     }
     const simplifiedSpec = generateExpression(_.get(data_schema, "properties"), indexCol);
     const generatedSpec = process(simplifiedSpec, indexCol)
-    const ingestionTemplate = getIngestionTemplate({ generatedSpec, id, indexCol, dataset_id })
+    const ingestionTemplate = generateIngestionTemplate({ generatedSpec, id, indexCol, dataset_id, type: "druid" })
     return ingestionTemplate
+}
+
+const generateIngestionTemplate = (payload: Record<string, any>) => {
+    const { type, ...rest } = payload
+    switch (type) {
+        case 'druid':
+            return getDruidIngestionTemplate(rest);
+        default:
+            return null;
+    }
 }
 
 const checkTimestampCol = (schema: Record<string, any>) => {
@@ -194,7 +204,7 @@ const getObjectType = (type: string): string => {
     }
 }
 
-export const getIngestionTemplate = (payload: Record<string, any>) => {
+export const getDruidIngestionTemplate = (payload: Record<string, any>) => {
     const { id, generatedSpec, indexCol, dataset_id } = payload
     const { dimensions, metrics, flattenSpec } = generatedSpec
     const dataSource = `${id}_${ingestionConfig.granularitySpec.segmentGranularity}`

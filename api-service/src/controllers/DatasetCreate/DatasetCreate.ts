@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import logger from "../../logger";
-import { getDraftDataset, getDuplicateConfigs, getDuplicateDenormKey, setReqDatasetId } from "../../services/DatasetService";
+import { generateDataSource, getDraftDataset, getDuplicateConfigs, getDuplicateDenormKey, setReqDatasetId } from "../../services/DatasetService";
 import _ from "lodash";
 import DatasetCreate from "./DatasetCreateValidationSchema.json";
 import { schemaValidation } from "../../services/ValidationService";
@@ -11,9 +11,7 @@ import { defaultDatasetConfig, defaultMasterConfig } from "../../configs/Dataset
 import { DatasetType } from "../../types/DatasetModels";
 import { query, sequelize } from "../../connections/databaseConnection";
 import { ErrorObject } from "../../types/ResponseModel";
-import { generateIngestionSpec } from "../../services/IngestionService";
 import { DatasourceDraft } from "../../models/DatasourceDraft";
-import { ingestionConfig } from "../../configs/IngestionConfig";
 import { DatasetTransformationsDraft } from "../../models/TransformationDraft";
 
 export const apiId = "api.datasets.create"
@@ -172,26 +170,6 @@ const getTransformationConfig = (configs: Record<string, any>): Record<string, a
         return transformations
     }
     return []
-}
-
-const generateDataSource = (payload: Record<string, any>) => {
-    const { id } = payload
-    const ingestionSpec = generateIngestionSpec(payload)
-    const dataSource = getDataSource({ ingestionSpec, id })
-    return dataSource
-}
-
-const getDataSource = (ingestionPayload: Record<string, any>) => {
-    const { ingestionSpec, id } = ingestionPayload
-    const dataSource = `${id}_${ingestionConfig.granularitySpec.segmentGranularity}`
-    const dataSourceId = `${id}_${dataSource}`
-    return {
-        id: dataSourceId,
-        datasource: dataSource,
-        dataset_id: id,
-        ingestion_spec: ingestionSpec,
-        datasource_ref: dataSource
-    }
 }
 
 export default datasetCreate;

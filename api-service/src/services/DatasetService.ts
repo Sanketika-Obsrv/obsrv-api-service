@@ -3,6 +3,8 @@ import _ from "lodash";
 import { DatasetDraft } from "../models/DatasetDraft";
 import { DatasetTransformationsDraft } from "../models/TransformationDraft";
 import { Request } from "express";
+import { generateIngestionSpec } from "./IngestionService";
+import { ingestionConfig } from "../configs/IngestionConfig";
 
 export const getDataset = async (datasetId: string): Promise<any> => {
     const dataset = await Dataset.findOne({
@@ -39,4 +41,24 @@ export const setReqDatasetId = (req: Request, dataset_id: string) => {
 
 export const getDuplicateConfigs = (configs: Array<string | any>) => {
     return _.filter(configs, (item: string, index: number) => _.indexOf(configs, item) !== index);
+}
+
+export const generateDataSource = (payload: Record<string, any>) => {
+    const { id } = payload
+    const ingestionSpec = generateIngestionSpec(payload)
+    const dataSource = getDataSource({ ingestionSpec, id })
+    return dataSource
+}
+
+const getDataSource = (ingestionPayload: Record<string, any>) => {
+    const { ingestionSpec, id } = ingestionPayload
+    const dataSource = `${id}_${_.toLower(ingestionConfig.granularitySpec.segmentGranularity)}`
+    const dataSourceId = `${id}_${dataSource}`
+    return {
+        id: dataSourceId,
+        datasource: dataSource,
+        dataset_id: id,
+        ingestion_spec: ingestionSpec,
+        datasource_ref: dataSource
+    }
 }
