@@ -1,6 +1,6 @@
 export const requestStructure = {
     "id": "api.datasets.update",
-    "ver": "v1",
+    "ver": "v2",
     "ts": "2024-04-10T16:10:50+05:30",
     "params": {
         "msgid": "4a7f14c3-d61e-4d4f-be78-181834eeff6d"

@@ -38,7 +38,7 @@ describe("QUERY API TESTS", () => {
             .reply(200, ['telemetry-events.1_rollup'])
         chai
             .request(app)
-            .post("/v1/data/query/telemetry-events")
+            .post("/v2/data/query/telemetry-events")
             .send(JSON.parse(TestQueries.VALID_QUERY))
             .end((err, res) => {
                 res.should.have.status(404);
@@ -57,7 +57,7 @@ describe("QUERY API TESTS", () => {
         })
         chai
             .request(app)
-            .post("/v1/data/query/telemetry-events")
+            .post("/v2/data/query/telemetry-events")
             .send(JSON.parse(TestQueries.VALID_QUERY))
             .end((err, res) => {
                 res.should.have.status(404);
@@ -82,7 +82,7 @@ describe("QUERY API TESTS", () => {
             .reply(500)
         chai
             .request(app)
-            .post("/v1/data/query/telemetry-events")
+            .post("/v2/data/query/telemetry-events")
             .send(JSON.parse(TestQueries.VALID_QUERY))
             .end((err, res) => {
                 res.should.have.status(500);
@@ -108,7 +108,7 @@ describe("QUERY API TESTS", () => {
             .reply(500)
         chai
             .request(app)
-            .post("/v1/data/query/telemetry-events")
+            .post("/v2/data/query/telemetry-events")
             .send(JSON.parse(TestQueries.VALID_SQL_QUERY))
             .end((err, res) => {
                 res.should.have.status(500);
@@ -134,7 +134,7 @@ describe("QUERY API TESTS", () => {
             .reply(200, [{ events: [] }]);
         chai
             .request(app)
-            .post("/v1/data/query/telemetry-events")
+            .post("/v2/data/query/telemetry-events")
             .send(JSON.parse(TestQueries.VALID_QUERY))
             .end((err, res) => {
                 res.should.have.status(200);
@@ -161,7 +161,7 @@ describe("QUERY API TESTS", () => {
             .reply(200, [{ events: [] }]);
         chai
             .request(app)
-            .post("/v1/data/query/telemetry-events")
+            .post("/v2/data/query/telemetry-events")
             .send(JSON.parse(TestQueries.VALID_INTERVAL))
             .end((err, res) => {
                 res.should.have.status(200);
@@ -188,7 +188,7 @@ describe("QUERY API TESTS", () => {
             .reply(200, [{ events: [] }]);
         chai
             .request(app)
-            .post("/v1/data/query/telemetry-events")
+            .post("/v2/data/query/telemetry-events")
             .send(JSON.parse(TestQueries.VALID_SQL_QUERY))
             .end((err, res) => {
                 res.should.have.status(200);
@@ -214,7 +214,7 @@ describe("QUERY API TESTS", () => {
             .reply(200, [{ events: [] }]);
         chai
             .request(app)
-            .post("/v1/data/query/telemetry-events")
+            .post("/v2/data/query/telemetry-events")
             .send(JSON.parse(TestQueries.INVALID_SQL_QUERY))
             .end((err, res) => {
                 res.should.have.status(400);
@@ -232,7 +232,7 @@ describe("QUERY API TESTS", () => {
     it("Query api failure : schema validation", (done) => {
         chai
             .request(app)
-            .post("/v1/data/query/telemetry-events")
+            .post("/v2/data/query/telemetry-events")
             .send(JSON.parse(TestQueries.HIGH_LIMIT_SQL_QUERY))
             .end((err, res) => {
                 res.should.have.status(400);
@@ -258,7 +258,7 @@ describe("QUERY API TESTS", () => {
             .reply(200, [{ events: [] }]);
         chai
             .request(app)
-            .post("/v1/data/query/telemetry-events")
+            .post("/v2/data/query/telemetry-events")
             .send(JSON.parse(TestQueries.HIGH_DATE_RANGE_SQL_QUERY))
             .end((err, res) => {
                 res.should.have.status(400);
@@ -284,7 +284,7 @@ describe("QUERY API TESTS", () => {
             .reply(200);
         chai
             .request(app)
-            .post("/v1/data/query/telemetry-events")
+            .post("/v2/data/query/telemetry-events")
             .send(JSON.parse(TestQueries.VALID_SQL_QUERY_WITHOUT_LIMIT))
             .end((err, res) => {
                 res.should.have.status(200);
@@ -309,7 +309,7 @@ describe("QUERY API TESTS", () => {
             .reply(200);
         chai
             .request(app)
-            .post("/v1/data/query/telemetry-events")
+            .post("/v2/data/query/telemetry-events")
             .send(JSON.parse(TestQueries.HIGH_LIMIT_NATIVE_QUERY))
             .end((err, res) => {
                 res.should.have.status(400);

@@ -1,0 +1,58 @@
+{
+    "type": "object",
+    "properties": {
+        "id": {
+            "type": "string",
+            "enum": [
+                "api.schema.validator"
+            ]
+        },
+        "ver": {
+            "type": "string"
+        },
+        "ts": {
+            "type": "string"
+        },
+        "params": {
+            "type": "object",
+            "properties": {
+                "msgid": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "msgid"
+            ],
+            "additionalProperties": false
+        },
+        "request": {
+            "type": "object",
+            "properties": {
+                "datasetId": {
+                    "type": "string",
+                    "minLength": 3
+                },
+                "isLive": {
+                    "type": "boolean"
+                },
+                "event": {
+                    "type": "object"
+                }
+            },
+            "required": [
+                "datasetId",
+                "isLive",
+                "event"
+            ],
+            "additionalProperties": false
+        }
+    },
+    "required": [
+        "id",
+        "ver",
+        "ts",
+        "params",
+        "request"
+    ],
+    "additionalProperties": false
+}

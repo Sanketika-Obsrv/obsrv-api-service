@@ -30,7 +30,7 @@ describe("DATASET EXTRACTION CONFIG UPDATE", () => {
         })
         chai
             .request(app)
-            .patch("/v1/datasets/update")
+            .patch("/v2/datasets/update")
             .send(TestInputsForDatasetUpdate.DATASET_UPDATE_EXTRACTION_DROP_DUPLICATES)
             .end((err, res) => {
                 res.should.have.status(httpStatus.OK);
@@ -56,7 +56,7 @@ describe("DATASET EXTRACTION CONFIG UPDATE", () => {
         })
         chai
             .request(app)
-            .patch("/v1/datasets/update")
+            .patch("/v2/datasets/update")
             .send({ ...requestStructure, request: { dataset_id: "telemetry", version_key: validVersionKey, extraction_config: { "is_batch_event": false } } })
             .end((err, res) => {
                 res.should.have.status(httpStatus.OK);
@@ -75,7 +75,7 @@ describe("DATASET EXTRACTION CONFIG UPDATE", () => {
     it("Failure: Extraction configs not provided as batch event is true", (done) => {
         chai
             .request(app)
-            .patch("/v1/datasets/update")
+            .patch("/v2/datasets/update")
             .send({ ...requestStructure, request: { dataset_id: "telemetry", version_key: validVersionKey, extraction_config: { "is_batch_event": true } } })
             .end((err, res) => {
                 res.should.have.status(httpStatus.BAD_REQUEST);

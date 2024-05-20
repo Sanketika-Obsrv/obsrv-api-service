@@ -30,7 +30,7 @@ describe("DATASET TAGS UPDATE", () => {
         })
         chai
             .request(app)
-            .patch("/v1/datasets/update")
+            .patch("/v2/datasets/update")
             .send(TestInputsForDatasetUpdate.DATASET_UPDATE_TAG_ADD)
             .end((err, res) => {
                 res.should.have.status(httpStatus.OK);
@@ -56,7 +56,7 @@ describe("DATASET TAGS UPDATE", () => {
         })
         chai
             .request(app)
-            .patch("/v1/datasets/update")
+            .patch("/v2/datasets/update")
             .send(TestInputsForDatasetUpdate.DATASET_UPDATE_TAG_REMOVE)
             .end((err, res) => {
                 res.should.have.status(httpStatus.OK);
@@ -82,7 +82,7 @@ describe("DATASET TAGS UPDATE", () => {
         })
         chai
             .request(app)
-            .patch("/v1/datasets/update")
+            .patch("/v2/datasets/update")
             .send(TestInputsForDatasetUpdate.DATASET_UPDATE_WITH_SAME_TAGS_ADD)
             .end((err, res) => {
                 res.should.have.status(httpStatus.OK);
@@ -105,7 +105,7 @@ describe("DATASET TAGS UPDATE", () => {
         })
         chai
             .request(app)
-            .patch("/v1/datasets/update")
+            .patch("/v2/datasets/update")
             .send(TestInputsForDatasetUpdate.DATASET_UPDATE_REQUEST)
             .end((err, res) => {
                 res.should.have.status(httpStatus.BAD_REQUEST);
@@ -127,7 +127,7 @@ describe("DATASET TAGS UPDATE", () => {
         })
         chai
             .request(app)
-            .patch("/v1/datasets/update")
+            .patch("/v2/datasets/update")
             .send(TestInputsForDatasetUpdate.DATASET_UPDATE_REQUEST)
             .end((err, res) => {
                 res.should.have.status(httpStatus.NOT_FOUND);
