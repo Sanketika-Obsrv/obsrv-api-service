@@ -55,6 +55,11 @@ export const datasetCopy = async (req: Request, res: Response) => {
             datasetTransformationsRecords = await getDraftTransformations(dataset_id);
         }
 
+        if (dataset === null) {
+            logger.error({ apiId, resmsgid, requestBody, message: `Dataset ${datasetId} does not exists`, code: "DATASET_NOT_EXISTS" })
+            return ResponseHandler.errorResponse({ message: `Dataset ${datasetId} does not exists`, statusCode: 404, errCode: "NOT_FOUND", code: "DATASET_NOT_EXISTS" }, req, res);
+        }
+
         updateRecords({ datasetTransformationsRecords, datasetSourceConfigRecords, dataSourceRecords, dataset }, datasetId, newDatasetId, isLive)
         await saveRecords({ dataset, datasetTransformationsRecords, datasetSourceConfigRecords, dataSourceRecords });
         return ResponseHandler.successResponse(req, res, { status: 200, data: { dataset_id: _.get(dataset, "id"), message: `Dataset clone successful` } });
