@@ -20,7 +20,7 @@ const datasetCreate = async (req: Request, res: Response) => {
     const requestBody = req.body
     const msgid = _.get(req, ["body", "params", "msgid"]);
     const resmsgid = _.get(res, "resmsgid");
-    const transact = await sequelize.transaction();
+    const transact = await sequelize.transaction()
     try {
         const datasetId = _.get(req, ["body", "request", "dataset_id"])
         setReqDatasetId(req, datasetId)
