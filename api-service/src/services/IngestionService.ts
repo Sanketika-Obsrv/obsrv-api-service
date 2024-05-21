@@ -3,6 +3,7 @@ import { ingestionConfig } from "../configs/IngestionConfig";
 import { config } from "../configs/Config";
 import { ErrorObject } from "../types/ResponseModel";
 import logger from "../logger";
+import { IngestionSpecModel, IngestionSpecObject } from "../types/IngestionModels";
 const defaultIndexCol = ingestionConfig.indexCol["Event Arrival Time"]
 
 const connectorSpecObj = {
@@ -68,10 +69,10 @@ const checkTimestampCol = (schema: Record<string, any>) => {
     return true
 }
 
-const process = (spec: Map<string, any>, indexCol: string) => {
+const process = (spec: Map<string, any>, indexCol: string): IngestionSpecModel => {
     const colValues = Array.from(spec.values())
     const dimensions = filterDimensionCols(colValues)
-    return {
+    return <IngestionSpecModel>{
         "dimensions": getObjByKey(dimensions, "dimensions"),
         "metrics": filterMetricsCols(spec),
         "flattenSpec": filterFlattenSpec(colValues, indexCol)
@@ -174,7 +175,7 @@ export const generateExpression = (sample: Map<string, any>, indexCol: string): 
     return flattendedSchema
 }
 
-const createSpecObj = (payload: Record<string, any>): any => {
+const createSpecObj = (payload: Record<string, any>): IngestionSpecObject => {
     const { expression, objectType, name, indexCol } = payload
     const specObj = {
         "flattenSpec": {
