@@ -20,6 +20,7 @@ const datasetCreate = async (req: Request, res: Response) => {
     const requestBody = req.body
     const msgid = _.get(req, ["body", "params", "msgid"]);
     const resmsgid = _.get(res, "resmsgid");
+    const transact = await sequelize.transaction();
     try {
         const datasetId = _.get(req, ["body", "request", "dataset_id"])
         setReqDatasetId(req, datasetId)
@@ -65,26 +66,25 @@ const datasetCreate = async (req: Request, res: Response) => {
         const datasetPayload: any = await getDefaultValue(datasetBody);
         const data = { ...datasetPayload, version_key: Date.now().toString() }
 
+        const response = await DatasetDraft.create(data, { transaction: transact })
+
         const { dataset_config, data_schema, id, dataset_id } = data
         const datasourcePayload = generateDataSource({ indexCol: _.get(dataset_config, ["timestamp_key"]), data_schema, id, dataset_id })
+        await DatasourceDraft.create(datasourcePayload, { transaction: transact })
+        logger.info({ apiId, message: `Datasource created successsfully for the dataset:${id}` })
 
         const transformationConfig: any = getTransformationConfig({ transformationPayload: _.get(datasetBody, "transformations_config"), datasetId: _.get(datasetPayload, "id") })
-
-        const response = await sequelize.transaction(async t => {
-            const result = await DatasetDraft.create(data, { transaction: t })
-            await DatasourceDraft.create(datasourcePayload, { transaction: t })
-            logger.info({ apiId, message: `Datasource created successsfully for the dataset:${id}` })
-            if (!_.isEmpty(transformationConfig)) {
-                await DatasetTransformationsDraft.bulkCreate(transformationConfig), { transaction: t };
-                logger.info({ apiId, message: `Dataset transformations records created successsfully for dataset:${id}` })
-            }
-            return result
-        })
-
+        if (!_.isEmpty(transformationConfig)) {
+            await DatasetTransformationsDraft.bulkCreate(transformationConfig), { transaction: transact };
+            logger.info({ apiId, message: `Dataset transformations records created successsfully for dataset:${id}` })
+        }
+        
+        await transact.commit()
         const responseData = { id: _.get(response, ["dataValues", "id"]) || "", version_key: data.version_key }
         logger.info({ apiId, msgid, requestBody, resmsgid, message: `Dataset Created Successfully with id:${_.get(response, ["dataValues", "id"])}`, response: responseData })
         ResponseHandler.successResponse(req, res, { status: httpStatus.OK, data: responseData });
     } catch (error: any) {
+        await transact.rollback()
         const code = _.get(error, "code") || "DATASET_CREATION_FAILURE"
         logger.error({ ...error, apiId, code, msgid, requestBody, resmsgid })
         let errorMessage = error;
