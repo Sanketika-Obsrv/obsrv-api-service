@@ -180,7 +180,7 @@ export const TestInputsForDatasetList = {
 
     REQUEST_WITHOUT_FILTERS: {
         "id": "api.datasets.list",
-        "ver": "v1",
+        "ver": "v2",
         "ts": "2024-04-10T16:10:50+05:30",
         "params": {
             "msgid": "4a7f14c3-d61e-4d4f-be78-181834eeff6d"
@@ -189,7 +189,7 @@ export const TestInputsForDatasetList = {
     },
     REQUEST_WITH_STATUS_FILTERS: {
         "id": "api.datasets.list",
-        "ver": "v1",
+        "ver": "v2",
         "ts": "2024-04-10T16:10:50+05:30",
         "params": {
             "msgid": "4a7f14c3-d61e-4d4f-be78-181834eeff6d"
@@ -200,7 +200,7 @@ export const TestInputsForDatasetList = {
     },
     REQUEST_WITH_TYPE_FILTERS: {
         "id": "api.datasets.list",
-        "ver": "v1",
+        "ver": "v2",
         "ts": "2024-04-10T16:10:50+05:30",
         "params": {
             "msgid": "4a7f14c3-d61e-4d4f-be78-181834eeff6d"
@@ -211,7 +211,7 @@ export const TestInputsForDatasetList = {
     },
     REQUEST_WITH_SORTBY: {
         "id": "api.datasets.list",
-        "ver": "v1",
+        "ver": "v2",
         "ts": "2024-04-10T16:10:50+05:30",
         "params": {
             "msgid": "4a7f14c3-d61e-4d4f-be78-181834eeff6d"
@@ -222,7 +222,7 @@ export const TestInputsForDatasetList = {
     },
     INVALID_REQUEST: {
         "id": "api.datasets.list",
-        "ver": "v1",
+        "ver": "v2",
         "ts": "2024-04-10T16:10:50+05:30",
         "params": {
             "msgid": "4a7f14c3-d61e-4d4f-be78-181834eeff6d"
