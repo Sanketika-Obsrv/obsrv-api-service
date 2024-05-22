@@ -44,7 +44,7 @@ describe("DATASET TRANSFORMATIONS UPDATE", () => {
         })
         chai
             .request(app)
-            .patch("/v1/datasets/update")
+            .patch("/v2/datasets/update")
             .send(TestInputsForDatasetUpdate.DATASET_UPDATE_TRANSFORMATIONS_ADD)
             .end((err, res) => {
                 res.should.have.status(httpStatus.OK);
@@ -82,7 +82,7 @@ describe("DATASET TRANSFORMATIONS UPDATE", () => {
         })
         chai
             .request(app)
-            .patch("/v1/datasets/update")
+            .patch("/v2/datasets/update")
             .send(TestInputsForDatasetUpdate.DATASET_UPDATE_TRANSFORMATIONS_REMOVE)
             .end((err, res) => {
                 res.should.have.status(httpStatus.OK);
@@ -120,7 +120,7 @@ describe("DATASET TRANSFORMATIONS UPDATE", () => {
         })
         chai
             .request(app)
-            .patch("/v1/datasets/update")
+            .patch("/v2/datasets/update")
             .send(TestInputsForDatasetUpdate.DATASET_UPDATE_TRANSFORMATIONS_UPDATE)
             .end((err, res) => {
                 res.should.have.status(httpStatus.OK);
@@ -162,7 +162,7 @@ describe("DATASET TRANSFORMATIONS UPDATE", () => {
         })
         chai
             .request(app)
-            .patch("/v1/datasets/update")
+            .patch("/v2/datasets/update")
             .send(TestInputsForDatasetUpdate.DATASET_UPDATE_WITH_SAME_TRANSFORMATION_ADD_REMOVE)
             .end((err, res) => {
                 res.should.have.status(httpStatus.OK);
@@ -199,7 +199,7 @@ describe("DATASET TRANSFORMATIONS UPDATE", () => {
         })
         chai
             .request(app)
-            .patch("/v1/datasets/update")
+            .patch("/v2/datasets/update")
             .send(TestInputsForDatasetUpdate.DATASET_UPDATE_REQUEST)
             .end((err, res) => {
                 res.should.have.status(httpStatus.BAD_REQUEST);
@@ -235,7 +235,7 @@ describe("DATASET TRANSFORMATIONS UPDATE", () => {
         })
         chai
             .request(app)
-            .patch("/v1/datasets/update")
+            .patch("/v2/datasets/update")
             .send(TestInputsForDatasetUpdate.DATASET_UPDATE_REQUEST)
             .end((err, res) => {
                 res.should.have.status(httpStatus.NOT_FOUND);
@@ -271,7 +271,7 @@ describe("DATASET TRANSFORMATIONS UPDATE", () => {
         })
         chai
             .request(app)
-            .patch("/v1/datasets/update")
+            .patch("/v2/datasets/update")
             .send(TestInputsForDatasetUpdate.DATASET_UPDATE_REQUEST)
             .end((err, res) => {
                 res.should.have.status(httpStatus.NOT_FOUND);

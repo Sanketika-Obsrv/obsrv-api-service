@@ -37,7 +37,7 @@ describe("DATASET DENORM UPDATE", () => {
         })
         chai
             .request(app)
-            .patch("/v1/datasets/update")
+            .patch("/v2/datasets/update")
             .send(TestInputsForDatasetUpdate.DATASET_UPDATE_DENORM_ADD)
             .end((err, res) => {
                 res.should.have.status(httpStatus.OK);
@@ -69,7 +69,7 @@ describe("DATASET DENORM UPDATE", () => {
         })
         chai
             .request(app)
-            .patch("/v1/datasets/update")
+            .patch("/v2/datasets/update")
             .send(TestInputsForDatasetUpdate.DATASET_UPDATE_DENORM_REMOVE)
             .end((err, res) => {
                 res.should.have.status(httpStatus.OK);
@@ -106,7 +106,7 @@ describe("DATASET DENORM UPDATE", () => {
         })
         chai
             .request(app)
-            .patch("/v1/datasets/update")
+            .patch("/v2/datasets/update")
             .send(TestInputsForDatasetUpdate.DATASET_UPDATE_WITH_SAME_DENORM_REMOVE)
             .end((err, res) => {
                 res.should.have.status(httpStatus.OK);
@@ -131,7 +131,7 @@ describe("DATASET DENORM UPDATE", () => {
         })
         chai
             .request(app)
-            .patch("/v1/datasets/update")
+            .patch("/v2/datasets/update")
             .send(TestInputsForDatasetUpdate.DATASET_UPDATE_DUPLICATE_DENORM_KEY)
             .end((err, res) => {
                 res.should.have.status(httpStatus.BAD_REQUEST);
@@ -164,7 +164,7 @@ describe("DATASET DENORM UPDATE", () => {
         })
         chai
             .request(app)
-            .patch("/v1/datasets/update")
+            .patch("/v2/datasets/update")
             .send(TestInputsForDatasetUpdate.DATASET_UPDATE_REQUEST)
             .end((err, res) => {
                 res.should.have.status(httpStatus.BAD_REQUEST);
@@ -197,7 +197,7 @@ describe("DATASET DENORM UPDATE", () => {
         })
         chai
             .request(app)
-            .patch("/v1/datasets/update")
+            .patch("/v2/datasets/update")
             .send(TestInputsForDatasetUpdate.DATASET_UPDATE_REQUEST)
             .end((err, res) => {
                 res.should.have.status(httpStatus.NOT_FOUND);

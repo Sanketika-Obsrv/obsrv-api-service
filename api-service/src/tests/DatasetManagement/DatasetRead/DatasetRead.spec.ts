@@ -28,7 +28,7 @@ describe("DATASET READ API", () => {
         })
         chai
             .request(app)
-            .get("/v1/datasets/read/sb-telemetry?fields=name,version")
+            .get("/v2/datasets/read/sb-telemetry?fields=name,version")
             .end((err, res) => {
                 res.should.have.status(httpStatus.OK);
                 res.body.should.be.a("object")
@@ -51,7 +51,7 @@ describe("DATASET READ API", () => {
         })
         chai
             .request(app)
-            .get("/v1/datasets/read/sb-telemetry?status=Draft")
+            .get("/v2/datasets/read/sb-telemetry?status=Draft")
             .end((err, res) => {
                 res.should.have.status(httpStatus.OK);
                 res.body.should.be.a("object")
@@ -75,7 +75,7 @@ describe("DATASET READ API", () => {
         })
         chai
             .request(app)
-            .get("/v1/datasets/read/sb-telemetry")
+            .get("/v2/datasets/read/sb-telemetry")
             .end((err, res) => {
                 res.should.have.status(httpStatus.OK);
                 res.body.should.be.a("object")
@@ -95,7 +95,7 @@ describe("DATASET READ API", () => {
         })
         chai
             .request(app)
-            .get("/v1/datasets/read/sb-telemetry?fields=name")
+            .get("/v2/datasets/read/sb-telemetry?fields=name")
             .end((err, res) => {
                 res.should.have.status(httpStatus.NOT_FOUND);
                 res.body.should.be.a("object")
@@ -110,7 +110,7 @@ describe("DATASET READ API", () => {
     it("Dataset read failure: When specified field of live dataset cannot be found", (done) => {
         chai
             .request(app)
-            .get("/v1/datasets/read/sb-telemetry?fields=data")
+            .get("/v2/datasets/read/sb-telemetry?fields=data")
             .end((err, res) => {
                 res.should.have.status(httpStatus.BAD_REQUEST);
                 res.body.should.be.a("object")
@@ -125,7 +125,7 @@ describe("DATASET READ API", () => {
     it("Dataset read failure: When specified field of draft dataset cannot be found", (done) => {
         chai
             .request(app)
-            .get("/v1/datasets/read/sb-telemetry?fields=data&status=Draft")
+            .get("/v2/datasets/read/sb-telemetry?fields=data&status=Draft")
             .end((err, res) => {
                 res.should.have.status(httpStatus.BAD_REQUEST);
                 res.body.should.be.a("object")
@@ -143,7 +143,7 @@ describe("DATASET READ API", () => {
         })
         chai
             .request(app)
-            .get("/v1/datasets/read/sb-telemetry")
+            .get("/v2/datasets/read/sb-telemetry")
             .end((err, res) => {
                 res.should.have.status(httpStatus.INTERNAL_SERVER_ERROR);
                 res.body.should.be.a("object")

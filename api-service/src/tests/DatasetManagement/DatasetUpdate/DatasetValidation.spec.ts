@@ -37,7 +37,7 @@ describe("DATASET VALIDATION CONFIG UPDATE", () => {
         })
         chai
             .request(app)
-            .patch("/v1/datasets/update")
+            .patch("/v2/datasets/update")
             .send(TestInputsForDatasetUpdate.DATASET_UPDATE_VALIDATION_VALIDATE)
             .end((err, res) => {
                 res.should.have.status(httpStatus.OK);
@@ -69,7 +69,7 @@ describe("DATASET VALIDATION CONFIG UPDATE", () => {
         })
         chai
             .request(app)
-            .patch("/v1/datasets/update")
+            .patch("/v2/datasets/update")
             .send({ ...requestStructure, request: { dataset_id: "telemetry", version_key: validVersionKey, validation_config: { "validate": false } } })
             .end((err, res) => {
                 res.should.have.status(httpStatus.OK);
@@ -91,7 +91,7 @@ describe("DATASET VALIDATION CONFIG UPDATE", () => {
         })
         chai
             .request(app)
-            .patch("/v1/datasets/update")
+            .patch("/v2/datasets/update")
             .send({ ...requestStructure, request: { dataset_id: "telemetry", version_key: validVersionKey, validation_config: { "validate": true } } })
             .end((err, res) => {
                 res.should.have.status(httpStatus.BAD_REQUEST);

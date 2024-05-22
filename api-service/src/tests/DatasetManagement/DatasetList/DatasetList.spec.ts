@@ -39,7 +39,7 @@ describe("DATASET LIST API", () => {
         })
         chai
             .request(app)
-            .post("/v1/datasets/list")
+            .post("/v2/datasets/list")
             .send(TestInputsForDatasetList.REQUEST_WITHOUT_FILTERS)
             .end((err, res) => {
                 res.should.have.status(httpStatus.OK);
@@ -68,7 +68,7 @@ describe("DATASET LIST API", () => {
         })
         chai
             .request(app)
-            .post("/v1/datasets/list")
+            .post("/v2/datasets/list")
             .send(TestInputsForDatasetList.REQUEST_WITH_STATUS_FILTERS)
             .end((err, res) => {
                 res.should.have.status(httpStatus.OK);
@@ -97,7 +97,7 @@ describe("DATASET LIST API", () => {
         })
         chai
             .request(app)
-            .post("/v1/datasets/list")
+            .post("/v2/datasets/list")
             .send(TestInputsForDatasetList.REQUEST_WITH_TYPE_FILTERS)
             .end((err, res) => {
                 res.should.have.status(httpStatus.OK);
@@ -129,7 +129,7 @@ describe("DATASET LIST API", () => {
         })
         chai
             .request(app)
-            .post("/v1/datasets/list")
+            .post("/v2/datasets/list")
             .send(TestInputsForDatasetList.REQUEST_WITH_SORTBY)
             .end((err, res) => {
                 res.should.have.status(httpStatus.OK);
@@ -149,7 +149,7 @@ describe("DATASET LIST API", () => {
     it("Dataset list failure: Invalid request payload provided", (done) => {
         chai
             .request(app)
-            .post("/v1/datasets/list")
+            .post("/v2/datasets/list")
             .send(TestInputsForDatasetList.INVALID_REQUEST)
             .end((err, res) => {
                 res.should.have.status(httpStatus.BAD_REQUEST);
@@ -169,7 +169,7 @@ describe("DATASET LIST API", () => {
         })
         chai
             .request(app)
-            .post("/v1/datasets/list")
+            .post("/v2/datasets/list")
             .send(TestInputsForDatasetList.REQUEST_WITHOUT_FILTERS)
             .end((err, res) => {
                 res.should.have.status(httpStatus.INTERNAL_SERVER_ERROR);

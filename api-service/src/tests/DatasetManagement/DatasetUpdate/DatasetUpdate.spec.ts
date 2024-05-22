@@ -37,7 +37,7 @@ describe("DATASET UPDATE API", () => {
         })
         chai
             .request(app)
-            .patch("/v1/datasets/update")
+            .patch("/v2/datasets/update")
             .send(TestInputsForDatasetUpdate.MINIMAL_DATASET_UPDATE_REQUEST)
             .end((err, res) => {
                 res.should.have.status(httpStatus.OK);
@@ -89,7 +89,7 @@ describe("DATASET UPDATE API", () => {
         })
         chai
             .request(app)
-            .patch("/v1/datasets/update")
+            .patch("/v2/datasets/update")
             .send(TestInputsForDatasetUpdate.DATASET_UPDATE_REQUEST)
             .end((err, res) => {
                 res.should.have.status(httpStatus.OK);
@@ -110,7 +110,7 @@ describe("DATASET UPDATE API", () => {
         })
         chai
             .request(app)
-            .patch("/v1/datasets/update")
+            .patch("/v2/datasets/update")
             .send({ ...requestStructure, request: { dataset_id: "telemetry", version_key: validVersionKey } })
             .end((err, res) => {
                 res.should.have.status(httpStatus.BAD_REQUEST);
@@ -133,7 +133,7 @@ describe("DATASET UPDATE API", () => {
         })
         chai
             .request(app)
-            .patch("/v1/datasets/update")
+            .patch("/v2/datasets/update")
             .send(TestInputsForDatasetUpdate.MINIMAL_DATASET_UPDATE_REQUEST)
             .end((err, res) => {
                 res.should.have.status(httpStatus.NOT_FOUND);
@@ -156,7 +156,7 @@ describe("DATASET UPDATE API", () => {
         })
         chai
             .request(app)
-            .patch("/v1/datasets/update")
+            .patch("/v2/datasets/update")
             .send({ ...requestStructure, request: { dataset_id: "telemetry", version_key: validVersionKey, name: "telemetry" } })
             .end((err, res) => {
                 res.should.have.status(httpStatus.CONFLICT);
@@ -179,7 +179,7 @@ describe("DATASET UPDATE API", () => {
         })
         chai
             .request(app)
-            .patch("/v1/datasets/update")
+            .patch("/v2/datasets/update")
             .send(TestInputsForDatasetUpdate.MINIMAL_DATASET_UPDATE_REQUEST)
             .end((err, res) => {
                 res.should.have.status(httpStatus.BAD_REQUEST);
@@ -205,7 +205,7 @@ describe("DATASET UPDATE API", () => {
         })
         chai
             .request(app)
-            .patch("/v1/datasets/update")
+            .patch("/v2/datasets/update")
             .send(TestInputsForDatasetUpdate.MINIMAL_DATASET_UPDATE_REQUEST)
             .end((err, res) => {
                 res.should.have.status(httpStatus.INTERNAL_SERVER_ERROR);
@@ -240,7 +240,7 @@ describe("DATASET UPDATE API", () => {
             })
             chai
                 .request(app)
-                .patch("/v1/datasets/update")
+                .patch("/v2/datasets/update")
                 .send(TestInputsForDatasetUpdate.MINIMAL_DATASET_UPDATE_REQUEST)
                 .end((err, res) => {
                     res.should.have.status(httpStatus.OK);
@@ -261,7 +261,7 @@ describe("DATASET UPDATE API", () => {
             })
             chai
                 .request(app)
-                .patch("/v1/datasets/update")
+                .patch("/v2/datasets/update")
                 .send({ ...requestStructure, request: { dataset_id: "telemetry", name: {}, version_key: validVersionKey } })
                 .end((err, res) => {
                     res.should.have.status(httpStatus.BAD_REQUEST);
@@ -302,7 +302,7 @@ describe("DATASET UPDATE API", () => {
             })
             chai
                 .request(app)
-                .patch("/v1/datasets/update")
+                .patch("/v2/datasets/update")
                 .send(TestInputsForDatasetUpdate.DATASET_UPDATE_DATA_SCHEMA_VALID)
                 .end((err, res) => {
                     res.should.have.status(httpStatus.OK);
@@ -337,7 +337,7 @@ describe("DATASET UPDATE API", () => {
             })
             chai
                 .request(app)
-                .patch("/v1/datasets/update")
+                .patch("/v2/datasets/update")
                 .send(TestInputsForDatasetUpdate.DATASET_UPDATE_DATA_SCHEMA_VALID)
                 .end((err, res) => {
                     res.should.have.status(httpStatus.OK);
@@ -366,7 +366,7 @@ describe("DATASET UPDATE API", () => {
             })
             chai
                 .request(app)
-                .patch("/v1/datasets/update")
+                .patch("/v2/datasets/update")
                 .send(TestInputsForDatasetUpdate.DATASET_WITH_INVALID_TIMESTAMP)
                 .end((err, res) => {
                     res.should.have.status(httpStatus.BAD_REQUEST);
@@ -386,7 +386,7 @@ describe("DATASET UPDATE API", () => {
             })
             chai
                 .request(app)
-                .patch("/v1/datasets/update")
+                .patch("/v2/datasets/update")
                 .send({ ...requestStructure, request: { dataset_id: "sb-telemetry", version_key: validVersionKey, data_schema: { a: "" } } })
                 .end((err, res) => {
                     res.should.have.status(httpStatus.BAD_REQUEST);
@@ -424,7 +424,7 @@ describe("DATASET UPDATE API", () => {
             })
             chai
                 .request(app)
-                .patch("/v1/datasets/update")
+                .patch("/v2/datasets/update")
                 .send(TestInputsForDatasetUpdate.DATASET_UPDATE_DATASET_CONFIG_VALID)
                 .end((err, res) => {
                     res.should.have.status(httpStatus.OK);
@@ -445,7 +445,7 @@ describe("DATASET UPDATE API", () => {
             })
             chai
                 .request(app)
-                .patch("/v1/datasets/update")
+                .patch("/v2/datasets/update")
                 .send({ ...requestStructure, request: { dataset_id: "telemetry", version_key: validVersionKey, dataset_config: { new: 1 } } })
                 .end((err, res) => {
                     res.should.have.status(httpStatus.BAD_REQUEST);
