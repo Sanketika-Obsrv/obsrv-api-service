@@ -4,7 +4,7 @@ import _ from "lodash"
 export const TestInputsForDatasetCreate = {
     VALID_DATASET: {
         "id": "api.datasets.create",
-        "ver": "v1",
+        "ver": "v2",
         "ts": "2024-04-10T16:10:50+05:30",
         "params": {
             "msgid": "4a7f14c3-d61e-4d4f-be78-181834eeff6d"
@@ -91,7 +91,7 @@ export const TestInputsForDatasetCreate = {
 
     VALID_DATASET_WITH_TRANSFORMATIONS: {
         "id": "api.datasets.create",
-        "ver": "v1",
+        "ver": "v2",
         "ts": "2024-04-10T16:10:50+05:30",
         "params": {
             "msgid": "4a7f14c3-d61e-4d4f-be78-181834eeff6d"
@@ -212,7 +212,7 @@ export const TestInputsForDatasetCreate = {
 
     VALID_MINIMAL_DATASET: {
         "id": "api.datasets.create",
-        "ver": "v1",
+        "ver": "v2",
         "ts": "2024-04-10T16:10:50+05:30",
         "params": {
             "msgid": "4a7f14c3-d61e-4d4f-be78-181834eeff6d"
@@ -246,7 +246,7 @@ export const TestInputsForDatasetCreate = {
 
     VALID_MINIMAL_MASTER_DATASET: {
         "id": "api.datasets.create",
-        "ver": "v1",
+        "ver": "v2",
         "ts": "2024-04-10T16:10:50+05:30",
         "params": {
             "msgid": "4a7f14c3-d61e-4d4f-be78-181834eeff6d"
@@ -279,7 +279,7 @@ export const TestInputsForDatasetCreate = {
     },
     VALID_MORE_THAN_MINIMAL_DATASET: {
         "id": "api.datasets.create",
-        "ver": "v1",
+        "ver": "v2",
         "ts": "2024-04-10T16:10:50+05:30",
         "params": {
             "msgid": "4a7f14c3-d61e-4d4f-be78-181834eeff6d"
@@ -319,7 +319,7 @@ export const TestInputsForDatasetCreate = {
     },
     VALID_MORE_THAN_MINIMAL_MASTER_DATASET: {
         "id": "api.datasets.create",
-        "ver": "v1",
+        "ver": "v2",
         "ts": "2024-04-10T16:10:50+05:30",
         "params": {
             "msgid": "4a7f14c3-d61e-4d4f-be78-181834eeff6d"
@@ -359,7 +359,7 @@ export const TestInputsForDatasetCreate = {
     },
     VALID_MASTER_DATASET: {
         "id": "api.datasets.create",
-        "ver": "v1",
+        "ver": "v2",
         "ts": "2024-04-10T16:10:50+05:30",
         "params": {
             "msgid": "4a7f14c3-d61e-4d4f-be78-181834eeff6d"
@@ -411,7 +411,7 @@ export const TestInputsForDatasetCreate = {
     ,
     SCHEMA_VALIDATION_ERROR_DATASET: {
         "id": "api.datasets.create",
-        "ver": "v1",
+        "ver": "v2",
         "ts": "2024-04-10T16:10:50+05:30",
         "params": {
             "msgid": "4a7f14c3-d61e-4d4f-be78-181834eeff6d"
@@ -458,7 +458,7 @@ export const TestInputsForDatasetCreate = {
 
     DATASET_WITH_DUPLICATE_DENORM_KEY: {
         "id": "api.datasets.create",
-        "ver": "v1",
+        "ver": "v2",
         "ts": "2024-04-10T16:10:50+05:30",
         "params": {
             "msgid": "4a7f14c3-d61e-4d4f-be78-181834eeff6d"

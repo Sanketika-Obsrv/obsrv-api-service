@@ -6,11 +6,12 @@ import { Request } from "express";
 import { generateIngestionSpec } from "./IngestionService";
 import { ingestionConfig } from "../configs/IngestionConfig";
 
-export const getDataset = async (datasetId: string): Promise<any> => {
+export const getDataset = async (datasetId: string, raw = false): Promise<any> => {
     const dataset = await Dataset.findOne({
         where: {
             id: datasetId,
         },
+        raw: raw
     });
     return dataset
 }
