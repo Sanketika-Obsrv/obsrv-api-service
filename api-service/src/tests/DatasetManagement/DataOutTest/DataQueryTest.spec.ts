@@ -17,7 +17,7 @@ const listDruidDatasources = config?.query_api?.druid?.list_datasources_path;
 const nativeQueryEndpointDruid = config?.query_api?.druid?.native_query_path;
 const sqlQueryEndpoint = config?.query_api?.druid?.sql_query_path;
 
-const response = [{ dataValues: { datasource_ref: "telemetry-events.1_rollup_week", metadata: { aggregated: true, granularity: "week" } } }]
+const response = [{ dataValues: { datasource_ref: "test.1_rollup_week", metadata: { aggregated: true, granularity: "week" } } }]
 const msgid = "e180ecac-8f41-4f21-9a21-0b3a1a368917";
 
 describe("QUERY API TESTS", () => {
@@ -76,7 +76,7 @@ describe("QUERY API TESTS", () => {
         })
         nock(druidHost + ":" + druidPort)
             .get(listDruidDatasources)
-            .reply(200, ["telemetry-events.1_rollup_week"])
+            .reply(200, ["test.1_rollup_week"])
         nock(druidHost + ":" + druidPort)
             .post(nativeQueryEndpointDruid)
             .reply(500)
@@ -102,7 +102,7 @@ describe("QUERY API TESTS", () => {
         })
         nock(druidHost + ":" + druidPort)
             .get(listDruidDatasources)
-            .reply(200, ["telemetry-events.1_rollup_week"])
+            .reply(200, ["test.1_rollup_week"])
         nock(druidHost + ":" + druidPort)
             .post(sqlQueryEndpoint)
             .reply(500)
@@ -128,7 +128,7 @@ describe("QUERY API TESTS", () => {
         })
         nock(druidHost + ":" + druidPort)
             .get(listDruidDatasources)
-            .reply(200, ["telemetry-events.1_rollup_week"])
+            .reply(200, ["test.1_rollup_week"])
         nock(druidHost + ":" + druidPort)
             .post(nativeQueryEndpointDruid)
             .reply(200, [{ events: [] }]);
@@ -155,7 +155,7 @@ describe("QUERY API TESTS", () => {
         })
         nock(druidHost + ":" + druidPort)
             .get(listDruidDatasources)
-            .reply(200, ["telemetry-events.1_rollup_week"])
+            .reply(200, ["test.1_rollup_week"])
         nock(druidHost + ":" + druidPort)
             .post(nativeQueryEndpointDruid)
             .reply(200, [{ events: [] }]);
@@ -182,7 +182,7 @@ describe("QUERY API TESTS", () => {
         })
         nock(druidHost + ":" + druidPort)
             .get(listDruidDatasources)
-            .reply(200, ["telemetry-events.1_rollup_week"])
+            .reply(200, ["test.1_rollup_week"])
         nock(druidHost + ":" + druidPort)
             .post(sqlQueryEndpoint)
             .reply(200, [{ events: [] }]);
@@ -278,7 +278,7 @@ describe("QUERY API TESTS", () => {
         })
         nock(druidHost + ":" + druidPort)
             .get(listDruidDatasources)
-            .reply(200, ["telemetry-events.1_rollup_week"])
+            .reply(200, ["test.1_rollup_week"])
         nock(druidHost + ":" + druidPort)
             .post(sqlQueryEndpoint)
             .reply(200);
