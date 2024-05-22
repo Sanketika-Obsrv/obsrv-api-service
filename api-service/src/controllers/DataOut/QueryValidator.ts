@@ -95,7 +95,7 @@ const setQueryLimits = (queryPayload: any) => {
 
 const getDataSourceFromPayload = (queryPayload: any) => {
     if (_.isString(queryPayload.query)) {
-        queryPayload?.query.replace(/from\s+["'`]?[\w-]+["'`]?(\s+where\s+)/i, `from "${dataset_id}"$1`);
+        queryPayload?.query.replace(/from\s+["'`]?[\w-]+["'`]?(\s+where\s+)/i, ` from "${dataset_id}"$1`);
         return dataset_id
     }
     if (_.isObject(queryPayload.query)) {
