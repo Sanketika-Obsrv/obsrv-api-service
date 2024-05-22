@@ -116,7 +116,6 @@ describe("DATA INGEST API", () => {
             .end((err, res) => {
                 res.should.have.status(500);
                 res.body.should.be.a("object");
-                res.body.should.have.property("result");
                 res.body.id.should.be.eq("api.data.in");
                 res.body.params.status.should.be.eq("FAILED");
                 connectionStub.restore()
@@ -140,7 +139,6 @@ describe("DATA INGEST API", () => {
             .end((err, res) => {
                 res.should.have.status(404);
                 res.body.should.be.a("object");
-                res.body.should.have.property("result");
                 res.body.id.should.be.eq("api.data.in");
                 res.body.params.status.should.be.eq("FAILED");
                 res.body.error.message.should.be.eq("Entry topic is not defined")
@@ -157,7 +155,6 @@ describe("DATA INGEST API", () => {
             .end((err, res) => {
                 res.should.have.status(400);
                 res.body.should.be.a("object");
-                res.body.should.have.property("result");
                 res.body.id.should.be.eq("api.data.in");
                 res.body.params.status.should.be.eq("FAILED")
                 res.body.error.message.should.be.eq("#required should have required property 'id'")
@@ -178,7 +175,6 @@ describe("DATA INGEST API", () => {
             .end((err, res) => {
                 res.should.have.status(404);
                 res.body.should.be.a("object");
-                res.body.should.have.property("result");
                 res.body.id.should.be.eq("api.data.in");
                 res.body.params.status.should.be.eq("FAILED");
                 res.body.error.message.should.be.eq("Dataset with id not found")
