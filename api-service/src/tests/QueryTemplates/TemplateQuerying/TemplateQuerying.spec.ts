@@ -60,7 +60,7 @@ describe("QUERY TEMPLATE API", () => {
 
         chai
             .request(app)
-            .post("/v1/template/query/sql1")
+            .post("/v2/template/query/sql1")
             .send(templateQueryApiFixtures.VALID_REQUEST_BODY)
             .end((err, res) => {
                 res.should.have.status(200);
@@ -104,7 +104,7 @@ describe("QUERY TEMPLATE API", () => {
 
         chai
             .request(app)
-            .post("/v1/template/query/jsontemplate1")
+            .post("/v2/template/query/jsontemplate1")
             .send(templateQueryApiFixtures.VALID_REQUEST_BODY_NATIVE_TEMPLATE)
             .end((err, res) => {
                 res.should.have.status(200);
@@ -136,7 +136,7 @@ describe("QUERY TEMPLATE API", () => {
 
         chai
             .request(app)
-            .post("/v1/template/query/jsontemplate1")
+            .post("/v2/template/query/jsontemplate1")
             .send(templateQueryApiFixtures.VALID_REQUEST_BODY_NATIVE_TEMPLATE)
             .end((err, res) => {
                 res.should.have.status(400);
@@ -154,7 +154,7 @@ describe("QUERY TEMPLATE API", () => {
     it("Query template Failure: Request body validation", (done) => {
         chai
             .request(app)
-            .post("/v1/template/query/sql1")
+            .post("/v2/template/query/sql1")
             .send(templateQueryApiFixtures.INVALID_REQUEST_BODY)
             .end((err, res) => {
                 res.should.have.status(400);
@@ -176,7 +176,7 @@ describe("QUERY TEMPLATE API", () => {
         })
         chai
             .request(app)
-            .post("/v1/template/query/sql1")
+            .post("/v2/template/query/sql1")
             .send(templateQueryApiFixtures.VALID_REQUEST_BODY)
             .end((err, res) => {
                 res.should.have.status(404);
@@ -198,7 +198,7 @@ describe("QUERY TEMPLATE API", () => {
         })
         chai
             .request(app)
-            .post("/v1/template/query/sql1")
+            .post("/v2/template/query/sql1")
             .send(templateQueryApiFixtures.VALID_REQUEST_BODY)
             .end((err, res) => {
                 res.should.have.status(500);
