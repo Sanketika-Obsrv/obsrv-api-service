@@ -28,7 +28,12 @@ export const queryTemplate = async (req: Request, res: Response) => {
         }
 
         const response = await handleTemplateQuery(req, res, template?.dataValues?.query, template?.dataValues?.query_type)
-        logger.info({ apiId, msgid, resmsgid, template_id, requestBody, message: `Query executed successfully` })
+        logger.info({
+            apiId, msgid, resmsgid, template_id,
+            query: template?.dataValues?.query,
+            query_type: template?.dataValues?.query_type,
+            requestBody, message: `Query executed successfully`
+        })
         return ResponseHandler.successResponse(req, res, {
             status: 200, data: response?.data
         });
