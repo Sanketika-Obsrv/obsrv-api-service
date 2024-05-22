@@ -41,7 +41,7 @@ export const eventsValidationAgainstSchema = async (req: Request, res: Response)
 
         const validateEventAgainstSchema = schemaValidation(event, _.omit(schema, "$schema"));
         logger.info({ apiId, msgid, resmsgid, requestBody, message: validateEventAgainstSchema?.message })
-        ResponseHandler.successResponse(req, res, { status: 200, data: { message: validateEventAgainstSchema?.message } });
+        ResponseHandler.successResponse(req, res, { status: 200, data: { message: validateEventAgainstSchema?.message, isValid: validateEventAgainstSchema?.isValid } });
     }
     catch (error) {
         logger.error({ error, apiId, resmsgid: _.get(res, "resmsgid"), requestBody, code: "SCHEMA_VALIDATION_FAILURE", message: "Failed to validate event against schema" })
