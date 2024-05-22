@@ -33,7 +33,7 @@ router.delete('/v2/template/delete/:templateId', setDataToRequestObject("api.que
 router.post('/v2/template/list', setDataToRequestObject("api.query.template.list"), listQueryTemplates);
 router.patch('/v2/template/update/:templateId', setDataToRequestObject("api.query.template.update"), updateQueryTemplate);
 router.post('/v2/template/query/:templateId', setDataToRequestObject("api.query.template.query"), queryTemplate);
-router.post('/v2/schema/validate', setDataToRequestObject("api.schema.validator"), eventValidation);
+router.post('/v2/schema/validate', setDataToRequestObject("api.schema.validator"), eventValidation); 
 
 //Scrape metrics to prometheus
 router.get('/metrics', metricsScrapeHandler)
