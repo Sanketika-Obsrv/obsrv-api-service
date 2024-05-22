@@ -4,7 +4,7 @@ import _ from "lodash"
 export const TestInputsForDatasetCreate = {
     VALID_DATASET: {
         "id": "api.datasets.create",
-        "ver": "v1",
+        "ver": "v2",
         "ts": "2024-04-10T16:10:50+05:30",
         "params": {
             "msgid": "4a7f14c3-d61e-4d4f-be78-181834eeff6d"
@@ -47,15 +47,69 @@ export const TestInputsForDatasetCreate = {
             },
             "dataset_config": {
                 "data_key": "",
-                "timestamp_key": "ets"
+                "timestamp_key": "ets",
+                "file_upload_path": ["/config/file.json"]
             },
+            "tags": []
+        }
+    },
+
+    VALID_DATASET_WITH_TRANSFORMATIONS: {
+        "id": "api.datasets.create",
+        "ver": "v2",
+        "ts": "2024-04-10T16:10:50+05:30",
+        "params": {
+            "msgid": "4a7f14c3-d61e-4d4f-be78-181834eeff6d"
+        },
+        "request": {
+            "dataset_id": "sb-ddd",
+            "type": "dataset",
+            "name": "sb-telemetry2",
+            "data_schema": {
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "type": "object",
+                "properties": {
+                    "eid": {
+                        "type": "string"
+                    },
+                    "ver": {
+                        "type": "string"
+                    },
+                    "required": [
+                        "eid"
+                    ]
+                },
+                "additionalProperties": true
+            },
+            "dataset_config": {
+                "data_key": "",
+                "timestamp_key": "ets",
+                "file_upload_path": ["/config/file.json"]
+            },
+            "transformations_config": [
+                {
+                    "field_key": "eid",
+                    "transformation_function": {
+                        "type": "mask",
+                        "expr": "eid",
+                        "condition": null
+                    },
+                    "mode": "Strict",
+                    "metadata": {
+                        "_transformationType": "mask",
+                        "_transformedFieldDataType": "string",
+                        "_transformedFieldSchemaType": "string",
+                        "section": "transformation"
+                    }
+                }
+            ],
             "tags": []
         }
     },
 
     VALID_MINIMAL_DATASET: {
         "id": "api.datasets.create",
-        "ver": "v1",
+        "ver": "v2",
         "ts": "2024-04-10T16:10:50+05:30",
         "params": {
             "msgid": "4a7f14c3-d61e-4d4f-be78-181834eeff6d"
@@ -85,7 +139,7 @@ export const TestInputsForDatasetCreate = {
 
     VALID_MINIMAL_MASTER_DATASET: {
         "id": "api.datasets.create",
-        "ver": "v1",
+        "ver": "v2",
         "ts": "2024-04-10T16:10:50+05:30",
         "params": {
             "msgid": "4a7f14c3-d61e-4d4f-be78-181834eeff6d"
@@ -114,7 +168,7 @@ export const TestInputsForDatasetCreate = {
     },
     VALID_MORE_THAN_MINIMAL_DATASET: {
         "id": "api.datasets.create",
-        "ver": "v1",
+        "ver": "v2",
         "ts": "2024-04-10T16:10:50+05:30",
         "params": {
             "msgid": "4a7f14c3-d61e-4d4f-be78-181834eeff6d"
@@ -154,7 +208,7 @@ export const TestInputsForDatasetCreate = {
     },
     VALID_MORE_THAN_MINIMAL_MASTER_DATASET: {
         "id": "api.datasets.create",
-        "ver": "v1",
+        "ver": "v2",
         "ts": "2024-04-10T16:10:50+05:30",
         "params": {
             "msgid": "4a7f14c3-d61e-4d4f-be78-181834eeff6d"
@@ -194,7 +248,7 @@ export const TestInputsForDatasetCreate = {
     },
     VALID_MASTER_DATASET: {
         "id": "api.datasets.create",
-        "ver": "v1",
+        "ver": "v2",
         "ts": "2024-04-10T16:10:50+05:30",
         "params": {
             "msgid": "4a7f14c3-d61e-4d4f-be78-181834eeff6d"
@@ -246,7 +300,7 @@ export const TestInputsForDatasetCreate = {
     ,
     SCHEMA_VALIDATION_ERROR_DATASET: {
         "id": "api.datasets.create",
-        "ver": "v1",
+        "ver": "v2",
         "ts": "2024-04-10T16:10:50+05:30",
         "params": {
             "msgid": "4a7f14c3-d61e-4d4f-be78-181834eeff6d"
@@ -258,7 +312,7 @@ export const TestInputsForDatasetCreate = {
 
     DATASET_WITH_DUPLICATE_DENORM_KEY: {
         "id": "api.datasets.create",
-        "ver": "v1",
+        "ver": "v2",
         "ts": "2024-04-10T16:10:50+05:30",
         "params": {
             "msgid": "4a7f14c3-d61e-4d4f-be78-181834eeff6d"
@@ -346,6 +400,13 @@ export const DATASET_CREATE_SUCCESS_FIXTURES = [
     {
         "title": "Dataset creation success: When id is not present in request payload and is generated using dataset_id",
         "requestPayload": TestInputsForDatasetCreate.VALID_MORE_THAN_MINIMAL_DATASET,
+        "httpStatus": httpStatus.OK,
+        "status": "SUCCESS",
+        "msgid": "4a7f14c3-d61e-4d4f-be78-181834eeff6d"
+    },
+    {
+        "title": "Dataset creation success: When transformation payload provided",
+        "requestPayload": TestInputsForDatasetCreate.VALID_DATASET_WITH_TRANSFORMATIONS,
         "httpStatus": httpStatus.OK,
         "status": "SUCCESS",
         "msgid": "4a7f14c3-d61e-4d4f-be78-181834eeff6d"

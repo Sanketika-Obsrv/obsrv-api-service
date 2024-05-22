@@ -30,7 +30,7 @@ describe("DATASET DEDUPE CONFIG UPDATE", () => {
         })
         chai
             .request(app)
-            .patch("/v1/datasets/update")
+            .patch("/v2/datasets/update")
             .send(TestInputsForDatasetUpdate.DATASET_UPDATE_DEDUP_DUPLICATES_TRUE)
             .end((err, res) => {
                 res.should.have.status(httpStatus.OK);
@@ -56,7 +56,7 @@ describe("DATASET DEDUPE CONFIG UPDATE", () => {
         })
         chai
             .request(app)
-            .patch("/v1/datasets/update")
+            .patch("/v2/datasets/update")
             .send({ ...requestStructure, request: { dataset_id: "telemetry", version_key: validVersionKey, dedup_config: { drop_duplicates: false } } })
             .end((err, res) => {
                 console.log(res.body.result)
@@ -77,7 +77,7 @@ describe("DATASET DEDUPE CONFIG UPDATE", () => {
     it("Failure: Dedup key not provided when duplicates need to be dropped", (done) => {
         chai
             .request(app)
-            .patch("/v1/datasets/update")
+            .patch("/v2/datasets/update")
             .send({ ...requestStructure, request: { dataset_id: "telemetry", version_key: validVersionKey, dedup_config: { drop_duplicates: true } } })
             .end((err, res) => {
                 res.should.have.status(httpStatus.BAD_REQUEST);

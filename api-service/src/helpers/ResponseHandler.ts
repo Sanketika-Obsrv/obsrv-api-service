@@ -3,14 +3,14 @@ import httpStatus from "http-status";
 import { IResponse, Result } from "../types/DatasetModels";
 import { onFailure, onSuccess } from "../metrics/prometheus/helpers";
 import moment from "moment";
-import { v4 as uuidv4 } from 'uuid';
 import _ from "lodash";
 
 const ResponseHandler = {
   successResponse: (req: Request, res: Response, result: Result) => {
     const { body, entity } = req as any;
     const msgid = _.get(body, ["params", "msgid"])
-    res.status(result.status || 200).json(ResponseHandler.refactorResponse({ id: (req as any).id, result: result.data, msgid }));
+    const resmsgid = _.get(res, "resmsgid")
+    res.status(result.status || 200).json(ResponseHandler.refactorResponse({ id: (req as any).id, result: result.data, msgid, resmsgid }));
     entity && onSuccess(req, res)
   },
 
@@ -18,8 +18,8 @@ const ResponseHandler = {
     next({ statusCode: httpStatus.NOT_FOUND, message: httpStatus["404"], errCode: httpStatus["404_NAME"] });
   },
 
-  refactorResponse: ({ id = "api", ver = "v1", params = { status: "SUCCESS" }, responseCode = httpStatus["200_NAME"], result = {}, msgid = "" }): IResponse => {
-    const paramsObj = { ...params, ...(!_.isEmpty(msgid) && { msgid }), resmsgid: uuidv4() }
+  refactorResponse: ({ id = "api", ver = "v1", params = { status: "SUCCESS" }, responseCode = httpStatus["200_NAME"], result = {}, msgid = "", resmsgid = "" }): IResponse => {
+    const paramsObj = { ...params, ...(!_.isEmpty(msgid) && { msgid }), resmsgid }
     return <IResponse>{ id, ver, ts: moment().format(), params: paramsObj, responseCode, result }
   },
 
