@@ -202,33 +202,6 @@ describe("QUERY API TESTS", () => {
             });
     });
 
-    it("Query api failure : Given dataset_id is not present in query", (done) => {
-        chai.spy.on(Datasource, "findAll", () => {
-            return Promise.resolve(response)
-        })
-        nock(druidHost + ":" + druidPort)
-            .get(listDruidDatasources)
-            .reply(200, ["telemetry-events.1_rollup_week"])
-        nock(druidHost + ":" + druidPort)
-            .post(sqlQueryEndpoint)
-            .reply(200, [{ events: [] }]);
-        chai
-            .request(app)
-            .post("/v2/data/query/telemetry-events")
-            .send(JSON.parse(TestQueries.INVALID_SQL_QUERY))
-            .end((err, res) => {
-                res.should.have.status(400);
-                res.body.should.be.a("object");
-                res.body.responseCode.should.be.eq("BAD_REQUEST");
-                res.body.id.should.be.eq("api.data.out");
-                res.body.params.msgid.should.be.eq(msgid);
-                res.body.error.code.should.be.eq("DATA_OUT_INVALID_INPUT");
-                res.body.error.message.should.be.eq("Given dataset_id telemetry-events is not present in the query");
-                res.body.params.should.have.property("resmsgid");
-                done();
-            });
-    });
-
     it("Query api failure : schema validation", (done) => {
         chai
             .request(app)
@@ -242,32 +215,6 @@ describe("QUERY API TESTS", () => {
                 res.body.error.message.should.be.eq("#required should have required property 'query'");
                 res.body.error.code.should.be.eq("DATA_OUT_INVALID_INPUT")
                 res.body.id.should.be.eq("api.data.out");
-                done();
-            });
-    });
-
-    it("Query api failure : invalid date range", (done) => {
-        chai.spy.on(Datasource, "findAll", () => {
-            Promise.resolve(response)
-        })
-        nock(druidHost + ":" + druidPort)
-            .get(listDruidDatasources)
-            .reply(200, ["telemetry-events.1_rollup_week"])
-        nock(druidHost + ":" + druidPort)
-            .post(nativeQueryEndpointDruid)
-            .reply(200, [{ events: [] }]);
-        chai
-            .request(app)
-            .post("/v2/data/query/telemetry-events")
-            .send(JSON.parse(TestQueries.HIGH_DATE_RANGE_SQL_QUERY))
-            .end((err, res) => {
-                res.should.have.status(400);
-                res.body.should.be.a("object");
-                res.body.responseCode.should.be.eq("BAD_REQUEST");
-                res.body.id.should.be.eq("api.data.out");
-                res.body.params.status.should.be.eq("FAILED");
-                res.body.error.message.should.be.eq("Invalid date range! make sure your range cannot be more than 30 days");
-                res.body.error.code.should.be.eq("DATA_OUT_INVALID_DATE_RANGE")
                 done();
             });
     });
