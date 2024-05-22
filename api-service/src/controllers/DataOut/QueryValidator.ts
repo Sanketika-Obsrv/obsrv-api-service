@@ -78,7 +78,7 @@ const setQueryLimits = (queryPayload: any) => {
     }
 
     if (_.isString(queryPayload?.query)) {
-        let vocabulary: any = parser.astify(queryPayload?.query);
+        const vocabulary: any = parser.astify(queryPayload?.query);
         const isLimitIncludes = JSON.stringify(vocabulary);
         if (_.includes(isLimitIncludes, "{{LIMIT}}")) {
             return queryPayload?.query
@@ -95,8 +95,6 @@ const setQueryLimits = (queryPayload: any) => {
 
 const getDataSourceFromPayload = (queryPayload: any) => {
     if (_.isString(queryPayload.query)) {
-        let query = queryPayload.query;
-        query = query.replace(/from\s+["'`]?[\w-]+["'`]?(\s+where\s+)/i, `from "${dataset_id}"$1`);
         return dataset_id
     }
     if (_.isObject(queryPayload.query)) {
