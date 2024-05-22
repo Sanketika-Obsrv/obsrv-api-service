@@ -7,7 +7,7 @@ import logger from "../../logger";
 import { getDataset, getDraftDataset } from "../../services/DatasetService";
 const apiId = "api.schema.validator";
 
-export const eventsValidationAgainstSchema = async (req: Request, res: Response) => {
+export const eventValidation = async (req: Request, res: Response) => {
     const requestBody = req.body;
     try {
         const msgid = _.get(req, "body.params.msgid");
