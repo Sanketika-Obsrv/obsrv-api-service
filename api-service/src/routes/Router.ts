@@ -35,3 +35,4 @@ router.post('/v1/schema/validate', setDataToRequestObject("api.schema.validator"
 
 //Scrape metrics to prometheus
 router.get('/metrics', metricsScrapeHandler)
+ 
