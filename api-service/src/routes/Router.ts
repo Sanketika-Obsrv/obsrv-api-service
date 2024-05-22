@@ -37,4 +37,3 @@ router.post('/v2/dataset/copy', setDataToRequestObject("api.data.copy"), dataset
 
 //Scrape metrics to prometheus
 router.get('/metrics', metricsScrapeHandler)
- 
