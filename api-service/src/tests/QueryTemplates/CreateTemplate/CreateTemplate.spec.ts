@@ -28,7 +28,7 @@ describe("CREATE QUERY TEMPLATE API", () => {
 
         chai
             .request(app)
-            .post("/v1/template/create")
+            .post("/v2/template/create")
             .send(createTemplateFixtures.VALID_TEMPLATE)
             .end((err, res) => {
                 res.should.have.status(200);
@@ -46,7 +46,7 @@ describe("CREATE QUERY TEMPLATE API", () => {
     it("Create template Failure: Request body validation", (done) => {
         chai
             .request(app)
-            .post("/v1/template/create")
+            .post("/v2/template/create")
             .send(createTemplateFixtures.INVALID_TEMPLATE)
             .end((err, res) => {
                 res.should.have.status(400);
@@ -65,7 +65,7 @@ describe("CREATE QUERY TEMPLATE API", () => {
     it("Create template Failure: Invalid name", (done) => {
         chai
             .request(app)
-            .post("/v1/template/create")
+            .post("/v2/template/create")
             .send(createTemplateFixtures.INVALID_NAME)
             .end((err, res) => {
                 res.should.have.status(400);
@@ -87,7 +87,7 @@ describe("CREATE QUERY TEMPLATE API", () => {
         })
         chai
             .request(app)
-            .post("/v1/template/create")
+            .post("/v2/template/create")
             .send(createTemplateFixtures.REQUIRED_VARIABLES_NOT_EXISTS)
             .end((err, res) => {
                 console.log(res)
@@ -110,7 +110,7 @@ describe("CREATE QUERY TEMPLATE API", () => {
         })
         chai
             .request(app)
-            .post("/v1/template/create")
+            .post("/v2/template/create")
             .send(createTemplateFixtures.VALID_TEMPLATE)
             .end((err, res) => {
                 res.should.have.status(409);
@@ -132,7 +132,7 @@ describe("CREATE QUERY TEMPLATE API", () => {
         })
         chai
             .request(app)
-            .post("/v1/template/create")
+            .post("/v2/template/create")
             .send(createTemplateFixtures.VALID_TEMPLATE)
             .end((err, res) => {
                 res.should.have.status(500);

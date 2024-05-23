@@ -35,7 +35,7 @@ describe("READ QUERY TEMPLATE API", () => {
 
         chai
             .request(app)
-            .get("/v1/template/read/sql1")
+            .get("/v2/template/read/sql1")
             .end((err, res) => {
                 res.should.have.status(200);
                 res.body.should.be.a("object")
@@ -55,7 +55,7 @@ describe("READ QUERY TEMPLATE API", () => {
 
         chai
             .request(app)
-            .get("/v1/template/read/template")
+            .get("/v2/template/read/template")
             .end((err, res) => {
                 res.should.have.status(404);
                 res.body.should.be.a("object")
@@ -76,7 +76,7 @@ describe("READ QUERY TEMPLATE API", () => {
 
         chai
             .request(app)
-            .get("/v1/template/read/template")
+            .get("/v2/template/read/template")
             .end((err, res) => {
                 res.should.have.status(500);
                 res.body.should.be.a("object")

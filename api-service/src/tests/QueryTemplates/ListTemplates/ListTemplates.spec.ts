@@ -26,7 +26,7 @@ describe("LIST QUERY TEMPLATE API", () => {
         const response = listTemplateFixtures.EMPTY_REQUEST_RESPONSE.map((record: any) => { return (record?.dataValues) });
         chai
             .request(app)
-            .post("/v1/template/list")
+            .post("/v2/template/list")
             .send(listTemplateFixtures.WITH_EMPTY_REQUEST_BODY)
             .end((err, res) => {
                 res.should.have.status(200);
@@ -49,7 +49,7 @@ describe("LIST QUERY TEMPLATE API", () => {
         const response = listTemplateFixtures.ORDER_BY_RESPONSE.map((record: any) => { return (record?.dataValues) });
         chai
             .request(app)
-            .post("/v1/template/list")
+            .post("/v2/template/list")
             .send(listTemplateFixtures.ORDER_BY_REQUEST)
             .end((err, res) => {
                 res.should.have.status(200);
@@ -72,7 +72,7 @@ describe("LIST QUERY TEMPLATE API", () => {
         const response = listTemplateFixtures.FILTER_RESPONSE.map((record: any) => { return (record?.dataValues) });
         chai
             .request(app)
-            .post("/v1/template/list")
+            .post("/v2/template/list")
             .send(listTemplateFixtures.FILTER_REQUEST)
             .end((err, res) => {
                 res.should.have.status(200);
@@ -95,7 +95,7 @@ describe("LIST QUERY TEMPLATE API", () => {
         const response = listTemplateFixtures.EMPTY_REQUEST_RESPONSE.map((record: any) => { return (record?.dataValues) });
         chai
             .request(app)
-            .post("/v1/template/list")
+            .post("/v2/template/list")
             .send(listTemplateFixtures.LIMIT_AND_OFFSET_REQUEST)
             .end((err, res) => {
                 res.should.have.status(200);
@@ -117,7 +117,7 @@ describe("LIST QUERY TEMPLATE API", () => {
         })
         chai
             .request(app)
-            .post("/v1/template/list")
+            .post("/v2/template/list")
             .send(listTemplateFixtures.INVALID_REQUEST_BODY)
             .end((err, res) => {
                 res.should.have.status(400);
@@ -138,7 +138,7 @@ describe("LIST QUERY TEMPLATE API", () => {
         })
         chai
             .request(app)
-            .post("/v1/template/list")
+            .post("/v2/template/list")
             .send(listTemplateFixtures.WITH_EMPTY_REQUEST_BODY)
             .end((err, res) => {
                 res.should.have.status(500);

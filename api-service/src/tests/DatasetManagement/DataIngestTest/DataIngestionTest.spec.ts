@@ -9,7 +9,7 @@ import sinon from "sinon";
 import { Kafka } from "kafkajs";
 import { connectionConfig } from "../../../configs/ConnectionsConfig";
 
-chai.use(spies);x
+chai.use(spies);
 chai.should();
 chai.use(chaiHttp);
 

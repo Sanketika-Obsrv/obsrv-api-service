@@ -28,7 +28,7 @@ describe("UPDATE QUERY TEMPLATE API", () => {
 
         chai
             .request(app)
-            .patch("/v1/template/update/sql11template1")
+            .patch("/v2/template/update/sql11template1")
             .send(updateTemplateFixtures.VALID_REQUEST_BODY)
             .end((err, res) => {
                 res.should.have.status(200);
@@ -46,7 +46,7 @@ describe("UPDATE QUERY TEMPLATE API", () => {
     it("Update template failure: query key should present in request body", (done) => {
         chai
             .request(app)
-            .patch("/v1/template/update/sql11template1")
+            .patch("/v2/template/update/sql11template1")
             .send(updateTemplateFixtures.SHOULD_HAVE_QUERY)
             .end((err, res) => {
                 res.should.have.status(400);
@@ -65,7 +65,7 @@ describe("UPDATE QUERY TEMPLATE API", () => {
     it("Update template failure: Invalid name given", (done) => {
         chai
             .request(app)
-            .patch("/v1/template/update/sql11template1")
+            .patch("/v2/template/update/sql11template1")
             .send(updateTemplateFixtures.INVALID_NAME)
             .end((err, res) => {
                 res.should.have.status(400);
@@ -87,7 +87,7 @@ describe("UPDATE QUERY TEMPLATE API", () => {
         })
         chai
             .request(app)
-            .patch("/v1/template/update/sql11template1")
+            .patch("/v2/template/update/sql11template1")
             .send(updateTemplateFixtures.REQUIRED_VARIABLES_NOT_EXISTS)
             .end((err, res) => {
                 res.should.have.status(404);
@@ -109,7 +109,7 @@ describe("UPDATE QUERY TEMPLATE API", () => {
         })
         chai
             .request(app)
-            .patch("/v1/template/update/sql11template1")
+            .patch("/v2/template/update/sql11template1")
             .send(updateTemplateFixtures.REQUIRED_VARIABLES_NOT_EXISTS)
             .end((err, res) => {
                 res.should.have.status(400);
@@ -131,7 +131,7 @@ describe("UPDATE QUERY TEMPLATE API", () => {
         })
         chai
             .request(app)
-            .patch("/v1/template/update/sql11template1")
+            .patch("/v2/template/update/sql11template1")
             .send(updateTemplateFixtures.REQUIRED_VARIABLES_NOT_EXISTS)
             .end((err, res) => {
                 res.should.have.status(500);

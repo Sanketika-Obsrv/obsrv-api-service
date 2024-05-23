@@ -28,7 +28,7 @@ describe("DELETE QUERY TEMPLATE API", () => {
 
         chai
             .request(app)
-            .delete("/v1/template/delete/sql1")
+            .delete("/v2/template/delete/sql1")
             .end((err, res) => {
                 res.should.have.status(200);
                 res.body.should.be.a("object")
@@ -48,7 +48,7 @@ describe("DELETE QUERY TEMPLATE API", () => {
 
         chai
             .request(app)
-            .delete("/v1/template/delete/template")
+            .delete("/v2/template/delete/template")
             .end((err, res) => {
                 res.should.have.status(404);
                 res.body.should.be.a("object")
@@ -69,7 +69,7 @@ describe("DELETE QUERY TEMPLATE API", () => {
 
         chai
             .request(app)
-            .delete("/v1/template/delete/template")
+            .delete("/v2/template/delete/template")
             .end((err, res) => {
                 res.should.have.status(500);
                 res.body.should.be.a("object")
