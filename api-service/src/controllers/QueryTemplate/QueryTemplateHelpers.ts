@@ -30,15 +30,6 @@ export const handleTemplateQuery = async (req: Request, res: Response, templateD
         };
     }
     const validationStatus = await validateQuery(body, _.get(queryParams, "DATASET"));
-    if (typeof validationStatus === 'object') {
-        logger.error({ apiId, resmsgid, template_id, message: validationStatus?.message, code: validationStatus?.code })
-        throw {
-            code: validationStatus?.code,
-            message: validationStatus?.message,
-            statusCode: validationStatus?.statusCode,
-            errCode: validationStatus?.errCode
-        } as ErrorObject
-    }
 
     if (queryType === "json" && validationStatus === true) {
         return await executeNativeQuery(body?.query)
