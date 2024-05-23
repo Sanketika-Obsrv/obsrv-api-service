@@ -9,14 +9,14 @@ import sinon from "sinon";
 import { Kafka } from "kafkajs";
 import { connectionConfig } from "../../../configs/ConnectionsConfig";
 
-chai.use(spies);
+chai.use(spies);x
 chai.should();
 chai.use(chaiHttp);
 
 const kafka = new Kafka(connectionConfig.kafka.config);
 const producer = kafka.producer();
 
-const apiEndpoint = "/v1/data/in/:datasetId"
+const apiEndpoint = "/v2/data/in/:datasetId"
 const resultResponse = [
     {
         topicName: 'local.test.topic',
