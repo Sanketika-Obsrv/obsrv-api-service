@@ -177,15 +177,16 @@ export const generateExpression = (sample: Map<string, any>, indexCol: string): 
 
 const createSpecObj = (payload: Record<string, any>): IngestionSpecObject => {
     const { expression, objectType, name, indexCol } = payload
+    const propertyName = _.replace(name.replace("[*]", ""), "$.", "")
     const specObj = {
         "flattenSpec": {
             "type": "path",
             "expr": expression,
-            "name": _.replace(name.replace("[*]", ""), "$.", "")
+            "name": propertyName
         },
         "dimensions": {
             "type": objectType,
-            "name": _.replace(name.replace("[*]", ""), "$.", "")
+            "name": propertyName
         },
         "fieldType": "dimensions"
     }
