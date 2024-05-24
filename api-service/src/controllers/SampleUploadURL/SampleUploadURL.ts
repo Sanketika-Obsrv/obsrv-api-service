@@ -1,4 +1,4 @@
-import { Request, Response } from "express"
+import e, { Request, Response } from "express"
 import { ResponseHandler } from "../../helpers/ResponseHandler";
 import httpStatus from "http-status";
 import _ from "lodash";
@@ -8,9 +8,13 @@ import { schemaValidation } from "../../services/ValidationService";
 import SampleUploadURL from "./SampleUploadURLValidationSchema.json"
 import { cloudProvider } from "../../services/CloudServices";
 import { config } from "../../configs/Config";
+import { URLAccess } from "../../types/SampleURLModel";
+import { v4 as uuidv4 } from 'uuid';
+import path from "path";
 
 export const apiId = "api.datasets.upload-url"
 export const errorCode = "DATASET_UPLOAD_URL_FAILURE"
+const maxFiles = config.presigned_url_configs.maxFiles
 
 const sampleUploadURL = async (req: Request, res: Response) => {
     const requestBody = req.body
@@ -28,10 +32,10 @@ const sampleUploadURL = async (req: Request, res: Response) => {
                 errCode: "BAD_REQUEST"
             } as ErrorObject, req, res);
         }
-        
-        const fileList = req.body.request.files;
 
-        if (_.isEmpty(fileList)) {
+        const { files, access = URLAccess.Write } = req.body.request;
+
+        if (_.isEmpty(files)) {
             const code = "DATASET_FILES_NOT_PROVIDED"
             logger.error({ code, apiId, requestBody, msgid, resmsgid, message: `No files are provided to generate upload urls` })
             return ResponseHandler.errorResponse({
@@ -42,19 +46,33 @@ const sampleUploadURL = async (req: Request, res: Response) => {
             } as ErrorObject, req, res);
         }
 
-        const updatedFileList = transformFiles(fileList)
-        logger.info(`Updated file names with path:${updatedFileList}`)
-        const preSignedUrls = await Promise.all(cloudProvider.generateSignedURLs(config.cloud_config.container, updatedFileList))
+        const isLimitExceed = checkLimitExceed(files)
+        if (isLimitExceed) {
+            const code = "DATASET_URL_GENERATION_LIMIT_EXCEED"
+            logger.error({ code, apiId, requestBody, msgid, resmsgid, message: `Pre-signed URL generation failed: Number of files${_.size(files)}} exceeded the limit of ${maxFiles}` })
+            return ResponseHandler.errorResponse({
+                code,
+                statusCode: 400,
+                message: "Pre-signed URL generation failed: limit exceeded.",
+                errCode: "BAD_REQUEST"
+            } as ErrorObject, req, res);
+        }
+
+        const { filesList, updatedFileNames } = transformFileNames(files, access)
+        logger.info(`Updated file names with path:${updatedFileNames}`)
+
+        const urlExpiry: number = getURLExpiry(access)
+        const preSignedUrls = await Promise.all(cloudProvider.generateSignedURLs(config.cloud_config.container, updatedFileNames, access, urlExpiry))
         const signedUrlList = _.map(preSignedUrls, list => {
-            const fileName = _.keys(list)[0]
+            const fileNameWithId = _.keys(list)[0]
             return {
-                filePath: getFilePath(fileName),
-                fileName,
+                filePath: getFilePath(fileNameWithId),
+                fileName: filesList.get(fileNameWithId),
                 preSignedUrl: _.values(list)[0]
             }
         })
 
-        logger.info({ apiId, requestBody, msgid, resmsgid, message: `Dataset sample upload url generated successfully for files:${fileList}` })
+        logger.info({ apiId, requestBody, msgid, resmsgid, message: `Dataset sample upload url generated successfully for files:${files}` })
         ResponseHandler.successResponse(req, res, { status: httpStatus.OK, data: signedUrlList })
     } catch (error: any) {
         logger.error({ ...error, apiId, code: errorCode });
@@ -68,11 +86,45 @@ const sampleUploadURL = async (req: Request, res: Response) => {
 }
 
 const getFilePath = (file: string) => {
-    return `${config.cloud_config.container}/${config.cloud_config.container_prefix}/${file}`
+    return `${config.cloud_config.container_prefix}/${config.presigned_url_configs.service}/user_upload/${file}`
 }
 
-const transformFiles = (fileList: Array<string | any>) => {
-    return _.map(fileList, file => getFilePath(file))
+const transformFileNames = (fileList: Array<string | any>, access: string): Record<string, any> => {
+    if (access === URLAccess.Read) {
+        return transformReadFiles(fileList)
+    }
+    return transformWriteFiles(fileList)
+}
+
+const transformReadFiles = (fileNames: Array<string | any>) => {
+    const fileMap = new Map();
+    const updatedFileNames = _.map(fileNames, file => {
+        fileMap.set(file, file)
+        return getFilePath(file)
+    })
+    return { filesList: fileMap, updatedFileNames }
+}
+
+const transformWriteFiles = (fileNames: Array<string | any>) => {
+    const fileMap = new Map();
+    const updatedFileNames = _.map(fileNames, file => {
+        const uuid = uuidv4().replace(/-/g, '').slice(0, 6);
+        const ext = path.extname(file)
+        const baseName = path.basename(file, ext)
+        const updatedFileName = `${baseName}_${uuid}${ext}`
+        fileMap.set(updatedFileName, file)
+        return getFilePath(updatedFileName)
+    })
+    return { filesList: fileMap, updatedFileNames }
+
+}
+
+const getURLExpiry=(access:string)=>{
+    return access === URLAccess.Read ? config.presigned_url_configs.read_storage_url_expiry : config.presigned_url_configs.write_storage_url_expiry
+}
+
+const checkLimitExceed = (files: Array<string>): boolean => {
+    return _.size(files) > maxFiles
 }
 
 export default sampleUploadURL

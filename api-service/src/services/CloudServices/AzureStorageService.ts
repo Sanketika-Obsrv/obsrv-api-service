@@ -3,6 +3,7 @@ import logger from "../../logger";
 import * as _ from "lodash";
 import { config as globalConfig } from "../../configs/Config";
 const READ = "r";
+const WRITE = "w";
 import {
     BlobServiceClient,
     StorageSharedKeyCredential,
@@ -11,6 +12,7 @@ import {
 } from "@azure/storage-blob"
 import { getFileKey } from "../../utils/common"
 import { FilterDataByDateRange, ICloudService } from "./types";
+import { URLAccess } from "../../types/SampleURLModel";
 
 export class AzureStorageService implements ICloudService {
     sharedKeyCredential: any;
@@ -68,8 +70,7 @@ export class AzureStorageService implements ICloudService {
     getSignedUrl(container: string, filePath: string, expiresIn = 3600, permission = "") {
         const startDate = new Date();
         const expiryDate = new Date(startDate);
-        expiryDate.setMinutes(startDate.getMinutes() + expiresIn);
-        startDate.setMinutes(startDate.getMinutes() - expiresIn);
+        expiryDate.setMinutes(startDate.getMinutes() + Math.floor(expiresIn / 60));
         const sharedAccessPolicy = {
             AccessPolicy: {
                 permissions: permission !== "" ? permission : READ,
@@ -88,22 +89,31 @@ export class AzureStorageService implements ICloudService {
         return Promise.resolve(sasUrl);
     }
 
-    async getPreSignedUrl(container: string, fileName: string, prefix = undefined) {
+    async getPreSignedUrl(container: string, fileName: string, prefix = undefined, access?: string, urlExpiry?: number) {
         if (prefix) {
             fileName = prefix + fileName;
         }
+        let permission = READ;
+        const storageURLExpiry = urlExpiry ? urlExpiry : globalConfig.cloud_config.storage_url_expiry
+        if (access) {
+            if (access == URLAccess.Write){
+                permission = WRITE
+            } 
+        }
+
         const presignedURL = await this.getSignedUrl(
             container,
             fileName,
-            globalConfig.cloud_config.storage_url_expiry
+            storageURLExpiry,
+            permission
         );
         return presignedURL;
     }
 
-    generateSignedURLs(container: any, filesList: any) {
+    generateSignedURLs(container: any, filesList: any, access?: string, urlExpiry?: number) {
         const signedURLs = filesList.map((fileNameWithPrefix: any) => {
             return new Promise((resolve, reject) => {
-                this.getPreSignedUrl(container, fileNameWithPrefix)
+                this.getPreSignedUrl(container, fileNameWithPrefix, undefined, access, urlExpiry)
                     .then((presignedURL) => {
                         const fileName = fileNameWithPrefix.split("/").pop();
                         resolve({ [fileName]: presignedURL });

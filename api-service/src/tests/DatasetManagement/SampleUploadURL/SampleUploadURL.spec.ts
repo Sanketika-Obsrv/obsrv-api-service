@@ -21,7 +21,7 @@ describe("DATASET SAMPLE UPLOAD-URL API", () => {
         chai.spy.restore();
     });
 
-    it("Dataset sample upload-url generated successfully with more than one file", (done) => {
+    it("Dataset sample url generated successfully to download with more than one file", (done) => {
         chai.spy.on(cloudProvider, "generateSignedURLs", (container, fileList) => {
             const signedUrlPromise = _.map(fileList, (file: any) => {
                 return new Promise(resolve => {
@@ -43,23 +43,12 @@ describe("DATASET SAMPLE UPLOAD-URL API", () => {
                 res.body.params.msgid.should.be.eq(msgid)
                 res.body.result.should.be.a("array")
                 const result = JSON.stringify(res.body.result)
-                result.should.be.eq(JSON.stringify([
-                    {
-                        "filePath":"//telemetry.json",
-                        "fileName": 'telemetry.json',
-                        "preSignedUrl": 'https://obsrv-data.s3.ap-south-1.amazonaws.com///telemetry.json?X-Amz-Algorithm=AWS4-HMAC'
-                    },
-                    {
-                        "filePath": '//school-data.json',
-                        "fileName": 'school-data.json',
-                        "preSignedUrl": 'https://obsrv-data.s3.ap-south-1.amazonaws.com///school-data.json?X-Amz-Algorithm=AWS4-HMAC'
-                    }
-                ]))
+                expect(result).to.match(/^\[{"filePath":(.+)"fileName":"telemetry.json"(.+)"preSignedUrl":"https:\/\/obsrv-data.s3.ap-south-1.amazonaws.com(.+)$/)
                 done();
             });
     });
 
-    it("Dataset sample upload-url generated successfully with one file", (done) => {
+    it("Dataset sample url generated successfully to upload with one file", (done) => {
         chai.spy.on(cloudProvider, "generateSignedURLs", (container, fileList) => {
             const signedUrlPromise = _.map(fileList, (file: any) => {
                 return new Promise(resolve => {
@@ -81,13 +70,7 @@ describe("DATASET SAMPLE UPLOAD-URL API", () => {
                 res.body.params.msgid.should.be.eq(msgid)
                 res.body.result.should.be.a("array")
                 const result = JSON.stringify(res.body.result)
-                result.should.be.eq(JSON.stringify([
-                    {
-                        "filePath": '//telemetry.json',
-                        "fileName": 'telemetry.json',
-                        "preSignedUrl": 'https://obsrv-data.s3.ap-south-1.amazonaws.com///telemetry.json?X-Amz-Algorithm=AWS4-HMAC'
-                    }
-                ]))
+                expect(result).to.match(/^\[{"filePath":(.+)"fileName":"telemetry.json"(.+)"preSignedUrl":"https:\/\/obsrv-data.s3.ap-south-1.amazonaws.com(.+)$/)
                 done();
             });
     });
@@ -104,6 +87,22 @@ describe("DATASET SAMPLE UPLOAD-URL API", () => {
                 res.body.params.status.should.be.eq("FAILED")
                 res.body.error.code.should.be.eq("DATASET_FILES_NOT_PROVIDED")
                 res.body.error.message.should.be.eq("No files are provided to generate upload urls")
+                done();
+            });
+    });
+
+    it("Dataset sample upload-url failure: When limit for the number of url generation exceeded", (done) => {
+        chai
+            .request(app)
+            .post("/v1/datasets/sample/upload-url")
+            .send(TestInputsForSampleUploadURL.REQUEST_SCHEMA_WITH_EXCEEDED_FILES)
+            .end((err, res) => {
+                res.should.have.status(httpStatus.BAD_REQUEST);
+                res.body.should.be.a("object")
+                res.body.id.should.be.eq(apiId);
+                res.body.params.status.should.be.eq("FAILED")
+                res.body.error.code.should.be.eq("DATASET_URL_GENERATION_LIMIT_EXCEED")
+                res.body.error.message.should.be.eq("Pre-signed URL generation failed: limit exceeded.")
                 done();
             });
     });

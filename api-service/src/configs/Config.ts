@@ -80,5 +80,11 @@ export const config = {
   },
   "template_config": {
     "template_required_variables": process.env.template_required_vars ? process.env.template_required_vars.split(",") : ["DATASET", "STARTDATE", "ENDDATE"]
+  },
+  "presigned_url_configs": {
+    "maxFiles": process.env.max_files ? parseInt(process.env.max_files) : 20,
+    "read_storage_url_expiry": process.env.read_storage_url_expiry ? parseInt(process.env.read_storage_url_expiry) : 600,
+    "write_storage_url_expiry": process.env.read_storage_url_expiry ? parseInt(process.env.read_storage_url_expiry) : 600,
+    "service": process.env.service || "api-service"
   }
 }

@@ -5,6 +5,7 @@ import { config } from "../../configs/Config";
 import { logger } from "@azure/storage-blob";
 import { Storage } from "@google-cloud/storage"
 import { FilterDataByDateRange, ICloudService } from "./types";
+import { URLAccess } from "../../types/SampleURLModel";
 
 export class GCPStorageService implements ICloudService {
     private storage: any;
@@ -26,11 +27,19 @@ export class GCPStorageService implements ICloudService {
         this.storage = new Storage({ credentials: credentials });
     }
 
-    async getPreSignedUrl(container: string, fileName: string) {
+    async getPreSignedUrl(container: string, fileName: string, access?: string, urlExpiry?: number) {
+        let action = URLAccess.Read
+        if (access) {
+            if (access === URLAccess.Write) {
+                action = URLAccess.Write
+            }
+        }
+        const containerURLExpiry = urlExpiry ? 1000 * urlExpiry : 1000 * 60 * 60
+
         const options = {
             version: 'v4',
-            action: 'read',
-            expires: Date.now() + 1000 * 60 * 60, // one hour
+            action,
+            expires: Date.now() + containerURLExpiry, // one hour
         };
         const [url] = await this.storage
             .bucket(container)
@@ -39,10 +48,10 @@ export class GCPStorageService implements ICloudService {
         return url;
     }
 
-    generateSignedURLs(container: string, filesList: any) {
+    generateSignedURLs(container: string, filesList: any, access?: string, urlExpiry?: number) {
         const signedURLs = filesList.map((fileNameWithPrefix: any) => {
             return new Promise((resolve, reject) => {
-                this.getPreSignedUrl(container, fileNameWithPrefix)
+                this.getPreSignedUrl(container, fileNameWithPrefix, access, urlExpiry)
                     .then((url) => {
                         const fileName = fileNameWithPrefix.split("/").pop();
                         resolve({ [fileName]: url })

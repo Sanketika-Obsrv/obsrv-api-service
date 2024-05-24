@@ -1,11 +1,12 @@
 import moment from "moment";
 import * as _ from "lodash";
-import { S3Client, GetObjectCommand, ListObjectsV2Command, } from "@aws-sdk/client-s3";
+import { S3Client, GetObjectCommand, ListObjectsV2Command, PutObjectCommand, } from "@aws-sdk/client-s3";
 import { config as globalConfig } from "../../configs/Config";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner"
 import { getFileKey } from "../../utils/common"
 import { FilterDataByDateRange, ICloudService } from "./types";
 import { logger } from "@azure/storage-blob";
+import { URLAccess } from "../../types/SampleURLModel";
 
 export class AWSStorageService implements ICloudService {
     client: any;
@@ -22,6 +23,10 @@ export class AWSStorageService implements ICloudService {
         }
     }
 
+    putAWSCommand(bucketName: string, fileToGet: string, prefix = "") {
+        return new PutObjectCommand({ Bucket: bucketName, Key: prefix + fileToGet });
+    }
+
     getAWSCommand(bucketName: string, fileToGet: string, prefix = "") {
         return new GetObjectCommand({ Bucket: bucketName, Key: prefix + fileToGet });
     }
@@ -30,13 +35,15 @@ export class AWSStorageService implements ICloudService {
         return new ListObjectsV2Command({ Bucket: bucketName, Prefix: prefix, Delimiter: "/", });
     }
 
-    generateSignedURLs(container: any, filesList: any) {
+    generateSignedURLs(container: any, filesList: any, access: string = URLAccess.Read, urlExpiry?: number) {
+        const AWSCommand = access === URLAccess.Read ? this.getAWSCommand : this.putAWSCommand
+        const containerURLExpiry = urlExpiry ? urlExpiry : globalConfig.cloud_config.storage_url_expiry
         const signedURLs = filesList.map((fileNameWithPrefix: any) => {
             return new Promise((resolve) => {
                 const generateSignedUrl = async () => {
-                    const command = this.getAWSCommand(container, fileNameWithPrefix);
+                    const command = AWSCommand(container, fileNameWithPrefix);
                     const fileName = fileNameWithPrefix.split("/").pop();
-                    const presignedURL = await getSignedUrl(this.client, command, { expiresIn: globalConfig.cloud_config.storage_url_expiry });
+                    const presignedURL = await getSignedUrl(this.client, command, { expiresIn: containerURLExpiry });
                     resolve({ [fileName]: presignedURL });
                 }
                 generateSignedUrl();
