@@ -1,4 +1,4 @@
-import e, { Request, Response } from "express"
+import { Request, Response } from "express"
 import { ResponseHandler } from "../../helpers/ResponseHandler";
 import httpStatus from "http-status";
 import _ from "lodash";
