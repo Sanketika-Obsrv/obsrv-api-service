@@ -1,0 +1,53 @@
+{
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "enum": [
+        "api.files.generate-url"
+      ]
+    },
+    "ver": {
+      "type": "string"
+    },
+    "ts": {
+      "type": "string"
+    },
+    "params": {
+      "type": "object",
+      "properties": {
+        "msgid": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "msgid"
+      ],
+      "additionalProperties": false
+    },
+    "request": {
+      "type": "object",
+      "properties": {
+        "files": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "minItems": 1
+        },
+        "access": {
+          "type": "string",
+          "enum": [
+            "read",
+            "write"
+          ]
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "files"
+      ]
+    }
+  }
+}

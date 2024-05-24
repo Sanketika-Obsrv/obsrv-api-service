@@ -5,6 +5,7 @@ import { config } from "../../configs/Config";
 import { logger } from "@azure/storage-blob";
 import { Storage } from "@google-cloud/storage"
 import { FilterDataByDateRange, ICloudService } from "./types";
+import { URLAccess } from "../../types/SampleURLModel";
 
 export class GCPStorageService implements ICloudService {
     private storage: any;
@@ -26,36 +27,59 @@ export class GCPStorageService implements ICloudService {
         this.storage = new Storage({ credentials: credentials });
     }
 
-    async getSignedUrls(container: string, filesList: any) {
-        const generateSignedUrl = async (fileName: string) => {
-            const options = {
-                version: 'v4',
-                action: 'read',
-                expires: Date.now() + 1000 * 60 * 60, // one hour
-            };
-
-            try {
-                const [url] = await this.storage
-                    .bucket(container)
-                    .file(fileName)
-                    .getSignedUrl(options);
-                return url;
-            } catch (error) {
-                logger.error(`Error generating signed URL for ${fileName}: ${error}`);
-                console.error(error);
-                return null;
+    async getPreSignedUrl(container: string, fileName: string, access?: string, urlExpiry?: number) {
+        let action = URLAccess.Read
+        if (access) {
+            if (access === URLAccess.Write) {
+                action = URLAccess.Write
             }
         }
+        const containerURLExpiry = urlExpiry ? 1000 * urlExpiry : 1000 * 60 * 60
 
-        async function generateSignedUrls(fileNames: any) {
-            const signedUrls = await Promise.all(fileNames.map((fileName: any) => generateSignedUrl(fileName)));
+        const options = {
+            version: 'v4',
+            action,
+            expires: Date.now() + containerURLExpiry, // one hour
+        };
+        const [url] = await this.storage
+            .bucket(container)
+            .file(fileName)
+            .getSignedUrl(options);
+        return url;
+    }
+
+    generateSignedURLs(container: string, filesList: any, access?: string, urlExpiry?: number) {
+        const signedURLs = filesList.map((fileNameWithPrefix: any) => {
+            return new Promise((resolve, reject) => {
+                this.getPreSignedUrl(container, fileNameWithPrefix, access, urlExpiry)
+                    .then((url) => {
+                        const fileName = fileNameWithPrefix.split("/").pop();
+                        resolve({ [fileName]: url })
+                    })
+                    .catch((error) => {
+                        reject({ error: error.message });
+                    })
+            })
+        })
+        return signedURLs;
+    }
+
+    async getSignedUrls(container: string, filesList: any) {
+        const signedURLPromises = this.generateSignedURLs(container, filesList)
+
+        async function generateSignedUrls() {
+            const signedUrls = await Promise.all(signedURLPromises);
             return signedUrls;
         }
 
-        return generateSignedUrls(filesList)
-            .then(signedUrls => {
+        return generateSignedUrls()
+            .then(signedUrlList => {
                 const periodWiseFiles: any = {};
                 const files: any = [];
+                const signedUrls = _.flattenDeep(_.map(signedUrlList, url => {
+                    const values = _.values(url)
+                    return values
+                }))
                 signedUrls.forEach(async (fileObject) => {
                     const period = getFileKey(fileObject);
                     if (_.has(periodWiseFiles, period))
