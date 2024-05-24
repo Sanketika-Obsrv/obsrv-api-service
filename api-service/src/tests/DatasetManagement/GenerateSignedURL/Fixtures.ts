@@ -27,17 +27,6 @@ export const TestInputsForGenerateURL = {
             "access": "read"
         }
     },
-    REQUEST_SCHEMA_NO_FILES_PROVIDED: {
-        "id": "api.files.generate-url",
-        "ver": "v1",
-        "ts": "2024-04-19T12:58:47+05:30",
-        "params": {
-            "msgid": "4a7f14c3-d61e-4d4f-be78-181834eeff6d"
-        },
-        "request": {
-            "files": []
-        }
-    },
     INVALID_REQUEST_SCHEMA: {
         "id": "api.files.generate-url",
         "ver": "v1",
