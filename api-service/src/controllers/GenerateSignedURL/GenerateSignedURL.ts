@@ -13,7 +13,7 @@ import { v4 as uuidv4 } from 'uuid';
 import path from "path";
 
 export const apiId = "api.files.generate-url"
-export const errorCode = "FILES_GENERATE_URL_FAILURE"
+export const code = "FILES_GENERATE_URL_FAILURE"
 const maxFiles = config.presigned_url_configs.maxFiles
 
 const generateSignedURL = async (req: Request, res: Response) => {
@@ -34,17 +34,6 @@ const generateSignedURL = async (req: Request, res: Response) => {
         }
 
         const { files, access = URLAccess.Write } = req.body.request;
-
-        if (_.isEmpty(files)) {
-            const code = "FILES_NOT_PROVIDED"
-            logger.error({ code, apiId, requestBody, msgid, resmsgid, message: `No files are provided to generate urls` })
-            return ResponseHandler.errorResponse({
-                code,
-                statusCode: 400,
-                message: "No files are provided to generate urls",
-                errCode: "BAD_REQUEST"
-            } as ErrorObject, req, res);
-        }
 
         const isLimitExceed = checkLimitExceed(files)
         if (isLimitExceed) {
@@ -75,18 +64,18 @@ const generateSignedURL = async (req: Request, res: Response) => {
         logger.info({ apiId, requestBody, msgid, resmsgid, response: signedUrlList, message: `Sample urls generated successfully for files:${files}` })
         ResponseHandler.successResponse(req, res, { status: httpStatus.OK, data: signedUrlList })
     } catch (error: any) {
-        logger.error({ ...error, apiId, msgid, requestBody, resmsgid, code: errorCode });
+        logger.error(error, apiId, msgid, requestBody, resmsgid, code);
         let errorMessage = error;
         const statusCode = _.get(error, "statusCode")
         if (!statusCode || statusCode == 500) {
-            errorMessage = { code: errorCode, message: "Failed to generate sample urls" }
+            errorMessage = { code, message: "Failed to generate sample urls" }
         }
         ResponseHandler.errorResponse(errorMessage, req, res);
     }
 }
 
 const getFilePath = (file: string) => {
-    return `${config.cloud_config.container}/${config.presigned_url_configs.service}/user_upload/${file}`
+    return `${config.cloud_config.container}/${config.presigned_url_configs.service}/user_uploads/${file}`
 }
 
 const transformFileNames = (fileList: Array<string | any>, access: string): Record<string, any> => {

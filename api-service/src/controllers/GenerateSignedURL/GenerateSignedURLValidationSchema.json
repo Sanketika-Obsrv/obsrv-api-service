@@ -33,7 +33,8 @@
           "items": {
             "type": "string",
             "minLength": 1
-          }
+          },
+          "minItems": 1
         },
         "access": {
           "type": "string",
