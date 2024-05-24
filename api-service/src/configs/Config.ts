@@ -83,7 +83,7 @@ export const config = {
     "template_additional_variables": process.env.template_additional_vars ? process.env.template_additional_vars.split(",") : ["LIMIT"]
   },
   "presigned_url_configs": {
-    "maxFiles": process.env.max_files ? parseInt(process.env.max_files) : 20,
+    "maxFiles": process.env.presigned_urls_max_files_allowed ? parseInt(process.env.presigned_urls_max_files_allowed) : 20,
     "read_storage_url_expiry": process.env.read_storage_url_expiry ? parseInt(process.env.read_storage_url_expiry) : 600,
     "write_storage_url_expiry": process.env.write_storage_url_expiry ? parseInt(process.env.write_storage_url_expiry) : 600,
     "service": process.env.service || "api-service"
