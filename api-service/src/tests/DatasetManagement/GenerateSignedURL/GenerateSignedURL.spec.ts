@@ -123,7 +123,7 @@ describe("FILES GENERATE-URL API", () => {
             });
     });
 
-    it("Files sample upload-url failure: Connection to the cloud provider failed", (done) => {
+    it("Files sample generate url failure: Connection to the cloud provider failed", (done) => {
         chai.spy.on(cloudProvider, "generateSignedURLs", (container, fileList) => {
             const promises = fileList.map((file: any) => {
                 return new Promise(reject => {
