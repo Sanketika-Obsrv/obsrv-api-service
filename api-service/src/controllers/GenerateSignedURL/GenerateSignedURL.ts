@@ -5,25 +5,25 @@ import _ from "lodash";
 import logger from "../../logger";
 import { ErrorObject } from "../../types/ResponseModel";
 import { schemaValidation } from "../../services/ValidationService";
-import SampleUploadURL from "./SampleUploadURLValidationSchema.json"
+import GenerateURL from "./GenerateSignedURLValidationSchema.json"
 import { cloudProvider } from "../../services/CloudServices";
 import { config } from "../../configs/Config";
 import { URLAccess } from "../../types/SampleURLModel";
 import { v4 as uuidv4 } from 'uuid';
 import path from "path";
 
-export const apiId = "api.datasets.upload-url"
-export const errorCode = "DATASET_UPLOAD_URL_FAILURE"
+export const apiId = "api.files.generate-url"
+export const errorCode = "FILES_GENERATE_URL_FAILURE"
 const maxFiles = config.presigned_url_configs.maxFiles
 
-const sampleUploadURL = async (req: Request, res: Response) => {
+const generateSignedURL = async (req: Request, res: Response) => {
     const requestBody = req.body
     const msgid = _.get(req, ["body", "params", "msgid"]);
     const resmsgid = _.get(res, "resmsgid");
     try {
-        const isRequestValid: Record<string, any> = schemaValidation(req.body, SampleUploadURL)
+        const isRequestValid: Record<string, any> = schemaValidation(req.body, GenerateURL)
         if (!isRequestValid.isValid) {
-            const code = "DATASETS_UPLOAD_URL_INPUT_INVALID"
+            const code = "FILES_GENERATE_URL_INPUT_INVALID"
             logger.error({ code, apiId, message: isRequestValid.message })
             return ResponseHandler.errorResponse({
                 code,
@@ -36,19 +36,19 @@ const sampleUploadURL = async (req: Request, res: Response) => {
         const { files, access = URLAccess.Write } = req.body.request;
 
         if (_.isEmpty(files)) {
-            const code = "DATASET_FILES_NOT_PROVIDED"
-            logger.error({ code, apiId, requestBody, msgid, resmsgid, message: `No files are provided to generate upload urls` })
+            const code = "FILES_NOT_PROVIDED"
+            logger.error({ code, apiId, requestBody, msgid, resmsgid, message: `No files are provided to generate urls` })
             return ResponseHandler.errorResponse({
                 code,
                 statusCode: 400,
-                message: "No files are provided to generate upload urls",
+                message: "No files are provided to generate urls",
                 errCode: "BAD_REQUEST"
             } as ErrorObject, req, res);
         }
 
         const isLimitExceed = checkLimitExceed(files)
         if (isLimitExceed) {
-            const code = "DATASET_URL_GENERATION_LIMIT_EXCEED"
+            const code = "FILES_URL_GENERATION_LIMIT_EXCEED"
             logger.error({ code, apiId, requestBody, msgid, resmsgid, message: `Pre-signed URL generation failed: Number of files${_.size(files)}} exceeded the limit of ${maxFiles}` })
             return ResponseHandler.errorResponse({
                 code,
@@ -72,14 +72,14 @@ const sampleUploadURL = async (req: Request, res: Response) => {
             }
         })
 
-        logger.info({ apiId, requestBody, msgid, resmsgid, response: signedUrlList, message: `Dataset sample upload url generated successfully for files:${files}` })
+        logger.info({ apiId, requestBody, msgid, resmsgid, response: signedUrlList, message: `Sample urls generated successfully for files:${files}` })
         ResponseHandler.successResponse(req, res, { status: httpStatus.OK, data: signedUrlList })
     } catch (error: any) {
         logger.error({ ...error, apiId, msgid, requestBody, resmsgid, code: errorCode });
         let errorMessage = error;
         const statusCode = _.get(error, "statusCode")
         if (!statusCode || statusCode == 500) {
-            errorMessage = { code: errorCode, message: "Failed to generate sample upload-url" }
+            errorMessage = { code: errorCode, message: "Failed to generate sample urls" }
         }
         ResponseHandler.errorResponse(errorMessage, req, res);
     }
@@ -127,4 +127,4 @@ const checkLimitExceed = (files: Array<string>): boolean => {
     return _.size(files) > maxFiles
 }
 
-export default sampleUploadURL
+export default generateSignedURL;

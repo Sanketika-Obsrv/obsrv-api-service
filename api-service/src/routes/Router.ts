@@ -17,7 +17,7 @@ import { listQueryTemplates } from "../controllers/ListQueryTemplates/ListTempla
 import { queryTemplate } from "../controllers/QueryTemplate/QueryTemplateController";
 import { updateQueryTemplate } from "../controllers/UpdateQueryTemplate/UpdateTemplateController";
 import { eventValidation } from "../controllers/EventValidation/EventValidation";
-import SampleUploadURL from "../controllers/SampleUploadURL/SampleUploadURL";
+import GenerateSignedURL from "../controllers/GenerateSignedURL/GenerateSignedURL";
 
 export const router = express.Router();
 
@@ -35,7 +35,7 @@ router.post('/v2/template/list', setDataToRequestObject("api.query.template.list
 router.patch('/v2/template/update/:templateId', setDataToRequestObject("api.query.template.update"), updateQueryTemplate);
 router.post('/v2/schema/validate', setDataToRequestObject("api.schema.validator"), eventValidation); 
 router.post('/v2/template/query/:templateId', setDataToRequestObject("api.query.template.query"), queryTemplate);
-router.post('/v1/datasets/sample/upload-url', setDataToRequestObject("api.datasets.upload-url"), onRequest({ entity: Entity.Management }), SampleUploadURL);
+router.post('/v2/files/generate/url', setDataToRequestObject("api.files.generate-url"), onRequest({ entity: Entity.Management }), GenerateSignedURL);
 
 //Scrape metrics to prometheus
 router.get('/metrics', metricsScrapeHandler)

@@ -5,8 +5,8 @@ import spies from "chai-spies";
 import httpStatus from "http-status";
 import { describe, it } from 'mocha';
 import _ from "lodash";
-import { apiId, errorCode } from "../../../controllers/SampleUploadURL/SampleUploadURL";
-import { TestInputsForSampleUploadURL } from "./Fixtures";
+import { apiId, errorCode } from "../../../controllers/GenerateSignedURL/GenerateSignedURL";
+import { TestInputsForGenerateURL } from "./Fixtures";
 import { cloudProvider } from "../../../services/CloudServices";
 
 chai.use(spies);
@@ -15,13 +15,13 @@ chai.use(chaiHttp);
 
 const msgid = "4a7f14c3-d61e-4d4f-be78-181834eeff6d"
 
-describe("DATASET SAMPLE UPLOAD-URL API", () => {
+describe("FILES GENERATE-URL API", () => {
 
     afterEach(() => {
         chai.spy.restore();
     });
 
-    it("Dataset sample url generated successfully to download with more than one file", (done) => {
+    it("Files sample url generated successfully to download with more than one file", (done) => {
         chai.spy.on(cloudProvider, "generateSignedURLs", (container, fileList) => {
             const signedUrlPromise = _.map(fileList, (file: any) => {
                 return new Promise(resolve => {
@@ -33,8 +33,8 @@ describe("DATASET SAMPLE UPLOAD-URL API", () => {
         });
         chai
             .request(app)
-            .post("/v1/datasets/sample/upload-url")
-            .send(TestInputsForSampleUploadURL.VALID_REQUEST_SCHEMA_WITH_MORE_THAN_ONE_FILE)
+            .post("/v2/files/generate/url")
+            .send(TestInputsForGenerateURL.VALID_REQUEST_SCHEMA_WITH_MORE_THAN_ONE_FILE)
             .end((err, res) => {
                 res.should.have.status(httpStatus.OK);
                 res.body.should.be.a("object")
@@ -48,7 +48,7 @@ describe("DATASET SAMPLE UPLOAD-URL API", () => {
             });
     });
 
-    it("Dataset sample url generated successfully to upload with one file", (done) => {
+    it("Files sample url generated successfully to upload with one file", (done) => {
         chai.spy.on(cloudProvider, "generateSignedURLs", (container, fileList) => {
             const signedUrlPromise = _.map(fileList, (file: any) => {
                 return new Promise(resolve => {
@@ -60,8 +60,8 @@ describe("DATASET SAMPLE UPLOAD-URL API", () => {
         });
         chai
             .request(app)
-            .post("/v1/datasets/sample/upload-url")
-            .send(TestInputsForSampleUploadURL.VALID_REQUEST_SCHEMA_WITH_ONE_FILE)
+            .post("/v2/files/generate/url")
+            .send(TestInputsForGenerateURL.VALID_REQUEST_SCHEMA_WITH_ONE_FILE)
             .end((err, res) => {
                 res.should.have.status(httpStatus.OK);
                 res.body.should.be.a("object")
@@ -75,49 +75,49 @@ describe("DATASET SAMPLE UPLOAD-URL API", () => {
             });
     });
 
-    it("Dataset sample upload-url failure: No files provided to generate upload-url", (done) => {
+    it("Files sample generate url failure: No files provided to generate url", (done) => {
         chai
             .request(app)
-            .post("/v1/datasets/sample/upload-url")
-            .send(TestInputsForSampleUploadURL.REQUEST_SCHEMA_NO_FILES_PROVIDED)
+            .post("/v2/files/generate/url")
+            .send(TestInputsForGenerateURL.REQUEST_SCHEMA_NO_FILES_PROVIDED)
             .end((err, res) => {
                 res.should.have.status(httpStatus.BAD_REQUEST);
                 res.body.should.be.a("object")
                 res.body.id.should.be.eq(apiId);
                 res.body.params.status.should.be.eq("FAILED")
-                res.body.error.code.should.be.eq("DATASET_FILES_NOT_PROVIDED")
-                res.body.error.message.should.be.eq("No files are provided to generate upload urls")
+                res.body.error.code.should.be.eq("FILES_NOT_PROVIDED")
+                res.body.error.message.should.be.eq("No files are provided to generate urls")
                 done();
             });
     });
 
-    it("Dataset sample upload-url failure: When limit for the number of url generation exceeded", (done) => {
+    it("Dataset sample generate url failure: When limit for the number of url generation exceeded", (done) => {
         chai
             .request(app)
-            .post("/v1/datasets/sample/upload-url")
-            .send(TestInputsForSampleUploadURL.REQUEST_SCHEMA_WITH_EXCEEDED_FILES)
+            .post("/v2/files/generate/url")
+            .send(TestInputsForGenerateURL.REQUEST_SCHEMA_WITH_EXCEEDED_FILES)
             .end((err, res) => {
                 res.should.have.status(httpStatus.BAD_REQUEST);
                 res.body.should.be.a("object")
                 res.body.id.should.be.eq(apiId);
                 res.body.params.status.should.be.eq("FAILED")
-                res.body.error.code.should.be.eq("DATASET_URL_GENERATION_LIMIT_EXCEED")
+                res.body.error.code.should.be.eq("FILES_URL_GENERATION_LIMIT_EXCEED")
                 res.body.error.message.should.be.eq("Pre-signed URL generation failed: limit exceeded.")
                 done();
             });
     });
 
-    it("Dataset sample upload-url failure: Invalid request payload provided", (done) => {
+    it("Dataset sample generate url failure: Invalid request payload provided", (done) => {
         chai
             .request(app)
-            .post("/v1/datasets/sample/upload-url")
-            .send(TestInputsForSampleUploadURL.INVALID_REQUEST_SCHEMA)
+            .post("/v2/files/generate/url")
+            .send(TestInputsForGenerateURL.INVALID_REQUEST_SCHEMA)
             .end((err, res) => {
                 res.should.have.status(httpStatus.BAD_REQUEST);
                 res.body.should.be.a("object")
                 res.body.id.should.be.eq(apiId);
                 res.body.params.status.should.be.eq("FAILED")
-                res.body.error.code.should.be.eq("DATASETS_UPLOAD_URL_INPUT_INVALID")
+                res.body.error.code.should.be.eq("FILES_GENERATE_URL_INPUT_INVALID")
                 expect(res.body.error.message).to.match(/^(.+) should be array$/)
                 done();
             });
@@ -134,15 +134,15 @@ describe("DATASET SAMPLE UPLOAD-URL API", () => {
         });
         chai
             .request(app)
-            .post("/v1/datasets/sample/upload-url")
-            .send(TestInputsForSampleUploadURL.VALID_REQUEST_SCHEMA_WITH_ONE_FILE)
+            .post("/v2/files/generate/url")
+            .send(TestInputsForGenerateURL.VALID_REQUEST_SCHEMA_WITH_ONE_FILE)
             .end((err, res) => {
                 res.should.have.status(httpStatus.INTERNAL_SERVER_ERROR);
                 res.body.should.be.a("object")
                 res.body.id.should.be.eq(apiId);
                 res.body.params.status.should.be.eq("FAILED")
                 res.body.error.code.should.be.eq(errorCode)
-                res.body.error.message.should.be.eq("Failed to generate sample upload-url")
+                res.body.error.message.should.be.eq("Failed to generate sample urls")
                 done();
             });
     });

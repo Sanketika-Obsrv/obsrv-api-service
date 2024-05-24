@@ -2,9 +2,9 @@ import _ from "lodash"
 
 const fileNames = ["telemetry.json", "f1.json", "file2.json", "file3.json", "file3.json", "file19.json", "file22.json", "f6.json", "f9.json", "f10.json", "f11.json"]
 
-export const TestInputsForSampleUploadURL = {
+export const TestInputsForGenerateURL = {
     VALID_REQUEST_SCHEMA_WITH_ONE_FILE: {
-        "id": "api.datasets.upload-url",
+        "id": "api.files.generate-url",
         "ver": "v1",
         "ts": "2024-04-19T12:58:47+05:30",
         "params": {
@@ -16,7 +16,7 @@ export const TestInputsForSampleUploadURL = {
         }
     },
     VALID_REQUEST_SCHEMA_WITH_MORE_THAN_ONE_FILE: {
-        "id": "api.datasets.upload-url",
+        "id": "api.files.generate-url",
         "ver": "v1",
         "ts": "2024-04-19T12:58:47+05:30",
         "params": {
@@ -28,7 +28,7 @@ export const TestInputsForSampleUploadURL = {
         }
     },
     REQUEST_SCHEMA_NO_FILES_PROVIDED: {
-        "id": "api.datasets.upload-url",
+        "id": "api.files.generate-url",
         "ver": "v1",
         "ts": "2024-04-19T12:58:47+05:30",
         "params": {
@@ -39,7 +39,7 @@ export const TestInputsForSampleUploadURL = {
         }
     },
     INVALID_REQUEST_SCHEMA: {
-        "id": "api.datasets.upload-url",
+        "id": "api.files.generate-url",
         "ver": "v1",
         "ts": "2024-04-19T12:58:47+05:30",
         "params": {
@@ -51,7 +51,7 @@ export const TestInputsForSampleUploadURL = {
     },
 
     REQUEST_SCHEMA_WITH_EXCEEDED_FILES: {
-        "id": "api.datasets.upload-url",
+        "id": "api.files.generate-url",
         "ver": "v1",
         "ts": "2024-04-19T12:58:47+05:30",
         "params": {
