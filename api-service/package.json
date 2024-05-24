@@ -27,6 +27,7 @@
     "lodash": "^4.17.21",
     "moment": "^2.29.4",
     "multiparty": "4.2.1",
+    "node-sql-parser": "^5.1.0",
     "pg": "^8.11.3",
     "pg-hstore": "^2.3.4",
     "prom-client": "^14.2.0",

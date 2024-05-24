@@ -1,0 +1,75 @@
+{
+    "type": "object",
+    "properties": {
+        "id": {
+            "type": "string",
+            "enum": [
+                "api.query.template.update"
+            ]
+        },
+        "ver": {
+            "type": "string"
+        },
+        "ts": {
+            "type": "string"
+        },
+        "params": {
+            "type": "object",
+            "properties": {
+                "msgid": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "msgid"
+            ],
+            "additionalProperties": false
+        },
+        "request": {
+            "type": "object",
+            "properties": {
+                "template_name": {
+                    "type": "string",
+                    "pattern": "^(?!.*\\s{2,})[a-zA-Z0-9_ -]+$",
+                    "minLength": 1
+                },
+                "query_type": {
+                    "enum": [
+                        "sql",
+                        "json"
+                    ]
+                },
+                "query": {}
+            },
+            "dependencies": {
+                "query_type": [
+                    "query"
+                ],
+                "query": [
+                    "query_type"
+                ]
+            },
+            "if": {
+                "properties": {
+                    "query_type": {
+                        "const": "sql"
+                    }
+                }
+            },
+            "then": {
+                "properties": {
+                    "query": {
+                        "type": "string"
+                    }
+                }
+            },
+            "else": {
+                "properties": {
+                    "query": {
+                        "type": "object"
+                    }
+                }
+            }
+        }
+    }
+}

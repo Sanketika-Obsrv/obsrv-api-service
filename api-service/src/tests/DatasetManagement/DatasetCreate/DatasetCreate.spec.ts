@@ -36,7 +36,7 @@ describe("DATASET CREATE API", () => {
 
             chai
                 .request(app)
-                .post("/v1/datasets/create")
+                .post("/v2/datasets/create")
                 .send(fixture.requestPayload)
                 .end((err, res) => {
                     res.should.have.status(fixture.httpStatus);
@@ -58,7 +58,7 @@ describe("DATASET CREATE API", () => {
             })
             chai
                 .request(app)
-                .post("/v1/datasets/create")
+                .post("/v2/datasets/create")
                 .send(fixture.requestPayload)
                 .end((err, res) => {
                     res.should.have.status(fixture.httpStatus);
@@ -76,7 +76,7 @@ describe("DATASET CREATE API", () => {
     it("Dataset creation failure: Invalid request payload provided", (done) => {
         chai
             .request(app)
-            .post("/v1/datasets/create")
+            .post("/v2/datasets/create")
             .send(TestInputsForDatasetCreate.SCHEMA_VALIDATION_ERROR_DATASET)
             .end((err, res) => {
                 res.should.have.status(httpStatus.BAD_REQUEST);
@@ -96,7 +96,7 @@ describe("DATASET CREATE API", () => {
         })
         chai
             .request(app)
-            .post("/v1/datasets/create")
+            .post("/v2/datasets/create")
             .send(TestInputsForDatasetCreate.DATASET_WITH_DUPLICATE_DENORM_KEY)
             .end((err, res) => {
                 res.should.have.status(httpStatus.CONFLICT);
@@ -116,7 +116,7 @@ describe("DATASET CREATE API", () => {
         })
         chai
             .request(app)
-            .post("/v1/datasets/create")
+            .post("/v2/datasets/create")
             .send(TestInputsForDatasetCreate.DATASET_WITH_DUPLICATE_DENORM_KEY)
             .end((err, res) => {
                 res.should.have.status(httpStatus.INTERNAL_SERVER_ERROR);

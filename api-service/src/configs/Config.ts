@@ -79,7 +79,8 @@ export const config = {
     "exclude_exhaust_types": process.env.exclude_exhaust_types ? process.env.exclude_exhaust_types.split(",") : ["system-stats", "masterdata-system-stats", "system-events",] // list of folder type names to skip exhaust service
   },
   "template_config": {
-    "template_required_variables": process.env.template_required_vars ? process.env.template_required_vars.split(",") : ["DATASET", "STARTDATE", "ENDDATE"]
+    "template_required_variables": process.env.template_required_vars ? process.env.template_required_vars.split(",") : ["DATASET", "STARTDATE", "ENDDATE"],
+    "template_additional_variables": process.env.template_additional_vars ? process.env.template_additional_vars.split(",") : ["LIMIT"]
   },
   "presigned_url_configs": {
     "maxFiles": process.env.max_files ? parseInt(process.env.max_files) : 20,
