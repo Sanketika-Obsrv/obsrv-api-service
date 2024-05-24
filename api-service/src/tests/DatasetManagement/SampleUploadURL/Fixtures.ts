@@ -1,3 +1,7 @@
+import _ from "lodash"
+
+const fileNames = ["telemetry.json", "f1.json", "file2.json", "file3.json", "file3.json", "file19.json", "file22.json", "f6.json", "f9.json", "f10.json", "f11.json"]
+
 export const TestInputsForSampleUploadURL = {
     VALID_REQUEST_SCHEMA_WITH_ONE_FILE: {
         "id": "api.datasets.upload-url",
@@ -54,7 +58,7 @@ export const TestInputsForSampleUploadURL = {
             "msgid": "4a7f14c3-d61e-4d4f-be78-181834eeff6d"
         },
         "request": {
-            "files": ["a.json", "a.json", "a.json", "a.json", "a.json", "a.json", "a.json", "a.json", "a.json", "a.json", "a.json", "a.json", "a.json", "a.json", "a.json", "a.json", "a.json", "a.json", "a.json", "a.json", "a.json"],
+            "files": _.concat(fileNames, fileNames),
             "access": "write"
         }
     },

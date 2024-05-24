@@ -85,7 +85,7 @@ export const config = {
   "presigned_url_configs": {
     "maxFiles": process.env.max_files ? parseInt(process.env.max_files) : 20,
     "read_storage_url_expiry": process.env.read_storage_url_expiry ? parseInt(process.env.read_storage_url_expiry) : 600,
-    "write_storage_url_expiry": process.env.read_storage_url_expiry ? parseInt(process.env.read_storage_url_expiry) : 600,
+    "write_storage_url_expiry": process.env.write_storage_url_expiry ? parseInt(process.env.write_storage_url_expiry) : 600,
     "service": process.env.service || "api-service"
   }
 }

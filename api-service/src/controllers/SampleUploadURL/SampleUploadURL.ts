@@ -64,18 +64,18 @@ const sampleUploadURL = async (req: Request, res: Response) => {
         const urlExpiry: number = getURLExpiry(access)
         const preSignedUrls = await Promise.all(cloudProvider.generateSignedURLs(config.cloud_config.container, updatedFileNames, access, urlExpiry))
         const signedUrlList = _.map(preSignedUrls, list => {
-            const fileNameWithId = _.keys(list)[0]
+            const fileNameWithUid = _.keys(list)[0]
             return {
-                filePath: getFilePath(fileNameWithId),
-                fileName: filesList.get(fileNameWithId),
+                filePath: getFilePath(fileNameWithUid),
+                fileName: filesList.get(fileNameWithUid),
                 preSignedUrl: _.values(list)[0]
             }
         })
 
-        logger.info({ apiId, requestBody, msgid, resmsgid, message: `Dataset sample upload url generated successfully for files:${files}` })
+        logger.info({ apiId, requestBody, msgid, resmsgid, response: signedUrlList, message: `Dataset sample upload url generated successfully for files:${files}` })
         ResponseHandler.successResponse(req, res, { status: httpStatus.OK, data: signedUrlList })
     } catch (error: any) {
-        logger.error({ ...error, apiId, code: errorCode });
+        logger.error({ ...error, apiId, msgid, requestBody, resmsgid, code: errorCode });
         let errorMessage = error;
         const statusCode = _.get(error, "statusCode")
         if (!statusCode || statusCode == 500) {
@@ -119,7 +119,7 @@ const transformWriteFiles = (fileNames: Array<string | any>) => {
 
 }
 
-const getURLExpiry=(access:string)=>{
+const getURLExpiry = (access: string) => {
     return access === URLAccess.Read ? config.presigned_url_configs.read_storage_url_expiry : config.presigned_url_configs.write_storage_url_expiry
 }
 
