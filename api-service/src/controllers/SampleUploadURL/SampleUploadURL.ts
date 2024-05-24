@@ -86,7 +86,7 @@ const sampleUploadURL = async (req: Request, res: Response) => {
 }
 
 const getFilePath = (file: string) => {
-    return `${config.cloud_config.container_prefix}/${config.presigned_url_configs.service}/user_upload/${file}`
+    return `${config.cloud_config.container}/${config.presigned_url_configs.service}/user_upload/${file}`
 }
 
 const transformFileNames = (fileList: Array<string | any>, access: string): Record<string, any> => {
