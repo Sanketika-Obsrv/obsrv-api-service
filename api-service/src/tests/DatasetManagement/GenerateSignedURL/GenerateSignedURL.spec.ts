@@ -91,7 +91,7 @@ describe("FILES GENERATE-URL API", () => {
             });
     });
 
-    it("Dataset sample generate url failure: When limit for the number of url generation exceeded", (done) => {
+    it("Files sample generate url failure: When limit for the number of url generation exceeded", (done) => {
         chai
             .request(app)
             .post("/v2/files/generate/url")
@@ -107,7 +107,7 @@ describe("FILES GENERATE-URL API", () => {
             });
     });
 
-    it("Dataset sample generate url failure: Invalid request payload provided", (done) => {
+    it("Files sample generate url failure: Invalid request payload provided", (done) => {
         chai
             .request(app)
             .post("/v2/files/generate/url")
@@ -123,7 +123,7 @@ describe("FILES GENERATE-URL API", () => {
             });
     });
 
-    it("Dataset sample upload-url failure: Connection to the cloud provider failed", (done) => {
+    it("Files sample upload-url failure: Connection to the cloud provider failed", (done) => {
         chai.spy.on(cloudProvider, "generateSignedURLs", (container, fileList) => {
             const promises = fileList.map((file: any) => {
                 return new Promise(reject => {
