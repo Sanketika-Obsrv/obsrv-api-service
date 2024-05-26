@@ -59,3 +59,7 @@ export enum ValidationMode {
 export enum DatasetType {
     Dataset = "dataset", MasterDataset = "master-dataset"
 }
+
+export enum DatasetAction {
+    Retire = 'Retire', Delete = 'Delete', Publish = 'Publish'
+}
