@@ -95,8 +95,9 @@ const retireDataset = async (configs: Record<string, any>) => {
             errCode: "NOT_FOUND"
         }
     }
-    const isDatasetDenorm = await checkDatasetDenorm({ type: _.get(dataset, "type"), dataset_id })
-    if (isDatasetDenorm) {
+    const denormDataset = await checkDatasetDenorm({ type: _.get(dataset, "type"), dataset_id })
+    if (_.size(_.compact(denormDataset))) {
+        logger.error(`Failed to retire dataset as it is used by other datasets:${_.map(denormDataset, dataset => _.get(dataset, "dataset_id"))}`)
         throw {
             code: "DATASET_IN_USE",
             errorCode: "BAD_REQUEST",
@@ -182,7 +183,7 @@ const checkDatasetDenorm = async (payload: Record<string, any>) => {
                 WHERE element->>'id' = '${dataset_id}'
               )`), raw: true
         })
-        return _.size(_.compact([draftDatasets, liveDatasets]))
+        return [draftDatasets, liveDatasets]
     }
 }
 
