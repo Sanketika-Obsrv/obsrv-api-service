@@ -18,6 +18,7 @@ import { queryTemplate } from "../controllers/QueryTemplate/QueryTemplateControl
 import { updateQueryTemplate } from "../controllers/UpdateQueryTemplate/UpdateTemplateController";
 import { eventValidation } from "../controllers/EventValidation/EventValidation";
 import GenerateSignedURL from "../controllers/GenerateSignedURL/GenerateSignedURL";
+import DatasetStatus from "../controllers/DatasetStatus/DatasetStatus";
 
 export const router = express.Router();
 
@@ -36,6 +37,7 @@ router.patch('/v2/template/update/:templateId', setDataToRequestObject("api.quer
 router.post('/v2/schema/validate', setDataToRequestObject("api.schema.validator"), eventValidation); 
 router.post('/v2/template/query/:templateId', setDataToRequestObject("api.query.template.query"), queryTemplate);
 router.post('/v2/files/generate-url', setDataToRequestObject("api.files.generate-url"), onRequest({ entity: Entity.Management }), GenerateSignedURL);
+router.get('/v2/datasets/status', setDataToRequestObject("api.datasets.status"), onRequest({ entity: Entity.Management }), DatasetStatus);
 
 //Scrape metrics to prometheus
 router.get('/metrics', metricsScrapeHandler)

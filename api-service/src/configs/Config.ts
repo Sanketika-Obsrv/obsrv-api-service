@@ -5,6 +5,10 @@ const env = process.env.system_env || "local"
 export const config = {
   "env": env,
   "api_port": process.env.api_port || 3000,
+  "command_api": {
+    "host": process.env.command_host || "http://localhost",
+    "port": process.env.command_port || 8000
+  },
   "body_parser_limit": process.env.body_parser_limit || "100mb",
   "version": "1.0",
   "query_api": {
