@@ -69,6 +69,12 @@ describe("DATASET STATUS DELETE", () => {
         chai.spy.on(DatasetDraft, "findOne", () => {
             return Promise.resolve()
         })
+        const t = chai.spy.on(sequelize, "transaction", () => {
+            return Promise.resolve(sequelize.transaction)
+        })
+        chai.spy.on(t, "rollback", () => {
+            return Promise.resolve({})
+        })
         chai
             .request(app)
             .post("/v2/datasets/status")

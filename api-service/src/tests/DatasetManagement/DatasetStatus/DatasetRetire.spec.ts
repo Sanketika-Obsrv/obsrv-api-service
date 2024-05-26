@@ -75,8 +75,14 @@ describe("DATASET STATUS RETIRE", () => {
     });
 
     it("Dataset status failure: When dataset is not found to retire", (done) => {
-        chai.spy.on(DatasetDraft, "findOne", () => {
+        chai.spy.on(Dataset, "findOne", () => {
             return Promise.resolve()
+        })
+        const t = chai.spy.on(sequelize, "transaction", () => {
+            return Promise.resolve(sequelize.transaction)
+        })
+        chai.spy.on(t, "rollback", () => {
+            return Promise.resolve({})
         })
         chai
             .request(app)

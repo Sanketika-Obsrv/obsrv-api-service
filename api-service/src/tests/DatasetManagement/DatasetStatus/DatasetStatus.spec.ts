@@ -24,6 +24,9 @@ describe("DATASET STATUS API", () => {
     });
 
     it("Dataset status failure: Invalid request payload provided", (done) => {
+        chai.spy.on(sequelize, "transaction", () => {
+            return Promise.resolve(sequelize.transaction)
+        })
         chai
             .request(app)
             .post("/v2/datasets/status")
