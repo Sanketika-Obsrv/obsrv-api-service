@@ -161,7 +161,8 @@ const restartPipeline = async (dataset_id: string) => {
 
 const deleteSupervisors = async (dataset_id: string) => {
     const datasourceRefs = await Datasource.findAll({ where: { dataset_id }, attributes: ["datasource_ref"], raw: true })
-    for (const datasourceRef of datasourceRefs) {
+    for (const sourceRefs of datasourceRefs) {
+        const datasourceRef = _.get(sourceRefs, "datasource_ref")
         await druidHttpService.post(`/druid/indexer/v1/supervisor/${datasourceRef}/terminate`)
     }
 }
