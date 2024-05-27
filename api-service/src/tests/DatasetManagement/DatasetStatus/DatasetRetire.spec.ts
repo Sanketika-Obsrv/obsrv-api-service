@@ -42,7 +42,7 @@ describe("DATASET STATUS RETIRE", () => {
         chai.spy.on(Dataset, "update", () => {
             return Promise.resolve({})
         })
-        chai.spy.on(Dataset, "findAll", () => {
+        chai.spy.on(Datasource, "findAll", () => {
             return Promise.resolve(["telemetry.1"])
         })
         chai.spy.on(druidHttpService, "post", () => {
@@ -176,7 +176,7 @@ describe("DATASET STATUS RETIRE", () => {
         chai.spy.on(Dataset, "update", () => {
             return Promise.resolve({})
         })
-        chai.spy.on(Dataset, "findAll", () => {
+        chai.spy.on(Datasource, "findAll", () => {
             return Promise.resolve(["telemetry.1"])
         })
         chai.spy.on(druidHttpService, "post", () => {
@@ -219,7 +219,7 @@ describe("DATASET STATUS RETIRE", () => {
         chai.spy.on(Dataset, "update", () => {
             return Promise.resolve({})
         })
-        chai.spy.on(Dataset, "findAll", () => {
+        chai.spy.on(Datasource, "findAll", () => {
             return Promise.resolve(["telemetry.1"])
         })
         chai.spy.on(commandHttpService, "post", () => {
