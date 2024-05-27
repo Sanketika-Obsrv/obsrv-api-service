@@ -164,6 +164,7 @@ const deleteSupervisors = async (dataset_id: string) => {
     for (const sourceRefs of datasourceRefs) {
         const datasourceRef = _.get(sourceRefs, "datasource_ref")
         await druidHttpService.post(`/druid/indexer/v1/supervisor/${datasourceRef}/terminate`)
+        logger.info(`Datasource ref ${datasourceRef} terminated in druid`)
     }
 }
 
