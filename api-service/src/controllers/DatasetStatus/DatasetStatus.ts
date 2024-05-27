@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import _ from "lodash";
 import logger from "../../logger";
 import { ResponseHandler } from "../../helpers/ResponseHandler";
-import { getDataset, setReqDatasetId } from "../../services/DatasetService";
+import { getDataset, getDraftDataset, setReqDatasetId } from "../../services/DatasetService";
 import { ErrorObject } from "../../types/ResponseModel";
 import { schemaValidation } from "../../services/ValidationService";
 import DatasetStatusSchema from "../DatasetStatus/DatasetStatusSchemaValidation.json";
@@ -78,7 +78,7 @@ const publishDataset = async (configs: Record<string, any>) => {
             errCode: "NOT_FOUND"
         }
     }
-    await deleteDraftRecords({ dataset_id, transact })
+    await deleteDraftRecords({ dataset_id: _.get(dataset, "id"), transact })
     await executeCommand(dataset_id, "PUBLISH_DATASET")
     return "Dataset published successfully"
 }
@@ -113,7 +113,7 @@ const retireDataset = async (configs: Record<string, any>) => {
 //Delete dataset
 const deleteDataset = async (configs: Record<string, any>) => {
     const { dataset_id, transact } = configs
-    const dataset = await getDraftDataset(dataset_id)
+    const dataset = await getDraftDatasetRecord(dataset_id)
     if (!dataset) {
         throw {
             code: "DATASET_NOT_FOUND",
@@ -199,7 +199,7 @@ const executeCommand = async (id: string, command: string) => {
     )
 }
 
-const getDraftDataset = async (dataset_id: string) => {
+const getDraftDatasetRecord = async (dataset_id: string) => {
     return DatasetDraft.findOne({ where: { id: dataset_id }, raw: true });
 }
 
