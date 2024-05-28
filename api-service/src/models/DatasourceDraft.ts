@@ -21,19 +21,19 @@ export const DatasourceDraft = sequelize.define("datasources_draft", {
     },
     retention_period: {
         type: DataTypes.JSON,
-        defaultValue: {}
+        defaultValue: { "enabled": "false" }
     },
     archival_policy: {
         type: DataTypes.JSON,
-        defaultValue: {}
+        defaultValue: { "enabled": "false" }
     },
     purge_policy: {
         type: DataTypes.JSON,
-        defaultValue: {}
+        defaultValue: { "enabled": "false" }
     },
     backup_config: {
         type: DataTypes.JSON,
-        defaultValue: {}
+        defaultValue: { "enabled": "false" }
     },
     status: {
         type: DataTypes.ENUM("Draft", "Live", "Retired", "Publish"),
@@ -52,7 +52,7 @@ export const DatasourceDraft = sequelize.define("datasources_draft", {
     },
     metadata: {
         type: DataTypes.JSON,
-        defaultValue: {}
+        defaultValue: { "aggregated": false, "granularity": "day" }
     }
 }, {
     tableName: "datasources_draft",

@@ -8,6 +8,7 @@ import { DatasetDraft } from "../../../models/DatasetDraft";
 import _ from "lodash";
 import { TestInputsForDatasetUpdate, msgid, requestStructure, validVersionKey } from "./Fixtures";
 import { apiId, invalidInputErrCode } from "../../../controllers/DatasetUpdate/DatasetUpdate"
+import { sequelize } from "../../../connections/databaseConnection";
 
 chai.use(spies);
 chai.should();
@@ -27,6 +28,12 @@ describe("DATASET EXTRACTION CONFIG UPDATE", () => {
         })
         chai.spy.on(DatasetDraft, "update", () => {
             return Promise.resolve({ dataValues: { id: "telemetry", message: "Dataset is updated successfully" } })
+        })
+        const t = chai.spy.on(sequelize, "transaction", () => {
+            return Promise.resolve(sequelize.transaction)
+        })
+        chai.spy.on(t, "commit", () => {
+            return Promise.resolve({})
         })
         chai
             .request(app)
@@ -54,6 +61,12 @@ describe("DATASET EXTRACTION CONFIG UPDATE", () => {
         chai.spy.on(DatasetDraft, "update", () => {
             return Promise.resolve({ dataValues: { id: "telemetry", message: "Dataset is updated successfully" } })
         })
+        const t = chai.spy.on(sequelize, "transaction", () => {
+            return Promise.resolve(sequelize.transaction)
+        })
+        chai.spy.on(t, "commit", () => {
+            return Promise.resolve({})
+        })
         chai
             .request(app)
             .patch("/v2/datasets/update")
@@ -73,6 +86,9 @@ describe("DATASET EXTRACTION CONFIG UPDATE", () => {
 
 
     it("Failure: Extraction configs not provided as batch event is true", (done) => {
+        chai.spy.on(sequelize, "transaction", () => {
+            return Promise.resolve(sequelize.transaction)
+        })
         chai
             .request(app)
             .patch("/v2/datasets/update")

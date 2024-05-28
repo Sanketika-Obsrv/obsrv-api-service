@@ -9,6 +9,7 @@ import _ from "lodash";
 import { TestInputsForDatasetUpdate, msgid, validVersionKey } from "./Fixtures";
 import { DatasetTransformationsDraft } from "../../../models/TransformationDraft";
 import { apiId } from "../../../controllers/DatasetUpdate/DatasetUpdate"
+import { sequelize } from "../../../connections/databaseConnection";
 
 chai.use(spies);
 chai.should();
@@ -34,6 +35,12 @@ describe("DATASET TRANSFORMATIONS UPDATE", () => {
         })
         chai.spy.on(DatasetDraft, "update", () => {
             return Promise.resolve({ dataValues: { id: "telemetry", message: "Dataset is updated successfully" } })
+        })
+        const t = chai.spy.on(sequelize, "transaction", () => {
+            return Promise.resolve(sequelize.transaction)
+        })
+        chai.spy.on(t, "commit", () => {
+            return Promise.resolve({})
         })
         chai
             .request(app)
@@ -67,6 +74,12 @@ describe("DATASET TRANSFORMATIONS UPDATE", () => {
         chai.spy.on(DatasetDraft, "update", () => {
             return Promise.resolve({ dataValues: { id: "telemetry", message: "Dataset is updated successfully" } })
         })
+        const t = chai.spy.on(sequelize, "transaction", () => {
+            return Promise.resolve(sequelize.transaction)
+        })
+        chai.spy.on(t, "commit", () => {
+            return Promise.resolve({})
+        })
         chai
             .request(app)
             .patch("/v2/datasets/update")
@@ -98,6 +111,12 @@ describe("DATASET TRANSFORMATIONS UPDATE", () => {
         })
         chai.spy.on(DatasetDraft, "update", () => {
             return Promise.resolve({ dataValues: { id: "telemetry", message: "Dataset is updated successfully" } })
+        })
+        const t = chai.spy.on(sequelize, "transaction", () => {
+            return Promise.resolve(sequelize.transaction)
+        })
+        chai.spy.on(t, "commit", () => {
+            return Promise.resolve({})
         })
         chai
             .request(app)
@@ -135,6 +154,12 @@ describe("DATASET TRANSFORMATIONS UPDATE", () => {
         chai.spy.on(DatasetDraft, "update", () => {
             return Promise.resolve({ dataValues: { id: "telemetry", message: "Dataset is updated successfully" } })
         })
+        const t = chai.spy.on(sequelize, "transaction", () => {
+            return Promise.resolve(sequelize.transaction)
+        })
+        chai.spy.on(t, "commit", () => {
+            return Promise.resolve({})
+        })
         chai
             .request(app)
             .patch("/v2/datasets/update")
@@ -166,6 +191,12 @@ describe("DATASET TRANSFORMATIONS UPDATE", () => {
         chai.spy.on(DatasetTransformationsDraft, "findAll", () => {
             return Promise.resolve([{ field_key: "key1" }, { field_key: "key3" }])
         })
+        const t = chai.spy.on(sequelize, "transaction", () => {
+            return Promise.resolve(sequelize.transaction)
+        })
+        chai.spy.on(t, "rollback", () => {
+            return Promise.resolve({})
+        })
         chai
             .request(app)
             .patch("/v2/datasets/update")
@@ -196,6 +227,12 @@ describe("DATASET TRANSFORMATIONS UPDATE", () => {
         chai.spy.on(DatasetTransformationsDraft, "findAll", () => {
             return Promise.resolve([{ field_key: "key7" }, { field_key: "key2" }])
         })
+        const t = chai.spy.on(sequelize, "transaction", () => {
+            return Promise.resolve(sequelize.transaction)
+        })
+        chai.spy.on(t, "rollback", () => {
+            return Promise.resolve({})
+        })
         chai
             .request(app)
             .patch("/v2/datasets/update")
@@ -225,6 +262,12 @@ describe("DATASET TRANSFORMATIONS UPDATE", () => {
         })
         chai.spy.on(DatasetTransformationsDraft, "findAll", () => {
             return Promise.resolve([{ field_key: "key7" }, { field_key: "key3" }])
+        })
+        const t = chai.spy.on(sequelize, "transaction", () => {
+            return Promise.resolve(sequelize.transaction)
+        })
+        chai.spy.on(t, "rollback", () => {
+            return Promise.resolve({})
         })
         chai
             .request(app)

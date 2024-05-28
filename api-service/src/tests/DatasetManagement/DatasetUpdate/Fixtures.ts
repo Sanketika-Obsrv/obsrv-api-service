@@ -163,6 +163,36 @@ export const TestInputsForDatasetUpdate = {
         }
     },
 
+    DATASET_WITH_INVALID_TIMESTAMP: {
+        ...requestStructure,
+        request: {
+            "dataset_id": "telemetry",
+            "version_key": validVersionKey,
+            "name": "sb-telemetry",
+            "data_schema": {
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "type": "object",
+                "properties": {
+                    "eid": {
+                        "type": "string"
+                    },
+                    "ver": {
+                        "type": "string"
+                    },
+                    "required": [
+                        "eid"
+                    ]
+                },
+                "additionalProperties": true
+            },
+            "dataset_config": {
+                "data_key": "eid",
+                "timestamp_key": "ets",
+                "file_upload_path": ["/config/file.json"]
+            }
+        }
+    },
+
     DATASET_UPDATE_DATASET_CONFIG_VALID: {
         ...requestStructure, request: {
             "dataset_id": "telemetry",
@@ -235,6 +265,9 @@ export const TestInputsForDatasetUpdate = {
                 "type": "object",
                 "properties": {
                     "eid": {
+                        "type": "string"
+                    },
+                    "ets": {
                         "type": "string"
                     },
                     "ver": {
