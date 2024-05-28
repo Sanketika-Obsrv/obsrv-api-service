@@ -7,6 +7,8 @@ import logger from "../../logger";
 import { getDatasourceListFromDruid } from "../../connections/druidConnection";
 import { apiId } from "./DataOutController";
 import { ErrorObject } from "../../types/ResponseModel";
+import { Parser } from "node-sql-parser";
+const parser = new Parser();
 
 const momentFormat = "YYYY-MM-DD HH:MM:SS";
 let dataset_id: string;
@@ -76,27 +78,24 @@ const setQueryLimits = (queryPayload: any) => {
     }
 
     if (_.isString(queryPayload?.query)) {
-        const vocabulary = queryPayload?.query.toLowerCase().split(" ");
-        if (_.includes(vocabulary, "{{LIMIT}}") || _.includes(vocabulary, "limit")) {
+        const vocabulary: any = parser.astify(queryPayload?.query);
+        const isLimitIncludes = JSON.stringify(vocabulary);
+        if (_.includes(isLimitIncludes, "{{LIMIT}}")) {
             return queryPayload?.query
         }
-        const queryLimitIndex = vocabulary.indexOf("limit");
-        const queryLimit = Number(vocabulary[queryLimitIndex + 1]);
-        if (isNaN(queryLimit)) {
-            const updatedVocabulary = [...vocabulary, "limit", queryRules.common.maxResultRowLimit].join(" ");
-            queryPayload.query = updatedVocabulary;
+        const limit = _.get(vocabulary, "limit")
+        if (limit === null) {
+            _.set(vocabulary, "limit.value[0].value", queryRules.common.maxResultRowLimit)
+            _.set(vocabulary, "limit.value[0].type", "number")
+            const convertToSQL = parser.sqlify(vocabulary);
+            queryPayload.query = convertToSQL
         }
     }
 }
 
 const getDataSourceFromPayload = (queryPayload: any) => {
     if (_.isString(queryPayload.query)) {
-        let query = queryPayload.query;
-        query = query.replace(/\s+/g, " ").trim();
-        if (!query.includes(dataset_id)) {
-            logger.error({ apiId, requestBody, msgid, dataset_id, message: `Given datasetId is not present in the query`, code: "DATA_OUT_INVALID_INPUT" })
-            throw { message: `Given dataset_id ${dataset_id} is not present in the query`, statusCode: 400, errCode: "BAD_REQUEST", code: "DATA_OUT_INVALID_INPUT" }
-        }
+        queryPayload?.query.replace(/from\s+["'`]?[\w-]+["'`]?(\s+where\s+)/i, ` from "${dataset_id}"$1`);
         return dataset_id
     }
     if (_.isObject(queryPayload.query)) {
@@ -133,7 +132,7 @@ const validateDateRange = (fromDate: moment.Moment, toDate: moment.Moment, allow
     }
     else {
         logger.error({ apiId, requestBody, msgid, dataset_id, message: `Data range cannnot be more than ${allowedRange} days.`, code: errCode.invalidDateRange })
-        return { message: `Invalid date range! make sure your range cannot be more than ${allowedRange} days`, statusCode: 400, errCode: "BAD_REQUEST", code: errCode.invalidDateRange };
+        throw { message: `Invalid date range! make sure your range cannot be more than ${allowedRange} days`, statusCode: 400, errCode: "BAD_REQUEST", code: errCode.invalidDateRange } as ErrorObject;
     }
 };
 
@@ -148,11 +147,8 @@ const validateQueryRules = (queryPayload: any, limits: any) => {
         toDate = moment(extractedDateRange[1], momentFormat);
     }
     else {
-        const vocabulary = query.toLowerCase().split(" ");
-        const fromDateIndex = vocabulary.indexOf("timestamp");
-        const toDateIndex = vocabulary.lastIndexOf("timestamp");
-        fromDate = moment(vocabulary[fromDateIndex + 1], momentFormat);
-        toDate = moment(vocabulary[toDateIndex + 1], momentFormat);
+        // need to add query date validations for maximum query limit
+        return true
     }
     const isValidDates = fromDate && toDate && fromDate.isValid() && toDate.isValid()
     return isValidDates ? validateDateRange(fromDate, toDate, allowedRange)
@@ -186,7 +182,8 @@ const setDatasourceRef = async (datasetId: string, payload: any): Promise<any> =
         payload.query = payload.query.replace(datasetId, datasourceRef)
     }
     if (_.isObject(payload?.query)) {
-        payload.query.dataSource = datasourceRef
+        _.set(payload, "query.dataSource", datasourceRef);
+        _.set(payload, "query.granularity", granularity);
     }
     return true;
 }

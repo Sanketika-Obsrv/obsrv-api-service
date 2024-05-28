@@ -72,7 +72,7 @@ export const config = {
     "cloud_storage_provider": process.env.cloud_storage_provider || "aws", // Supported providers - AWS, GCP, Azure
     "cloud_storage_region": process.env.cloud_storage_region || "", // Region for the cloud provider storage
     "cloud_storage_config": process.env.cloud_storage_config ? JSON.parse(process.env.cloud_storage_config) : {}, // Respective credentials object for cloud provider. Optional if service account provided
-    "container": process.env.container || "", // Storage container/bucket name
+    "container": process.env.container || "container", // Storage container/bucket name
     "container_prefix": process.env.container_prefix || "", // Path to the folder inside container/bucket. Empty if data at root level
     "storage_url_expiry": process.env.storage_url_expiry ? parseInt(process.env.storage_url_expiry) : 3600, // in seconds, Default 1hr of expiry for Signed URLs.
     "maxQueryDateRange": process.env.exhaust_query_range ? parseInt(process.env.exhaust_query_range) : 31, // in days. Defines the maximum no. of days the files can be fetched
@@ -81,5 +81,11 @@ export const config = {
   "template_config": {
     "template_required_variables": process.env.template_required_vars ? process.env.template_required_vars.split(",") : ["DATASET", "STARTDATE", "ENDDATE"],
     "template_additional_variables": process.env.template_additional_vars ? process.env.template_additional_vars.split(",") : ["LIMIT"]
+  },
+  "presigned_url_configs": {
+    "maxFiles": process.env.presigned_urls_max_files_allowed ? parseInt(process.env.presigned_urls_max_files_allowed) : 20,
+    "read_storage_url_expiry": process.env.read_storage_url_expiry ? parseInt(process.env.read_storage_url_expiry) : 600,
+    "write_storage_url_expiry": process.env.write_storage_url_expiry ? parseInt(process.env.write_storage_url_expiry) : 600,
+    "service": process.env.service || "api-service"
   }
 }

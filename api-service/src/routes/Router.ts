@@ -14,8 +14,10 @@ import { setDataToRequestObject } from "../middlewares/setDataToRequestObject";
 import { readQueryTemplate } from "../controllers/ReadQueryTemplate/ReadTemplateController";
 import { deleteQueryTemplate } from "../controllers/DeleteQueryTemplate/DeleteTemplateController";
 import { listQueryTemplates } from "../controllers/ListQueryTemplates/ListTemplatesController";
+import { queryTemplate } from "../controllers/QueryTemplate/QueryTemplateController";
 import { updateQueryTemplate } from "../controllers/UpdateQueryTemplate/UpdateTemplateController";
 import { eventValidation } from "../controllers/EventValidation/EventValidation";
+import GenerateSignedURL from "../controllers/GenerateSignedURL/GenerateSignedURL";
 
 export const router = express.Router();
 
@@ -31,7 +33,9 @@ router.get('/v2/template/read/:templateId', setDataToRequestObject("api.query.te
 router.delete('/v2/template/delete/:templateId', setDataToRequestObject("api.query.template.delete"), deleteQueryTemplate);
 router.post('/v2/template/list', setDataToRequestObject("api.query.template.list"), listQueryTemplates);
 router.patch('/v2/template/update/:templateId', setDataToRequestObject("api.query.template.update"), updateQueryTemplate);
-router.post('/v2/schema/validate', setDataToRequestObject("api.schema.validator"), eventValidation);
+router.post('/v2/schema/validate', setDataToRequestObject("api.schema.validator"), eventValidation); 
+router.post('/v2/template/query/:templateId', setDataToRequestObject("api.query.template.query"), queryTemplate);
+router.post('/v2/files/generate-url', setDataToRequestObject("api.files.generate-url"), onRequest({ entity: Entity.Management }), GenerateSignedURL);
 
 //Scrape metrics to prometheus
 router.get('/metrics', metricsScrapeHandler)
