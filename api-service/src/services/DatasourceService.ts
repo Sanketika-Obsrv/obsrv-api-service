@@ -32,7 +32,7 @@ export const getDatasource = async (datasetId: string) => {
 }
 
 export const generateFlattenSchema = (sample: Map<string, any>): any[] => {
-    let array = new Array();
+    const array: any[] = [];
     const recursive = (data: any, path: string, requiredProps: string[], schemaPath: string) => {
         _.map(data, (value, key) => {
             let isMultipleTypes = '';
