@@ -1,49 +1,37 @@
 import { DataTypes } from "sequelize";
 import { sequelize } from "../connections/databaseConnection";
 
-export const Dataset = sequelize.define("datasets", {
+export const DatasourceDraft = sequelize.define("datasources_draft", {
     id: {
         type: DataTypes.STRING,
         primaryKey: true
     },
+    datasource: {
+        type: DataTypes.STRING
+    },
     dataset_id: {
         type: DataTypes.STRING
     },
-    type: {
-        type: DataTypes.STRING
-    },
-    name: {
-        type: DataTypes.STRING
-    },
-    validation_config: {
+    ingestion_spec: {
         type: DataTypes.JSON,
         defaultValue: {}
     },
-    extraction_config: {
+    datasource_ref: {
+        type: DataTypes.STRING,
+    },
+    retention_period: {
         type: DataTypes.JSON,
         defaultValue: {}
     },
-    data_schema: {
+    archival_policy: {
         type: DataTypes.JSON,
         defaultValue: {}
     },
-    dedup_config: {
+    purge_policy: {
         type: DataTypes.JSON,
         defaultValue: {}
     },
-    denorm_config: {
-        type: DataTypes.JSON,
-        defaultValue: {}
-    },
-    router_config: {
-        type: DataTypes.JSON,
-        defaultValue: {}
-    },
-    dataset_config: {
-        type: DataTypes.JSON,
-        defaultValue: {}
-    },
-    tags: {
+    backup_config: {
         type: DataTypes.JSON,
         defaultValue: {}
     },
@@ -59,11 +47,15 @@ export const Dataset = sequelize.define("datasets", {
         type: DataTypes.STRING,
         defaultValue: "SYSTEM",
     },
-    data_version: {
-        type: DataTypes.NUMBER
+    published_date: {
+        type: DataTypes.TIME
+    },
+    metadata: {
+        type: DataTypes.JSON,
+        defaultValue: {}
     }
 }, {
-    tableName: "datasets",
+    tableName: "datasources_draft",
     timestamps: true,
     createdAt: 'created_date',
     updatedAt: 'updated_date',
