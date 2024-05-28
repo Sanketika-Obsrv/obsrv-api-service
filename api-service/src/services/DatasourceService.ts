@@ -1,6 +1,5 @@
 import { Datasource } from "../models/Datasource";
 import { DatasourceDraft } from "../models/DatasourceDraft";
-import _ from "lodash";
 
 export const getDatasourceList = async (datasetId: string, raw = false) => {
     const dataSource = await Datasource.findAll({
