@@ -28,6 +28,9 @@ export const TestInputsForDatasetCreate = {
                     "eid": {
                         "type": "string"
                     },
+                    "ets": {
+                        "type": "string"
+                    },
                     "ver": {
                         "type": "string"
                     },
@@ -54,9 +57,9 @@ export const TestInputsForDatasetCreate = {
         }
     },
 
-    VALID_DATASET_WITH_TRANSFORMATIONS: {
+    VALID_DATASET_WITH_DEFAULT_TS: {
         "id": "api.datasets.create",
-        "ver": "v2",
+        "ver": "v1",
         "ts": "2024-04-10T16:10:50+05:30",
         "params": {
             "msgid": "4a7f14c3-d61e-4d4f-be78-181834eeff6d"
@@ -83,10 +86,119 @@ export const TestInputsForDatasetCreate = {
             },
             "dataset_config": {
                 "data_key": "",
+                "timestamp_key": "obsrv_meta.syncts"
+            },
+            "tags": []
+        }
+    },
+
+    VALID_DATASET_WITH_TRANSFORMATIONS: {
+        "id": "api.datasets.create",
+        "ver": "v2",
+        "ts": "2024-04-10T16:10:50+05:30",
+        "params": {
+            "msgid": "4a7f14c3-d61e-4d4f-be78-181834eeff6d"
+        },
+        "request": {
+            "dataset_id": "sb-ddd",
+            "type": "dataset",
+            "name": "sb-telemetry2",
+            "data_schema": {
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "type": "object",
+                "properties": {
+                    "eid": {
+                        "type": "string"
+                    },
+                    "ets": {
+                        "type": "string"
+                    },
+                    "ver": {
+                        "type": "string"
+                    },
+                    "required": [
+                        "eid"
+                    ]
+                },
+                "additionalProperties": true
+            },
+            "dataset_config": {
+                "data_key": "",
                 "timestamp_key": "ets",
                 "file_upload_path": ["/config/file.json"]
             },
             "transformations_config": [
+                {
+                    "field_key": "eid",
+                    "transformation_function": {
+                        "type": "mask",
+                        "expr": "eid",
+                        "condition": null
+                    },
+                    "mode": "Strict",
+                    "metadata": {
+                        "_transformationType": "mask",
+                        "_transformedFieldDataType": "string",
+                        "_transformedFieldSchemaType": "string",
+                        "section": "transformation"
+                    }
+                }
+            ],
+            "tags": []
+        }
+    },
+
+    VALID_DATASET_WITH_MULTIPLE_TRANSFORMATIONS: {
+        "id": "api.datasets.create",
+        "ver": "v1",
+        "ts": "2024-04-10T16:10:50+05:30",
+        "params": {
+            "msgid": "4a7f14c3-d61e-4d4f-be78-181834eeff6d"
+        },
+        "request": {
+            "dataset_id": "sb-ddd",
+            "type": "dataset",
+            "name": "sb-telemetry2",
+            "data_schema": {
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "type": "object",
+                "properties": {
+                    "eid": {
+                        "type": "string"
+                    },
+                    "ver": {
+                        "type": "string"
+                    },
+                    "ets": {
+                        "type": "string"
+                    },
+                    "required": [
+                        "eid"
+                    ]
+                },
+                "additionalProperties": true
+            },
+            "dataset_config": {
+                "data_key": "",
+                "timestamp_key": "ets",
+                "file_upload_path": ["/config/file.json"]
+            },
+            "transformations_config": [
+                {
+                    "field_key": "eid",
+                    "transformation_function": {
+                        "type": "mask",
+                        "expr": "eid",
+                        "condition": null
+                    },
+                    "mode": "Strict",
+                    "metadata": {
+                        "_transformationType": "mask",
+                        "_transformedFieldDataType": "string",
+                        "_transformedFieldSchemaType": "string",
+                        "section": "transformation"
+                    }
+                },
                 {
                     "field_key": "eid",
                     "transformation_function": {
@@ -128,11 +240,18 @@ export const TestInputsForDatasetCreate = {
                     "ver": {
                         "type": "string"
                     },
+                    "ets": {
+                        "type": "string"
+                    },
                     "required": [
                         "eid"
                     ]
                 },
                 "additionalProperties": true
+            },
+            "dataset_config": {
+                "data_key": "",
+                "timestamp_key": "ets"
             }
         }
     },
@@ -158,11 +277,18 @@ export const TestInputsForDatasetCreate = {
                     "ver": {
                         "type": "string"
                     },
+                    "ets": {
+                        "type": "string"
+                    },
                     "required": [
                         "eid"
                     ]
                 },
                 "additionalProperties": true
+            },
+            "dataset_config": {
+                "data_key": "",
+                "timestamp_key": "ets"
             }
         }
     },
@@ -185,6 +311,9 @@ export const TestInputsForDatasetCreate = {
                         "type": "string"
                     },
                     "ver": {
+                        "type": "string"
+                    },
+                    "ets": {
                         "type": "string"
                     },
                     "required": [
@@ -225,6 +354,9 @@ export const TestInputsForDatasetCreate = {
                         "type": "string"
                     },
                     "ver": {
+                        "type": "string"
+                    },
+                    "ets": {
                         "type": "string"
                     },
                     "required": [
@@ -273,6 +405,9 @@ export const TestInputsForDatasetCreate = {
                     "eid": {
                         "type": "string"
                     },
+                    "ets": {
+                        "type": "string"
+                    },
                     "ver": {
                         "type": "string"
                     },
@@ -307,6 +442,41 @@ export const TestInputsForDatasetCreate = {
         },
         "request": {
             "dataset_id": 7
+        }
+    },
+
+    DATASET_WITH_INVALID_TIMESTAMP: {
+        "id": "api.datasets.create",
+        "ver": "v1",
+        "ts": "2024-04-10T16:10:50+05:30",
+        "params": {
+            "msgid": "4a7f14c3-d61e-4d4f-be78-181834eeff6d"
+        },
+        "request": {
+            "dataset_id": "sb-ddd",
+            "type": "dataset",
+            "name": "sb-telemetry2",
+            "data_schema": {
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "type": "object",
+                "properties": {
+                    "eid": {
+                        "type": "string"
+                    },
+                    "ver": {
+                        "type": "string"
+                    },
+                    "required": [
+                        "eid"
+                    ]
+                },
+                "additionalProperties": true
+            },
+            "dataset_config": {
+                "data_key": "",
+                "timestamp_key": "lastAccessed"
+            },
+            "tags": []
         }
     },
 
@@ -407,6 +577,20 @@ export const DATASET_CREATE_SUCCESS_FIXTURES = [
     {
         "title": "Dataset creation success: When transformation payload provided",
         "requestPayload": TestInputsForDatasetCreate.VALID_DATASET_WITH_TRANSFORMATIONS,
+        "httpStatus": httpStatus.OK,
+        "status": "SUCCESS",
+        "msgid": "4a7f14c3-d61e-4d4f-be78-181834eeff6d"
+    },
+    {
+        "title": "Dataset creation success: When multiple transformation payload provided with same field key",
+        "requestPayload": TestInputsForDatasetCreate.VALID_DATASET_WITH_MULTIPLE_TRANSFORMATIONS,
+        "httpStatus": httpStatus.OK,
+        "status": "SUCCESS",
+        "msgid": "4a7f14c3-d61e-4d4f-be78-181834eeff6d"
+    },
+    {
+        "title": "Dataset creation success: Geenerating ingestion spec successfully using the data schema",
+        "requestPayload": TestInputsForDatasetCreate.VALID_DATASET_WITH_DEFAULT_TS,
         "httpStatus": httpStatus.OK,
         "status": "SUCCESS",
         "msgid": "4a7f14c3-d61e-4d4f-be78-181834eeff6d"

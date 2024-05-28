@@ -1,7 +1,24 @@
 export interface IngestionSpecModel {
-    dimensions: any,
-    metrics: any,
-    flattenSpec: any
+    dimensions: Record<string, any>,
+    metrics: Record<string, any>,
+    flattenSpec: Record<string, any>
+}
+
+interface FlattenSpecObject {
+    "type": string,
+    "expr": string,
+    "name": string
+}
+
+interface DimensionsSpecObject {
+    "type": string,
+    "name": string
+}
+
+export interface IngestionSpecObject {
+    "flattenSpec": FlattenSpecObject,
+    "dimensions": DimensionsSpecObject,
+    "fieldType": string
 }
 
 export interface IOConfig {

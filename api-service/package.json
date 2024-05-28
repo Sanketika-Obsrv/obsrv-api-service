@@ -6,8 +6,8 @@
     "start": "ts-node ./src/app.ts",
     "test": "nyc mocha ./src/tests/**/*.spec.ts --exit",
     "actions:test": "nyc mocha ./src/tests/**/*.spec.ts --exit",
-    "build": "tsc -P . --declaration",
-    "build-package": "tsc -P . --declaration && node scripts/buildPackage.js",
+    "build": "rm -rf dist && tsc --declaration -P . && cp package.json ./dist/package.json",
+    "package": "npm run build && cd dist && npm pack . && cd ..",
     "lint": "eslint . --ext .ts",
     "lint-fix": "eslint . --ext .ts --fix"
   },
