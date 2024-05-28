@@ -28,6 +28,9 @@ export const TestInputsForDatasetCreate = {
                     "eid": {
                         "type": "string"
                     },
+                    "ets": {
+                        "type": "string"
+                    },
                     "ver": {
                         "type": "string"
                     },
@@ -47,7 +50,7 @@ export const TestInputsForDatasetCreate = {
             },
             "dataset_config": {
                 "data_key": "",
-                "timestamp_key": "eid",
+                "timestamp_key": "ets",
                 "file_upload_path": ["/config/file.json"]
             },
             "tags": []
@@ -107,6 +110,9 @@ export const TestInputsForDatasetCreate = {
                     "eid": {
                         "type": "string"
                     },
+                    "ets": {
+                        "type": "string"
+                    },
                     "ver": {
                         "type": "string"
                     },
@@ -118,7 +124,7 @@ export const TestInputsForDatasetCreate = {
             },
             "dataset_config": {
                 "data_key": "",
-                "timestamp_key": "eid",
+                "timestamp_key": "ets",
                 "file_upload_path": ["/config/file.json"]
             },
             "transformations_config": [
@@ -163,6 +169,9 @@ export const TestInputsForDatasetCreate = {
                     "ver": {
                         "type": "string"
                     },
+                    "ets": {
+                        "type": "string"
+                    },
                     "required": [
                         "eid"
                     ]
@@ -171,7 +180,7 @@ export const TestInputsForDatasetCreate = {
             },
             "dataset_config": {
                 "data_key": "",
-                "timestamp_key": "eid",
+                "timestamp_key": "ets",
                 "file_upload_path": ["/config/file.json"]
             },
             "transformations_config": [
@@ -231,6 +240,9 @@ export const TestInputsForDatasetCreate = {
                     "ver": {
                         "type": "string"
                     },
+                    "ets": {
+                        "type": "string"
+                    },
                     "required": [
                         "eid"
                     ]
@@ -239,7 +251,7 @@ export const TestInputsForDatasetCreate = {
             },
             "dataset_config": {
                 "data_key": "",
-                "timestamp_key": "eid"
+                "timestamp_key": "ets"
             }
         }
     },
@@ -265,6 +277,9 @@ export const TestInputsForDatasetCreate = {
                     "ver": {
                         "type": "string"
                     },
+                    "ets": {
+                        "type": "string"
+                    },
                     "required": [
                         "eid"
                     ]
@@ -273,7 +288,7 @@ export const TestInputsForDatasetCreate = {
             },
             "dataset_config": {
                 "data_key": "",
-                "timestamp_key": "eid"
+                "timestamp_key": "ets"
             }
         }
     },
@@ -298,6 +313,9 @@ export const TestInputsForDatasetCreate = {
                     "ver": {
                         "type": "string"
                     },
+                    "ets": {
+                        "type": "string"
+                    },
                     "required": [
                         "eid"
                     ]
@@ -313,7 +331,7 @@ export const TestInputsForDatasetCreate = {
             },
             "dataset_config": {
                 "data_key": "",
-                "timestamp_key": "eid"
+                "timestamp_key": "ets"
             }
         }
     },
@@ -338,6 +356,9 @@ export const TestInputsForDatasetCreate = {
                     "ver": {
                         "type": "string"
                     },
+                    "ets": {
+                        "type": "string"
+                    },
                     "required": [
                         "eid"
                     ]
@@ -353,7 +374,7 @@ export const TestInputsForDatasetCreate = {
             },
             "dataset_config": {
                 "data_key": "",
-                "timestamp_key": "eid"
+                "timestamp_key": "ets"
             },
         }
     },
@@ -384,6 +405,9 @@ export const TestInputsForDatasetCreate = {
                     "eid": {
                         "type": "string"
                     },
+                    "ets": {
+                        "type": "string"
+                    },
                     "ver": {
                         "type": "string"
                     },
@@ -403,7 +427,7 @@ export const TestInputsForDatasetCreate = {
             },
             "dataset_config": {
                 "data_key": "",
-                "timestamp_key": "eid"
+                "timestamp_key": "ets"
             },
             "tags": []
         }

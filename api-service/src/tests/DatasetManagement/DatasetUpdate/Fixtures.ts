@@ -187,7 +187,7 @@ export const TestInputsForDatasetUpdate = {
             },
             "dataset_config": {
                 "data_key": "eid",
-                "timestamp_key": "mid",
+                "timestamp_key": "ets",
                 "file_upload_path": ["/config/file.json"]
             }
         }
@@ -267,6 +267,9 @@ export const TestInputsForDatasetUpdate = {
                     "eid": {
                         "type": "string"
                     },
+                    "ets": {
+                        "type": "string"
+                    },
                     "ver": {
                         "type": "string"
                     },
@@ -325,7 +328,7 @@ export const TestInputsForDatasetUpdate = {
             ],
             "dataset_config": {
                 "data_key": "mid",
-                "timestamp_key": "eid",
+                "timestamp_key": "ets",
                 "file_upload_path": ["/config/file.json"]
             },
             "tags": [
