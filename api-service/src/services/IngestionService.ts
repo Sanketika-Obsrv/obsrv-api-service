@@ -110,7 +110,7 @@ const filterDimensionCols = (spec: Record<string, any>) => {
 
 const getObjByKey = (sample: any, key: string) => {
     const result = _.map(sample, (value) => _.get(value, key));
-    return _.filter(result, (value) => value && value !== undefined);
+    return _.compact(result)
 }
 
 export const generateFlattenSchema = (sample: Map<string, any>) => {
