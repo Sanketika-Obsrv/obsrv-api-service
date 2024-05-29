@@ -27,7 +27,7 @@ describe("DATASET STATUS PUBLISH", () => {
 
     it("Dataset status success: When the action is to Publish dataset", (done) => {
         chai.spy.on(DatasetDraft, "findOne", () => {
-            return Promise.resolve({ dataset_id: "telemetry" })
+            return Promise.resolve({ dataset_id: "telemetry", status: "Publish" })
         })
         chai.spy.on(DatasetTransformationsDraft, "destroy", () => {
             return Promise.resolve({})
@@ -95,7 +95,7 @@ describe("DATASET STATUS PUBLISH", () => {
 
     it("Dataset status failure: When the command api call to publish dataset fails", (done) => {
         chai.spy.on(DatasetDraft, "findOne", () => {
-            return Promise.resolve({ dataset_id: "telemetry" })
+            return Promise.resolve({ dataset_id: "telemetry", status: "Publish" })
         })
         chai.spy.on(DatasetTransformationsDraft, "destroy", () => {
             return Promise.resolve({})
@@ -133,9 +133,34 @@ describe("DATASET STATUS PUBLISH", () => {
             });
     });
 
-    it("Dataset status failure: When deleting draft fails on publish", (done) => {
+    it("Dataset status failure: When the dataset to publish is in draft state", (done) => {
         chai.spy.on(DatasetDraft, "findOne", () => {
-            return Promise.resolve({ dataset_id: "telemetry" })
+            return Promise.resolve({ dataset_id: "telemetry", status: "Draft" })
+        })
+        const t = chai.spy.on(sequelize, "transaction", () => {
+            return Promise.resolve(sequelize.transaction)
+        })
+        chai.spy.on(t, "rollback", () => {
+            return Promise.resolve({})
+        })
+        chai
+            .request(app)
+            .post("/v2/datasets/status")
+            .send(TestInputsForDatasetStatus.VALID_SCHEMA_FOR_PUBLISH)
+            .end((err, res) => {
+                res.should.have.status(httpStatus.BAD_REQUEST);
+                res.body.should.be.a("object")
+                res.body.id.should.be.eq(apiId);
+                res.body.params.status.should.be.eq("FAILED")
+                res.body.error.code.should.be.eq("DATASET_NOT_READY_FOR_PUBLISH")
+                res.body.error.message.should.be.eq("Failed to publish dataset as it is in draft state")
+                done();
+            });
+    });
+
+    it("Dataset status failure: Failed to delete draft datasets after publish", (done) => {
+        chai.spy.on(DatasetDraft, "findOne", () => {
+            return Promise.resolve({ dataset_id: "telemetry", status: "Publish" })
         })
         chai.spy.on(DatasetTransformationsDraft, "destroy", () => {
             return Promise.reject({})
