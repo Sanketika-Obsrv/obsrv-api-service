@@ -162,6 +162,9 @@ describe("DATASET STATUS PUBLISH", () => {
         chai.spy.on(DatasetDraft, "findOne", () => {
             return Promise.resolve({ dataset_id: "telemetry", status: "Publish" })
         })
+        chai.spy.on(commandHttpService, "post", () => {
+            return Promise.resolve()
+        })
         chai.spy.on(DatasetTransformationsDraft, "destroy", () => {
             return Promise.reject({})
         })
