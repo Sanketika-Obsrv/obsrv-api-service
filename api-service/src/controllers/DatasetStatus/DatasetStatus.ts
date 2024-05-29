@@ -87,8 +87,8 @@ const publishDataset = async (configs: Record<string, any>) => {
             errCode: "BAD_REQUEST"
         }
     }
-    await deleteDraftRecords({ dataset_id: _.get(dataset, "id"), transact })
     await executeCommand(dataset_id, "PUBLISH_DATASET");
+    await deleteDraftRecords({ dataset_id: _.get(dataset, "id"), transact })
     return "Dataset published successfully"
 }
 
