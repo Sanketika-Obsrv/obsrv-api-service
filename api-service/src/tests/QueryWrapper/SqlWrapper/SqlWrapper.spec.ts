@@ -21,7 +21,7 @@ describe("SQL QUERY WRAPPER API", () => {
         chai.spy.restore();
     });
 
-    it("Sql query wrapper success: should return response on query successfully", (done) => {
+    it("Sql query wrapper success: Should return response on query successfully", (done) => {
         chai.spy.on(druidHttpService, "post", () => {
             return Promise.resolve(TestInputsForSqlWrapper.SUCCESS_REPONSE)
         })
@@ -74,7 +74,7 @@ describe("SQL QUERY WRAPPER API", () => {
             });
     })
 
-    it("Sql query wrapper failure: Failed to connect to druif", (done) => {
+    it("Sql query wrapper failure: Failed to connect to druid", (done) => {
         chai.spy.on(druidHttpService, "post", () => {
             return Promise.reject()
         })
