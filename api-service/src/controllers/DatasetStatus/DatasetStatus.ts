@@ -195,7 +195,7 @@ const checkDatasetDenorm = async (payload: Record<string, any>) => {
                     logger.error(`Failed to retire dataset as it is used by other datasets:${dataset_id}`)
                     throw {
                         code: "DATASET_IN_USE",
-                        errorCode: "BAD_REQUEST",
+                        errCode: "BAD_REQUEST",
                         message: "Failed to retire dataset as it is used by other datasets",
                         statusCode: 400
                     }
