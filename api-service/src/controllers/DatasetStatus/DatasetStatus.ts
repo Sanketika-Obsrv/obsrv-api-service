@@ -67,7 +67,7 @@ const datasetStatus = async (req: Request, res: Response) => {
 
 //Publish dataset
 const publishDataset = async (configs: Record<string, any>) => {
-    const { dataset_id, transact } = configs
+    const { dataset_id } = configs
     const dataset: any = await getDraftDataset(dataset_id)
     if (!dataset) {
         throw {
@@ -87,7 +87,6 @@ const publishDataset = async (configs: Record<string, any>) => {
         }
     }
     await executeCommand(dataset_id, "PUBLISH_DATASET");
-    await deleteDraftRecords({ dataset_id: _.get(dataset, "id"), transact })
     return "Dataset published successfully"
 }
 
@@ -112,16 +111,7 @@ const retireDataset = async (configs: Record<string, any>) => {
             errCode: "BAD_REQUEST"
         }
     }
-    const denormDataset = await checkDatasetDenorm({ type: datasetType, dataset_id })
-    if (_.size(_.compact(denormDataset))) {
-        logger.error(`Failed to retire dataset as it is used by other datasets:${_.map(denormDataset, dataset => _.get(dataset, "dataset_id"))}`)
-        throw {
-            code: "DATASET_IN_USE",
-            errorCode: "BAD_REQUEST",
-            message: "Failed to retire dataset as it is used by other datasets",
-            statusCode: 400
-        }
-    }
+    await checkDatasetDenorm({ type: datasetType, dataset_id })
     await setDatasetRetired({ dataset_id, transact })
     await restartPipeline(dataset_id)
 
@@ -197,21 +187,21 @@ const deleteSupervisors = async (configs: Record<string, any>) => {
 const checkDatasetDenorm = async (payload: Record<string, any>) => {
     const { type, dataset_id } = payload
     if (type === DatasetType.MasterDataset) {
-        const liveDatasets = await Dataset.findAll({
-            where: sequelize.literal(`EXISTS (
-                SELECT 1
-                FROM jsonb_array_elements("denorm_config"->'denorm_fields') AS element
-                WHERE element->>'dataset_id' = '${dataset_id}'
-              )`), raw: true
+        const liveDatasets = await Dataset.findAll({ attributes: ["denorm_config"] }) || []
+        const draftDatasets = await DatasetDraft.findAll({ attributes: ["denorm_config"] }) || []
+        _.forEach([...liveDatasets, ...draftDatasets], datasets => {
+            _.forEach(_.get(datasets, 'denorm_config.denorm_fields'), denorms => {
+                if (_.get(denorms, "dataset_id") === dataset_id) {
+                    logger.error(`Failed to retire dataset as it is used by other datasets:${dataset_id}`)
+                    throw {
+                        code: "DATASET_IN_USE",
+                        errorCode: "BAD_REQUEST",
+                        message: "Failed to retire dataset as it is used by other datasets",
+                        statusCode: 400
+                    }
+                }
+            })
         })
-        const draftDatasets = await DatasetDraft.findAll({
-            where: sequelize.literal(`EXISTS (
-                SELECT 1
-                FROM jsonb_array_elements("denorm_config"->'denorm_fields') AS element
-                WHERE element->>'id' = '${dataset_id}'
-              )`), raw: true
-        })
-        return [draftDatasets, liveDatasets]
     }
 }
 

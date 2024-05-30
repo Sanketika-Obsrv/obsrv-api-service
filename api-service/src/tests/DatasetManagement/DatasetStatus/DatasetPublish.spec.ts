@@ -29,18 +29,6 @@ describe("DATASET STATUS PUBLISH", () => {
         chai.spy.on(DatasetDraft, "findOne", () => {
             return Promise.resolve({ dataset_id: "telemetry", status: "Publish" })
         })
-        chai.spy.on(DatasetTransformationsDraft, "destroy", () => {
-            return Promise.resolve({})
-        })
-        chai.spy.on(DatasetSourceConfigDraft, "destroy", () => {
-            return Promise.resolve({})
-        })
-        chai.spy.on(DatasourceDraft, "destroy", () => {
-            return Promise.resolve({})
-        })
-        chai.spy.on(DatasetDraft, "destroy", () => {
-            return Promise.resolve({})
-        })
         chai.spy.on(commandHttpService, "post", () => {
             return Promise.resolve({})
         })
@@ -97,18 +85,6 @@ describe("DATASET STATUS PUBLISH", () => {
         chai.spy.on(DatasetDraft, "findOne", () => {
             return Promise.resolve({ dataset_id: "telemetry", status: "Publish" })
         })
-        chai.spy.on(DatasetTransformationsDraft, "destroy", () => {
-            return Promise.resolve({})
-        })
-        chai.spy.on(DatasetSourceConfigDraft, "destroy", () => {
-            return Promise.resolve({})
-        })
-        chai.spy.on(DatasourceDraft, "destroy", () => {
-            return Promise.resolve({})
-        })
-        chai.spy.on(DatasetDraft, "destroy", () => {
-            return Promise.resolve({})
-        })
         chai.spy.on(commandHttpService, "post", () => {
             return Promise.reject()
         })
@@ -158,34 +134,4 @@ describe("DATASET STATUS PUBLISH", () => {
             });
     });
 
-    it("Dataset status failure: Failed to delete draft datasets after publish", (done) => {
-        chai.spy.on(DatasetDraft, "findOne", () => {
-            return Promise.resolve({ dataset_id: "telemetry", status: "Publish" })
-        })
-        chai.spy.on(commandHttpService, "post", () => {
-            return Promise.resolve()
-        })
-        chai.spy.on(DatasetTransformationsDraft, "destroy", () => {
-            return Promise.reject({})
-        })
-        const t = chai.spy.on(sequelize, "transaction", () => {
-            return Promise.resolve(sequelize.transaction)
-        })
-        chai.spy.on(t, "rollback", () => {
-            return Promise.resolve({})
-        })
-        chai
-            .request(app)
-            .post("/v2/datasets/status")
-            .send(TestInputsForDatasetStatus.VALID_SCHEMA_FOR_PUBLISH)
-            .end((err, res) => {
-                res.should.have.status(httpStatus.INTERNAL_SERVER_ERROR);
-                res.body.should.be.a("object")
-                res.body.id.should.be.eq(apiId);
-                res.body.params.status.should.be.eq("FAILED")
-                res.body.error.code.should.be.eq(errorCode)
-                res.body.error.message.should.be.eq("Failed to perform status transition on datasets")
-                done();
-            });
-    });
 })

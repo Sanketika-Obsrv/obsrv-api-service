@@ -228,10 +228,10 @@ describe("DATASET STATUS RETIRE", () => {
             return Promise.resolve({ dataset_id: "telemetry", type: "master-dataset", status: "Live" })
         })
         chai.spy.on(Dataset, "findAll", () => {
-            return Promise.resolve([{ dataset_id: "telemetry" }])
+            return Promise.resolve([{ dataset_id: "telemetry", denorm_config: { denorm_fields: [{ dataset_id: "telemetry.1" }] } }])
         })
         chai.spy.on(DatasetDraft, "findAll", () => {
-            return Promise.resolve([{ dataset_id: "telemetry" }])
+            return Promise.resolve([{ dataset_id: "telemetry", denorm_config: { denorm_fields: [{ dataset_id: "telemetry.1" }] } }])
         })
         const t = chai.spy.on(sequelize, "transaction", () => {
             return Promise.resolve(sequelize.transaction)
