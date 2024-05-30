@@ -24,8 +24,7 @@ import { druidHttpService } from "../QueryWrapper/SqlQueryWrapper";
 
 export const apiId = "api.datasets.status";
 export const errorCode = "DATASET_STATUS_FAILURE"
-export const commandHttpService = axios.create({ baseURL: `${config.command_api.host}:${config.command_api.port}`, headers: { "Content-Type": "application/json" } });
-const commandServicePath = '/system/v1/dataset/command'
+export const commandHttpService = axios.create({ baseURL: `${config.command_service_config.host}:${config.command_service_config.port}`, headers: { "Content-Type": "application/json" } });
 
 const datasetStatus = async (req: Request, res: Response) => {
     const requestBody = req.body
@@ -224,7 +223,7 @@ const executeCommand = async (id: string, command: string) => {
             "command": command
         }
     }
-    return commandHttpService.post(commandServicePath, payload)
+    return commandHttpService.post(config.command_service_config.path, payload)
 }
 
 const getDraftDatasetRecord = async (dataset_id: string) => {
