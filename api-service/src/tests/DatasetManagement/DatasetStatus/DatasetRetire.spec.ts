@@ -44,7 +44,7 @@ describe("DATASET STATUS RETIRE", () => {
             return Promise.resolve({})
         })
         chai.spy.on(Datasource, "findAll", () => {
-            return Promise.resolve(["telemetry.1"])
+            return Promise.resolve(["telemetry"])
         })
         chai.spy.on(druidHttpService, "post", () => {
             return Promise.resolve({})
@@ -69,8 +69,8 @@ describe("DATASET STATUS RETIRE", () => {
                 res.body.params.status.should.be.eq("SUCCESS")
                 res.body.result.should.be.a("object")
                 res.body.params.msgid.should.be.eq(msgid)
-                res.body.result.message.should.be.eq("Dataset retired successfully")
-                res.body.result.dataset_id.should.be.eq("telemetry.1")
+                res.body.result.message.should.be.eq("Dataset status transition to Retire successful")
+                res.body.result.dataset_id.should.be.eq("telemetry")
                 done();
             });
     });
@@ -117,8 +117,8 @@ describe("DATASET STATUS RETIRE", () => {
                 res.body.params.status.should.be.eq("SUCCESS")
                 res.body.result.should.be.a("object")
                 res.body.params.msgid.should.be.eq(msgid)
-                res.body.result.message.should.be.eq("Dataset retired successfully")
-                res.body.result.dataset_id.should.be.eq("telemetry.1")
+                res.body.result.message.should.be.eq("Dataset status transition to Retire successful")
+                res.body.result.dataset_id.should.be.eq("telemetry")
                 done();
             });
     });
@@ -140,7 +140,7 @@ describe("DATASET STATUS RETIRE", () => {
             return Promise.resolve({})
         })
         chai.spy.on(Datasource, "findAll", () => {
-            return Promise.resolve(["telemetry.1"])
+            return Promise.resolve(["telemetry"])
         })
         chai.spy.on(druidHttpService, "post", () => {
             return Promise.reject({})
@@ -165,8 +165,8 @@ describe("DATASET STATUS RETIRE", () => {
                 res.body.params.status.should.be.eq("SUCCESS")
                 res.body.result.should.be.a("object")
                 res.body.params.msgid.should.be.eq(msgid)
-                res.body.result.message.should.be.eq("Dataset retired successfully")
-                res.body.result.dataset_id.should.be.eq("telemetry.1")
+                res.body.result.message.should.be.eq("Dataset status transition to Retire successful")
+                res.body.result.dataset_id.should.be.eq("telemetry")
                 done();
             });
     });
@@ -191,7 +191,7 @@ describe("DATASET STATUS RETIRE", () => {
                 res.body.id.should.be.eq(apiId);
                 res.body.params.status.should.be.eq("FAILED")
                 res.body.params.msgid.should.be.eq(msgid)
-                res.body.error.message.should.be.eq("Dataset not found to retire")
+                res.body.error.message.should.be.eq("Dataset not found to perform status transition to Retire")
                 res.body.error.code.should.be.eq("DATASET_NOT_FOUND")
                 done();
             })
@@ -217,8 +217,8 @@ describe("DATASET STATUS RETIRE", () => {
                 res.body.id.should.be.eq(apiId);
                 res.body.params.status.should.be.eq("FAILED")
                 res.body.params.msgid.should.be.eq(msgid)
-                res.body.error.message.should.be.eq("Dataset is already retired")
-                res.body.error.code.should.be.eq("DATASET_ALREADY_RETIRED")
+                res.body.error.message.should.be.eq("Failed to Retire dataset as it is in retired state")
+                res.body.error.code.should.be.eq("DATASET_RETIRE_FAILURE")
                 done();
             })
     })
@@ -228,10 +228,10 @@ describe("DATASET STATUS RETIRE", () => {
             return Promise.resolve({ dataset_id: "telemetry", type: "master-dataset", status: "Live" })
         })
         chai.spy.on(Dataset, "findAll", () => {
-            return Promise.resolve([{ dataset_id: "telemetry", denorm_config: { denorm_fields: [{ dataset_id: "telemetry.1" }] } }])
+            return Promise.resolve([{ dataset_id: "telemetry", denorm_config: { denorm_fields: [{ dataset_id: "telemetry" }] } }])
         })
         chai.spy.on(DatasetDraft, "findAll", () => {
-            return Promise.resolve([{ dataset_id: "telemetry", denorm_config: { denorm_fields: [{ dataset_id: "telemetry.1" }] } }])
+            return Promise.resolve([{ dataset_id: "telemetry", denorm_config: { denorm_fields: [{ dataset_id: "telemetry" }] } }])
         })
         const t = chai.spy.on(sequelize, "transaction", () => {
             return Promise.resolve(sequelize.transaction)
@@ -257,7 +257,7 @@ describe("DATASET STATUS RETIRE", () => {
 
     it("Dataset status failure: When setting retire status to live records fail", (done) => {
         chai.spy.on(Dataset, "findOne", () => {
-            return Promise.resolve([{ dataset_id: "telemetry", status: "Live", type: "dataset" }])
+            return Promise.resolve({ dataset_id: "telemetry", status: "Live", type: "dataset" })
         })
         chai.spy.on(Dataset, "update", () => {
             return Promise.reject({})
@@ -285,7 +285,7 @@ describe("DATASET STATUS RETIRE", () => {
 
     it("Dataset status failure: Failed to restart pipeline", (done) => {
         chai.spy.on(Dataset, "findOne", () => {
-            return Promise.resolve([{ dataset_id: "telemetry", type: "dataset" }])
+            return Promise.resolve({ dataset_id: "telemetry", type: "dataset", status: "Live", })
         })
         chai.spy.on(DatasetTransformations, "update", () => {
             return Promise.resolve({})
@@ -300,7 +300,7 @@ describe("DATASET STATUS RETIRE", () => {
             return Promise.resolve({})
         })
         chai.spy.on(Datasource, "findAll", () => {
-            return Promise.resolve(["telemetry.1"])
+            return Promise.resolve(["telemetry"])
         })
         chai.spy.on(commandHttpService, "post", () => {
             return Promise.reject({})

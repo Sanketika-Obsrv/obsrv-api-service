@@ -69,7 +69,7 @@ const datasetRead = async (req: Request, res: Response) => {
 }
 
 const getDatasetModel = (status: string | any) => {
-    if (status === DatasetStatus.Draft || status === DatasetStatus.Publish) {
+    if (status === DatasetStatus.Draft || status === DatasetStatus.ReadyToPublish) {
         return DatasetDraft;
     }
     return Dataset;
@@ -78,7 +78,7 @@ const getDatasetModel = (status: string | any) => {
 const getInvalidFields = (payload: Record<string, any>): Record<string, any> => {
     const { datasetFields, status } = payload
     const fieldValues = _.split(datasetFields, ",")
-    if (!(status == DatasetStatus.Draft || status == DatasetStatus.Publish)) {
+    if (!(status == DatasetStatus.Draft || status == DatasetStatus.ReadyToPublish)) {
         validDatasetFields.splice(_.indexOf(validDatasetFields, "version_key", 1))
         return _.difference(fieldValues, validDatasetFields)
     }
@@ -89,7 +89,7 @@ const getInvalidFields = (payload: Record<string, any>): Record<string, any> => 
 const transformFieldValues = (datasetFields: Record<string, any>) => {
     const { status, fields } = datasetFields;
     const updatedFields = _.remove(_.split(fields, ","), (newField) => newField !== "transformations_config")
-    if (!(status === DatasetStatus.Draft || status === DatasetStatus.Publish) && _.includes(updatedFields, "version")) {
+    if (!(status === DatasetStatus.Draft || status === DatasetStatus.ReadyToPublish) && _.includes(updatedFields, "version")) {
         const fieldIndex = _.indexOf(updatedFields, "version")
         updatedFields[fieldIndex] = "data_version"
     }
@@ -110,7 +110,7 @@ const transformResponseData = async (payload: Record<string, any>) => {
 }
 
 const getTransfomationModel = (status: string) => {
-    if (status === DatasetStatus.Draft || status === DatasetStatus.Publish) {
+    if (status === DatasetStatus.Draft || status === DatasetStatus.ReadyToPublish) {
         return DatasetTransformationsDraft
     }
     return DatasetTransformations

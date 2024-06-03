@@ -6,6 +6,7 @@ import { getDataset, getDraftDataset, setReqDatasetId } from "../../services/Dat
 import { ErrorObject } from "../../types/ResponseModel";
 import { schemaValidation } from "../../services/ValidationService";
 import DatasetStatusSchema from "../DatasetStatus/DatasetStatusSchemaValidation.json";
+import ReadyToPublishSchema from "../DatasetStatus/ReadyToPublishSchema.json"
 import httpStatus from "http-status";
 import { sequelize } from "../../connections/databaseConnection";
 import { DatasetTransformationsDraft } from "../../models/TransformationDraft";
@@ -25,6 +26,20 @@ import { druidHttpService } from "../QueryWrapper/SqlQueryWrapper";
 export const apiId = "api.datasets.status";
 export const errorCode = "DATASET_STATUS_FAILURE"
 export const commandHttpService = axios.create({ baseURL: `${config.command_service_config.host}:${config.command_service_config.port}`, headers: { "Content-Type": "application/json" } });
+
+const allowedTransitions = {
+    Delete: ["Draft", "ReadyToPublish"],
+    ReadyToPublish: ["Draft"],
+    Live: ["ReadyToPublish"],
+    Retire: ["Live"],
+}
+
+const statusTransitionCommands = {
+    Delete: ["DELETE_DRAFT_DATASETS"],
+    ReadyToPublish: ["VALIDATE_DATASET_CONFIGS"],
+    Live: ["PUBLISH_DATASET"],
+    Retire: ["CHECK_DATASET_IS_DENORM", "SET_DATASET_TO_RETIRE", "DELETE_SUPERVISORS", "RESTART_PIPELINE"]
+}
 
 const datasetStatus = async (req: Request, res: Response) => {
     const requestBody = req.body
@@ -47,11 +62,33 @@ const datasetStatus = async (req: Request, res: Response) => {
             } as ErrorObject, req, res);
         }
 
-        const responseMessage = await statusTransition({ dataset_id, status, transact })
+        const datasetRecord = await fetchDataset({ status, dataset_id })
+        if (_.isEmpty(datasetRecord)) {
+            throw {
+                code: "DATASET_NOT_FOUND",
+                message: `Dataset not found to perform status transition to ${status}`,
+                statusCode: 404,
+                errCode: "NOT_FOUND"
+            }
+        }
+
+        const allowedStatus = _.get(allowedTransitions, status)
+        const datasetStatus = _.get(datasetRecord, "status")
+        if (!_.includes(allowedStatus, datasetStatus)) {
+            throw {
+                code: `DATASET_${_.toUpper(status)}_FAILURE`,
+                message: `Failed to ${status} dataset as it is in ${_.toLower(datasetStatus)} state`,
+                statusCode: 400,
+                errCode: "BAD_REQUEST"
+            }
+        }
+
+        const transitionCommands = _.get(statusTransitionCommands, status)
+        await executeTransition({ transitionCommands, dataset: datasetRecord, transact })
 
         await transact.commit();
-        logger.info({ apiId, msgid, requestBody, resmsgid, message: `${responseMessage} with id:${dataset_id}` })
-        ResponseHandler.successResponse(req, res, { status: httpStatus.OK, data: { message: responseMessage, dataset_id } });
+        logger.info({ apiId, msgid, requestBody, resmsgid, message: `Dataset status transition to ${status} successful with id:${dataset_id}` })
+        ResponseHandler.successResponse(req, res, { status: httpStatus.OK, data: { message: `Dataset status transition to ${status} successful`, dataset_id } });
     } catch (error: any) {
         await transact.rollback();
         const code = _.get(error, "code") || errorCode
@@ -65,87 +102,48 @@ const datasetStatus = async (req: Request, res: Response) => {
     }
 }
 
-//Publish dataset
-const publishDataset = async (configs: Record<string, any>) => {
-    const { dataset_id } = configs
-    const dataset: any = await getDraftDataset(dataset_id)
-    if (!dataset) {
-        throw {
-            code: "DATASET_NOT_FOUND",
-            message: "Dataset not found to publish",
-            statusCode: 404,
-            errCode: "NOT_FOUND"
-        }
+const fetchDataset = async (configs: Record<string, any>) => {
+    const { dataset_id, status } = configs
+    if (_.includes([DatasetAction.ReadyToPublish, DatasetAction.Delete], status)) {
+        return getDraftDatasetRecord(dataset_id)
     }
-    const { status } = dataset
-    if (status === DatasetStatus.Draft) {
-        throw {
-            code: "DATASET_NOT_READY_FOR_PUBLISH",
-            message: "Failed to publish dataset as it is in draft state",
-            statusCode: 400,
-            errCode: "BAD_REQUEST"
-        }
+    if (_.includes([DatasetAction.Live], status)) {
+        return getDraftDataset(dataset_id)
     }
-    await executeCommand(dataset_id, "PUBLISH_DATASET");
-    return "Dataset published successfully"
+    if (_.includes([DatasetAction.Retire], status)) {
+        return getDataset(dataset_id)
+    }
 }
 
-//Retire Dataset
-const retireDataset = async (configs: Record<string, any>) => {
-    const { dataset_id, transact } = configs
-    const dataset = await getDataset(dataset_id, true)
-    if (!dataset) {
-        throw {
-            code: "DATASET_NOT_FOUND",
-            message: "Dataset not found to retire",
-            statusCode: 404,
-            errCode: "NOT_FOUND"
-        }
-    }
-    const { type: datasetType, status } = dataset
-    if (status === DatasetStatus.Retired) {
-        throw {
-            code: "DATASET_ALREADY_RETIRED",
-            message: "Dataset is already retired",
-            statusCode: 400,
-            errCode: "BAD_REQUEST"
-        }
-    }
-    await checkDatasetDenorm({ type: datasetType, dataset_id })
-    await setDatasetRetired({ dataset_id, transact })
-    await restartPipeline(dataset_id)
-
-    await Promise.all([deleteSupervisors({ dataset_id, datasetType })])
-    return "Dataset retired successfully"
+const executeTransition = async (configs: Record<string, any>) => {
+    const { transitionCommands, dataset, transact } = configs
+    const transitionPromises = _.map(transitionCommands, async command => {
+        const commandWorkflow = _.get(commandExecutors, command)
+        return commandWorkflow({ dataset, transact })
+    })
+    await Promise.all(transitionPromises)
 }
 
-//Delete dataset
+//VALIDATE_DATASET_CONFIGS
+const validateDataset = async (configs: Record<string, any>) => {
+    const { dataset } = configs
+    const datasetValid: Record<string, any> = schemaValidation(dataset, ReadyToPublishSchema)
+    if (!datasetValid.isValid) {
+        throw {
+            code: "DATASET_CONFIGS_INVALID",
+            message: datasetValid.message,
+            errCode: "BAD_REQUEST",
+            statusCode: 400
+        }
+    }
+    await DatasetDraft.update({ status: DatasetStatus.ReadyToPublish }, { where: { id: dataset.id } })
+}
+
+//DELETE_DRAFT_DATASETS
 const deleteDataset = async (configs: Record<string, any>) => {
-    const { dataset_id, transact } = configs
-    const dataset = await getDraftDatasetRecord(dataset_id)
-    if (!dataset) {
-        throw {
-            code: "DATASET_NOT_FOUND",
-            message: "Dataset not found to delete",
-            statusCode: 404,
-            errCode: "NOT_FOUND"
-        }
-    }
-    await deleteDraftRecords({ dataset_id, transact })
-    return "Dataset deleted successfully"
-}
-
-const statusTransition = async (payload: Record<string, any>): Promise<string> => {
-    const { status } = payload
-    switch (status) {
-        case DatasetAction.Publish:
-            return publishDataset(payload)
-        case DatasetAction.Retire:
-            return retireDataset(payload)
-        case DatasetAction.Delete:
-            return deleteDataset(payload)
-        default: return "";
-    }
+    const { dataset, transact } = configs
+    const { id } = dataset
+    await deleteDraftRecords({ dataset_id: id, transact })
 }
 
 const deleteDraftRecords = async (config: Record<string, any>) => {
@@ -156,39 +154,19 @@ const deleteDraftRecords = async (config: Record<string, any>) => {
     await DatasetDraft.destroy({ where: { id: dataset_id }, transaction: transact })
 }
 
-const setDatasetRetired = async (config: Record<string, any>) => {
-    const { dataset_id, transact } = config;
-    await Dataset.update({ status: DatasetStatus.Retired }, { where: { dataset_id }, transaction: transact })
-    await DatasetSourceConfig.update({ status: DatasetStatus.Retired }, { where: { dataset_id }, transaction: transact })
-    await Datasource.update({ status: DatasetStatus.Retired }, { where: { dataset_id }, transaction: transact })
-    await DatasetTransformations.update({ status: DatasetStatus.Retired }, { where: { dataset_id }, transaction: transact })
+//PUBLISH_DATASET
+const publishDataset = async (configs: Record<string, any>) => {
+    const { dataset_id } = configs
+    await executeCommand(dataset_id, "PUBLISH_DATASET");
 }
 
-const restartPipeline = async (dataset_id: string) => {
-    return executeCommand(dataset_id, "RESTART_PIPELINE")
-}
-
-const deleteSupervisors = async (configs: Record<string, any>) => {
-    const { dataset_id, datasetType } = configs
-    try {
-        if (datasetType !== DatasetType.MasterDataset) {
-            const datasourceRefs = await Datasource.findAll({ where: { dataset_id }, attributes: ["datasource_ref"], raw: true })
-            for (const sourceRefs of datasourceRefs) {
-                const datasourceRef = _.get(sourceRefs, "datasource_ref")
-                await druidHttpService.post(`/druid/indexer/v1/supervisor/${datasourceRef}/terminate`)
-                logger.info(`Datasource ref ${datasourceRef} deleted from druid`)
-            }
-        }
-    } catch (error: any) {
-        logger.error({ error: _.get(error, "message"), message: `Failed to delete supervisors for dataset:${dataset_id}` })
-    }
-}
-
+//CHECK_DATASET_IS_DENORM
 const checkDatasetDenorm = async (payload: Record<string, any>) => {
-    const { type, dataset_id } = payload
+    const { dataset, transact } = payload
+    const { dataset_id, type } = dataset
     if (type === DatasetType.MasterDataset) {
-        const liveDatasets = await Dataset.findAll({ attributes: ["denorm_config"] }) || []
-        const draftDatasets = await DatasetDraft.findAll({ attributes: ["denorm_config"] }) || []
+        const liveDatasets = await Dataset.findAll({ attributes: ["denorm_config"], transaction: transact }) || []
+        const draftDatasets = await DatasetDraft.findAll({ attributes: ["denorm_config"], transaction: transact }) || []
         _.forEach([...liveDatasets, ...draftDatasets], datasets => {
             _.forEach(_.get(datasets, 'denorm_config.denorm_fields'), denorms => {
                 if (_.get(denorms, "dataset_id") === dataset_id) {
@@ -203,6 +181,50 @@ const checkDatasetDenorm = async (payload: Record<string, any>) => {
             })
         })
     }
+}
+
+//SET_DATASET_TO_RETIRE
+const setDatasetRetired = async (config: Record<string, any>) => {
+    const { dataset, transact } = config;
+    const { dataset_id } = dataset
+    await Dataset.update({ status: DatasetStatus.Retired }, { where: { dataset_id }, transaction: transact })
+    await DatasetSourceConfig.update({ status: DatasetStatus.Retired }, { where: { dataset_id }, transaction: transact })
+    await Datasource.update({ status: DatasetStatus.Retired }, { where: { dataset_id }, transaction: transact })
+    await DatasetTransformations.update({ status: DatasetStatus.Retired }, { where: { dataset_id }, transaction: transact })
+}
+
+//DELETE_SUPERVISORS
+const deleteSupervisors = async (configs: Record<string, any>) => {
+    const { dataset } = configs
+    const { type, dataset_id } = dataset
+    try {
+        if (type !== DatasetType.MasterDataset) {
+            const datasourceRefs = await Datasource.findAll({ where: { dataset_id }, attributes: ["datasource_ref"], raw: true })
+            for (const sourceRefs of datasourceRefs) {
+                const datasourceRef = _.get(sourceRefs, "datasource_ref")
+                await druidHttpService.post(`/druid/indexer/v1/supervisor/${datasourceRef}/terminate`)
+                logger.info(`Datasource ref ${datasourceRef} deleted from druid`)
+            }
+        }
+    } catch (error: any) {
+        logger.error({ error: _.get(error, "message"), message: `Failed to delete supervisors for dataset:${dataset_id}` })
+    }
+}
+
+//RESTART_PIPELINE
+const restartPipeline = async (config: Record<string, any>) => {
+    const dataset_id = _.get(config, ["dataset", "dataset_id"])
+    return executeCommand(dataset_id, "RESTART_PIPELINE")
+}
+
+const commandExecutors = {
+    DELETE_DRAFT_DATASETS: deleteDataset,
+    PUBLISH_DATASET: publishDataset,
+    CHECK_DATASET_IS_DENORM: checkDatasetDenorm,
+    SET_DATASET_TO_RETIRE: setDatasetRetired,
+    DELETE_SUPERVISORS: deleteSupervisors,
+    RESTART_PIPELINE: restartPipeline,
+    VALIDATE_DATASET_CONFIGS: validateDataset
 }
 
 const executeCommand = async (id: string, command: string) => {

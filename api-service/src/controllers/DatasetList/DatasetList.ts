@@ -118,7 +118,7 @@ const getDatasetId = (datasets: Record<string, any>) => {
     })
     const draftDatasets = _.filter(datasets, field => {
         const { status } = field || {}
-        return status === DatasetStatus.Draft || status === DatasetStatus.Publish
+        return status === DatasetStatus.Draft || status === DatasetStatus.ReadyToPublish
     })
     const liveDatasetId = _.map(liveDatasets, list => _.get(list, "id"))
     const draftDatasetId = _.map(draftDatasets, list => _.get(list, "id"))

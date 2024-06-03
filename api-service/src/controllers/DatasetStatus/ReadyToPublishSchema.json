@@ -1,0 +1,293 @@
+{
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "dataset_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "version": {
+      "type": "integer"
+    },
+    "status": {
+      "type": "string",
+      "enum": ["Draft"]
+    },
+    "type": {
+      "type": "string",
+      "enum": ["dataset", "master-dataset"]
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1
+    },
+    "version_key": {
+      "type": "string",
+      "minLength": 1
+    },
+    "validation_config": {
+      "type": "object",
+      "properties": {
+        "validate": {
+          "type": "boolean"
+        },
+        "mode": {
+          "type": "string",
+          "enum": ["Strict", "IgnoreNewFields"]
+        }
+      },
+      "required": ["validate", "mode"]
+    },
+    "extraction_config": {
+      "type": "object",
+      "properties": {
+        "is_batch_event": {
+          "type": "boolean"
+        },
+        "extraction_key": {
+          "type": "string"
+        },
+        "batch_id": {
+          "type": "string"
+        },
+        "dedup_config": {
+          "type": "object",
+          "properties": {
+            "drop_duplicates": {
+              "type": "boolean"
+            },
+            "dedup_key": {
+              "type": "string"
+            },
+            "dedup_period": {
+              "type": "integer"
+            }
+          },
+          "if": {
+            "properties": {
+              "drop_duplicates": {
+                "const": true
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "dedup_key": {
+                "minLength": 1
+              }
+            }
+          },
+          "required": ["drop_duplicates", "dedup_key", "dedup_period"],
+          "additionalProperties": false
+        }
+      },
+      "if": {
+        "properties": {
+          "is_batch_event": {
+            "const": true
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "extraction_key": {
+            "minLength": 1
+          },
+          "batch_id": {
+            "minLength": 1
+          }
+        }
+      },
+      "required": [
+        "is_batch_event",
+        "extraction_key",
+        "batch_id",
+        "dedup_config"
+      ],
+      "additionalProperties": false
+    },
+    "dedup_config": {
+      "type": "object",
+      "properties": {
+        "drop_duplicates": {
+          "type": "boolean"
+        },
+        "dedup_key": {
+          "type": "string"
+        },
+        "dedup_period": {
+          "type": "integer"
+        }
+      },
+      "if": {
+        "properties": {
+          "drop_duplicates": {
+            "const": true
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "dedup_key": {
+            "minLength": 1
+          }
+        }
+      },
+      "required": ["drop_duplicates", "dedup_key", "dedup_period"],
+      "additionalProperties": false
+    },
+    "data_schema": {
+      "type": "object",
+      "properties": {
+        "$schema": {
+          "type": "string",
+          "minLength": 1
+        },
+        "type": {
+          "type": "string",
+          "minLength": 1
+        },
+        "properties": {
+          "type": "object",
+          "minProperties": 1
+        },
+        "additionalProperties": {
+          "type": "boolean"
+        }
+      },
+      "required": ["type", "properties"],
+      "additionalProperties": false
+    },
+    "denorm_config": {
+      "type": "object",
+      "properties": {
+        "redis_db_host": {
+          "type": "string",
+          "minLength": 1
+        },
+        "redis_db_port": {
+          "type": "integer"
+        },
+        "denorm_fields": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "denorm_key": {
+                "type": "string",
+                "minLength": 1
+              },
+              "denorm_out_field": {
+                "type": "string",
+                "minLength": 1
+              },
+              "dataset_name": {
+                "type": "string",
+                "minLength": 1
+              },
+              "dataset_id": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "denorm_key",
+              "denorm_out_field",
+              "dataset_name",
+              "dataset_id"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": ["redis_db_host", "redis_db_port", "denorm_fields"],
+      "additionalProperties": false
+    },
+    "router_config": {
+      "type": "object",
+      "properties": {
+        "topic": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": ["topic"],
+      "additionalProperties": false
+    },
+    "dataset_config": {
+      "type": "object",
+      "properties": {
+        "data_key": {
+          "type": "string"
+        },
+        "timestamp_key": {
+          "type": "string",
+          "minLength": 1
+        },
+        "entry_topic": {
+          "type": "string",
+          "minLength": 1
+        },
+        "redis_db_host": {
+          "type": "string",
+          "minLength": 1
+        },
+        "redis_db_port": {
+          "type": "integer"
+        },
+        "index_data": {
+          "type": "boolean"
+        },
+        "redis_db": {
+          "type": "integer"
+        },
+        "file_upload_path": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      },
+      "required": [
+        "data_key",
+        "timestamp_key",
+        "entry_topic",
+        "redis_db_host",
+        "redis_db_port",
+        "redis_db",
+        "index_data"
+      ],
+      "additionalProperties": false
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "client_state": {
+      "type": "object"
+    }
+  },
+  "required": [
+    "dataset_id",
+    "type",
+    "name",
+    "data_schema",
+    "id",
+    "validation_config",
+    "extraction_config",
+    "dataset_config",
+    "denorm_config",
+    "dedup_config",
+    "router_config",
+    "client_state",
+    "version_key",
+    "status"
+  ]
+}

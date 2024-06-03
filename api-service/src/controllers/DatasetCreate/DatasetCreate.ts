@@ -75,7 +75,7 @@ const datasetCreate = async (req: Request, res: Response) => {
 
         const transformationConfig: any = getTransformationConfig({ transformationPayload: _.get(datasetBody, "transformations_config"), datasetId: _.get(datasetPayload, "id") })
         if (!_.isEmpty(transformationConfig)) {
-            await DatasetTransformationsDraft.bulkCreate(transformationConfig), { transaction: transact };
+            await DatasetTransformationsDraft.bulkCreate(transformationConfig, { transaction: transact });
             logger.info({ apiId, message: `Dataset transformations records created successsfully for dataset:${id}` })
         }
         

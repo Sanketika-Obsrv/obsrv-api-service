@@ -35,9 +35,10 @@
           "status": {
             "type": "string",
             "enum": [
-              "Publish",
+              "ReadyToPublish",
               "Retire",
-              "Delete"
+              "Delete",
+              "Live"
             ]
           }
         },
