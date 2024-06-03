@@ -1,4 +1,4 @@
-export const TestInputsForDatasetStatus = {
+export const TestInputsForDatasetStatusTransition = {
     VALID_SCHEMA_FOR_DELETE: {
         "id": "api.datasets.status",
         "ver": "v2",

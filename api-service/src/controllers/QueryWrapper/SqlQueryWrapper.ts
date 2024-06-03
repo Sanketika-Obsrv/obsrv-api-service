@@ -5,8 +5,7 @@ import { config } from "../../configs/Config";
 import logger from "../../logger";
 import { ResponseHandler } from "../../helpers/ResponseHandler";
 import { ErrorObject } from "../../types/ResponseModel";
-
-export const druidHttpService = axios.create({ baseURL: `${config.query_api.druid.host}:${config.query_api.druid.port}`, headers: { "Content-Type": "application/json" } });
+import { druidHttpService } from "../../connections/druidConnection";
 
 const apiId = "api.obsrv.data.sql-query";
 const errorCode = "SQL_QUERY_FAILURE"

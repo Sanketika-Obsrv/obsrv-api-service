@@ -5,8 +5,8 @@ import spies from "chai-spies";
 import { describe, it } from 'mocha';
 import _ from "lodash";
 import { TestInputsForSqlWrapper } from "./Fixtures";
-import { druidHttpService } from "../../../controllers/QueryWrapper/SqlQueryWrapper";
 import httpStatus from "http-status";
+import { druidHttpService } from "../../../connections/druidConnection";
 
 const apiId = "api.obsrv.data.sql-query";
 chai.use(spies);

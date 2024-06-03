@@ -19,7 +19,7 @@ import { updateQueryTemplate } from "../controllers/UpdateQueryTemplate/UpdateTe
 import { eventValidation } from "../controllers/EventValidation/EventValidation";
 import GenerateSignedURL from "../controllers/GenerateSignedURL/GenerateSignedURL";
 import { sqlQuery } from "../controllers/QueryWrapper/SqlQueryWrapper";
-import DatasetStatus from "../controllers/DatasetStatus/DatasetStatus";
+import DatasetStatusTansition from "../controllers/DatasetStatusTransition/DatasetStatusTransition";
 
 export const router = express.Router();
 
@@ -38,7 +38,7 @@ router.patch('/v2/template/update/:templateId', setDataToRequestObject("api.quer
 router.post('/v2/schema/validate', setDataToRequestObject("api.schema.validator"), eventValidation); 
 router.post('/v2/template/query/:templateId', setDataToRequestObject("api.query.template.query"), queryTemplate);
 router.post('/v2/files/generate-url', setDataToRequestObject("api.files.generate-url"), onRequest({ entity: Entity.Management }), GenerateSignedURL);
-router.post('/v2/datasets/status', setDataToRequestObject("api.datasets.status"), onRequest({ entity: Entity.Management }), DatasetStatus);
+router.post('/v2/datasets/status-transition', setDataToRequestObject("api.datasets.status-transition"), onRequest({ entity: Entity.Management }), DatasetStatusTansition);
 
 //Wrapper Service
 router.post('/v2/obsrv/data/sql-query', setDataToRequestObject("api.obsrv.data.sql-query"), onRequest({ entity: Entity.Data_out }), sqlQuery);

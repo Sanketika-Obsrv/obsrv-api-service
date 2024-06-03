@@ -5,15 +5,16 @@ import spies from "chai-spies";
 import httpStatus from "http-status";
 import { describe, it } from 'mocha';
 import _ from "lodash";
-import { apiId, commandHttpService, errorCode } from "../../../controllers/DatasetStatus/DatasetStatus";
-import { TestInputsForDatasetStatus } from "./Fixtures";
+import { apiId, errorCode } from "../../../controllers/DatasetStatusTransition/DatasetStatusTransition";
+import { TestInputsForDatasetStatusTransition } from "./Fixtures";
 import { Dataset } from "../../../models/Dataset";
 import { DatasetDraft } from "../../../models/DatasetDraft";
 import { DatasetTransformations } from "../../../models/Transformation";
 import { sequelize } from "../../../connections/databaseConnection";
 import { DatasetSourceConfig } from "../../../models/DatasetSourceConfig";
 import { Datasource } from "../../../models/Datasource";
-import { druidHttpService } from "../../../controllers/QueryWrapper/SqlQueryWrapper";
+import { commandHttpService } from "../../../connections/commandServiceConnection";
+import { druidHttpService } from "../../../connections/druidConnection";
 
 chai.use(spies);
 chai.should();
@@ -21,13 +22,13 @@ chai.use(chaiHttp);
 
 const msgid = "4a7f14c3-d61e-4d4f-be78-181834eeff6"
 
-describe("DATASET STATUS RETIRE", () => {
+describe("DATASET STATUS TRANSITION RETIRE", () => {
 
     afterEach(() => {
         chai.spy.restore();
     });
 
-    it("Dataset status success: When the action is to Retire dataset", (done) => {
+    it("Dataset status transition success: When the action is to Retire dataset", (done) => {
         chai.spy.on(Dataset, "findOne", () => {
             return Promise.resolve({ dataset_id: "telemetry", status: "Live", type: "dataset" })
         })
@@ -60,8 +61,8 @@ describe("DATASET STATUS RETIRE", () => {
         })
         chai
             .request(app)
-            .post("/v2/datasets/status")
-            .send(TestInputsForDatasetStatus.VALID_SCHEMA_FOR_RETIRE)
+            .post("/v2/datasets/status-transition")
+            .send(TestInputsForDatasetStatusTransition.VALID_SCHEMA_FOR_RETIRE)
             .end((err, res) => {
                 res.should.have.status(httpStatus.OK);
                 res.body.should.be.a("object")
@@ -75,7 +76,7 @@ describe("DATASET STATUS RETIRE", () => {
             });
     });
 
-    it("Dataset status success: When the action is to Retire master dataset", (done) => {
+    it("Dataset status transition success: When the action is to Retire master dataset", (done) => {
         chai.spy.on(Dataset, "findOne", () => {
             return Promise.resolve({ dataset_id: "telemetry", status: "Live", type: "master-dataset" })
         })
@@ -108,8 +109,8 @@ describe("DATASET STATUS RETIRE", () => {
         })
         chai
             .request(app)
-            .post("/v2/datasets/status")
-            .send(TestInputsForDatasetStatus.VALID_SCHEMA_FOR_RETIRE)
+            .post("/v2/datasets/status-transition")
+            .send(TestInputsForDatasetStatusTransition.VALID_SCHEMA_FOR_RETIRE)
             .end((err, res) => {
                 res.should.have.status(httpStatus.OK);
                 res.body.should.be.a("object")
@@ -123,7 +124,7 @@ describe("DATASET STATUS RETIRE", () => {
             });
     });
 
-    it("Dataset status successs: Dataset successfully retired on delete supervisors failure", (done) => {
+    it("Dataset status transition successs: Dataset successfully retired on delete supervisors failure", (done) => {
         chai.spy.on(Dataset, "findOne", () => {
             return Promise.resolve({ dataset_id: "telemetry", status: "Live", type: "dataset" })
         })
@@ -156,8 +157,8 @@ describe("DATASET STATUS RETIRE", () => {
         })
         chai
             .request(app)
-            .post("/v2/datasets/status")
-            .send(TestInputsForDatasetStatus.VALID_SCHEMA_FOR_RETIRE)
+            .post("/v2/datasets/status-transition")
+            .send(TestInputsForDatasetStatusTransition.VALID_SCHEMA_FOR_RETIRE)
             .end((err, res) => {
                 res.should.have.status(httpStatus.OK);
                 res.body.should.be.a("object")
@@ -171,7 +172,7 @@ describe("DATASET STATUS RETIRE", () => {
             });
     });
 
-    it("Dataset status failure: When dataset is not found to retire", (done) => {
+    it("Dataset status transition failure: When dataset is not found to retire", (done) => {
         chai.spy.on(Dataset, "findOne", () => {
             return Promise.resolve()
         })
@@ -183,21 +184,21 @@ describe("DATASET STATUS RETIRE", () => {
         })
         chai
             .request(app)
-            .post("/v2/datasets/status")
-            .send(TestInputsForDatasetStatus.VALID_SCHEMA_FOR_RETIRE)
+            .post("/v2/datasets/status-transition")
+            .send(TestInputsForDatasetStatusTransition.VALID_SCHEMA_FOR_RETIRE)
             .end((err, res) => {
                 res.should.have.status(httpStatus.NOT_FOUND);
                 res.body.should.be.a("object")
                 res.body.id.should.be.eq(apiId);
                 res.body.params.status.should.be.eq("FAILED")
                 res.body.params.msgid.should.be.eq(msgid)
-                res.body.error.message.should.be.eq("Dataset not found to perform status transition to Retire")
+                res.body.error.message.should.be.eq("Dataset not found to retire")
                 res.body.error.code.should.be.eq("DATASET_NOT_FOUND")
                 done();
             })
     })
 
-    it("Dataset status failure: When dataset is already retired", (done) => {
+    it("Dataset status transition failure: When dataset is already retired", (done) => {
         chai.spy.on(Dataset, "findOne", () => {
             return Promise.resolve({ dataset_id: "telemetry", status: "Retired", type: "dataset" })
         })
@@ -209,21 +210,21 @@ describe("DATASET STATUS RETIRE", () => {
         })
         chai
             .request(app)
-            .post("/v2/datasets/status")
-            .send(TestInputsForDatasetStatus.VALID_SCHEMA_FOR_RETIRE)
+            .post("/v2/datasets/status-transition")
+            .send(TestInputsForDatasetStatusTransition.VALID_SCHEMA_FOR_RETIRE)
             .end((err, res) => {
                 res.should.have.status(httpStatus.BAD_REQUEST);
                 res.body.should.be.a("object")
                 res.body.id.should.be.eq(apiId);
                 res.body.params.status.should.be.eq("FAILED")
                 res.body.params.msgid.should.be.eq(msgid)
-                res.body.error.message.should.be.eq("Failed to Retire dataset as it is in retired state")
+                res.body.error.message.should.be.eq("Failed to Retire dataset as it is not in live state")
                 res.body.error.code.should.be.eq("DATASET_RETIRE_FAILURE")
                 done();
             })
     })
 
-    it("Dataset status failure: When dataset to retire is used by other datasets", (done) => {
+    it("Dataset status transition failure: When dataset to retire is used by other datasets", (done) => {
         chai.spy.on(Dataset, "findOne", () => {
             return Promise.resolve({ dataset_id: "telemetry", type: "master-dataset", status: "Live" })
         })
@@ -241,8 +242,8 @@ describe("DATASET STATUS RETIRE", () => {
         })
         chai
             .request(app)
-            .post("/v2/datasets/status")
-            .send(TestInputsForDatasetStatus.VALID_SCHEMA_FOR_RETIRE)
+            .post("/v2/datasets/status-transition")
+            .send(TestInputsForDatasetStatusTransition.VALID_SCHEMA_FOR_RETIRE)
             .end((err, res) => {
                 res.should.have.status(httpStatus.BAD_REQUEST);
                 res.body.should.be.a("object")
@@ -255,7 +256,7 @@ describe("DATASET STATUS RETIRE", () => {
             });
     });
 
-    it("Dataset status failure: When setting retire status to live records fail", (done) => {
+    it("Dataset status transition failure: When setting retire status to live records fail", (done) => {
         chai.spy.on(Dataset, "findOne", () => {
             return Promise.resolve({ dataset_id: "telemetry", status: "Live", type: "dataset" })
         })
@@ -270,8 +271,8 @@ describe("DATASET STATUS RETIRE", () => {
         })
         chai
             .request(app)
-            .post("/v2/datasets/status")
-            .send(TestInputsForDatasetStatus.VALID_SCHEMA_FOR_RETIRE)
+            .post("/v2/datasets/status-transition")
+            .send(TestInputsForDatasetStatusTransition.VALID_SCHEMA_FOR_RETIRE)
             .end((err, res) => {
                 res.should.have.status(httpStatus.INTERNAL_SERVER_ERROR);
                 res.body.should.be.a("object")
@@ -283,7 +284,7 @@ describe("DATASET STATUS RETIRE", () => {
             });
     });
 
-    it("Dataset status failure: Failed to restart pipeline", (done) => {
+    it("Dataset status transition failure: Failed to restart pipeline", (done) => {
         chai.spy.on(Dataset, "findOne", () => {
             return Promise.resolve({ dataset_id: "telemetry", type: "dataset", status: "Live", })
         })
@@ -313,8 +314,8 @@ describe("DATASET STATUS RETIRE", () => {
         })
         chai
             .request(app)
-            .post("/v2/datasets/status")
-            .send(TestInputsForDatasetStatus.VALID_SCHEMA_FOR_RETIRE)
+            .post("/v2/datasets/status-transition")
+            .send(TestInputsForDatasetStatusTransition.VALID_SCHEMA_FOR_RETIRE)
             .end((err, res) => {
                 res.should.have.status(httpStatus.INTERNAL_SERVER_ERROR);
                 res.body.should.be.a("object")

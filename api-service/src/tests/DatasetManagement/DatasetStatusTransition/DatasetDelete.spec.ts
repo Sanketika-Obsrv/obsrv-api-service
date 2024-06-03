@@ -5,8 +5,8 @@ import spies from "chai-spies";
 import httpStatus from "http-status";
 import { describe, it } from 'mocha';
 import _ from "lodash";
-import { apiId } from "../../../controllers/DatasetStatus/DatasetStatus";
-import { TestInputsForDatasetStatus } from "./Fixtures";
+import { apiId } from "../../../controllers/DatasetStatusTransition/DatasetStatusTransition";
+import { TestInputsForDatasetStatusTransition } from "./Fixtures";
 import { DatasetDraft } from "../../../models/DatasetDraft";
 import { DatasetTransformationsDraft } from "../../../models/TransformationDraft";
 import { DatasetSourceConfigDraft } from "../../../models/DatasetSourceConfigDraft";
@@ -20,13 +20,13 @@ chai.use(chaiHttp);
 
 const msgid = "4a7f14c3-d61e-4d4f-be78-181834eeff6"
 
-describe("DATASET STATUS DELETE", () => {
+describe("DATASET STATUS TRANSITION DELETE", () => {
 
     afterEach(() => {
         chai.spy.restore();
     });
 
-    it("Dataset status success: When the action is to Delete draft datasets", (done) => {
+    it("Dataset status transition success: When the action is to Delete draft datasets", (done) => {
         chai.spy.on(DatasetDraft, "findOne", () => {
             return Promise.resolve({ dataset_id: "telemetry", status: "Draft", id: "telemetry.1" })
         })
@@ -50,8 +50,8 @@ describe("DATASET STATUS DELETE", () => {
         })
         chai
             .request(app)
-            .post("/v2/datasets/status")
-            .send(TestInputsForDatasetStatus.VALID_SCHEMA_FOR_DELETE)
+            .post("/v2/datasets/status-transition")
+            .send(TestInputsForDatasetStatusTransition.VALID_SCHEMA_FOR_DELETE)
             .end((err, res) => {
                 res.should.have.status(httpStatus.OK);
                 res.body.should.be.a("object")
@@ -65,7 +65,7 @@ describe("DATASET STATUS DELETE", () => {
             });
     });
 
-    it("Dataset status failure: When dataset is not found to delete", (done) => {
+    it("Dataset status transition failure: When dataset is not found to delete", (done) => {
         chai.spy.on(DatasetDraft, "findOne", () => {
             return Promise.resolve()
         })
@@ -77,15 +77,15 @@ describe("DATASET STATUS DELETE", () => {
         })
         chai
             .request(app)
-            .post("/v2/datasets/status")
-            .send(TestInputsForDatasetStatus.VALID_SCHEMA_FOR_DELETE)
+            .post("/v2/datasets/status-transition")
+            .send(TestInputsForDatasetStatusTransition.VALID_SCHEMA_FOR_DELETE)
             .end((err, res) => {
                 res.should.have.status(httpStatus.NOT_FOUND);
                 res.body.should.be.a("object")
                 res.body.id.should.be.eq(apiId);
                 res.body.params.status.should.be.eq("FAILED")
                 res.body.params.msgid.should.be.eq(msgid)
-                res.body.error.message.should.be.eq("Dataset not found to perform status transition to Delete")
+                res.body.error.message.should.be.eq("Dataset not found to delete")
                 res.body.error.code.should.be.eq("DATASET_NOT_FOUND")
                 done();
             });

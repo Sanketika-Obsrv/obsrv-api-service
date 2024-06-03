@@ -5,27 +5,24 @@ import { ResponseHandler } from "../../helpers/ResponseHandler";
 import { getDataset, getDraftDataset, setReqDatasetId } from "../../services/DatasetService";
 import { ErrorObject } from "../../types/ResponseModel";
 import { schemaValidation } from "../../services/ValidationService";
-import DatasetStatusSchema from "../DatasetStatus/DatasetStatusSchemaValidation.json";
-import ReadyToPublishSchema from "../DatasetStatus/ReadyToPublishSchema.json"
+import StatusTransitionSchema from "./RequestValidationSchema.json";
+import ReadyToPublishSchema from "./ReadyToPublishSchema.json"
 import httpStatus from "http-status";
 import { sequelize } from "../../connections/databaseConnection";
 import { DatasetTransformationsDraft } from "../../models/TransformationDraft";
 import { DatasourceDraft } from "../../models/DatasourceDraft";
 import { DatasetSourceConfigDraft } from "../../models/DatasetSourceConfigDraft";
 import { DatasetDraft } from "../../models/DatasetDraft";
-import axios from "axios";
-import { config } from "../../configs/Config";
-import { v4 } from 'uuid';
 import { Dataset } from "../../models/Dataset";
 import { DatasetAction, DatasetStatus, DatasetType } from "../../types/DatasetModels";
 import { DatasetSourceConfig } from "../../models/DatasetSourceConfig";
 import { Datasource } from "../../models/Datasource";
 import { DatasetTransformations } from "../../models/Transformation";
-import { druidHttpService } from "../QueryWrapper/SqlQueryWrapper";
+import { executeCommand } from "../../connections/commandServiceConnection";
+import { druidHttpService } from "../../connections/druidConnection";
 
-export const apiId = "api.datasets.status";
-export const errorCode = "DATASET_STATUS_FAILURE"
-export const commandHttpService = axios.create({ baseURL: `${config.command_service_config.host}:${config.command_service_config.port}`, headers: { "Content-Type": "application/json" } });
+export const apiId = "api.datasets.status-transition";
+export const errorCode = "DATASET_STATUS_TRANSITION_FAILURE"
 
 const allowedTransitions = {
     Delete: ["Draft", "ReadyToPublish"],
@@ -41,7 +38,7 @@ const statusTransitionCommands = {
     Retire: ["CHECK_DATASET_IS_DENORM", "SET_DATASET_TO_RETIRE", "DELETE_SUPERVISORS", "RESTART_PIPELINE"]
 }
 
-const datasetStatus = async (req: Request, res: Response) => {
+const datasetStatusTransition = async (req: Request, res: Response) => {
     const requestBody = req.body
     const msgid = _.get(req, ["body", "params", "msgid"]);
     const resmsgid = _.get(res, "resmsgid");
@@ -50,9 +47,9 @@ const datasetStatus = async (req: Request, res: Response) => {
         const { dataset_id, status } = _.get(requestBody, "request");
         setReqDatasetId(req, dataset_id)
 
-        const isRequestValid: Record<string, any> = schemaValidation(req.body, DatasetStatusSchema)
+        const isRequestValid: Record<string, any> = schemaValidation(req.body, StatusTransitionSchema)
         if (!isRequestValid.isValid) {
-            const code = "DATASET_STATUS_INVALID_INPUT"
+            const code = "DATASET_STATUS_TRANSITION_INVALID_INPUT"
             logger.error({ code, apiId, msgid, requestBody, resmsgid, message: isRequestValid.message })
             return ResponseHandler.errorResponse({
                 code,
@@ -65,10 +62,11 @@ const datasetStatus = async (req: Request, res: Response) => {
         const datasetRecord = await fetchDataset({ status, dataset_id })
         if (_.isEmpty(datasetRecord)) {
             const code = "DATASET_NOT_FOUND"
-            logger.error({ code, apiId, msgid, requestBody, resmsgid, message: `Dataset not found to perform status transition to ${status} for dataset:${dataset_id}` })
+            const errorMessage = getErrorMessage(status, code)
+            logger.error({ code, apiId, msgid, requestBody, resmsgid, message: `${errorMessage} for dataset:${dataset_id}` })
             return ResponseHandler.errorResponse({
                 code,
-                message: `Dataset not found to perform status transition to ${status}`,
+                message: errorMessage,
                 statusCode: 404,
                 errCode: "NOT_FOUND"
             } as ErrorObject, req, res);
@@ -78,10 +76,11 @@ const datasetStatus = async (req: Request, res: Response) => {
         const datasetStatus = _.get(datasetRecord, "status")
         if (!_.includes(allowedStatus, datasetStatus)) {
             const code = `DATASET_${_.toUpper(status)}_FAILURE`
-            logger.error({ code, apiId, msgid, requestBody, resmsgid, message: `Failed to ${status} dataset:${dataset_id} as it is in ${_.toLower(datasetStatus)} state` })
+            const errorMessage = getErrorMessage(status, "STATUS_INVALID")
+            logger.error({ code, apiId, msgid, requestBody, resmsgid, message: `${errorMessage} for dataset:${dataset_id}` })
             return ResponseHandler.errorResponse({
                 code,
-                message: `Failed to ${status} dataset as it is in ${_.toLower(datasetStatus)} state`,
+                message: errorMessage,
                 statusCode: 400,
                 errCode: "BAD_REQUEST"
             } as ErrorObject, req, res);
@@ -231,19 +230,27 @@ const commandExecutors = {
     VALIDATE_DATASET_CONFIGS: validateDataset
 }
 
-const executeCommand = async (id: string, command: string) => {
-    const payload = {
-        "id": v4(),
-        "data": {
-            "dataset_id": id,
-            "command": command
-        }
-    }
-    return commandHttpService.post(config.command_service_config.path, payload)
-}
-
 const getDraftDatasetRecord = async (dataset_id: string) => {
     return DatasetDraft.findOne({ where: { id: dataset_id }, raw: true });
 }
 
-export default datasetStatus;
+const errorMessage = {
+    DATASET_NOT_FOUND: {
+        Delete: "Dataset not found to delete",
+        Retire: "Dataset not found to retire",
+        ReadyToPublish: "Dataset not found to perform status transition to ready to publish",
+        Live: "Dataset not found to perform status transition to live"
+    },
+    STATUS_INVALID: {
+        Delete: "Failed to Delete dataset",
+        Retire: "Failed to Retire dataset as it is not in live state",
+        ReadyToPublish: "Failed to mark dataset Ready to publish as it not in draft state",
+        Live: "Failed to mark dataset Live as it is not in ready to publish state"
+    }
+}
+
+const getErrorMessage = (status: string, code: string) => {
+    return _.get(errorMessage, [code, status]) || "Failed to perform status transition"
+}
+
+export default datasetStatusTransition;
