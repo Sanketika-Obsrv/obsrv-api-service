@@ -79,6 +79,33 @@ describe("DATASET STATUS READY TO PUBLISH", () => {
             });
     });
 
+    it("Dataset status failure: When dataset is already ready to publish", (done) => {
+        chai.spy.on(DatasetDraft, "findOne", () => {
+            return Promise.resolve({dataset_id:"telemetry", status:"ReadyToPublish"})
+        })
+        const t = chai.spy.on(sequelize, "transaction", () => {
+            return Promise.resolve(sequelize.transaction)
+        })
+        chai.spy.on(t, "rollback", () => {
+            return Promise.resolve({})
+        })
+        chai
+            .request(app)
+            .post("/v2/datasets/status")
+            .send(TestInputsForDatasetStatus.VALID_REQUEST_FOR_READY_FOR_PUBLISH)
+            .end((err, res) => {
+                res.should.have.status(httpStatus.BAD_REQUEST);
+                res.body.should.be.a("object")
+                res.body.id.should.be.eq(apiId);
+                res.body.params.status.should.be.eq("FAILED")
+                res.body.params.msgid.should.be.eq(msgid)
+                res.body.error.message.should.be.eq("Failed to ReadyToPublish dataset as it is in readytopublish state")
+                res.body.error.code.should.be.eq("DATASET_READYTOPUBLISH_FAILURE")
+                done();
+            });
+    });
+
+
     it("Dataset status failure: Configs invalid to set status to ready to publish", (done) => {
         chai.spy.on(DatasetDraft, "findOne", () => {
             return Promise.resolve(TestInputsForDatasetStatus.INVALID_SCHEMA_FOR_READY_TO_PUBLISH)
