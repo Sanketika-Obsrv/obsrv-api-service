@@ -1,6 +1,6 @@
 export const TestInputsForDatasetStatusTransition = {
     VALID_SCHEMA_FOR_DELETE: {
-        "id": "api.datasets.status",
+        "id": "api.datasets.status-transition",
         "ver": "v2",
         "ts": "2024-04-19T12:58:47+05:30",
         "params": {
@@ -12,7 +12,7 @@ export const TestInputsForDatasetStatusTransition = {
         }
     },
     VALID_SCHEMA_FOR_LIVE: {
-        "id": "api.datasets.status",
+        "id": "api.datasets.status-transition",
         "ver": "v2",
         "ts": "2024-04-19T12:58:47+05:30",
         "params": {
@@ -24,7 +24,7 @@ export const TestInputsForDatasetStatusTransition = {
         }
     },
     VALID_SCHEMA_FOR_RETIRE: {
-        "id": "api.datasets.status",
+        "id": "api.datasets.status-transition",
         "ver": "v2",
         "ts": "2024-04-19T12:58:47+05:30",
         "params": {
@@ -36,7 +36,7 @@ export const TestInputsForDatasetStatusTransition = {
         }
     },
     INVALID_SCHEMA: {
-        "id": "api.datasets.status",
+        "id": "api.datasets.status-transition",
         "ver": "v2",
         "ts": "2024-04-19T12:58:47+05:30",
         "params": {
@@ -48,7 +48,7 @@ export const TestInputsForDatasetStatusTransition = {
         }
     },
     VALID_REQUEST_FOR_READY_FOR_PUBLISH:{
-        "id": "api.datasets.status",
+        "id": "api.datasets.status-transition",
         "ver": "v2",
         "ts": "2024-04-19T12:58:47+05:30",
         "params": {
