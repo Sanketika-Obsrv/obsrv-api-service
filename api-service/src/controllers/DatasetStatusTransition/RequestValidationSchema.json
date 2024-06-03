@@ -4,7 +4,7 @@
       "id": {
         "type": "string",
         "enum": [
-          "api.datasets.status"
+          "api.datasets.status-transition"
         ]
       },
       "ver": {
