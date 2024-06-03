@@ -64,23 +64,27 @@ const datasetStatus = async (req: Request, res: Response) => {
 
         const datasetRecord = await fetchDataset({ status, dataset_id })
         if (_.isEmpty(datasetRecord)) {
-            throw {
-                code: "DATASET_NOT_FOUND",
+            const code = "DATASET_NOT_FOUND"
+            logger.error({ code, apiId, msgid, requestBody, resmsgid, message: `Dataset not found to perform status transition to ${status} for dataset:${dataset_id}` })
+            return ResponseHandler.errorResponse({
+                code,
                 message: `Dataset not found to perform status transition to ${status}`,
                 statusCode: 404,
                 errCode: "NOT_FOUND"
-            }
+            } as ErrorObject, req, res);
         }
 
         const allowedStatus = _.get(allowedTransitions, status)
         const datasetStatus = _.get(datasetRecord, "status")
         if (!_.includes(allowedStatus, datasetStatus)) {
-            throw {
-                code: `DATASET_${_.toUpper(status)}_FAILURE`,
+            const code = `DATASET_${_.toUpper(status)}_FAILURE`
+            logger.error({ code, apiId, msgid, requestBody, resmsgid, message: `Failed to ${status} dataset:${dataset_id} as it is in ${_.toLower(datasetStatus)} state` })
+            return ResponseHandler.errorResponse({
+                code,
                 message: `Failed to ${status} dataset as it is in ${_.toLower(datasetStatus)} state`,
                 statusCode: 400,
                 errCode: "BAD_REQUEST"
-            }
+            } as ErrorObject, req, res);
         }
 
         const transitionCommands = _.get(statusTransitionCommands, status)
