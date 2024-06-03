@@ -274,6 +274,24 @@
       "type": "object"
     }
   },
+  "if": {
+    "properties": {
+      "type": {
+        "const": "master-dataset"
+      }
+    }
+  },
+  "then": {
+    "properties": {
+      "dataset_config": {
+        "properties": {
+          "data_key": {
+            "minLength": 1
+          }
+        }
+      }
+    }
+  },
   "required": [
     "dataset_id",
     "type",
