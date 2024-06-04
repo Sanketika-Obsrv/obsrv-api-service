@@ -78,7 +78,7 @@ const datasetStatusTransition = async (req: Request, res: Response) => {
             if (!_.includes(allowedStatus, datasetStatus)) {
                 const code = `DATASET_${_.toUpper(status)}_FAILURE`
                 const errorMessage = getErrorMessage(status, "STATUS_INVALID")
-                logger.error({ code, apiId, msgid, requestBody, resmsgid, message: `${errorMessage} for dataset:${dataset_id}` })
+                logger.error({ code, apiId, msgid, requestBody, resmsgid, message: `${errorMessage} for dataset:${dataset_id} status:${datasetStatus} with status transition to ${status}` })
                 return ResponseHandler.errorResponse({
                     code,
                     message: errorMessage,
