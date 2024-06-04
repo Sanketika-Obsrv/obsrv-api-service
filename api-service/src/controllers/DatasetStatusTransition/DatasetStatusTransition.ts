@@ -105,8 +105,8 @@ const datasetStatusTransition = async (req: Request, res: Response) => {
             ResponseHandler.errorResponse(errorMessage, req, res);
         }
     } catch (error: any) {
-        logger.error({ message: `${error.message}`, msgid, resmsgid, apiId })
         const errMessage = error.message
+        logger.error({ message: errMessage, msgid, resmsgid, apiId })
         ResponseHandler.errorResponse(errMessage, req, res);
     }
 }
@@ -174,8 +174,8 @@ const checkDatasetDenorm = async (payload: Record<string, any>) => {
     const { dataset } = payload
     const { dataset_id, type } = dataset
     if (type === DatasetType.MasterDataset) {
-        const liveDatasets = await Dataset.findAll({ attributes: ["denorm_config"] }) || []
-        const draftDatasets = await DatasetDraft.findAll({ attributes: ["denorm_config"] }) || []
+        const liveDatasets = await Dataset.findAll({ attributes: ["denorm_config"], raw: true }) || []
+        const draftDatasets = await DatasetDraft.findAll({ attributes: ["denorm_config"], raw: true }) || []
         _.forEach([...liveDatasets, ...draftDatasets], datasets => {
             _.forEach(_.get(datasets, 'denorm_config.denorm_fields'), denorms => {
                 if (_.get(denorms, "dataset_id") === dataset_id) {
