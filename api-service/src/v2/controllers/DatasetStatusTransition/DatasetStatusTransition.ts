@@ -217,7 +217,7 @@ const deleteSupervisors = async (configs: Record<string, any>) => {
 }
 
 //RESTART_PIPELINE
-const restartPipeline = async (config: Record<string, any>) => {
+export const restartPipeline = async (config: Record<string, any>) => {
     const dataset_id = _.get(config, ["dataset", "dataset_id"])
     return executeCommand(dataset_id, "RESTART_PIPELINE")
 }
