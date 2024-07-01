@@ -42,6 +42,13 @@
             "read",
             "write"
           ]
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "dataset",
+            "connector"
+          ]
         }
       },
       "additionalProperties": false,

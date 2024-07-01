@@ -5,7 +5,8 @@ import { GCPStorageService } from "./GCPStorageService";
 import * as _ from "lodash";
 
 const cloudProviderName = _.get(config, "cloud_config.cloud_storage_provider");
-const cloudProviderConfig = _.get(config, "cloud_config.cloud_storage_config");
+const cloudConfig = _.get(config, "cloud_config.cloud_storage_config");
+const cloudProviderConfig = _.isString(cloudConfig) ? JSON.parse(cloudConfig) : cloudConfig;
 
 const initialiseServiceProvider = (provider: any, config: any): AzureStorageService | AWSStorageService | GCPStorageService => {
     switch (provider) {

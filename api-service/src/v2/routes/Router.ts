@@ -20,6 +20,7 @@ import { eventValidation } from "../controllers/EventValidation/EventValidation"
 import GenerateSignedURL from "../controllers/GenerateSignedURL/GenerateSignedURL";
 import { sqlQuery } from "../controllers/QueryWrapper/SqlQueryWrapper";
 import DatasetStatusTansition from "../controllers/DatasetStatusTransition/DatasetStatusTransition";
+import connectorRegisterController from "../controllers/ConnectorRegister/ConnectorRegisterController";
 import datasetHealth from "../controllers/DatasetHealth/DatasetHealth";
 
 export const router = express.Router();
@@ -40,6 +41,7 @@ router.post("/schema/validate", setDataToRequestObject("api.schema.validator"), 
 router.post("/template/query/:templateId", setDataToRequestObject("api.query.template.query"), queryTemplate);
 router.post("/files/generate-url", setDataToRequestObject("api.files.generate-url"), onRequest({ entity: Entity.Management }), GenerateSignedURL);
 router.post("/datasets/status-transition", setDataToRequestObject("api.datasets.status-transition"), onRequest({ entity: Entity.Management }), DatasetStatusTansition);
+router.post("/connector/register", setDataToRequestObject("api.connector.register"), onRequest({ entity: Entity.Management }), connectorRegisterController);
 router.post("/dataset/health", setDataToRequestObject("api.dataset.health"), onRequest({ entity: Entity.Management }), datasetHealth);
 
 //Wrapper Service
