@@ -176,22 +176,44 @@ const checkDatasetDenorm = async (payload: Record<string, any>) => {
     const { dataset } = payload
     const { dataset_id, type } = dataset
     if (type === DatasetType.MasterDataset) {
-        const liveDatasets = await Dataset.findAll({ attributes: ["denorm_config"], raw: true }) || []
-        const draftDatasets = await DatasetDraft.findAll({ attributes: ["denorm_config"], raw: true }) || []
-        _.forEach([...liveDatasets, ...draftDatasets], datasets => {
-            _.forEach(_.get(datasets, "denorm_config.denorm_fields"), denorms => {
-                if (_.get(denorms, "dataset_id") === dataset_id) {
-                    logger.error(`Failed to retire dataset as it is used by other datasets:${dataset_id}`)
-                    throw {
-                        code: "DATASET_IN_USE",
-                        errCode: "BAD_REQUEST",
-                        message: "Failed to retire dataset as it is used by other datasets",
-                        statusCode: 400
-                    }
-                }
-            })
-        })
+        const liveDatasets = await Dataset.findAll({ where: { status: DatasetStatus.Live, type: DatasetType.Dataset }, attributes: ["denorm_config", "id"], raw: true }) || []
+        const draftDatasets = await DatasetDraft.findAll({ where: { status: [DatasetStatus.ReadyToPublish, DatasetStatus.Draft], type: DatasetType.Dataset }, attributes: ["denorm_config", "id"], raw: true }) || []
+        const liveDenorms = _.uniq(getDenormDatasets(liveDatasets, dataset_id))
+        const draftDenorms = _.uniq(getDenormDatasets(draftDatasets, dataset_id))
+        if (_.size([...liveDenorms, ...draftDenorms])) {
+            const denormErrMsg = getDenormErrMsg(liveDenorms, draftDenorms)
+            logger.error(denormErrMsg);
+            throw {
+                code: "DATASET_IN_USE",
+                errCode: "BAD_REQUEST",
+                message: denormErrMsg,
+                statusCode: 400
+            }
+        }
     }
+}
+
+const getDenormErrMsg = (liveDenorms: Record<string, any>, draftDenorms: Record<string, any>) => {
+    if (_.size(liveDenorms) && _.size(draftDenorms)) {
+        return `Failed to retire dataset as it is used by Live datasets with id:[${liveDenorms}] and Draft datasets with id:[${draftDenorms}]`
+    }
+    if (_.size(liveDenorms)) {
+        return `Failed to retire dataset as it is used by Live datasets with id:[${liveDenorms}]`
+    }
+    if (_.size(draftDenorms)) {
+        return `Failed to retire dataset as it is used by Draft datasets with id:[${draftDenorms}]`
+    }
+}
+
+const getDenormDatasets = (datasets: any[], dataset_id: string) => {
+    const denorms = _.map(datasets, dataset => {
+        return _.map(_.get(dataset, "denorm_config.denorm_fields"), denorms => {
+            if (_.get(denorms, "dataset_id") === dataset_id) {
+                return _.get(dataset, "id")
+            }
+        })
+    })
+    return _.flattenDeep(denorms)
 }
 
 //SET_DATASET_TO_RETIRE

@@ -1,5 +1,5 @@
 import app from "../../../../app";
-import chai from "chai";
+import chai, { expect } from "chai";
 import chaiHttp from "chai-http";
 import spies from "chai-spies";
 import httpStatus from "http-status";
@@ -212,15 +212,15 @@ describe("DATASET STATUS TRANSITION RETIRE", () => {
             })
     })
 
-    it("Dataset status transition failure: When dataset to retire is used by other datasets", (done) => {
+    it("Dataset status transition failure: When dataset to retire is used by both live and draft datasets", (done) => {
         chai.spy.on(Dataset, "findOne", () => {
             return Promise.resolve({ dataset_id: "telemetry", type: "master-dataset", status: "Live" })
         })
         chai.spy.on(Dataset, "findAll", () => {
-            return Promise.resolve([{ dataset_id: "telemetry", denorm_config: { denorm_fields: [{ dataset_id: "telemetry" }] } }])
+            return Promise.resolve([{ id: "telemetry", denorm_config: { denorm_fields: [{ dataset_id: "telemetry" }] } }])
         })
         chai.spy.on(DatasetDraft, "findAll", () => {
-            return Promise.resolve([{ dataset_id: "telemetry", denorm_config: { denorm_fields: [{ dataset_id: "telemetry" }] } }])
+            return Promise.resolve([{ id: "telemetry", denorm_config: { denorm_fields: [{ dataset_id: "telemetry" }] } }])
         })
         const t = chai.spy.on(sequelize, "transaction", () => {
             return Promise.resolve(sequelize.transaction)
@@ -238,7 +238,71 @@ describe("DATASET STATUS TRANSITION RETIRE", () => {
                 res.body.id.should.be.eq(apiId);
                 res.body.params.status.should.be.eq("FAILED")
                 res.body.params.msgid.should.be.eq(msgid)
-                res.body.error.message.should.be.eq("Failed to retire dataset as it is used by other datasets")
+                expect(res.body.error.message).to.match(/^Failed to retire dataset as it is used by(.+)$/)
+                res.body.error.code.should.be.eq("DATASET_IN_USE")
+                done();
+            });
+    });
+
+    it("Dataset status transition failure: When dataset to retire is used by live datasets", (done) => {
+        chai.spy.on(Dataset, "findOne", () => {
+            return Promise.resolve({ dataset_id: "telemetry", type: "master-dataset", status: "Live" })
+        })
+        chai.spy.on(Dataset, "findAll", () => {
+            return Promise.resolve([{ id: "telemetry", denorm_config: { denorm_fields: [{ dataset_id: "telemetry" }] } }])
+        })
+        chai.spy.on(DatasetDraft, "findAll", () => {
+            return Promise.resolve([])
+        })
+        const t = chai.spy.on(sequelize, "transaction", () => {
+            return Promise.resolve(sequelize.transaction)
+        })
+        chai.spy.on(t, "rollback", () => {
+            return Promise.resolve({})
+        })
+        chai
+            .request(app)
+            .post("/v2/datasets/status-transition")
+            .send(TestInputsForDatasetStatusTransition.VALID_SCHEMA_FOR_RETIRE)
+            .end((err, res) => {
+                res.should.have.status(httpStatus.BAD_REQUEST);
+                res.body.should.be.a("object")
+                res.body.id.should.be.eq(apiId);
+                res.body.params.status.should.be.eq("FAILED")
+                res.body.params.msgid.should.be.eq(msgid)
+                expect(res.body.error.message).to.match(/^Failed to retire dataset as it is used by(.+)$/)
+                res.body.error.code.should.be.eq("DATASET_IN_USE")
+                done();
+            });
+    });
+
+    it("Dataset status transition failure: When dataset to retire is used by draft datasets", (done) => {
+        chai.spy.on(Dataset, "findOne", () => {
+            return Promise.resolve({ dataset_id: "telemetry", type: "master-dataset", status: "Live" })
+        })
+        chai.spy.on(Dataset, "findAll", () => {
+            return Promise.resolve([])
+        })
+        chai.spy.on(DatasetDraft, "findAll", () => {
+            return Promise.resolve([{ id: "telemetry", denorm_config: { denorm_fields: [{ dataset_id: "telemetry" }] } }])
+        })
+        const t = chai.spy.on(sequelize, "transaction", () => {
+            return Promise.resolve(sequelize.transaction)
+        })
+        chai.spy.on(t, "rollback", () => {
+            return Promise.resolve({})
+        })
+        chai
+            .request(app)
+            .post("/v2/datasets/status-transition")
+            .send(TestInputsForDatasetStatusTransition.VALID_SCHEMA_FOR_RETIRE)
+            .end((err, res) => {
+                res.should.have.status(httpStatus.BAD_REQUEST);
+                res.body.should.be.a("object")
+                res.body.id.should.be.eq(apiId);
+                res.body.params.status.should.be.eq("FAILED")
+                res.body.params.msgid.should.be.eq(msgid)
+                expect(res.body.error.message).to.match(/^Failed to retire dataset as it is used by(.+)$/)
                 res.body.error.code.should.be.eq("DATASET_IN_USE")
                 done();
             });
