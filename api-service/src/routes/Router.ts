@@ -22,6 +22,7 @@ import DatasetStatusTansition from "../controllers/DatasetStatusTransition/Datas
 import datasetHealth from "../controllers/DatasetHealth/DatasetHealth";
 import DataSchemaGenerator from "../controllers/GenerateDataSchema/GenerateDataSchema";
 import datasetReset from "../controllers/DatasetReset/DatasetReset";
+import ConnectorsList from "../controllers/ConnectorsList/ConnectorsList";
 
 export const router = express.Router();
 
@@ -44,7 +45,7 @@ router.post("/datasets/status-transition", setDataToRequestObject("api.datasets.
 router.post("/dataset/health", setDataToRequestObject("api.dataset.health"), onRequest({ entity: Entity.Management }), datasetHealth);
 router.post("/dataset/reset/:datasetId", setDataToRequestObject("api.dataset.reset"), onRequest({ entity: Entity.Management }), datasetReset);
 router.post("/datasets/dataschema", setDataToRequestObject("api.datasets.dataschema"), onRequest({ entity: Entity.Management }), DataSchemaGenerator);
-
+router.post("/connectors/list", setDataToRequestObject("api.connectors.list"),onRequest({entity: Entity.Management}),ConnectorsList);
 
 //Wrapper Service
 router.post("/obsrv/data/sql-query", setDataToRequestObject("api.obsrv.data.sql-query"), onRequest({ entity: Entity.Data_out }), sqlQuery);
