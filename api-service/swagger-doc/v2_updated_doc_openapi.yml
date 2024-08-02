@@ -4206,388 +4206,6 @@ paths:
                 type: object
               examples:
                 example-0:
-                  summary: 'Success: Filtered based on category'
-                  value:
-                    id: api.connectors.list
-                    ver: v2
-                    ts: '2024-07-30T15:07:42+05:30'
-                    params:
-                      status: SUCCESS
-                      msgid: abc
-                      resmsgid: 632d3342-fd8a-47f7-afbb-96402a00b92f
-                    responseCode: OK
-                    result:
-                      data:
-                        - id: aws-s3-connector-0.1.0
-                          connector_id: aws-s3-connector
-                          name: AWS S3
-                          type: source
-                          category: File
-                          version: 0.1.0
-                          description: >-
-                            The AWS S3 Connector is used to move data from any
-                            S3 Bucket to the Obsrv platform
-                          technology: python
-                          runtime: spark
-                          licence: MIT
-                          owner: Sunbird
-                          iconurl: >-
-                            https://upload.wikimedia.org/wikipedia/commons/b/bc/Amazon-S3-Logo.svg
-                          status: Live
-                          created_by: SYSTEM
-                          updated_by: SYSTEM
-                          created_date: '2024-06-25T04:39:21.237Z'
-                          updated_date: '2024-06-25T04:39:21.237Z'
-                        - id: azure-blob-connector-0.1.0
-                          connector_id: azure-blob-connector
-                          name: Azure Blob Store
-                          type: source
-                          category: File
-                          version: 0.1.0
-                          description: >-
-                            The Azure Blob Store Connector is used to move data
-                            from any Azure Blob Container to the Obsrv platform
-                          technology: python
-                          runtime: spark
-                          licence: MIT
-                          owner: Sunbird
-                          iconurl: >-
-                            https://upload.wikimedia.org/wikipedia/commons/f/fa/Microsoft_Azure.svg
-                          status: Live
-                          created_by: SYSTEM
-                          updated_by: SYSTEM
-                          created_date: '2024-06-25T04:39:21.302Z'
-                          updated_date: '2024-06-25T04:39:21.302Z'
-                        - id: gcs-connector-0.1.0
-                          connector_id: gcs-connector
-                          name: Google Cloud Storage
-                          type: source
-                          category: File
-                          version: 0.1.0
-                          description: >-
-                            The GCS Connector is used to move data from any
-                            Google Bucket to the Obsrv platform
-                          technology: python
-                          runtime: spark
-                          licence: MIT
-                          owner: Sunbird
-                          iconurl: >-
-                            https://upload.wikimedia.org/wikipedia/commons/thumb/5/51/Google_Cloud_logo.svg/512px-Google_Cloud_logo.svg.png
-                          status: Live
-                          created_by: SYSTEM
-                          updated_by: SYSTEM
-                          created_date: '2024-06-25T04:39:21.364Z'
-                          updated_date: '2024-06-25T04:39:21.364Z'
-                      count: 3
-                example-1:
-                  summary: 'Success: Connectors list with all filter options'
-                  value:
-                    id: api.connectors.list
-                    ver: v2
-                    ts: '2024-07-30T15:17:51+05:30'
-                    params:
-                      status: SUCCESS
-                      msgid: 4a7f14c3-d61e-4d4f-be78-181834eeff6d
-                      resmsgid: fffa3ee0-da12-4bea-9b72-365571a62a4e
-                    responseCode: OK
-                    result:
-                      data:
-                        - id: postgres-connector-1.0.0
-                          connector_id: postgres-connector
-                          name: PostgreSQL
-                          type: source
-                          category: Database
-                          version: 1.0.0
-                          description: >-
-                            The PostgreSQL Connector is used to move data from
-                            any Postgres Table to the Obsrv platform
-                          technology: scala
-                          runtime: spark
-                          licence: MIT
-                          owner: Sunbird
-                          iconurl: >-
-                            https://upload.wikimedia.org/wikipedia/commons/2/29/Postgresql_elephant.svg
-                          status: Live
-                          created_by: SYSTEM
-                          updated_by: SYSTEM
-                          created_date: '2024-06-25T04:38:28.732Z'
-                          updated_date: '2024-06-25T04:38:28.732Z'
-                        - id: mysql-connector-1.0.0
-                          connector_id: mysql-connector
-                          name: MySQL
-                          type: source
-                          category: Database
-                          version: 1.0.0
-                          description: >-
-                            The MySQL Connector is used to move data from any
-                            MySQL Table to the Obsrv platform
-                          technology: scala
-                          runtime: spark
-                          licence: MIT
-                          owner: Sunbird
-                          iconurl: >-
-                            https://upload.wikimedia.org/wikipedia/en/6/62/MySQL.svg
-                          status: Live
-                          created_by: SYSTEM
-                          updated_by: SYSTEM
-                          created_date: '2024-06-25T04:38:28.834Z'
-                          updated_date: '2024-06-25T04:38:28.834Z'
-                        - id: oracle-connector-1.0.0
-                          connector_id: oracle-connector
-                          name: Oracle
-                          type: source
-                          category: Database
-                          version: 1.0.0
-                          description: >-
-                            The Oracle Connector is used to move data from any
-                            Oracle Table to the Obsrv platform
-                          technology: scala
-                          runtime: spark
-                          licence: MIT
-                          owner: Sunbird
-                          iconurl: >-
-                            https://upload.wikimedia.org/wikipedia/commons/5/50/Oracle_logo.svg
-                          status: Live
-                          created_by: SYSTEM
-                          updated_by: SYSTEM
-                          created_date: '2024-06-25T04:38:28.840Z'
-                          updated_date: '2024-06-25T04:38:28.840Z'
-                        - id: mssql-connector-1.0.0
-                          connector_id: mssql-connector
-                          name: MS SQL
-                          type: source
-                          category: Database
-                          version: 1.0.0
-                          description: >-
-                            The MS SQL Connector is used to move data from any
-                            MS SQL Table to the Obsrv platform
-                          technology: scala
-                          runtime: spark
-                          licence: MIT
-                          owner: Sunbird
-                          iconurl: >-
-                            https://upload.wikimedia.org/wikipedia/commons/2/29/Microsoft_SQL_Server_Logo.svg
-                          status: Live
-                          created_by: SYSTEM
-                          updated_by: SYSTEM
-                          created_date: '2024-06-25T04:38:28.847Z'
-                          updated_date: '2024-06-25T04:38:28.847Z'
-                        - id: aws-s3-connector-0.1.0
-                          connector_id: aws-s3-connector
-                          name: AWS S3
-                          type: source
-                          category: File
-                          version: 0.1.0
-                          description: >-
-                            The AWS S3 Connector is used to move data from any
-                            S3 Bucket to the Obsrv platform
-                          technology: python
-                          runtime: spark
-                          licence: MIT
-                          owner: Sunbird
-                          iconurl: >-
-                            https://upload.wikimedia.org/wikipedia/commons/b/bc/Amazon-S3-Logo.svg
-                          status: Live
-                          created_by: SYSTEM
-                          updated_by: SYSTEM
-                          created_date: '2024-06-25T04:39:21.237Z'
-                          updated_date: '2024-06-25T04:39:21.237Z'
-                        - id: azure-blob-connector-0.1.0
-                          connector_id: azure-blob-connector
-                          name: Azure Blob Store
-                          type: source
-                          category: File
-                          version: 0.1.0
-                          description: >-
-                            The Azure Blob Store Connector is used to move data
-                            from any Azure Blob Container to the Obsrv platform
-                          technology: python
-                          runtime: spark
-                          licence: MIT
-                          owner: Sunbird
-                          iconurl: >-
-                            https://upload.wikimedia.org/wikipedia/commons/f/fa/Microsoft_Azure.svg
-                          status: Live
-                          created_by: SYSTEM
-                          updated_by: SYSTEM
-                          created_date: '2024-06-25T04:39:21.302Z'
-                          updated_date: '2024-06-25T04:39:21.302Z'
-                        - id: gcs-connector-0.1.0
-                          connector_id: gcs-connector
-                          name: Google Cloud Storage
-                          type: source
-                          category: File
-                          version: 0.1.0
-                          description: >-
-                            The GCS Connector is used to move data from any
-                            Google Bucket to the Obsrv platform
-                          technology: python
-                          runtime: spark
-                          licence: MIT
-                          owner: Sunbird
-                          iconurl: >-
-                            https://upload.wikimedia.org/wikipedia/commons/thumb/5/51/Google_Cloud_logo.svg/512px-Google_Cloud_logo.svg.png
-                          status: Live
-                          created_by: SYSTEM
-                          updated_by: SYSTEM
-                          created_date: '2024-06-25T04:39:21.364Z'
-                          updated_date: '2024-06-25T04:39:21.364Z'
-                      count: 7
-                example-2:
-                  summary: 'Success: Connectors list without filters'
-                  value:
-                    id: api.connectors.list
-                    ver: v2
-                    ts: '2024-07-30T15:20:11+05:30'
-                    params:
-                      status: SUCCESS
-                      msgid: 4a7f14c3-d61e-4d4f-be78-181834eeff6d
-                      resmsgid: 2c527a46-7bfe-4c74-a290-4dcf1a3c5f10
-                    responseCode: OK
-                    result:
-                      data:
-                        - id: postgres-connector-1.0.0
-                          connector_id: postgres-connector
-                          name: PostgreSQL
-                          type: source
-                          category: Database
-                          version: 1.0.0
-                          description: >-
-                            The PostgreSQL Connector is used to move data from
-                            any Postgres Table to the Obsrv platform
-                          technology: scala
-                          runtime: spark
-                          licence: MIT
-                          owner: Sunbird
-                          iconurl: >-
-                            https://upload.wikimedia.org/wikipedia/commons/2/29/Postgresql_elephant.svg
-                          status: Live
-                          created_by: SYSTEM
-                          updated_by: SYSTEM
-                          created_date: '2024-06-25T04:38:28.732Z'
-                          updated_date: '2024-06-25T04:38:28.732Z'
-                        - id: mysql-connector-1.0.0
-                          connector_id: mysql-connector
-                          name: MySQL
-                          type: source
-                          category: Database
-                          version: 1.0.0
-                          description: >-
-                            The MySQL Connector is used to move data from any
-                            MySQL Table to the Obsrv platform
-                          technology: scala
-                          runtime: spark
-                          licence: MIT
-                          owner: Sunbird
-                          iconurl: >-
-                            https://upload.wikimedia.org/wikipedia/en/6/62/MySQL.svg
-                          status: Live
-                          created_by: SYSTEM
-                          updated_by: SYSTEM
-                          created_date: '2024-06-25T04:38:28.834Z'
-                          updated_date: '2024-06-25T04:38:28.834Z'
-                        - id: oracle-connector-1.0.0
-                          connector_id: oracle-connector
-                          name: Oracle
-                          type: source
-                          category: Database
-                          version: 1.0.0
-                          description: >-
-                            The Oracle Connector is used to move data from any
-                            Oracle Table to the Obsrv platform
-                          technology: scala
-                          runtime: spark
-                          licence: MIT
-                          owner: Sunbird
-                          iconurl: >-
-                            https://upload.wikimedia.org/wikipedia/commons/5/50/Oracle_logo.svg
-                          status: Live
-                          created_by: SYSTEM
-                          updated_by: SYSTEM
-                          created_date: '2024-06-25T04:38:28.840Z'
-                          updated_date: '2024-06-25T04:38:28.840Z'
-                        - id: mssql-connector-1.0.0
-                          connector_id: mssql-connector
-                          name: MS SQL
-                          type: source
-                          category: Database
-                          version: 1.0.0
-                          description: >-
-                            The MS SQL Connector is used to move data from any
-                            MS SQL Table to the Obsrv platform
-                          technology: scala
-                          runtime: spark
-                          licence: MIT
-                          owner: Sunbird
-                          iconurl: >-
-                            https://upload.wikimedia.org/wikipedia/commons/2/29/Microsoft_SQL_Server_Logo.svg
-                          status: Live
-                          created_by: SYSTEM
-                          updated_by: SYSTEM
-                          created_date: '2024-06-25T04:38:28.847Z'
-                          updated_date: '2024-06-25T04:38:28.847Z'
-                        - id: aws-s3-connector-0.1.0
-                          connector_id: aws-s3-connector
-                          name: AWS S3
-                          type: source
-                          category: File
-                          version: 0.1.0
-                          description: >-
-                            The AWS S3 Connector is used to move data from any
-                            S3 Bucket to the Obsrv platform
-                          technology: python
-                          runtime: spark
-                          licence: MIT
-                          owner: Sunbird
-                          iconurl: >-
-                            https://upload.wikimedia.org/wikipedia/commons/b/bc/Amazon-S3-Logo.svg
-                          status: Live
-                          created_by: SYSTEM
-                          updated_by: SYSTEM
-                          created_date: '2024-06-25T04:39:21.237Z'
-                          updated_date: '2024-06-25T04:39:21.237Z'
-                        - id: azure-blob-connector-0.1.0
-                          connector_id: azure-blob-connector
-                          name: Azure Blob Store
-                          type: source
-                          category: File
-                          version: 0.1.0
-                          description: >-
-                            The Azure Blob Store Connector is used to move data
-                            from any Azure Blob Container to the Obsrv platform
-                          technology: python
-                          runtime: spark
-                          licence: MIT
-                          owner: Sunbird
-                          iconurl: >-
-                            https://upload.wikimedia.org/wikipedia/commons/f/fa/Microsoft_Azure.svg
-                          status: Live
-                          created_by: SYSTEM
-                          updated_by: SYSTEM
-                          created_date: '2024-06-25T04:39:21.302Z'
-                          updated_date: '2024-06-25T04:39:21.302Z'
-                        - id: gcs-connector-0.1.0
-                          connector_id: gcs-connector
-                          name: Google Cloud Storage
-                          type: source
-                          category: File
-                          version: 0.1.0
-                          description: >-
-                            The GCS Connector is used to move data from any
-                            Google Bucket to the Obsrv platform
-                          technology: python
-                          runtime: spark
-                          licence: MIT
-                          owner: Sunbird
-                          iconurl: >-
-                            https://upload.wikimedia.org/wikipedia/commons/thumb/5/51/Google_Cloud_logo.svg/512px-Google_Cloud_logo.svg.png
-                          status: Live
-                          created_by: SYSTEM
-                          updated_by: SYSTEM
-                          created_date: '2024-06-25T04:39:21.364Z'
-                          updated_date: '2024-06-25T04:39:21.364Z'
-                      count: 7
-                example-3:
                   summary: 'Success: Filtered based on status'
                   value:
                     id: api.connectors.list
@@ -4601,6 +4219,426 @@ paths:
                     result:
                       data: []
                       count: 0
+                example-1:
+                  summary: 'Success: Filtered based on category'
+                  value:
+                    id: api.connectors.list
+                    ver: v2
+                    ts: '2024-07-31T18:55:03+05:30'
+                    params:
+                      status: SUCCESS
+                      msgid: 4a7f14c3-d61e-4d4f-be78-181834eeff6d
+                      resmsgid: e3a0dbff-daad-4bdd-abd4-6bb5e1e30cab
+                    responseCode: OK
+                    result:
+                      data:
+                        - id: postgres-connector-1.0.0
+                          connector_id: postgres-connector
+                          name: PostgreSQL
+                          type: source
+                          category: Database
+                          version: 1.0.0
+                          description: >-
+                            The PostgreSQL Connector is used to move data from
+                            any Postgres Table to the Obsrv platform
+                          technology: scala
+                          runtime: spark
+                          licence: MIT
+                          owner: Sunbird
+                          iconurl: >-
+                            https://upload.wikimedia.org/wikipedia/commons/2/29/Postgresql_elephant.svg
+                          status: Live
+                          created_by: SYSTEM
+                          updated_by: SYSTEM
+                          created_date: '2024-06-25T04:38:28.732Z'
+                          updated_date: '2024-06-25T04:38:28.732Z'
+                          live_date: '2024-06-25T04:38:28.732Z'
+                        - id: mysql-connector-1.0.0
+                          connector_id: mysql-connector
+                          name: MySQL
+                          type: source
+                          category: Database
+                          version: 1.0.0
+                          description: >-
+                            The MySQL Connector is used to move data from any
+                            MySQL Table to the Obsrv platform
+                          technology: scala
+                          runtime: spark
+                          licence: MIT
+                          owner: Sunbird
+                          iconurl: >-
+                            https://upload.wikimedia.org/wikipedia/en/6/62/MySQL.svg
+                          status: Live
+                          created_by: SYSTEM
+                          updated_by: SYSTEM
+                          created_date: '2024-06-25T04:38:28.834Z'
+                          updated_date: '2024-06-25T04:38:28.834Z'
+                          live_date: '2024-06-25T04:38:28.834Z'
+                        - id: oracle-connector-1.0.0
+                          connector_id: oracle-connector
+                          name: Oracle
+                          type: source
+                          category: Database
+                          version: 1.0.0
+                          description: >-
+                            The Oracle Connector is used to move data from any
+                            Oracle Table to the Obsrv platform
+                          technology: scala
+                          runtime: spark
+                          licence: MIT
+                          owner: Sunbird
+                          iconurl: >-
+                            https://upload.wikimedia.org/wikipedia/commons/5/50/Oracle_logo.svg
+                          status: Live
+                          created_by: SYSTEM
+                          updated_by: SYSTEM
+                          created_date: '2024-06-25T04:38:28.840Z'
+                          updated_date: '2024-06-25T04:38:28.840Z'
+                          live_date: '2024-06-25T04:38:28.840Z'
+                        - id: mssql-connector-1.0.0
+                          connector_id: mssql-connector
+                          name: MS SQL
+                          type: source
+                          category: Database
+                          version: 1.0.0
+                          description: >-
+                            The MS SQL Connector is used to move data from any
+                            MS SQL Table to the Obsrv platform
+                          technology: scala
+                          runtime: spark
+                          licence: MIT
+                          owner: Sunbird
+                          iconurl: >-
+                            https://upload.wikimedia.org/wikipedia/commons/2/29/Microsoft_SQL_Server_Logo.svg
+                          status: Live
+                          created_by: SYSTEM
+                          updated_by: SYSTEM
+                          created_date: '2024-06-25T04:38:28.847Z'
+                          updated_date: '2024-06-25T04:38:28.847Z'
+                          live_date: '2024-06-25T04:38:28.847Z'
+                      count: 4
+                example-2:
+                  summary: 'Success: Connectors list with all filter options'
+                  value:
+                    id: api.connectors.list
+                    ver: v2
+                    ts: '2024-07-31T18:56:32+05:30'
+                    params:
+                      status: SUCCESS
+                      msgid: 4a7f14c3-d61e-4d4f-be78-181834eeff6d
+                      resmsgid: 11a2f537-bd98-405b-97e5-0f0d5b86b2c3
+                    responseCode: OK
+                    result:
+                      data:
+                        - id: postgres-connector-1.0.0
+                          connector_id: postgres-connector
+                          name: PostgreSQL
+                          type: source
+                          category: Database
+                          version: 1.0.0
+                          description: >-
+                            The PostgreSQL Connector is used to move data from
+                            any Postgres Table to the Obsrv platform
+                          technology: scala
+                          runtime: spark
+                          licence: MIT
+                          owner: Sunbird
+                          iconurl: >-
+                            https://upload.wikimedia.org/wikipedia/commons/2/29/Postgresql_elephant.svg
+                          status: Live
+                          created_by: SYSTEM
+                          updated_by: SYSTEM
+                          created_date: '2024-06-25T04:38:28.732Z'
+                          updated_date: '2024-06-25T04:38:28.732Z'
+                          live_date: '2024-06-25T04:38:28.732Z'
+                        - id: mysql-connector-1.0.0
+                          connector_id: mysql-connector
+                          name: MySQL
+                          type: source
+                          category: Database
+                          version: 1.0.0
+                          description: >-
+                            The MySQL Connector is used to move data from any
+                            MySQL Table to the Obsrv platform
+                          technology: scala
+                          runtime: spark
+                          licence: MIT
+                          owner: Sunbird
+                          iconurl: >-
+                            https://upload.wikimedia.org/wikipedia/en/6/62/MySQL.svg
+                          status: Live
+                          created_by: SYSTEM
+                          updated_by: SYSTEM
+                          created_date: '2024-06-25T04:38:28.834Z'
+                          updated_date: '2024-06-25T04:38:28.834Z'
+                          live_date: '2024-06-25T04:38:28.834Z'
+                        - id: oracle-connector-1.0.0
+                          connector_id: oracle-connector
+                          name: Oracle
+                          type: source
+                          category: Database
+                          version: 1.0.0
+                          description: >-
+                            The Oracle Connector is used to move data from any
+                            Oracle Table to the Obsrv platform
+                          technology: scala
+                          runtime: spark
+                          licence: MIT
+                          owner: Sunbird
+                          iconurl: >-
+                            https://upload.wikimedia.org/wikipedia/commons/5/50/Oracle_logo.svg
+                          status: Live
+                          created_by: SYSTEM
+                          updated_by: SYSTEM
+                          created_date: '2024-06-25T04:38:28.840Z'
+                          updated_date: '2024-06-25T04:38:28.840Z'
+                          live_date: '2024-06-25T04:38:28.840Z'
+                        - id: mssql-connector-1.0.0
+                          connector_id: mssql-connector
+                          name: MS SQL
+                          type: source
+                          category: Database
+                          version: 1.0.0
+                          description: >-
+                            The MS SQL Connector is used to move data from any
+                            MS SQL Table to the Obsrv platform
+                          technology: scala
+                          runtime: spark
+                          licence: MIT
+                          owner: Sunbird
+                          iconurl: >-
+                            https://upload.wikimedia.org/wikipedia/commons/2/29/Microsoft_SQL_Server_Logo.svg
+                          status: Live
+                          created_by: SYSTEM
+                          updated_by: SYSTEM
+                          created_date: '2024-06-25T04:38:28.847Z'
+                          updated_date: '2024-06-25T04:38:28.847Z'
+                          live_date: '2024-06-25T04:38:28.847Z'
+                        - id: aws-s3-connector-0.1.0
+                          connector_id: aws-s3-connector
+                          name: AWS S3
+                          type: source
+                          category: File
+                          version: 0.1.0
+                          description: >-
+                            The AWS S3 Connector is used to move data from any
+                            S3 Bucket to the Obsrv platform
+                          technology: python
+                          runtime: spark
+                          licence: MIT
+                          owner: Sunbird
+                          iconurl: >-
+                            https://upload.wikimedia.org/wikipedia/commons/b/bc/Amazon-S3-Logo.svg
+                          status: Live
+                          created_by: SYSTEM
+                          updated_by: SYSTEM
+                          created_date: '2024-06-25T04:39:21.237Z'
+                          updated_date: '2024-06-25T04:39:21.237Z'
+                          live_date: '2024-06-25T04:39:21.237Z'
+                        - id: azure-blob-connector-0.1.0
+                          connector_id: azure-blob-connector
+                          name: Azure Blob Store
+                          type: source
+                          category: File
+                          version: 0.1.0
+                          description: >-
+                            The Azure Blob Store Connector is used to move data
+                            from any Azure Blob Container to the Obsrv platform
+                          technology: python
+                          runtime: spark
+                          licence: MIT
+                          owner: Sunbird
+                          iconurl: >-
+                            https://upload.wikimedia.org/wikipedia/commons/f/fa/Microsoft_Azure.svg
+                          status: Live
+                          created_by: SYSTEM
+                          updated_by: SYSTEM
+                          created_date: '2024-06-25T04:39:21.302Z'
+                          updated_date: '2024-06-25T04:39:21.302Z'
+                          live_date: '2024-06-25T04:39:21.302Z'
+                        - id: gcs-connector-0.1.0
+                          connector_id: gcs-connector
+                          name: Google Cloud Storage
+                          type: source
+                          category: File
+                          version: 0.1.0
+                          description: >-
+                            The GCS Connector is used to move data from any
+                            Google Bucket to the Obsrv platform
+                          technology: python
+                          runtime: spark
+                          licence: MIT
+                          owner: Sunbird
+                          iconurl: >-
+                            https://upload.wikimedia.org/wikipedia/commons/thumb/5/51/Google_Cloud_logo.svg/512px-Google_Cloud_logo.svg.png
+                          status: Live
+                          created_by: SYSTEM
+                          updated_by: SYSTEM
+                          created_date: '2024-06-25T04:39:21.364Z'
+                          updated_date: '2024-06-25T04:39:21.364Z'
+                          live_date: '2024-06-25T04:39:21.364Z'
+                      count: 7
+                example-3:
+                  summary: 'Success: Connectors list without filters'
+                  value:
+                    id: api.connectors.list
+                    ver: v2
+                    ts: '2024-07-31T18:57:37+05:30'
+                    params:
+                      status: SUCCESS
+                      msgid: 4a7f14c3-d61e-4d4f-be78-181834eeff6d
+                      resmsgid: c2467e01-0a2d-401c-aa3d-dd16b804f723
+                    responseCode: OK
+                    result:
+                      data:
+                        - id: postgres-connector-1.0.0
+                          connector_id: postgres-connector
+                          name: PostgreSQL
+                          type: source
+                          category: Database
+                          version: 1.0.0
+                          description: >-
+                            The PostgreSQL Connector is used to move data from
+                            any Postgres Table to the Obsrv platform
+                          technology: scala
+                          runtime: spark
+                          licence: MIT
+                          owner: Sunbird
+                          iconurl: >-
+                            https://upload.wikimedia.org/wikipedia/commons/2/29/Postgresql_elephant.svg
+                          status: Live
+                          created_by: SYSTEM
+                          updated_by: SYSTEM
+                          created_date: '2024-06-25T04:38:28.732Z'
+                          updated_date: '2024-06-25T04:38:28.732Z'
+                          live_date: '2024-06-25T04:38:28.732Z'
+                        - id: mysql-connector-1.0.0
+                          connector_id: mysql-connector
+                          name: MySQL
+                          type: source
+                          category: Database
+                          version: 1.0.0
+                          description: >-
+                            The MySQL Connector is used to move data from any
+                            MySQL Table to the Obsrv platform
+                          technology: scala
+                          runtime: spark
+                          licence: MIT
+                          owner: Sunbird
+                          iconurl: >-
+                            https://upload.wikimedia.org/wikipedia/en/6/62/MySQL.svg
+                          status: Live
+                          created_by: SYSTEM
+                          updated_by: SYSTEM
+                          created_date: '2024-06-25T04:38:28.834Z'
+                          updated_date: '2024-06-25T04:38:28.834Z'
+                          live_date: '2024-06-25T04:38:28.834Z'
+                        - id: oracle-connector-1.0.0
+                          connector_id: oracle-connector
+                          name: Oracle
+                          type: source
+                          category: Database
+                          version: 1.0.0
+                          description: >-
+                            The Oracle Connector is used to move data from any
+                            Oracle Table to the Obsrv platform
+                          technology: scala
+                          runtime: spark
+                          licence: MIT
+                          owner: Sunbird
+                          iconurl: >-
+                            https://upload.wikimedia.org/wikipedia/commons/5/50/Oracle_logo.svg
+                          status: Live
+                          created_by: SYSTEM
+                          updated_by: SYSTEM
+                          created_date: '2024-06-25T04:38:28.840Z'
+                          updated_date: '2024-06-25T04:38:28.840Z'
+                          live_date: '2024-06-25T04:38:28.840Z'
+                        - id: mssql-connector-1.0.0
+                          connector_id: mssql-connector
+                          name: MS SQL
+                          type: source
+                          category: Database
+                          version: 1.0.0
+                          description: >-
+                            The MS SQL Connector is used to move data from any
+                            MS SQL Table to the Obsrv platform
+                          technology: scala
+                          runtime: spark
+                          licence: MIT
+                          owner: Sunbird
+                          iconurl: >-
+                            https://upload.wikimedia.org/wikipedia/commons/2/29/Microsoft_SQL_Server_Logo.svg
+                          status: Live
+                          created_by: SYSTEM
+                          updated_by: SYSTEM
+                          created_date: '2024-06-25T04:38:28.847Z'
+                          updated_date: '2024-06-25T04:38:28.847Z'
+                          live_date: '2024-06-25T04:38:28.847Z'
+                        - id: aws-s3-connector-0.1.0
+                          connector_id: aws-s3-connector
+                          name: AWS S3
+                          type: source
+                          category: File
+                          version: 0.1.0
+                          description: >-
+                            The AWS S3 Connector is used to move data from any
+                            S3 Bucket to the Obsrv platform
+                          technology: python
+                          runtime: spark
+                          licence: MIT
+                          owner: Sunbird
+                          iconurl: >-
+                            https://upload.wikimedia.org/wikipedia/commons/b/bc/Amazon-S3-Logo.svg
+                          status: Live
+                          created_by: SYSTEM
+                          updated_by: SYSTEM
+                          created_date: '2024-06-25T04:39:21.237Z'
+                          updated_date: '2024-06-25T04:39:21.237Z'
+                          live_date: '2024-06-25T04:39:21.237Z'
+                        - id: azure-blob-connector-0.1.0
+                          connector_id: azure-blob-connector
+                          name: Azure Blob Store
+                          type: source
+                          category: File
+                          version: 0.1.0
+                          description: >-
+                            The Azure Blob Store Connector is used to move data
+                            from any Azure Blob Container to the Obsrv platform
+                          technology: python
+                          runtime: spark
+                          licence: MIT
+                          owner: Sunbird
+                          iconurl: >-
+                            https://upload.wikimedia.org/wikipedia/commons/f/fa/Microsoft_Azure.svg
+                          status: Live
+                          created_by: SYSTEM
+                          updated_by: SYSTEM
+                          created_date: '2024-06-25T04:39:21.302Z'
+                          updated_date: '2024-06-25T04:39:21.302Z'
+                          live_date: '2024-06-25T04:39:21.302Z'
+                        - id: gcs-connector-0.1.0
+                          connector_id: gcs-connector
+                          name: Google Cloud Storage
+                          type: source
+                          category: File
+                          version: 0.1.0
+                          description: >-
+                            The GCS Connector is used to move data from any
+                            Google Bucket to the Obsrv platform
+                          technology: python
+                          runtime: spark
+                          licence: MIT
+                          owner: Sunbird
+                          iconurl: >-
+                            https://upload.wikimedia.org/wikipedia/commons/thumb/5/51/Google_Cloud_logo.svg/512px-Google_Cloud_logo.svg.png
+                          status: Live
+                          created_by: SYSTEM
+                          updated_by: SYSTEM
+                          created_date: '2024-06-25T04:39:21.364Z'
+                          updated_date: '2024-06-25T04:39:21.364Z'
+                          live_date: '2024-06-25T04:39:21.364Z'
+                      count: 7
         '400':
           description: Bad Request
           content:
@@ -4622,3 +4660,234 @@ paths:
                   message: >-
                     #properties/request/properties/filters/properties/status/minItems
                     must NOT have fewer than 1 items
+  /v2/connectors/read/postgres-connector-1.0.0:
+    get:
+      tags:
+        - Connector api's
+      summary: Connector Read
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+              examples:
+                example-0:
+                  summary: 'Success: Read live Connector'
+                  value:
+                    id: api.connectors.read
+                    ver: v2
+                    ts: '2024-07-31T18:17:54+05:30'
+                    params:
+                      status: SUCCESS
+                      resmsgid: 7587f564-c2d7-49a8-9e56-dc56f6808ced
+                    responseCode: OK
+                    result:
+                      id: postgres-connector-1.0.0
+                      connector_id: postgres-connector
+                      name: PostgreSQL
+                      type: source
+                      category: Database
+                      version: 1.0.0
+                      description: >-
+                        The PostgreSQL Connector is used to move data from any
+                        Postgres Table to the Obsrv platform
+                      licence: MIT
+                      owner: Sunbird
+                      iconurl: >-
+                        https://upload.wikimedia.org/wikipedia/commons/2/29/Postgresql_elephant.svg
+                      status: Live
+                      ui_spec:
+                        schema:
+                          type: object
+                          properties:
+                            connector_config:
+                              title: Connector Config
+                              type: object
+                              encrypt: true
+                              properties:
+                                databaseType:
+                                  type: string
+                                  title: Database Type
+                                  enum:
+                                    - PostgreSQL
+                                    - MySQL
+                                  fieldDescription:
+                                    - type: string
+                                      description: ''
+                              dependencies:
+                                databaseType:
+                                  oneOf:
+                                    - properties:
+                                        databaseType:
+                                          enum:
+                                            - PostgreSQL
+                                            - MySQL
+                                        connection_info:
+                                          title: Connection Information
+                                          type: object
+                                          properties:
+                                            host:
+                                              type: string
+                                              title: Database Host
+                                              pattern: >-
+                                                /^(?:[a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}(?:/[^\s]*)?|localhost(?:/[^\s]*)?|((?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)/
+                                              fieldDescription:
+                                                - type: string
+                                                  description: ''
+                                            port:
+                                              type: number
+                                              title: Database Port
+                                              minimum: 1
+                                              maximum: 65535
+                                              fieldDescription:
+                                                - type: string
+                                                  description: ''
+                                            name:
+                                              type: string
+                                              title: Database Name
+                                              pattern: ^[a-zA-Z0-9_]{1,64}$
+                                              fieldDescription:
+                                                - type: string
+                                                  description: ''
+                                            username:
+                                              type: string
+                                              title: Database Username
+                                              fieldDescription:
+                                                - type: string
+                                                  description: ''
+                                            password:
+                                              type: string
+                                              title: Database Password
+                                              fieldDescription:
+                                                - type: string
+                                                  description: ''
+                                        schemaInfo:
+                                          title: Schema Information
+                                          type: object
+                                          properties:
+                                            table:
+                                              title: Table Name
+                                              type: string
+                                              pattern: ^[a-zA-Z_][a-zA-Z0-9_]{0,62}$
+                                              fieldDescription:
+                                                - type: string
+                                                  description: ''
+                                            timestampColumn:
+                                              title: Timestamp Column
+                                              type: string
+                                              fieldDescription:
+                                                - type: string
+                                                  description: ''
+                            operations_config:
+                              title: Operations Configuration
+                              type: object
+                              properties:
+                                batch_size:
+                                  type: number
+                                  title: Batch Size
+                                  default: 100
+                                  fieldDescription:
+                                    - type: string
+                                      description: ''
+                                max_batches:
+                                  type: number
+                                  title: Maximum Batches
+                                  default: 10
+                                  fieldDescription:
+                                    - type: string
+                                      description: ''
+                                pollingInterval:
+                                  type: string
+                                  title: Polling Interval
+                                  enum:
+                                    - Once
+                                    - Periodic
+                                  fieldDescription:
+                                    - type: string
+                                      description: Select polling interval
+                              dependencies:
+                                pollingInterval:
+                                  oneOf:
+                                    - properties:
+                                        pollingInterval:
+                                          enum:
+                                            - Periodic
+                                        schedule:
+                                          type: string
+                                          title: Schedule
+                                          enum:
+                                            - Hourly
+                                            - Daily
+                                            - Weekly
+                                            - Monthly
+                                          fieldDescription:
+                                            - type: string
+                                              description: ''
+                                      required:
+                                        - schedule
+                        properties:
+                          connector_config:
+                            connection_info:
+                              password:
+                                ui:widget: password
+                          operations_config:
+                            batch_size:
+                              ui:readonly: true
+                            max_batches:
+                              ui:readonly: true
+                      created_by: SYSTEM
+                      updated_by: SYSTEM
+                      created_date: '2024-06-25T04:38:28.732Z'
+                      updated_date: '2024-06-25T04:38:28.732Z'
+                      live_date: '2024-06-25T04:38:28.732Z'
+                example-1:
+                  summary: 'Success: Read Draft Connector'
+                  value:
+                    id: api.connectors.read
+                    ver: v2
+                    ts: '2024-08-01T12:47:12+05:30'
+                    params:
+                      status: SUCCESS
+                      resmsgid: b6fcfb05-246c-4a1b-9eb1-27497ee9b80b
+                    responseCode: OK
+                    result:
+                      id: mssql-connector-2.0.0
+                      connector_id: mssql-connector
+                      name: MS SQL
+                      type: source
+                      category: Database
+                      version: 2.0.0
+                      description: >-
+                        The MS SQL Connector is used to move data from any MS
+                        SQL Table to the Obsrv platform
+                      licence: MIT
+                      owner: Sunbird
+                      iconurl: >-
+                        https://upload.wikimedia.org/wikipedia/commons/2/29/Microsoft_SQL_Server_Logo.svg
+                      status: Draft
+                      ui_spec: {}
+                      created_by: SYSTEM
+                      updated_by: SYSTEM
+                      created_date: '2024-06-25T04:38:28.847Z'
+                      updated_date: '2024-06-25T04:38:28.847Z'
+                      live_date: '2024-06-25T04:38:28.847Z'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                id: api.connectors.read
+                ver: v2
+                ts: '2024-08-01T15:02:48+05:30'
+                params:
+                  status: FAILED
+                  resmsgid: 712e7298-99f8-4694-9011-4232fcfd664a
+                responseCode: NOT_FOUND
+                result: {}
+                error:
+                  code: CONNECTOR_NOT_FOUND
+                  message: 'Connector not found: postgres-conn'

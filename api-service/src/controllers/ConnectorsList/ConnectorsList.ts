@@ -7,7 +7,7 @@ import { ResponseHandler } from "../../helpers/ResponseHandler";
 import httpStatus from "http-status";
 import { connectorService } from "../../services/ConnectorService";
 
-const defaultFields = ["id", "connector_id", "name", "type", "category", "version", "description", "technology", "runtime", "licence", "owner", "iconurl", "status", "created_by", "updated_by", "created_date", "updated_date"];
+const defaultFields = ["id", "connector_id", "name", "type", "category", "version", "description", "technology", "runtime", "licence", "owner", "iconurl", "status", "created_by", "updated_by", "created_date", "updated_date", "live_date"];
 
 const validateRequest = (req: Request) => {
     const isRequestValid: Record<string, any> = schemaValidation(req.body, ConnectorListSchema)

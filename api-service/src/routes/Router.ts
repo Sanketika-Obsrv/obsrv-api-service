@@ -25,6 +25,7 @@ import datasetReset from "../controllers/DatasetReset/DatasetReset";
 import DatasetExport from "../controllers/DatasetExport/DatasetExport";
 import DatasetCopy from "../controllers/DatasetCopy/DatasetCopy";
 import ConnectorsList from "../controllers/ConnectorsList/ConnectorsList";
+import ConnectorsRead from "../controllers/ConnectorsRead/ConnectorsRead";
 import DatasetImport from "../controllers/DatasetImport/DatasetImport";
 
 export const router = express.Router();
@@ -51,6 +52,7 @@ router.post("/datasets/dataschema", setDataToRequestObject("api.datasets.datasch
 router.get("/datasets/export/:dataset_id", setDataToRequestObject("api.datasets.export"), onRequest({ entity: Entity.Management }), DatasetExport);
 router.post("/datasets/copy", setDataToRequestObject("api.datasets.copy"), onRequest({ entity: Entity.Management }), DatasetCopy);
 router.post("/connectors/list", setDataToRequestObject("api.connectors.list"), onRequest({ entity: Entity.Management }), ConnectorsList);
+router.get("/connectors/read/:id", setDataToRequestObject("api.connectors.read"), onRequest({entity: Entity.Management }), ConnectorsRead);
 router.post("/datasets/import", setDataToRequestObject("api.datasets.import"), onRequest({ entity: Entity.Management }), DatasetImport);
 
 //Wrapper Service
