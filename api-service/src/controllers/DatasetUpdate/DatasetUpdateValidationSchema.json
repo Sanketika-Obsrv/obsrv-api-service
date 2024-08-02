@@ -264,6 +264,9 @@
                       "datatype": {
                         "type": "string"
                       },
+                      "arrival_format":{
+                        "type":"string"
+                      },
                       "category": {
                         "type": "string",
                         "enum": ["pii", "transform", "derived"]
