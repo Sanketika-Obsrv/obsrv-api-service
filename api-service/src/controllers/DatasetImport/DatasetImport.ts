@@ -31,6 +31,8 @@ const importDataset = async (dataset: Record<string, any>, overwrite: string | a
                 throw obsrvError(dataset_id, "DATASET_IMPORT_FAILURE", `Failed to import dataset: ${dataset_id} as overwrite failed`, "INTERNAL_SERVER_ERROR", 500);
             })
             return _.omit(overwriteRes, ["message"])
+        } else {
+            throw obsrvError(dataset_id, "DATASET_EXISTS", `Dataset with dataset_id: ${dataset_id} already exists.`, "CONFLICT", 409);
         }
     }
     if(response?.errors){

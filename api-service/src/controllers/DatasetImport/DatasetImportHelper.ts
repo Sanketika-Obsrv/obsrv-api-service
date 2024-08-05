@@ -50,12 +50,13 @@ export const datasetImportValidation = async (payload: Record<string, any>): Pro
     datasetConfig["denorm_config"] = { ...denormConfig, denorm_fields: resultantDenorms };
     datasetConfig["router_config"] = { topic: datasetConfig.id }
     datasetConfig["version_key"] = Date.now().toString()
+    datasetConfig["status"] = DatasetStatus.Draft
 
     const defaults = _.cloneDeep(defaultDatasetConfig);
     const resultantDataset = _.merge(defaults, datasetConfig);
 
     return {
-        updatedDataset: _.omit(resultantDataset, ["created_date", "updated_date", "published_date", "status"]),
+        updatedDataset: _.omit(resultantDataset, ["created_date", "updated_date", "published_date"]),
         ignoredFields: { ignoredConnectors, ignoredTransformations, ignoredDenorms: [...ignoredDenorms, ...invalidDenorms] }
     };
 };
