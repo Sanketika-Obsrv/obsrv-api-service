@@ -55,7 +55,7 @@ router.post("/datasets/copy", setDataToRequestObject("api.datasets.copy"), onReq
 router.post("/connectors/list", setDataToRequestObject("api.connectors.list"), onRequest({ entity: Entity.Management }), ConnectorsList);
 router.get("/connectors/read/:id", setDataToRequestObject("api.connectors.read"), onRequest({entity: Entity.Management }), ConnectorsRead);
 router.post("/datasets/import", setDataToRequestObject("api.datasets.import"), onRequest({ entity: Entity.Management }), DatasetImport);
-router.get("/datasets/flatten-fields/:dataset_id", setDataToRequestObject("api.generate.fields"), onRequest({ entity: Entity.Management }), generateFields);
+router.get("/datasets/generate-fields/:dataset_id", setDataToRequestObject("api.generate.fields"), onRequest({ entity: Entity.Management }), generateFields);
 
 
 //Wrapper Service
