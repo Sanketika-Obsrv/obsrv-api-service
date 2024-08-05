@@ -12,7 +12,7 @@ export const apiId = "api.datasets.list"
 export const errorCode = "DATASET_LIST_FAILURE"
 const liveDatasetStatus = ["Live", "Retired", "Purged"]
 const draftDatasetStatus = ["Draft", "ReadyToPublish"]
-const defaultFields = ["dataset_id", "name", "type", "status", "tags", "version", "api_version", "dataset_config", "created_date", "updated_date"]
+const defaultFields = ["dataset_id", "name", "type", "status", "tags", "version", "api_version", "dataset_config", "created_date", "updated_date","data_schema"]
 
 const datasetList = async (req: Request, res: Response) => {
     
