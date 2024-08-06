@@ -37,8 +37,6 @@ export class DatasetService {
     public update = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const dataset = new Datasets(req.body)
-            const isValid = validateDatasetId(req.body?.dataset_id);
-            if(!isValid) throw constants.INVALID_DATASET_ID;
             const payload = dataset.getValues()
             await findAndSetExistingRecord({ dbConnector: this.dbConnector, table: this.table, request: req, filters: { "id": payload.id }, object: { ...telemetryObject, id: payload.id } });
             await this.dbUtil.update(req, res, next, payload)
