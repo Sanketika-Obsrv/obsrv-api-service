@@ -4,6 +4,7 @@ import { IValidator, QValidator } from "../models/DatasetModels";
 import { ValidationStatus } from "../models/ValidationModels";
 import { QueryValidator } from "../validators/QueryValidator";
 import { RequestsValidator } from "../validators/RequestsValidator";
+import { validateForSqlInjection } from "../helpers/validateSqlIjection";
 
 export class ValidationService {
 
@@ -34,4 +35,15 @@ export class ValidationService {
             next()
             : next({ statusCode: httpStatus.BAD_REQUEST, message: status.message || "", errCode: status.code })
     };
+
+    public validateSqlInjection = async (req: Request, res: Response, next: NextFunction) => {
+        const data = req?.body;
+        const isInjectionDetected = validateForSqlInjection(JSON.stringify(data));
+        if (isInjectionDetected) {
+            next({ statusCode: httpStatus.BAD_REQUEST, message: "SQL injection detected in request" || "", errCode: httpStatus["400_NAME"] })
+        }
+        else {
+            next()
+        }
+    }
 }
