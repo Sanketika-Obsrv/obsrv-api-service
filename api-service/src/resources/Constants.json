@@ -26,6 +26,11 @@
     "status": 404,
     "code": "NOT_FOUND"
   },
+  "INVALID_DATASET_ID": {
+    "message": "Dataset id should not contain any special characters",
+    "status": 400,
+    "code": "BAD_REQUEST"
+  },
   "DATASET_ID_NOT_FOUND": {
     "message": "Dataset Id not found, Failed to ingest",
     "status": 404,
@@ -107,5 +112,5 @@
     "status": 500,
     "message": "Something went wrong while executing the query. Please try again later.",
     "code": "INTERNAL_SERVER_ERROR"
-}
+  }
 }

@@ -2,8 +2,25 @@
     "type": "object",
     "properties": {
         "filters": {
-            "type": "object"
+            "type": "object",
+            "properties": {
+                "status": {
+                    "type": "array",
+                    "items": {
+                        "type": "string",
+                        "enum": [
+                            "Draft",
+                            "Publish",
+                            "Live",
+                            "Retired"
+                        ]
+                    }
+                }
+            },
+            "required": ["status"]
         }
     },
-    "required": ["filters"]
+    "required": [
+        "filters"
+    ]
 }
