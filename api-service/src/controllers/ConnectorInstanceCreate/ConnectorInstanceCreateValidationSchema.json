@@ -39,7 +39,8 @@
                 }
                 
                 },
-                "required":["dataset_id","connector_id"]
+                "required":["dataset_id","connector_id"],
+                "additionalProperties":false
               }
               
         }

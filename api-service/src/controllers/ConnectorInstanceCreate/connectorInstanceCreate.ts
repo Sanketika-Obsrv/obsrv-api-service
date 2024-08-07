@@ -16,7 +16,8 @@ const validateRequest = async (req: Request) => {
     if (!isRequestValid.isValid) {
         throw obsrvError("", "CONNECTOR_INSTANCE_INVALID_INPUT", isRequestValid.message, "BAD_REQUEST", 400)
     }
-    // checking whether the connector_instance exist using the id with the help of get and findOne method.
+    // checking whether the connector_instance exist using the id with the help of get and findByPk method.
+
     const connectorInstanceId = _.get(req, ["body","request","id"])
     const isConnectorInstanceIdExists = await ConnectorInstances.findByPk(connectorInstanceId);
     if (!_.isEmpty(isConnectorInstanceIdExists)) {
@@ -25,10 +26,10 @@ const validateRequest = async (req: Request) => {
 }
     
 const connectorInstanceCreate = async (req: Request, res: Response) => {
-    const dataset_id = _.get(req, "body.request.dataset_id");
-    const connector_id = _.get(req,"body.request.connector_id");
+    const dataset_id = _.get(req, ["body","request","dataset_id"]);
+    const connector_id = _.get(req,["body","request","connector_id"]);
     const id = `${connector_id}.${dataset_id}`;
-    _.set(req,"body.request.id",id)
+    _.set(req,["body","request","id"],id)
     await validateRequest(req)
     const createResponse = await connectorInstance.createConnectorInstance(req.body.request)
     ResponseHandler.successResponse(req, res, { status: httpStatus.OK, data:createResponse});
