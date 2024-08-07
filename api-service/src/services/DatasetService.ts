@@ -6,6 +6,8 @@ import { DbUtil } from "../helpers/DbUtil";
 import { refreshDatasetConfigs } from "../helpers/DatasetConfigs";
 import { ErrorResponseHandler } from "../helpers/ErrorResponseHandler";
 import { DatasetStatus, IConnector } from "../models/DatasetModels";
+import { validateDatasetId } from "../helpers/prometheus/helpers";
+import constants from "../resources/Constants.json";
 
 const telemetryObject = { id: null, type: "dataset", ver: "1.0.0" };
 
@@ -24,6 +26,8 @@ export class DatasetService {
     public save = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const dataset = new Datasets(req.body)
+            const isValid = validateDatasetId(req.body?.dataset_id);
+            if(!isValid) throw constants.INVALID_DATASET_ID;
             const payload: any = dataset.setValues()
             updateTelemetryAuditEvent({ request: req, object: { ...telemetryObject, id: _.get(payload, 'dataset_id') } });
             await this.dbUtil.save(req, res, next, payload)

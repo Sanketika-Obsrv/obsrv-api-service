@@ -28,3 +28,8 @@ export const onFailure = (req: any, res: Response) => {
     duration && setQueryResponseTime(duration, { entity, id, endpoint: url });
     incrementFailedApiCalls({ entity, id, endpoint: url });
 }
+
+export const validateDatasetId = (datasetId: string) => {
+    const pattern = /^[^!@#$%^&*()+{}\[\]:;<>,?~\\|]+$/;
+    return pattern.test(datasetId);
+}

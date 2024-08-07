@@ -4,7 +4,6 @@ import { IValidator, QValidator } from "../models/DatasetModels";
 import { ValidationStatus } from "../models/ValidationModels";
 import { QueryValidator } from "../validators/QueryValidator";
 import { RequestsValidator } from "../validators/RequestsValidator";
-
 export class ValidationService {
 
     private request: QValidator;
