@@ -27,7 +27,7 @@
     "code": "NOT_FOUND"
   },
   "INVALID_DATASET_ID": {
-    "message": "Dataset id should not contain any special characters",
+    "message": "The dataset id should exclude any special characters, permitting only alphabets, numbers, \".\", \"-\", and \"_\".",
     "status": 400,
     "code": "BAD_REQUEST"
   },
