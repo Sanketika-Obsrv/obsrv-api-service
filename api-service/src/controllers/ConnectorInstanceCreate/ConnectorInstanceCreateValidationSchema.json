@@ -1,0 +1,46 @@
+{
+    "type": "object",
+    "properties": {
+        "id": {
+            "type": "string",
+            "enum": [
+                "api.connector-instance.create"
+            ]
+        },
+        "ver": {
+            "type": "string"
+        },
+        "ts": {
+            "type": "string"
+        },
+        "params": {
+            "type": "object",
+            "properties": {
+                "msgid": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "msgid"
+            ],
+            "additionalProperties": false
+        },
+        "request":{
+            "type":"object",
+            "properties": {
+                
+                "dataset_id":{
+                    "type":"string"
+
+                },
+                "connector_id":{
+                    "type":"string"
+                
+                }
+                
+                },
+                "required":["dataset_id","connector_id"]
+              }
+              
+        }
+    }
