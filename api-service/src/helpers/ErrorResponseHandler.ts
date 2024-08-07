@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import httpStatus from "http-status";
 import { setAuditState } from "../services/telemetry";
+import * as _ from "lodash"
 
 export class ErrorResponseHandler {
   private serviceName: string;
@@ -26,7 +27,7 @@ export class ErrorResponseHandler {
     next({ 
         statusCode: error.status || httpStatus.INTERNAL_SERVER_ERROR, 
         message: error.message,
-        errCode: httpStatus[`${error.status}_NAME`] || httpStatus["500_NAME"],
+        errCode: _.get(httpStatus, `${error.status}_NAME`, httpStatus["500_NAME"])
     });
   }
 };
