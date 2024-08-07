@@ -109,6 +109,21 @@ describe("Dataset create API", () => {
                 done();
             });
     });
+    it("Invalid dataset_id provided", (done) => {
+        chai
+            .request(app)
+            .post(config.apiDatasetSaveEndPoint)
+            .send(TestDataset.DATASET_ID_VALIDATION_SCHEMA)
+            .end((err, res) => {
+                res.should.have.status(httpStatus.BAD_REQUEST);
+                res.body.should.be.a("object")
+                res.body.responseCode.should.be.eq(httpStatus["400_NAME"]);
+                res.body.should.have.property("result")
+                res.body.id.should.be.eq(routesConfig.config.dataset.save.api_id);
+                res.body.params.status.should.be.eq(constants.STATUS.FAILURE)
+                done();
+            });
+    });
     it("should not insert record when given invalid schema", (done) => {
         chai
             .request(app)
