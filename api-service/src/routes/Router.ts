@@ -27,6 +27,8 @@ import DatasetCopy from "../controllers/DatasetCopy/DatasetCopy";
 import ConnectorsList from "../controllers/ConnectorsList/ConnectorsList";
 import ConnectorsRead from "../controllers/ConnectorsRead/ConnectorsRead";
 import DatasetImport from "../controllers/DatasetImport/DatasetImport";
+import connectorInstanceCreate from "../controllers/ConnectorInstanceCreate/connectorInstanceCreate";
+import connectorInstanceUpdate from "../controllers/ConnectorInstanceUpdate/connectorInstanceUpdate";
 
 export const router = express.Router();
 
@@ -54,6 +56,12 @@ router.post("/datasets/copy", setDataToRequestObject("api.datasets.copy"), onReq
 router.post("/connectors/list", setDataToRequestObject("api.connectors.list"), onRequest({ entity: Entity.Management }), ConnectorsList);
 router.get("/connectors/read/:id", setDataToRequestObject("api.connectors.read"), onRequest({entity: Entity.Management }), ConnectorsRead);
 router.post("/datasets/import", setDataToRequestObject("api.datasets.import"), onRequest({ entity: Entity.Management }), DatasetImport);
+
+router.post("/connector-instances/create",setDataToRequestObject("api.connector.instance.create"),onRequest({ entity: Entity.Management }),connectorInstanceCreate);
+//router.get("connector-instances/read/:id",setDataToRequestObject("api.connector.instance.get"),onRequest({ entity: Entity.Management }),connectorInstanceGet);
+//router.patch("connector-instances/patch",setDataToRequestObject("api.connector.instance.update"),onRequest({ entity: Entity.Management }),connectorInstanceUpdate);
+//router.delete("connector-instances/delete/:id",setDataToRequestObject("api.connector.instance.delete"),onRequest({ entity: Entity.Management }),connectorInstanceDelete);
+//router.post("connector-instances/list",setDataToRequestObject("api.connector.instance.get"),onRequest({ entity: Entity.Management }),connectorInstanceList);
 
 //Wrapper Service
 router.post("/obsrv/data/sql-query", setDataToRequestObject("api.obsrv.data.sql-query"), onRequest({ entity: Entity.Data_out }), sqlQuery);

@@ -8,8 +8,6 @@ import { obsrvError } from "../../types/ObsrvError";
 import { ConnectorInstances } from "../../models/ConnectorInstances";
 import { connectorInstance } from "../../services/ConnectorInstanceService";
 
-export const apiId = "api.connector.instance.create"
-
 // validating the Schema using the connectorInstanceCreateValidationSchema.json present in the ConnectorInstanceCreate folder.
 
 const validateRequest = async (req: Request) => {
