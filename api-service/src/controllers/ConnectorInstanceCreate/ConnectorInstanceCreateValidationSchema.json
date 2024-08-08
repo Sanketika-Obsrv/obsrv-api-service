@@ -25,23 +25,34 @@
             ],
             "additionalProperties": false
         },
-        "request":{
-            "type":"object",
+        "request": {
+            "type": "object",
             "properties": {
-                
-                "dataset_id":{
-                    "type":"string"
-
+                "dataset_id": {
+                    "type": "string",
+                    "minlength": 1
                 },
-                "connector_id":{
-                    "type":"string"
-                
+                "connector_id": {
+                    "type": "string",
+                    "minlength": 1
+                },
+                "data_format": {
+                    "type": "string",
+                    "enum": [
+                        "json",
+                        "csv"
+                    ]
+                },
+                "connector_config": {
+                    "type": "string",
+                    "minlength": 1
                 }
-                
-                },
-                "required":["dataset_id","connector_id"],
-                "additionalProperties":false
-              }
-              
+            },
+            "required": [
+                "dataset_id",
+                "connector_id"
+            ],
+            "additionalProperties": false
         }
     }
+}

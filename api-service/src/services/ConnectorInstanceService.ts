@@ -4,25 +4,25 @@ import _ from "lodash";
 
 class ConnectorInstance {
 
-    createConnectorInstance = async (reqbody: Record<string, any>): Promise<Record<string, any>> => {
+    createConnectorInstance = async (connectorInstance: Record<string, any>): Promise<Record<string, any>> => {
 
-        const response = await ConnectorInstances.create(reqbody);
+        const response = await ConnectorInstances.create(connectorInstance);
         const responseData = { id: _.get(response, ["id"]) };
-        logger.info({ reqbody, message: `connectorInstance Created Successfully with id:${_.get(response, ["id"])}`, response: responseData });
+        logger.info({ connectorInstance, message: `connectorInstance Created Successfully with id:${_.get(response, ["id"])}`, response: responseData });
         return responseData;
     }
 
-    updateConnectorInstance = async (reqbody: Record<string, any>): Promise<Record<string, any>> => {
+    updateConnectorInstance = async (connectorInstance: Record<string, any>): Promise<Record<string, any>> => {
 
-        await ConnectorInstances.update(reqbody, { where: { id: reqbody.id } });
-        const responseData = { message: "connector instance is updated successfully", id: reqbody.id };
-        logger.info({ reqbody, message: `connector instance updated successfully with id:${reqbody.id}`, response: responseData });
+        await ConnectorInstances.update(connectorInstance, { where: { id: connectorInstance.id } });
+        const responseData = { message: "connector instance is updated successfully", id: connectorInstance.id };
+        logger.info({ connectorInstance, message: `connector instance updated successfully with id:${connectorInstance.id}`, response: responseData });
         return responseData;
 
     }
 
-    checkConnectorInstanceExists = async (connector_Instance_Id: string): Promise<boolean> => {
-        const response = await ConnectorInstances.findByPk(connector_Instance_Id);
+    checkConnectorInstanceExists = async (connectorInstance: string): Promise<boolean> => {
+        const response = await ConnectorInstances.findByPk(connectorInstance);
         return response !== null;
 
     }
