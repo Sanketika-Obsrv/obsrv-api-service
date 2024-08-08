@@ -13,8 +13,8 @@ const connectorInstanceDelete = async (req: Request, res: Response) => {
         return ResponseHandler.errorResponse({ message: `Connector Instance with ${id} does not exists`, statusCode: 404, errCode: "NOT_FOUND", code: "CONNECTOR_INSTANCE_NOT_EXISTS" }, req, res);
     }
 
-    logger.info({ id, message: `connector instances with ${id} deleted successfully` })
-    return ResponseHandler.successResponse(req, res, { status: 200, data: { message: `Connector_Instance with ${id} deleted successfully` } });
+    logger.info({ id, message: `connector instance with ${id} deleted successfully` })
+    return ResponseHandler.successResponse(req, res, { status: 200, data: { message: `Connector_Instance deleted successfully`,id: `${id}` } });
 }
 
 export default connectorInstanceDelete;
