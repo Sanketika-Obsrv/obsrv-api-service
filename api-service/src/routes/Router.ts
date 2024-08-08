@@ -27,8 +27,8 @@ import DatasetCopy from "../controllers/DatasetCopy/DatasetCopy";
 import ConnectorsList from "../controllers/ConnectorsList/ConnectorsList";
 import ConnectorsRead from "../controllers/ConnectorsRead/ConnectorsRead";
 import DatasetImport from "../controllers/DatasetImport/DatasetImport";
-import connectorInstanceCreate from "../controllers/ConnectorInstanceCreate/connectorInstanceCreate";
-import connectorInstanceUpdate from "../controllers/ConnectorInstanceUpdate/connectorInstanceUpdate";
+import connectorInstanceCreate from "../controllers/ConnectorInstanceCreate/ConnectorInstanceCreate";
+import connectorInstanceDelete from "../controllers/ConnectorInstanceDelete/ConnectorInstanceDelete";
 
 export const router = express.Router();
 
@@ -44,7 +44,7 @@ router.get("/template/read/:templateId", setDataToRequestObject("api.query.templ
 router.delete("/template/delete/:templateId", setDataToRequestObject("api.query.template.delete"), deleteQueryTemplate);
 router.post("/template/list", setDataToRequestObject("api.query.template.list"), listQueryTemplates);
 router.patch("/template/update/:templateId", setDataToRequestObject("api.query.template.update"), updateQueryTemplate);
-router.post("/schema/validate", setDataToRequestObject("api.schema.validator"), eventValidation); 
+router.post("/schema/validate", setDataToRequestObject("api.schema.validator"), eventValidation);
 router.post("/template/query/:templateId", setDataToRequestObject("api.query.template.query"), queryTemplate);
 router.post("/files/generate-url", setDataToRequestObject("api.files.generate-url"), onRequest({ entity: Entity.Management }), GenerateSignedURL);
 router.post("/datasets/status-transition", setDataToRequestObject("api.datasets.status-transition"), onRequest({ entity: Entity.Management }), DatasetStatusTansition);
@@ -54,14 +54,9 @@ router.post("/datasets/dataschema", setDataToRequestObject("api.datasets.datasch
 router.get("/datasets/export/:dataset_id", setDataToRequestObject("api.datasets.export"), onRequest({ entity: Entity.Management }), DatasetExport);
 router.post("/datasets/copy", setDataToRequestObject("api.datasets.copy"), onRequest({ entity: Entity.Management }), DatasetCopy);
 router.post("/connectors/list", setDataToRequestObject("api.connectors.list"), onRequest({ entity: Entity.Management }), ConnectorsList);
-router.get("/connectors/read/:id", setDataToRequestObject("api.connectors.read"), onRequest({entity: Entity.Management }), ConnectorsRead);
+router.get("/connectors/read/:id", setDataToRequestObject("api.connectors.read"), onRequest({ entity: Entity.Management }), ConnectorsRead);
 router.post("/datasets/import", setDataToRequestObject("api.datasets.import"), onRequest({ entity: Entity.Management }), DatasetImport);
-
-router.post("/connector-instances/create",setDataToRequestObject("api.connector.instance.create"),onRequest({ entity: Entity.Management }),connectorInstanceCreate);
-//router.get("connector-instances/read/:id",setDataToRequestObject("api.connector.instance.get"),onRequest({ entity: Entity.Management }),connectorInstanceGet);
-//router.patch("connector-instances/patch",setDataToRequestObject("api.connector.instance.update"),onRequest({ entity: Entity.Management }),connectorInstanceUpdate);
-//router.delete("connector-instances/delete/:id",setDataToRequestObject("api.connector.instance.delete"),onRequest({ entity: Entity.Management }),connectorInstanceDelete);
-//router.post("connector-instances/list",setDataToRequestObject("api.connector.instance.get"),onRequest({ entity: Entity.Management }),connectorInstanceList);
-
+router.post("/connector-instances/create", setDataToRequestObject("api.connector.instance.create"), onRequest({ entity: Entity.Management }), connectorInstanceCreate);
+router.delete("/connector-instances/delete/:id", setDataToRequestObject("api.connector.instance.delete"), onRequest({ entity: Entity.Management }), connectorInstanceDelete);
 //Wrapper Service
 router.post("/obsrv/data/sql-query", setDataToRequestObject("api.obsrv.data.sql-query"), onRequest({ entity: Entity.Data_out }), sqlQuery);
