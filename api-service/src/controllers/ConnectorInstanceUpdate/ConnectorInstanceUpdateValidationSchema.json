@@ -4,7 +4,7 @@
         "id": {
             "type": "string",
             "enum": [
-                "api.connector-instance.create"
+                "api.connector-instance.update"
             ]
         },
         "ver": {
@@ -28,13 +28,13 @@
         "request": {
             "type": "object",
             "properties": {
-                "dataset_id": {
+                "id": {
                     "type": "string",
-                    "minlength": 1
+                    "minLength": 1
                 },
-                "connector_id": {
+                "connector_config": {
                     "type": "string",
-                    "minlength": 1
+                    "minLength": 1
                 },
                 "data_format": {
                     "type": "string",
@@ -42,15 +42,10 @@
                         "json",
                         "csv"
                     ]
-                },
-                "connector_config": {
-                    "type": "string",
-                    "minlength": 1
                 }
             },
             "required": [
-                "dataset_id",
-                "connector_id"
+                "id"
             ],
             "additionalProperties": false
         }

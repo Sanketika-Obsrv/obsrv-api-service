@@ -29,7 +29,7 @@ import ConnectorsRead from "../controllers/ConnectorsRead/ConnectorsRead";
 import DatasetImport from "../controllers/DatasetImport/DatasetImport";
 import connectorInstanceCreate from "../controllers/ConnectorInstanceCreate/ConnectorInstanceCreate";
 import connectorInstanceDelete from "../controllers/ConnectorInstanceDelete/ConnectorInstanceDelete";
-
+import connectorInstanceUpdate from "../controllers/ConnectorInstanceUpdate/ConnectorInstanceUpdate";
 export const router = express.Router();
 
 router.post("/data/in/:datasetId", setDataToRequestObject("api.data.in"), onRequest({ entity: Entity.Data_in }), dataIn);
@@ -58,5 +58,6 @@ router.get("/connectors/read/:id", setDataToRequestObject("api.connectors.read")
 router.post("/datasets/import", setDataToRequestObject("api.datasets.import"), onRequest({ entity: Entity.Management }), DatasetImport);
 router.post("/connector-instances/create", setDataToRequestObject("api.connector.instance.create"), onRequest({ entity: Entity.Management }), connectorInstanceCreate);
 router.delete("/connector-instances/delete/:id", setDataToRequestObject("api.connector.instance.delete"), onRequest({ entity: Entity.Management }), connectorInstanceDelete);
+router.patch("/connector-instances/patch", setDataToRequestObject("api.connector.instance.update"), onRequest({ entity: Entity.Management }), connectorInstanceUpdate);
 //Wrapper Service
 router.post("/obsrv/data/sql-query", setDataToRequestObject("api.obsrv.data.sql-query"), onRequest({ entity: Entity.Data_out }), sqlQuery);
