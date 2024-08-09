@@ -48,6 +48,12 @@ class ConnectorInstance {
         });
         return response
     }
+
+    getConnectorInstance = async (id: string,columns: any): Promise<any> => {
+        return ConnectorInstances.findOne({ where: { id }, attributes: columns, raw: true });
+    }
+
+    
 }
 
 export const connectorInstance = new ConnectorInstance()

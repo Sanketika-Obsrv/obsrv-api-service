@@ -3,10 +3,15 @@ import _ from "lodash";
 import { connectorInstance } from "../../services/ConnectorInstanceService";
 import logger from "../../logger";
 import { ResponseHandler } from "../../helpers/ResponseHandler";
+import { obsrvError } from "../../types/ObsrvError";
 
 const connectorInstanceDelete = async (req: Request, res: Response) => {
     const id = _.get(req, "params.id");
 
+    const connectorInstanceStatus = connectorInstance.getConnectorInstanceStatus(id)
+    if (!_.includes(["Draft", "ReadyToPublish"], await connectorInstanceStatus)) {
+        throw obsrvError(id, "CONNECTOR_INSTANCE_NOT_IN_DRAFT_STATE_TO_DELETE", "Connector Instance cannot be deleted as it is not in draft state", "BAD_REQUEST", 400)
+    }
     const deleteResponse = await connectorInstance.deleteConnectorInstance(id);
     if (deleteResponse === 0) {
         logger.error({ id, message: `Connector Instance with ${id} does not exists`, code: "CONNECTOR_INSTANCE_NOT_EXISTS" })
