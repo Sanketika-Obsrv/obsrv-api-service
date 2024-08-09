@@ -52,7 +52,7 @@
                 "dataset_id",
                 "connector_id"
             ],
-            "additionalProperties":false
+            "additionalProperties": false
         }
     },
     "required": [
@@ -63,5 +63,4 @@
         "request"
     ],
     "additionalProperties": false
-    
 }

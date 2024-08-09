@@ -19,7 +19,7 @@ const connectorInstanceDelete = async (req: Request, res: Response) => {
     }
 
     logger.info({ id, message: `connector instance with ${id} deleted successfully` })
-    return ResponseHandler.successResponse(req, res, { status: 200, data: { message: `Connector_Instance deleted successfully`,id: `${id}` } });
+    return ResponseHandler.successResponse(req, res, { status: 200, data: { message: `Connector_Instance deleted successfully`, id: `${id}` } });
 }
 
 export default connectorInstanceDelete;
