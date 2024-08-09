@@ -25,8 +25,8 @@ const connectorInstanceCreate = async (req: Request, res: Response) => {
     const dataset_id = _.get(req, ["body", "request", "dataset_id"]);
     const connector_id = _.get(req, ["body", "request", "connector_id"]);
     const id = `${connector_id}.${dataset_id}`;
-    _.set(req, ["body", "request", "id"], id)
     await validateRequest(req)
+    _.set(req, ["body", "request", "id"], id)
     const createResponse = await connectorInstance.createConnectorInstance(req.body.request)
     ResponseHandler.successResponse(req, res, { status: httpStatus.OK, data: createResponse });
 }
