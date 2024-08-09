@@ -66,5 +66,6 @@ const transformRequest = (req: any, templateName: string) => {
         query_type: type,
         query: query
     }
+    
     return data
 }

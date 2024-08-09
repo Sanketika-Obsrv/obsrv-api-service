@@ -18,5 +18,5 @@ const connectorsRead = async (req: Request, res: Response) => {
     }
     ResponseHandler.successResponse(req, res, { status: httpStatus.OK, data: connector });
 }
-
+ 
 export default connectorsRead;
