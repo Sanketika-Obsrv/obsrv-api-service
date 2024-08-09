@@ -7,7 +7,7 @@ import { obsrvError } from "../../types/ObsrvError";
 
 const defaultFields = ["connector_id", "dataset_id", "status", "data_format", "operations_config", "connector_stats", "connector_state", "created_by", "updated_by", "created_date", "updated_date", "published_date"]
 
-const validateRequest = async (req: Request) => {
+const validateRequest = (req: Request) => {
     const { id } = req.params;
     const fields = req.query.fields;
     if (fields && typeof fields !== 'string') {
@@ -16,12 +16,12 @@ const validateRequest = async (req: Request) => {
     const fieldValues = fields ? _.split(fields, ",") : [];
     const invalidFields = _.difference(fieldValues, defaultFields);
     if (!_.isEmpty(invalidFields)) {
-      throw obsrvError(id, "CONNECTOR_INSTANCE_INVALID_FIELDS", `The specified fields [${invalidFields}] in the connector instance cannot be found.`, "BAD_REQUEST", 400);
+        throw obsrvError(id, "CONNECTOR_INSTANCE_INVALID_FIELDS", `The specified fields [${invalidFields}] in the connector instance cannot be found.`, "BAD_REQUEST", 400);
     }
 }
 
 const connectorInstanceRead = async (req: Request, res: Response) => {
-    await validateRequest(req)
+    validateRequest(req)
     const { id } = req.params;
     const { fields } = req.query;
     const attributes = !fields ? defaultFields : _.split(<string>fields, ",");
