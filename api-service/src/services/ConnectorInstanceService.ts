@@ -35,6 +35,19 @@ class ConnectorInstance {
         });
         return response
     }
+
+    findConnectorInstance = async (where?: Record<string, any>, attributes?: string[], order?: any): Promise<any> => {
+        return ConnectorInstances.findAll({ where, attributes, order, raw: true })
+    }
+
+    getConnectorInstanceStatus = async (id: string): Promise<any> => {
+        const response = await ConnectorInstances.findOne({
+            where: { id },
+            attributes: ['status'],
+            raw: true
+        });
+        return response
+    }
 }
 
 export const connectorInstance = new ConnectorInstance()
