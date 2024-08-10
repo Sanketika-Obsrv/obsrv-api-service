@@ -21,8 +21,13 @@ const validateRequest = async (req: Request) => {
         throw obsrvError(connector_id, "CONNECTOR_INSTANCE_UPDATE_NO_FIELDS", "Provide atleast one field in addition to the id to update the connector instance", "BAD_REQUEST", 400)
     }
 
-    const connectorInstanceStatus = connectorInstance.getConnectorInstanceStatus(connector_id)
-    if (!_.includes(["Draft", "ReadyToPublish"], await connectorInstanceStatus)) {
+    const connectorInstanceExist = await connectorInstance.checkConnectorInstanceExists(connector_id)
+    if (!connectorInstanceExist) {
+        throw obsrvError(connector_id, "CONNECTOR_INSTANCE_DOES_NOT_EXIST", "Provide the valid connector instance id", "BAD_REQUEST", 400)
+    }
+
+    const connectorInstanceStatus = await connectorInstance.getConnectorInstanceStatus(connector_id)
+    if (!_.includes(["Draft", "ReadyToPublish"], await connectorInstanceStatus["status"])) {
         throw obsrvError(connector_id, "CONNECTOR_INSTANCE_NOT_IN_DRAFT_STATE_TO_UPDATE", "Connector Instance cannot be updated as it is not in draft state", "BAD_REQUEST", 400)
     }
 }

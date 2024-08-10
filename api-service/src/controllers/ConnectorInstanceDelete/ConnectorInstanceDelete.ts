@@ -8,8 +8,8 @@ import { obsrvError } from "../../types/ObsrvError";
 const connectorInstanceDelete = async (req: Request, res: Response) => {
     const id = _.get(req, "params.id");
 
-    const connectorInstanceStatus = connectorInstance.getConnectorInstanceStatus(id)
-    if (!_.includes(["Draft", "ReadyToPublish"], await connectorInstanceStatus)) {
+    const connectorInstanceStatus = await connectorInstance.getConnectorInstanceStatus(id)
+    if (!_.includes(["Draft", "ReadyToPublish"], await connectorInstanceStatus["status"])) {
         throw obsrvError(id, "CONNECTOR_INSTANCE_NOT_IN_DRAFT_STATE_TO_DELETE", "Connector Instance cannot be deleted as it is not in draft state", "BAD_REQUEST", 400)
     }
     const deleteResponse = await connectorInstance.deleteConnectorInstance(id);

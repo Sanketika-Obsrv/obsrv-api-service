@@ -7,28 +7,34 @@ import ConnectorInstanceCreate from "./ConnectorInstanceCreateValidationSchema.j
 import { obsrvError } from "../../types/ObsrvError";
 import { connectorInstance } from "../../services/ConnectorInstanceService";
 
-const validateRequest = async (req: Request) => {
+const validateRequest = (req: Request) => {
 
     const isRequestValid: Record<string, any> = schemaValidation(req.body, ConnectorInstanceCreate)
     if (!isRequestValid.isValid) {
         throw obsrvError("", "CONNECTOR_INSTANCE_INVALID_INPUT", isRequestValid.message, "BAD_REQUEST", 400)
     }
+}
 
+const checkConnectorInstance = async (req: Request): Promise<boolean> =>  {
     const connectorInstanceId = _.get(req, ["body", "request", "id"])
     const isConnectorInstanceIdExists = await connectorInstance.checkConnectorInstanceExists(connectorInstanceId);
-    if (!_.isEmpty(isConnectorInstanceIdExists)) {
-        throw obsrvError(connectorInstanceId, "CONNECTOR_INSTANCE_EXISTS", `ConnectorInstance Already exists with id:${connectorInstanceId}`, "CONFLICT", 409)
-    }
+    return isConnectorInstanceIdExists;
 }
 
 const connectorInstanceCreate = async (req: Request, res: Response) => {
     const dataset_id = _.get(req, ["body", "request", "dataset_id"]);
     const connector_id = _.get(req, ["body", "request", "connector_id"]);
     const id = `${connector_id}.${dataset_id}`;
-    await validateRequest(req)
+    validateRequest(req)
     _.set(req, ["body", "request", "id"], id)
-    const createResponse = await connectorInstance.createConnectorInstance(req.body.request)
-    ResponseHandler.successResponse(req, res, { status: httpStatus.OK, data: createResponse });
+    const response = await checkConnectorInstance(req);
+    if (response) {
+        throw obsrvError(id, "CONNECTOR_INSTANCE_EXISTS", `ConnectorInstance Already exists with id:${id}`, "CONFLICT", 409)
+    } else
+     {
+        const createResponse = await connectorInstance.createConnectorInstance(req.body.request)
+        ResponseHandler.successResponse(req, res, { status: httpStatus.OK, data: createResponse });
+     }
 }
 
 export default connectorInstanceCreate;

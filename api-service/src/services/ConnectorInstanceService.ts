@@ -40,7 +40,7 @@ class ConnectorInstance {
         return ConnectorInstances.findAll({ where, attributes, order, raw: true })
     }
 
-    getConnectorInstanceStatus = async (id: string): Promise<any> => {
+    getConnectorInstanceStatus = async (id: any): Promise<any> => {
         const response = await ConnectorInstances.findOne({
             where: { id },
             attributes: ['status'],
