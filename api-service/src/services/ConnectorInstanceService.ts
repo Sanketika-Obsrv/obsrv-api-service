@@ -7,8 +7,8 @@ class ConnectorInstance {
     createConnectorInstance = async (connectorInstance: Record<string, any>): Promise<Record<string, any>> => {
 
         const response = await ConnectorInstances.create(connectorInstance);
-        const responseData = { id: _.get(response, ["id"]) };
-        logger.info({ connectorInstance, message: `connectorInstance Created Successfully with id:${_.get(response, ["id"])}`, response: responseData });
+        const responseData = { id: connectorInstance.id };
+        logger.info({ connectorInstance, message: `connectorInstance Created Successfully with id:${responseData}`, response: responseData });
         return responseData;
     }
 
