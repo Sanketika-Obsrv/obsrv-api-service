@@ -9,7 +9,7 @@ const defaultFields = ["connector_id", "dataset_id", "status", "data_format", "o
 
 const validateRequest = (req: Request) => {
     const { id } = req.params;
-    const fields = req.query.fields;
+    const { fields } = req.query;
     if (fields && typeof fields !== 'string') {
         throw obsrvError(id, "CONNECTOR_INSTANCE_INVALID_FIELDS_VAL", `The specified fields [${fields}] in the query param is not a string.`, "BAD_REQUEST", 400);
     }
