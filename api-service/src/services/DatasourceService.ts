@@ -263,9 +263,9 @@ export const updateDenormDerived = (schemaColumns: any, columns: any, fixedPrefi
 
 const processDenormConfigurations = async (item: any) => {
     const denormFieldsData: any = [];
-    const redis_db = _.get(item, "redis_db");
+    const dataset_id = _.get(item, 'dataset_id');
     const denorm_out_field = _.get(item, "denorm_out_field");
-    const dataset: any = await Dataset.findOne({ where: { "dataset_config": { "redis_db": redis_db } }, raw: true }) || []
+    const dataset: any = await Dataset.findOne({ where: { "dataset_id": dataset_id }, raw: true }) || []
     const transformations = _.size(dataset) ? await DatasetTransformations.findAll({ where: { status: DatasetStatus.Live, dataset_id: _.get(dataset, "dataset_id") }, raw: true }) : []
     let schema = flattenSchema(_.get(dataset, "data_schema"), denorm_out_field, true);
     schema = updateDenormDerived(schema, _.get(transformations, "data.result"), denorm_out_field,);

@@ -10,7 +10,6 @@ export const updateRecords = (datasetRecord: Record<string, any>, newDatasetId: 
     _.set(datasetRecord, 'status', DatasetStatus.Draft)
     _.set(datasetRecord, "dataset_id", dataset_id)
     _.set(datasetRecord, "id", dataset_id)
-    _.set(datasetRecord, "name", dataset_id)
     _.set(datasetRecord, "version_key", Date.now().toString())
     _.set(datasetRecord, 'version', version);
     _.set(datasetRecord, "entry_topic", config.telemetry_service_config.kafka.topics.createDataset)
