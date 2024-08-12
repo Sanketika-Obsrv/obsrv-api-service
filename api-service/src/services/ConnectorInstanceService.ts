@@ -4,33 +4,33 @@ import _ from "lodash";
 
 class ConnectorInstance {
 
-    createConnectorInstance = async (connectorInstance: Record<string, any>): Promise<Record<string, any>> => {
+    createConnectorInstance = async (id: Record<string, any>): Promise<Record<string, any>> => {
 
-        const response = await ConnectorInstances.create(connectorInstance);
-        const responseData = { id: connectorInstance.id };
-        logger.info({ connectorInstance, message: `connectorInstance Created Successfully with id:${responseData}`, response: responseData });
+        const response = await ConnectorInstances.create(id);
+        const responseData = { id: id };
+        logger.info({ id, message: `connectorInstance Created Successfully with id:${responseData}`, response: responseData });
         return responseData;
     }
 
-    updateConnectorInstance = async (connectorInstance: Record<string, any>): Promise<Record<string, any>> => {
+    updateConnectorInstance = async (id: Record<string, any>): Promise<Record<string, any>> => {
 
-        await ConnectorInstances.update(connectorInstance, { where: { id: connectorInstance.id } });
-        const responseData = { message: "connector instance is updated successfully", id: connectorInstance.id };
-        logger.info({ connectorInstance, message: `connector instance updated successfully with id:${connectorInstance.id}`, response: responseData });
+        await ConnectorInstances.update(id, { where: { id: id } });
+        const responseData = { message: "connector instance is updated successfully", id: id };
+        logger.info({ id, message: `connector instance updated successfully with id:${id}`, response: responseData });
         return responseData;
 
     }
 
-    checkConnectorInstanceExists = async (connectorInstance: string): Promise<boolean> => {
-        const response = await ConnectorInstances.findByPk(connectorInstance);
+    checkConnectorInstanceExists = async (id: string): Promise<boolean> => {
+        const response = await ConnectorInstances.findByPk(id);
         return response !== null;
 
     }
 
-    deleteConnectorInstance = async (param_id: string): Promise<any> => {
+    deleteConnectorInstance = async (id: string): Promise<any> => {
         const response = await ConnectorInstances.destroy({
             where: {
-                id: param_id,
+                id: id,
             },
         });
         return response
@@ -38,15 +38,6 @@ class ConnectorInstance {
 
     findConnectorInstance = async (where?: Record<string, any>, attributes?: string[], order?: any): Promise<any> => {
         return ConnectorInstances.findAll({ where, attributes, order, raw: true })
-    }
-
-    getConnectorInstanceStatus = async (id: any): Promise<any> => {
-        const response = await ConnectorInstances.findOne({
-            where: { id },
-            attributes: ['status'],
-            raw: true
-        });
-        return response
     }
 
     getConnectorInstance = async (id: string,columns: any): Promise<any> => {

@@ -37,7 +37,6 @@
                                 "type": "string",
                                 "enum": [
                                     "Draft",
-                                    "InValidation",
                                     "Live",
                                     "Retired"
                                 ]

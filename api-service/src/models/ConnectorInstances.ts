@@ -24,7 +24,8 @@ export const ConnectorInstances = sequelize.define("connector_instances", {
         defaultValue: {}
     },
     status: {
-        type: DataTypes.ENUM("Publishing", "Live", "Retired")
+        type: DataTypes.ENUM("Publishing", "Live", "Retired"),
+        defaultValue: "Draft"
     },
     connector_state: {
         type: DataTypes.JSON,

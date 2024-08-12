@@ -10,7 +10,7 @@ const defaultFields = ["connector_id", "dataset_id", "status", "data_format", "o
 const validateRequest = (req: Request) => {
     const { id } = req.params;
     const { fields } = req.query;
-    if (fields && typeof fields !== 'string') {
+    if (fields && !_.isString(fields)) {
         throw obsrvError(id, "CONNECTOR_INSTANCE_INVALID_FIELDS_VAL", `The specified fields [${fields}] in the query param is not a string.`, "BAD_REQUEST", 400);
     }
     const fieldValues = fields ? _.split(fields, ",") : [];
@@ -25,11 +25,11 @@ const connectorInstanceRead = async (req: Request, res: Response) => {
     const { id } = req.params;
     const { fields } = req.query;
     const attributes = !fields ? defaultFields : _.split(<string>fields, ",");
-    const connectorInstanceValue = await connectorInstance.getConnectorInstance(id, attributes)
-    if (!connectorInstanceValue) {
+    const connectorInstanceData = await connectorInstance.getConnectorInstance(id, attributes)
+    if (!connectorInstanceData) {
         throw obsrvError(id, "CONNECTOR_INSTANCE_NOT_FOUND", `Connector instance not found: ${id}`, "NOT_FOUND", 404);
     }
-    ResponseHandler.successResponse(req, res, { status: httpStatus.OK, data: connectorInstanceValue });
+    ResponseHandler.successResponse(req, res, { status: httpStatus.OK, data: connectorInstanceData });
 }
 
 export default connectorInstanceRead;
