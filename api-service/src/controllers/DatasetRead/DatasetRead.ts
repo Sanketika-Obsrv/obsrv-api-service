@@ -47,7 +47,7 @@ const datasetRead = async (req: Request, res: Response) => {
     ResponseHandler.successResponse(req, res, { status: httpStatus.OK, data: dataset });
 }
 
-const   readDraftDataset = async (datasetId: string, attributes: string[]): Promise<any> => {
+const  readDraftDataset = async (datasetId: string, attributes: string[]): Promise<any> => {
     
     const attrs = _.union(attributes, ["dataset_config", "api_version", "type", "id"])
     const draftDataset = await datasetService.getDraftDataset(datasetId, attrs);
