@@ -42,6 +42,13 @@
                         "json",
                         "csv"
                     ]
+                },
+                "status":{
+                    "type":"string",
+                    "enum": [
+                        
+                        "Live"
+                    ]
                 }
             },
             "required": [

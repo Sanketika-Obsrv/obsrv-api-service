@@ -27,8 +27,8 @@ const validateRequest = async (req: Request) => {
     }
 
     const connectorInstanceStatus = await connectorInstance.getConnectorInstanceStatus(connector_id)
-    if (!_.includes(["Draft", "ReadyToPublish"], await connectorInstanceStatus["status"])) {
-        throw obsrvError(connector_id, "CONNECTOR_INSTANCE_NOT_IN_DRAFT_STATE_TO_UPDATE", "Connector Instance cannot be updated as it is not in draft state", "BAD_REQUEST", 400)
+    if (!_.includes(["Draft"], await connectorInstanceStatus["status"])) {
+        throw obsrvError(connector_id, "CONNECTOR_INSTANCE_IN_DRAFT_TO_UPDATE", "Connector Instance cannot be updated as it is not in draft state", "BAD_REQUEST", 400)
     }
 }
 
