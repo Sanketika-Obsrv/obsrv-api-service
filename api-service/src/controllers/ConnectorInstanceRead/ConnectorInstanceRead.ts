@@ -5,7 +5,7 @@ import { ResponseHandler } from "../../helpers/ResponseHandler";
 import { connectorInstance } from "../../services/ConnectorInstanceService";
 import { obsrvError } from "../../types/ObsrvError";
 
-const defaultFields = ["connector_id", "dataset_id", "status", "data_format", "operations_config", "connector_stats", "connector_state", "created_by", "updated_by", "created_date", "updated_date", "published_date"]
+const defaultFields = ["id", "connector_id", "dataset_id", "status", "data_format", "operations_config", "connector_stats", "connector_state", "created_by", "updated_by", "created_date", "updated_date", "published_date"]
 
 const validateRequest = (req: Request) => {
 
