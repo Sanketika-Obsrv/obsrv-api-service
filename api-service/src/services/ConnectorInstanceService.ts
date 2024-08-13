@@ -5,19 +5,19 @@ import { integer } from "aws-sdk/clients/cloudfront";
 
 class ConnectorInstance {
 
-    createConnectorInstance = async (connectorInstance: Record<string, any>): Promise<Record<string, any>> => {
+    createConnectorInstance = async (connectorData: Record<string, any>): Promise<Record<string, any>> => {
 
-        await ConnectorInstances.create(connectorInstance);
-        const responseData = { message: "connector instance created successfully",id: _.get(connectorInstance,"id") };
-        logger.info({ connectorInstance, message: `connectorInstance Created Successfully with id:${responseData}`, response: responseData });
+        await ConnectorInstances.create(connectorData);
+        const responseData = { message: "connector instance created successfully",id: _.get(connectorData,"id") };
+        logger.info({ connectorData, message: `connectorInstance Created Successfully with id:${responseData}`, response: responseData });
         return responseData;
     }
 
-    updateConnectorInstance = async (connectorInstance: Record<string, any>): Promise<Record<string, any>> => {
+    updateConnectorInstance = async (connectorData: Record<string, any>): Promise<Record<string, any>> => {
 
-        await ConnectorInstances.update(connectorInstance, { where: { id: connectorInstance.id } });
-        const responseData = { message: "connector instance is updated successfully", id: connectorInstance.id };
-        logger.info({ connectorInstance, message: `connector instance updated successfully with id:${connectorInstance.id}`, response: responseData });
+        await ConnectorInstances.update(connectorData, { where: { id: connectorData.id } });
+        const responseData = { message: "connector instance is updated successfully", id: connectorData.id };
+        logger.info({ connectorData, message: `connector instance updated successfully with id:${connectorData.id}`, response: responseData });
         return responseData;
 
     }
