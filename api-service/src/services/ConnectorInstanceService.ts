@@ -4,19 +4,20 @@ import _ from "lodash";
 
 class ConnectorInstance {
 
-    createConnectorInstance = async (id: Record<string, any>): Promise<Record<string, any>> => {
+    createConnectorInstance = async (connectorInstance: Record<string, any>): Promise<Record<string, any>> => {
 
-        const response = await ConnectorInstances.create(id);
-        const responseData = { id: id };
-        logger.info({ id, message: `connectorInstance Created Successfully with id:${responseData}`, response: responseData });
+        const response = await ConnectorInstances.create(connectorInstance);
+        console.log(response)
+        const responseData = { id: _.get(response,"id") };
+        logger.info({ connectorInstance, message: `connectorInstance Created Successfully with id:${responseData}`, response: responseData });
         return responseData;
     }
 
-    updateConnectorInstance = async (id: Record<string, any>): Promise<Record<string, any>> => {
+    updateConnectorInstance = async (connectorInstance: Record<string, any>): Promise<Record<string, any>> => {
 
-        await ConnectorInstances.update(id, { where: { id: id } });
-        const responseData = { message: "connector instance is updated successfully", id: id };
-        logger.info({ id, message: `connector instance updated successfully with id:${id}`, response: responseData });
+        await ConnectorInstances.update(connectorInstance, { where: { id: connectorInstance.id } });
+        const responseData = { message: "connector instance is updated successfully", id: connectorInstance.id };
+        logger.info({ connectorInstance, message: `connector instance updated successfully with id:${connectorInstance.id}`, response: responseData });
         return responseData;
 
     }
@@ -36,7 +37,7 @@ class ConnectorInstance {
         return response
     }
 
-    findConnectorInstance = async (where?: Record<string, any>, attributes?: string[], order?: any): Promise<any> => {
+    findConnectorInstances = async (where?: Record<string, any>, attributes?: string[], order?: any): Promise<any> => {
         return ConnectorInstances.findAll({ where, attributes, order, raw: true })
     }
 
