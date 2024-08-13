@@ -16,7 +16,6 @@ const validateRequest = (req: Request) => {
 
 const checkConnectorInstanceById = async (connectorInstanceId: string) => {
     const isConnectorInstanceIdExists = await connectorInstance.checkConnectorInstanceExists(connectorInstanceId);
-    console.log(isConnectorInstanceIdExists)
     if (isConnectorInstanceIdExists) {
         throw obsrvError("", "CONNECTOR_INSTANCE_EXISTS", `ConnectorInstance Already exists with id:${connectorInstanceId}`, "CONFLICT", 409)
     }
@@ -25,14 +24,13 @@ const checkConnectorInstanceById = async (connectorInstanceId: string) => {
 
 const connectorInstanceCreate = async (req: Request, res: Response) => {
     validateRequest(req)
-    const dataset_id = _.get(req, ["body", "request", "dataset_id"]);
-    const connector_id = _.get(req, ["body", "request", "connector_id"]);
+    const dataset_id = _.get(req, ["body.request.dataset_id"]);
+    const connector_id = _.get(req, ["body.request.connector_id"]);
     const id = `${connector_id}.${dataset_id}`;
-    _.set(req, ["body", "request", "id"], id)
+    _.set(req, ["body.request.id"], id)
     await checkConnectorInstanceById(id);
     const createResponse = await connectorInstance.createConnectorInstance(req.body.request)
     ResponseHandler.successResponse(req, res, { status: httpStatus.OK, data: createResponse });
 
 }
-
 export default connectorInstanceCreate;

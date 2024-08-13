@@ -18,7 +18,7 @@ const validateRequest = (req: Request) => {
 
 const connectorInstanceList = async (req: Request, res: Response) => {
     validateRequest(req);
-    const connectorInstanceBody = _.get(req, ["body", "request"]);
+    const connectorInstanceBody = _.get(req, ["body.request"]);
     const connectorInstanceList = await listConnectorInstances(connectorInstanceBody)
     const responseData = { data: connectorInstanceList, count: _.size(connectorInstanceList) }
     ResponseHandler.successResponse(req, res, { status: httpStatus.OK, data: responseData });
@@ -31,7 +31,7 @@ const listConnectorInstances = async (request: Record<string, any>): Promise<Rec
     const filterOptions: any = {};
     if (!_.isEmpty(status)) filterOptions["status"] = status;
     if (!_.isEmpty(data_format)) filterOptions["data_format"] = data_format;
-    return connectorInstance.findConnectorInstance(filterOptions, defaultFields);
+    return connectorInstance.getConnectorInstances(filterOptions, defaultFields);
 
 }
 

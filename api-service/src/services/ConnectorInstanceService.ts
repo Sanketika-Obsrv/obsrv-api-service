@@ -1,14 +1,14 @@
 import { ConnectorInstances } from "../models/ConnectorInstances";
 import logger from "../logger";
 import _ from "lodash";
+import { integer } from "aws-sdk/clients/cloudfront";
 
 class ConnectorInstance {
 
     createConnectorInstance = async (connectorInstance: Record<string, any>): Promise<Record<string, any>> => {
 
-        const response = await ConnectorInstances.create(connectorInstance);
-        console.log(response)
-        const responseData = { id: _.get(response,"id") };
+        await ConnectorInstances.create(connectorInstance);
+        const responseData = { message: "connector instance created successfully",id: _.get(connectorInstance,"id") };
         logger.info({ connectorInstance, message: `connectorInstance Created Successfully with id:${responseData}`, response: responseData });
         return responseData;
     }
@@ -28,7 +28,7 @@ class ConnectorInstance {
 
     }
 
-    deleteConnectorInstance = async (id: string): Promise<any> => {
+    deleteConnectorInstance = async (id: string): Promise<integer> => {
         const response = await ConnectorInstances.destroy({
             where: {
                 id: id,
@@ -37,15 +37,13 @@ class ConnectorInstance {
         return response
     }
 
-    findConnectorInstances = async (where?: Record<string, any>, attributes?: string[], order?: any): Promise<any> => {
+    getConnectorInstances = async (where?: Record<string, any>, attributes?: string[], order?: any): Promise<any> => {
         return ConnectorInstances.findAll({ where, attributes, order, raw: true })
     }
 
     getConnectorInstance = async (id: string,columns: any): Promise<any> => {
         return ConnectorInstances.findOne({ where: { id }, attributes: columns, raw: true });
     }
-
-    
 }
 
 export const connectorInstance = new ConnectorInstance()
