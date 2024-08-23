@@ -30,9 +30,10 @@ export class WrapperService {
         this.sqlParse = new Parser()
         this.dbConnector = dbConnector
         this.cache = new NodeCache();
+        // Update cache every 10 minutes
+        this.updateCache();
+        setInterval(this.updateCache.bind(this), 10 * 60 * 1000);
     }
-
-
 
     public forwardNative = async (
         req: Request,
@@ -135,28 +136,32 @@ export class WrapperService {
             const authorization = req?.headers?.authorization;
             const sqlQuery: string = req.body.query.toString();
             const tableList: string[] = this.sqlParse.tableList(sqlQuery)
-            
+
             const tableNames = _.map(tableList, entry => _.last(entry.split('::')));
             const dbNames = _.map(tableList, entry => _.nth(_.split(entry, '::'), 1));
 
             if (_.includes(dbNames, "druid")) {
-                    
 
+                const tableReplacements: { old: string, new: string }[] = [
+                    { old: "wikipedia", new: "wikipedia-1" },
+                    { old: "table2", new: "table3" }
+                ];
+                const updatedQuery = this.updateTableNames(sqlQuery, tableReplacements);
 
-
-
+        
+            
+            
+            
+            
             }
-            
-            
-            
-            
-            const tableReplacements: { old: string, new: string }[] = [
-                { old: "wikipedia", new: "wikipedia-1" },
-                { old: "table2", new: "table3" }
-            ];
 
 
-            //const updatedQuery = this.updateTableNames(sqlQuery, tableReplacements);
+
+
+
+
+
+            
 
             const result = await axios.post(
                 `${config.query_api.druid.host}:${config.query_api.druid.port}${config.query_api.druid.sql_query_path}`,
@@ -165,10 +170,11 @@ export class WrapperService {
             }
             );
             //console.log("result " + result)
-            
-            // if (sqlQuery && sqlQuery.trim() === "SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = 'druid'") {
-            //     result.data = this.dataSourcesIntercepter({ data: result.data, status: result.status }).data;
-            // }
+
+            if (sqlQuery && sqlQuery.trim() === "SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = 'druid'") {
+                const up = this.dataSourcesIntercepter({ data: result.data, status: result.status }).data;
+                console.log("Updated Dataosource List " +  JSON.stringify(up) )
+            }
             ResponseHandler.flatResponse(req, res, result);
         } catch (error: any) {
             console.log("error" + error)
@@ -192,14 +198,12 @@ export class WrapperService {
     private getDataSources(): Array<{ TABLE_NAME: string }> {
         // Fetch the data source list from the cache
         const datasources: string | undefined = this.cache.get<string>(this.table);
-        // if (datasources) {
-        //     const parsedData: { datasource: string }[] = JSON.parse(datasources);
-        //     return parsedData.map((ds) => ({ TABLE_NAME: ds.datasource }));
-        // } else {
-        //     return [];
-        // }
-
-        return [{"TABLE_NAME": "wikipedia-1"}]
+        if (datasources) {
+            const parsedData: { datasource: string }[] = JSON.parse(datasources);
+            return parsedData.map((ds) => ({ TABLE_NAME: ds.datasource }));
+        } else {
+            return [];
+        }
     }
 
     private updateTableNames = (query: string, replacements: { old: string, new: string }[]): string => {
