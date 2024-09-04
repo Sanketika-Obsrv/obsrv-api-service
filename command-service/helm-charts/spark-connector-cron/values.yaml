@@ -125,7 +125,7 @@ python_path: /opt/bitnami/python/bin/python
 spark:
   host: http://spark-master-svc.spark.svc.cluster.local:8998/batches/
   master:
-    host: spark-master-svc.spark.svc.cluster.local
+    host: spark://spark-master-0.spark-headless.spark.svc.cluster.local:7077
     port: 7077
   driver:
     extraJavaOptions: -Dlog4j.configuration=file:/opt/bitnami/spark/conf/log4j.properties
