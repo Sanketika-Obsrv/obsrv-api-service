@@ -31,6 +31,11 @@
     "status": 400,
     "code": "BAD_REQUEST"
   },
+  "UNAVAILABLE_DATASOURCE": {
+    "message": "Datasource is not fully available",
+    "status": 416,
+    "code": "RANGE_NOT_SATISFIABLE"
+  },
   "DATASET_ID_NOT_FOUND": {
     "message": "Dataset Id not found, Failed to ingest",
     "status": 404,

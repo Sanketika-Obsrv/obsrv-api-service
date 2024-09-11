@@ -2,7 +2,11 @@ import _ from 'lodash'
 import configDefault from '../resources/schemas/DatasourceConfigDefault.json'
 import { SchemaMerger } from '../generators/SchemaMerger'
 import { DatasetStatus } from '../models/DatasetModels'
+import { config } from "./../configs/Config"
+import constants from "../resources/Constants.json"
+import axios from 'axios'
 let schemaMerger = new SchemaMerger
+const druidHttpService = axios.create({ baseURL: `${config.query_api.druid.host}:${config.query_api.druid.port}`, headers: { "Content-Type": "application/json" } });
 
 export class Datasources {
     private id: string
@@ -60,6 +64,15 @@ export class Datasources {
         return payload
     }
     public getDefaults() {
-        return {...configDefault}
+        return { ...configDefault }
+    }
+    
+    public checkSupervisorAvailability = async (datasourceRef: string) => {
+        const { data } = await druidHttpService.get(config.query_api.druid.load_status);
+        const loadStatus = _.get(data, datasourceRef)
+        if (!(loadStatus && loadStatus === 100)) {
+            console.log(`Datasource ${datasourceRef} is not fuly available to query. Please check the druid datasource.`);
+            throw constants.UNAVAILABLE_DATASOURCE
+        }
     }
 }
