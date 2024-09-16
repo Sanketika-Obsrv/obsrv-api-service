@@ -76,7 +76,7 @@ export class Datasources {
         }
         if (datasourceAvailaibility !== 100) {
             console.log(`Datasource ${datasourceRef} is not fuly available to query. Please check the druid datasource.`);
-            throw constants.UNAVAILABLE_DATASOURCE
+            throw constants.DATASOURCE_NOT_FULLY_AVAILABLE
         }
     }
 }

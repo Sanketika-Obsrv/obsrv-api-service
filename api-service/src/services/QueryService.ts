@@ -24,7 +24,7 @@ export class QueryService {
   public executeNativeQuery = async (req: Request, res: Response, next: NextFunction) => {
     try {
       updateTelemetryAuditEvent({ request: req, object: { ...telemetryObject, id: _.get(req, 'body.context.dataSource') } });
-      const datasource = _.get(req, ["body", "context", "dataSource"])
+      const datasource = _.get(req, ["body", "query", "dataSource"])
       await this.datasourceService.checkSupervisorAvailability(datasource)
       var result = await this.connector.post(config.query_api.druid.native_query_path, req.body.query);
       var mergedResult = result.data;
@@ -46,8 +46,13 @@ export class QueryService {
         result.data = await executeLakehouseQuery(req.body.querySql.query)
       }
       else {
-        const datasource = _.get(req, ["body", "context", "dataSource"])
-        await this.datasourceService.checkSupervisorAvailability(datasource)
+        const query = _.get(req, ["body", "querySql", "query"])
+        const regex = /FROM\s+"([^"]+)"/;
+        const source = query.match(regex);
+        if (source) {
+          const datasource = source[1];
+          await this.datasourceService.checkSupervisorAvailability(datasource)
+        }
         result = await this.connector.post(config.query_api.druid.sql_query_path, req.body.querySql);
       }
       ResponseHandler.successResponse(req, res, { status: result.status || 200, data: result.data });
