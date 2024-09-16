@@ -47,10 +47,10 @@ export class QueryService {
       }
       else {
         const query = _.get(req, ["body", "querySql", "query"])
-        const regex = /FROM\s+"([^"]+)"/;
+        const regex = /(?<=FROM\s+\")[^\"]+(?=\")/i;
         const source = query.match(regex);
         if (source) {
-          const datasource = source[1];
+          const datasource: string = <string>_.head(source);
           await this.datasourceService.checkSupervisorAvailability(datasource)
         }
         result = await this.connector.post(config.query_api.druid.sql_query_path, req.body.querySql);
