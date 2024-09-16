@@ -15,7 +15,8 @@ export const config = {
       "sql_query_path": "/druid/v2/sql/",
       "native_query_path": "/druid/v2",
       "list_datasources_path": "/druid/v2/datasources",
-      "submit_ingestion": "druid/indexer/v1/supervisor"
+      "submit_ingestion": "druid/indexer/v1/supervisor",
+      "load_status": "/druid/coordinator/v1/loadstatus"
     },
     "lakehouse": {
       "queryType": "datalake",
