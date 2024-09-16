@@ -69,12 +69,12 @@ export class Datasources {
     
     public checkSupervisorAvailability = async (datasourceRef: string) => {
         const { data } = await druidHttpService.get(config.query_api.druid.load_status);
-        const datasourceAvailaibility = _.get(data, datasourceRef)
-        if (_.isUndefined(datasourceAvailaibility)) {
+        const datasourceAvailability = _.get(data, datasourceRef)
+        if (_.isUndefined(datasourceAvailability)) {
             console.log(`Datasource ${datasourceRef} is not available in druid to query.`);
             throw constants.DATASOURCE_NOT_AVAILABLE
         }
-        if (datasourceAvailaibility !== 100) {
+        if (datasourceAvailability !== 100) {
             console.log(`Datasource ${datasourceRef} is not fuly available to query. Please check the druid datasource.`);
             throw constants.DATASOURCE_NOT_FULLY_AVAILABLE
         }
