@@ -43,7 +43,7 @@ jobs:
           context: ./command-service
           platforms: linux/amd64  
           push: true
-          tags: ${{ vars.DOCKERHUB_USERNAME }}/flink-command-service:${{ github.ref_name }}
+          tags: ${{ vars.DOCKERHUB_USERNAME }}/obsrv-command-service:${{ github.ref_name }}
 
   aws-deploy:
     needs: [build-api-service-image, build-command-service-image]
