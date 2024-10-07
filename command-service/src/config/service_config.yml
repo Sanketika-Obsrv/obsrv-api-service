@@ -15,8 +15,8 @@ flink:
 commands:
   PUBLISH_DATASET:
     workflow:
-      - MAKE_DATASET_LIVE
       - CREATE_KAFKA_TOPIC
+      - MAKE_DATASET_LIVE
       - SUBMIT_INGESTION_TASKS
       - START_PIPELINE_JOBS
       - DEPLOY_CONNECTORS
@@ -167,6 +167,8 @@ kafka:
   brokers: localhost:9092
   telemetry:
     topic: system.telemetry.events
+  replication_factor: 1
+  no_of_partitions: 1
 
 connector_jobs:
   spark:
