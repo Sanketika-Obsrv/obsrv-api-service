@@ -5,6 +5,7 @@ import { onFailure, onObsrvFailure, onSuccess } from "../metrics/prometheus/help
 import moment from "moment";
 import _ from "lodash";
 import { ObsrvError } from "../types/ObsrvError";
+import logger from "../logger";
 
 const ResponseHandler = {
   successResponse: (req: Request, res: Response, result: Result) => {
@@ -26,6 +27,8 @@ const ResponseHandler = {
 
   errorResponse: (error: Record<string, any>, req: Request, res: Response) => {
     const { statusCode, message, errCode, code = "INTERNAL_SERVER_ERROR", trace = "" } = error;
+    const sanitizedError = { ...error, proxyAuthKey: "REDACTED" };
+    logger.error(sanitizedError)
     const { id, entity, body } = req as any;
     const msgid = _.get(body, ["params", "msgid"])
     const resmsgid = _.get(res, "resmsgid")
@@ -37,6 +40,8 @@ const ResponseHandler = {
 
   obsrvErrorResponse: (error: ObsrvError, req: Request, res: Response) => {
     const { statusCode, message, errCode, code = "INTERNAL_SERVER_ERROR", data } = error;
+    const sanitizedError = { ...error, proxyAuthKey: "REDACTED" };
+    logger.error(sanitizedError)
     const { id, entity, body } = req as any;
     const msgid = _.get(body, ["params", "msgid"])
     const resmsgid = _.get(res, "resmsgid")
