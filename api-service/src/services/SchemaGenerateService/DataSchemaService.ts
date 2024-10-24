@@ -38,6 +38,9 @@ const DATE_FORMATS = [
 export class SchemaInference {
 
     public inferSchema(sample: any) {
+        if (!Array.isArray(sample)) {
+            throw new SchemaGenerationException("Invalid input: sample must be an array.", httpStatus.BAD_REQUEST);
+        }
         const removedAllKeys: any[] = []
         const schema = _.map(sample, (value): any => {
             const { cleanedData, removedKeys } = this.removeEmpty(value)
@@ -48,6 +51,9 @@ export class SchemaInference {
     }
 
     public inferBatchSchema(sample: Map<string, any>[], extractionKey: string) {
+        if (!Array.isArray(sample)) {
+            throw new SchemaGenerationException("Invalid input: sample must be an array.", httpStatus.BAD_REQUEST);
+        }
         const removedAllKeys: any[] = []
         const schema = _.flatMap(sample, (value) => {
             if (extractionKey) {
