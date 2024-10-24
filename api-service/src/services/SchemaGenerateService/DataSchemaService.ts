@@ -72,11 +72,11 @@ export class SchemaInference {
         return { schema, removedKeys: removedAllKeys }
     }
     // Only removes empty object and array at all the levels
-    private removeEmpty(data: any, parentKey = '', removedKeys: any[] = []) {
+    private removeEmpty(data: any, parentKey = "", removedKeys: any[] = []) {
         Object.keys(data).forEach((key) => {
             const value = data[key];
             const fullKey = parentKey ? `${parentKey}.${key}` : key;
-            if (typeof value === 'object' && value !== null) {
+            if (typeof value === "object" && value !== null) {
                 this.removeEmpty(value, fullKey, removedKeys);
                 if (_.isEmpty(value)) {
                     delete data[key];
