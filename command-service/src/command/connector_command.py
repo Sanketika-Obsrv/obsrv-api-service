@@ -61,32 +61,29 @@ class ConnectorCommand(ICommand):
         helm_ls_result = subprocess.run(
             helm_ls_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE
         )
-
         if helm_ls_result.returncode == 0:
-            jobs = helm_ls_result.stdout.decode()
-            for connector in active_connectors:
-                if connector.dataset_id == dataset_id:
-                    release_name = connector.id
-                    
-                    for job in jobs.splitlines()[1:]:
-                        if base_helm_chart in job and release_name == job.split()[0]:
-                            print(f"Uninstalling job {release_name} related to dataset'{dataset_id}'...")     
-                            helm_uninstall_cmd = [
-                                "helm",
-                                "uninstall",
-                                release_name,
-                                "--namespace",
-                                namespace,
-                            ]
-                            helm_uninstall_result = subprocess.run(
-                                helm_uninstall_cmd,
-                                stdout=subprocess.PIPE,
-                                stderr=subprocess.PIPE,
-                            )
-                            if helm_uninstall_result.returncode == 0:
-                                print(f"Successfully uninstalled job '{release_name}'...")
-                            else:
-                                print(f"Error uninstalling job '{release_name}': {helm_uninstall_result.stderr.decode()}")
+            jobs = helm_ls_result.stdout.decode().splitlines()[1:]
+            job_names = {job.split()[0] for job in jobs if base_helm_chart in job}
+            spark_connector = {connector.id for connector in active_connectors if connector.connector_runtime == "spark"}
+            for release_name in spark_connector:
+                if release_name in job_names:
+                    print(f"Uninstalling job {release_name} related to dataset'{dataset_id}'...")     
+                    helm_uninstall_cmd = [
+                        "helm",
+                        "uninstall",
+                        release_name,
+                        "--namespace",
+                        namespace,
+                    ]
+                    helm_uninstall_result = subprocess.run(
+                        helm_uninstall_cmd,
+                        stdout=subprocess.PIPE,
+                        stderr=subprocess.PIPE,
+                    )
+                    if helm_uninstall_result.returncode == 0:
+                        print(f"Successfully uninstalled job '{release_name}'...")
+                    else:
+                        print(f"Error uninstalling job '{release_name}': {helm_uninstall_result.stderr.decode()}")
                                 
     def _install_jobs(self, dataset_id, active_connectors, is_masterdata):
         result = None
