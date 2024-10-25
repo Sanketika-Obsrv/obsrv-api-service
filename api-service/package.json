@@ -61,6 +61,7 @@
     "@babel/traverse": "7.23.2"
   },
   "devDependencies": {
+    "@types/busboy": "^1.5.4",
     "@types/chai": "^4.3.3",
     "@types/chai-as-promised": "^7.1.5",
     "@types/chai-spies": "^1.0.3",
