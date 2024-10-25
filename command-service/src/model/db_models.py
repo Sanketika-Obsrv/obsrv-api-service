@@ -121,6 +121,7 @@ class ConnectorRegsitryv2:
 class ConnectorInstance:
     id: str
     connector_id: str
+    dataset_id: str
     operations_config: dict
     connector_runtime: str
     connector_source: dict

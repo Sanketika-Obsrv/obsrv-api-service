@@ -38,12 +38,12 @@ class ConnectorCommand(ICommand):
 
     def _deploy_connectors(self, dataset_id, active_connectors, is_masterdata):
         result = None
-        self._stop_connector_jobs(is_masterdata, self.connector_job_config["spark"]["namespace"])
+        self._stop_connector_jobs(is_masterdata, self.connector_job_config["spark"]["namespace"], active_connectors, dataset_id)
         result = self._install_jobs(dataset_id, active_connectors, is_masterdata)
 
         return result
 
-    def _stop_connector_jobs(self, is_masterdata, namespace):
+    def _stop_connector_jobs(self, is_masterdata, namespace, active_connectors, dataset_id):
         print(f"Uninstalling jobs for {namespace}..")
         base_helm_chart = self.connector_job_config["spark"]["base_helm_chart"]
 
@@ -64,29 +64,30 @@ class ConnectorCommand(ICommand):
 
         if helm_ls_result.returncode == 0:
             jobs = helm_ls_result.stdout.decode()
-            for job in jobs.splitlines()[1:]:
-                release_name = job.split()[0]
-                if base_helm_chart in job:
-                    print("Uninstalling job {0}".format(release_name))
-                    helm_uninstall_cmd = [
-                        "helm",
-                        "uninstall",
-                        release_name,
-                        "--namespace",
-                        namespace,
-                    ]
-                    helm_uninstall_result = subprocess.run(
-                        helm_uninstall_cmd,
-                        stdout=subprocess.PIPE,
-                        stderr=subprocess.PIPE,
-                    )
-                    if helm_uninstall_result.returncode == 0:
-                        print(f"Successfully uninstalled job {release_name}...")
-                    else:
-                        print(
-                            f"Error uninstalling job {release_name}: {helm_uninstall_result.stderr.decode()}"
-                        )
-
+            for connector in active_connectors:
+                if connector.dataset_id == dataset_id:
+                    release_name = connector.id
+                    
+                    for job in jobs.splitlines()[1:]:
+                        if base_helm_chart in job and release_name == job.split()[0]:
+                            print(f"Uninstalling job {release_name} related to dataset'{dataset_id}'...")     
+                            helm_uninstall_cmd = [
+                                "helm",
+                                "uninstall",
+                                release_name,
+                                "--namespace",
+                                namespace,
+                            ]
+                            helm_uninstall_result = subprocess.run(
+                                helm_uninstall_cmd,
+                                stdout=subprocess.PIPE,
+                                stderr=subprocess.PIPE,
+                            )
+                            if helm_uninstall_result.returncode == 0:
+                                print(f"Successfully uninstalled job '{release_name}'...")
+                            else:
+                                print(f"Error uninstalling job '{release_name}': {helm_uninstall_result.stderr.decode()}")
+                                
     def _install_jobs(self, dataset_id, active_connectors, is_masterdata):
         result = None
         for connector in active_connectors:
@@ -277,7 +278,7 @@ class ConnectorCommand(ICommand):
     def _get_connector_details(self, dataset_id):
         active_connectors = []
         query = f"""
-            SELECT ci.id, ci.connector_id, ci.operations_config, cr.runtime as connector_runtime, cr.source as connector_source, cr.technology, cr.version
+            SELECT ci.id, ci.connector_id, ci.dataset_id, ci.operations_config, cr.runtime as connector_runtime, cr.source as connector_source, cr.technology, cr.version
             FROM connector_instances ci
             JOIN connector_registry cr on ci.connector_id = cr.id
             WHERE ci.status= %s and ci.dataset_id = %s
