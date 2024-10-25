@@ -265,7 +265,6 @@ class DBCommand(ICommand):
                     connector_config.connector_id,
                     connector_config.connector_config,
                     json.dumps(operations_config).replace("'", "''"),
-                    connector_config.data_format,
                     DatasetStatusType.Live.name,
                     json.dumps(emptyJson),
                     json.dumps(emptyJson),
@@ -277,7 +276,6 @@ class DBCommand(ICommand):
 
                     connector_config.connector_config,
                     json.dumps(connector_config.operations_config).replace("'", "''"),
-                    connector_config.data_format,
                     draft_dataset_record.get('updated_by'),
                     current_timestamp,
                     current_timestamp,
@@ -285,10 +283,9 @@ class DBCommand(ICommand):
                 )
                 insert_query = f"""
                     INSERT INTO connector_instances(id, dataset_id, connector_id, connector_config, operations_config,
-                    data_format, status, connector_state, connector_stats, created_by, updated_by, created_date, 
+                    status, connector_state, connector_stats, created_by, updated_by, created_date, 
                     updated_date, published_date)
                     VALUES (
-                        %s,
                         %s,
                         %s,
                         %s,
@@ -306,7 +303,6 @@ class DBCommand(ICommand):
                     ON CONFLICT (id) DO UPDATE
                     SET connector_config = %s,
                     operations_config = %s,
-                    data_format = %s, 
                     updated_by = %s,
                     updated_date = %s,
                     published_date = %s,

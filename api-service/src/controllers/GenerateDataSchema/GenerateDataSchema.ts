@@ -32,7 +32,7 @@ const dataSchema = async (req: Request, res: Response) => {
     const request = <DatasetSchemeRequest>req.body.request
     const dataSchemaSpec = schemaGenerate(request.data, request.config)
     ResponseHandler.successResponse(req, res, { status: httpStatus.OK, data: dataSchemaSpec });
-    
+
 }
 
 const schemaGenerate = (sample: Map<string, any>[], config: Record<string, any>): any => {
@@ -46,13 +46,15 @@ const schemaGenerate = (sample: Map<string, any>[], config: Record<string, any>)
         result.schema = removeFormats(result.schema)
         return result
     } else {
-        let schema = isBatch ? schemaInference.inferBatchSchema(<Map<string, any>[]>sample, extractionKey) : schemaInference.inferSchema(sample);
+        // eslint-disable-next-line
+        let { schema, removedKeys } = isBatch ? schemaInference.inferBatchSchema(<Map<string, any>[]>sample, extractionKey) : schemaInference.inferSchema(sample);
         schema = schemaArrayValidator.validate(schema)
         const schemaCardinalityAnalyser = new SchemaCardinalityAnalyser(sample, schema)
         rollupInfo = schemaCardinalityAnalyser.analyse()
         const result = process(schema, dataset)
         result.schema = removeNonIndexColumns(result.schema)
         result.schema = removeFormats(result.schema)
+        !_.isEmpty(removedKeys) && _.set(result, "removedKeys", removedKeys)
         return result
     }
 }

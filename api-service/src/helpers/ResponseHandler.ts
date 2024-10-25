@@ -5,6 +5,7 @@ import { onFailure, onObsrvFailure, onSuccess } from "../metrics/prometheus/help
 import moment from "moment";
 import _ from "lodash";
 import { ObsrvError } from "../types/ObsrvError";
+import logger from "../logger";
 
 const ResponseHandler = {
   successResponse: (req: Request, res: Response, result: Result) => {
@@ -15,8 +16,8 @@ const ResponseHandler = {
     entity && onSuccess(req, res)
   },
 
-  routeNotFound: (req: Request, res: Response, next: NextFunction) => {
-    next({ statusCode: httpStatus.NOT_FOUND, message: httpStatus["404"], errCode: httpStatus["404_NAME"] });
+  routeNotFound: (req: Request, res: Response) => {
+    ResponseHandler.obsrvErrorResponse({ statusCode: httpStatus.NOT_FOUND, message: "Route not found", errCode: httpStatus["404_NAME"], code: "ROUTE_NOT_FOUND", err: undefined, data: "", datasetId: "" }, req, res)
   },
 
   refactorResponse: ({ id = "api", ver = "v2", params = { status: "SUCCESS" }, responseCode = httpStatus["200_NAME"], result = {}, msgid = "", resmsgid = "" }): IResponse => {
@@ -26,6 +27,8 @@ const ResponseHandler = {
 
   errorResponse: (error: Record<string, any>, req: Request, res: Response) => {
     const { statusCode, message, errCode, code = "INTERNAL_SERVER_ERROR", trace = "" } = error;
+    const sanitizedError = { ...error, proxyAuthKey: "REDACTED" };
+    logger.error(sanitizedError)
     const { id, entity, body } = req as any;
     const msgid = _.get(body, ["params", "msgid"])
     const resmsgid = _.get(res, "resmsgid")
@@ -37,12 +40,14 @@ const ResponseHandler = {
 
   obsrvErrorResponse: (error: ObsrvError, req: Request, res: Response) => {
     const { statusCode, message, errCode, code = "INTERNAL_SERVER_ERROR", data } = error;
+    const sanitizedError = { ...error, proxyAuthKey: "REDACTED" };
+    logger.error(sanitizedError)
     const { id, entity, body } = req as any;
     const msgid = _.get(body, ["params", "msgid"])
     const resmsgid = _.get(res, "resmsgid")
     const response = ResponseHandler.refactorResponse({ id, msgid, params: { status: "FAILED" }, responseCode: errCode || httpStatus["500_NAME"], resmsgid, result: data })
     res.status(statusCode || httpStatus.INTERNAL_SERVER_ERROR).json({ ...response, error: { code, message } });
-    entity && onObsrvFailure(req,res,error)
+    entity && onObsrvFailure(req, res, error)
   },
 
   setApiId: (id: string) => (req: Request, res: Response, next: NextFunction) => {
