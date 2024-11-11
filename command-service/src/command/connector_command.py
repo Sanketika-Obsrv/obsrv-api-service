@@ -216,7 +216,7 @@ class ConnectorCommand(ICommand):
         result = None
         release_name = connector_instance.id
         connector_source = connector_instance.connector_source
-        schedule = connector_instance.operations_config["operations_config_schedule"]
+        schedule = connector_instance.operations_config["schedule"]
 
         schedule_configs = {
             "Hourly": "0 * * * *",     # Runs at the start of every hour

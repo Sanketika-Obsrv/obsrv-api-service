@@ -287,6 +287,7 @@ class ConnectorRegistry:
     def execute_query(self, query, params) -> bool:
         try:
             result = self.db_service.execute_upsert(sql=query, params=params)
+            print(f"Connector Registry | {result} rows affected")
             return result > 0  # Assuming the result is the number of affected rows
         except Exception as e:
             print(
@@ -426,7 +427,7 @@ class ConnectorRegistry:
                 f"UPDATE connector_registry SET status = 'Retired', updated_date = now() WHERE connector_id = %s AND status = 'Live' AND version != %s", (_id, ver)
             )
             print(
-                f"Connector Registry | Updated {result} existing rows with connector_id: {_id} and version: {ver}"
+                f"Connector Registry | Retired {result} versions for connector_id: {_id} and version: {ver}"
             )
         except Exception as e:
             print(

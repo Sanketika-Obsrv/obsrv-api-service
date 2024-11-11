@@ -6,7 +6,7 @@ from tenacity import retry, stop_after_attempt, wait_exponential
 from config import Config
 
 def reconnect(func: Callable):
-    
+
     def wrapper(db_connection, *args, **kwargs):
         tdecorator = retry(wait=wait_exponential(), stop=stop_after_attempt(3))
         decorated = tdecorator(func)
@@ -60,9 +60,9 @@ class DatabaseService:
         db_connection = self.connect()
         cursor = db_connection.cursor(cursor_factory=psycopg2.extras.DictCursor)
         cursor.execute(sql, params)
+        db_connection.commit()
         record_count = cursor.rowcount
         db_connection.close()
-        # print(f"{record_count} inserted/updated successfully")
         return record_count
 
 # @reconnect
