@@ -66,10 +66,6 @@
             "epoch":{
                 "jsonSchema": "integer",
                 "datasource": "long"
-            },
-            "number": {
-                "jsonSchema": "number",
-                "datasource": "double"
             }
         }
     },
