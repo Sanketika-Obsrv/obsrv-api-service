@@ -15,7 +15,7 @@ class BaseTableGenerator {
         const properties: Record<string, any>[] = []
         const flatten = (schema: Record<string, any>, prev: string | undefined, prevExpr: string | undefined) => {
             _.mapKeys(schema, function (value, parentKey) {
-                const newKey = (prev) ? type === "druid" ? _.join([prev, parentKey], ".") : _.join([prev, parentKey], "_") : parentKey;
+                const newKey = (prev) ? type === "druid" ? _.join([prev, parentKey], ".") : _.replace(_.join([prev, parentKey], "_"), /\./g, "_") : parentKey;
                 const newExpr = (prevExpr) ? _.join([prevExpr, ".['", parentKey, "']"], "") : _.join(["$.['", parentKey, "']"], "");
                 switch (value["type"]) {
                     case "object":
@@ -24,7 +24,7 @@ class BaseTableGenerator {
                     case "array":
                         if (type === "druid" && _.get(value, "items.type") == "object" && _.get(value, "items.properties")) {
                             _.mapKeys(_.get(value, "items.properties"), function (value, childKey) {
-                                const objChildKey = type === "druid" ? _.join([newKey, childKey], ".") : _.join([newKey, childKey], "_")
+                                const objChildKey = type === "druid" ? _.join([newKey, childKey], ".") : _.replace(_.join([prev, childKey], "_"), /\./g, "_")
                                 properties.push(_.merge(_.pick(value, ["type", "arrival_format", "is_deleted"]), { expr: _.join([newExpr, "[*].['", childKey, "']"], ""), name: objChildKey, data_type: "array" }))
                             })
                         } else {
@@ -89,7 +89,7 @@ class BaseTableGenerator {
                 const denormDataset: any = await datasetService.getDataset(denormField.dataset_id, ["data_schema"], true);
                 const properties = this.flattenSchema(denormDataset.data_schema, type);
                 const transformProps = _.map(properties, (prop) => {
-                    _.set(prop, "name", _.join([denormField.denorm_out_field, prop.name], "_"));
+                    _.set(prop, "name", _.join([_.replace(denormField.denorm_out_field, /\./g, "_"), prop.name], "_"));
                     _.set(prop, "expr", _.replace(prop.expr, "$", "$." + denormField.denorm_out_field));
                     return prop;
                 });
@@ -99,7 +99,7 @@ class BaseTableGenerator {
         if (!_.isEmpty(transformations_config)) {
             const transformationFields = _.map(transformations_config, (tf) => ({
                 expr: "$." + tf.field_key,
-                name: tf.field_key,
+                name: _.replace(tf.field_key, /\./g, "_"),
                 data_type: tf.transformation_function.datatype,
                 arrival_format: tf.transformation_function.datatype,
                 type: tf.transformation_function.datatype
@@ -316,12 +316,12 @@ class TableGenerator extends BaseTableGenerator {
     }
 
     private getPrimaryKey = (dataset: Record<string, any>): string => {
-        return _.replace(dataset.dataset_config.keys_config.data_key, ".", "_");
+        return _.replace(dataset.dataset_config.keys_config.data_key, /\./g, "_");
     }
 
     private getHudiPartitionKey = (dataset: Record<string, any>): string => {
         const partitionKey = dataset.dataset_config.keys_config.partition_key || dataset.dataset_config.keys_config.timestamp_key;
-        return _.replace(partitionKey, ".", "_")
+        return _.replace(partitionKey, /\./g, "_")
     }
 
     private getTimestampKey = (dataset: Record<string, any>, type: string): string => {
@@ -329,7 +329,7 @@ class TableGenerator extends BaseTableGenerator {
         if (type === "druid") {
             return timestamp;
         }
-        return _.replace(timestamp, ".", "_");
+        return _.replace(timestamp, /\./g, "_");
     }
 }
 
