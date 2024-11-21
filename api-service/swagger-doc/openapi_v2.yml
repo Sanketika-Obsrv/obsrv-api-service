@@ -17,10 +17,10 @@ tags:
       capability to list multiple records based on specific criteria.
   - name: Connector API's
   - name: Data Ingest
-  - name: Data query
+  - name: Data Query
   - name: Query Templates
   - name: Alert Notification-channels
-  - name: Alert silence
+  - name: Alert Silence
   - name: Alerts Wrapper
   - name: Alert Metric_alias
 paths:
@@ -7411,6 +7411,101 @@ paths:
                 error:
                   code: CONNECTOR_NOT_FOUND
                   message: 'Connector not found: postgres-conn'
+  /v2/connector/register:
+    post:
+      tags:
+        - Connector API's
+      summary: Register a connector
+      description: Registers a connector by uploading a file.
+      operationId: registerConnector
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file3:
+                  type: string
+                  format: binary
+                  description: Connector distribution file to upload.
+      responses:
+        '200':
+          description: Connector registered successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    example: api.connector.register
+                  ver:
+                    type: string
+                    example: v2
+                  ts:
+                    type: string
+                    format: date-time
+                    example: "2024-11-19T09:28:47+00:00"
+                  params:
+                    type: object
+                    properties:
+                      status:
+                        type: string
+                        example: SUCCESS
+                      resmsgid:
+                        type: string
+                        example: fc2ce24f-a333-479f-931c-024d61039801
+                  responseCode:
+                    type: string
+                    example: OK
+                  result:
+                    type: object
+                    properties:
+                      message:
+                        type: string
+                        example: connector registered successfully.
+        '500':
+          description: Internal server error while registering the connector.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    example: api.connector.register
+                  ver:
+                    type: string
+                    example: v2
+                  ts:
+                    type: string
+                    format: date-time
+                    example: "2024-11-19T09:50:21+00:00"
+                  params:
+                    type: object
+                    properties:
+                      status:
+                        type: string
+                        example: FAILED
+                      resmsgid:
+                        type: string
+                        example: ebaad9d7-c0d4-47e4-8cde-87fb25eef739
+                  responseCode:
+                    type: string
+                    example: INTERNAL_SERVER_ERROR
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        example: FAILED_TO_REGISTER_CONNECTOR
+                      message:
+                        type: string
+                        example: Failed to Extract the File
+                      trace:
+                        type: string
+                        example: "" 
   /v2/data/in/{dataset_id}:
     parameters:
       - name: dataset_id
@@ -7644,7 +7739,7 @@ paths:
   /v2/data/query/test:
     post:
       tags:
-        - Data query
+        - Data Query
       summary: Query Data
       requestBody:
         content:
@@ -9559,7 +9654,7 @@ paths:
   /alerts/v1/silence/create:
     post:
       tags:
-        - Alert silence
+        - Alert Silence
       summary: Add Silence
       requestBody:
         content:
@@ -9586,7 +9681,7 @@ paths:
         description: Unique identifier for the alert
     get:
       tags:
-        - Alert silence
+        - Alert Silence
       summary: Get Silence
       responses:
         '200':
@@ -9603,7 +9698,7 @@ paths:
         description: Unique identifier for the alert
     delete:
       tags:
-        - Alert silence
+        - Alert Silence
       summary: Delete Silence
       responses:
         '200':
@@ -9613,7 +9708,7 @@ paths:
   /alerts/v1/silence/search:
     get:
       tags:
-        - Alert silence
+        - Alert Silence
       summary: Fetch All Silences
       responses:
         '200':
@@ -9630,7 +9725,7 @@ paths:
         description: Unique identifier for the alert
     patch:
       tags:
-        - Alert silence
+        - Alert Silence
       summary: Modify Silence Request
       requestBody:
         content:
