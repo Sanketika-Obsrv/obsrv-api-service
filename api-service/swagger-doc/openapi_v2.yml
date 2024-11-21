@@ -19,10 +19,10 @@ tags:
   - name: Data Ingest
   - name: Data Query
   - name: Query Templates
-  - name: Alert Notification-channels
+  - name: Alert Notification Channels
   - name: Alert Silence
   - name: Alerts Wrapper
-  - name: Alert Metric_alias
+  - name: Alert Metric Alias
 paths:
   /v2/datasets/create:
     post:
@@ -9536,7 +9536,7 @@ paths:
   /alerts/v1/notifications/search:
     post:
       tags:
-        - Alert Notification-channels
+        - Alert Notification Channels
       summary: Search Notificaation Channels
       requestBody:
         content: {}
@@ -9548,7 +9548,7 @@ paths:
   /alerts/v1/notifications/create:
     post:
       tags:
-        - Alert Notification-channels
+        - Alert Notification Channels
       summary: Configure channel
       requestBody:
         content:
@@ -9577,7 +9577,7 @@ paths:
         description: Unique identifier for the alert
     get:
       tags:
-        - Alert Notification-channels
+        - Alert Notification Channels
       summary: Publish Channel
       responses:
         '200':
@@ -9587,7 +9587,7 @@ paths:
   /alerts/v1/notifications/test:
     post:
       tags:
-        - Alert Notification-channels
+        - Alert Notification Channels
       summary: Verify Configured Channel
       requestBody:
         content:
@@ -9620,7 +9620,7 @@ paths:
         description: Unique identifier for the alert
     patch:
       tags:
-        - Alert Notification-channels
+        - Alert Notification Channels
       summary: Update Specific Channel
       requestBody:
         content:
@@ -9644,7 +9644,7 @@ paths:
         description: Unique identifier for the alert
     delete:
       tags:
-        - Alert Notification-channels
+        - Alert Notification Channels
       summary: Delete Channel
       responses:
         '200':
@@ -10023,7 +10023,7 @@ paths:
   /alerts/v1/metric/alias/create:
     post:
       tags:
-        - Alert Metric_alias
+        - Alert Metric Alias
       summary: Create Custom Metric
       requestBody:
         content:
@@ -10042,7 +10042,7 @@ paths:
   /alerts/v1/metric/alias/search:
     post:
       tags:
-        - Alert Metric_alias
+        - Alert Metric Alias
       summary: List Create Metrics
       requestBody:
         content:
@@ -10065,7 +10065,7 @@ paths:
         description: Unique identifier for the alert
     patch:
       tags:
-        - Alert Metric_alias
+        - Alert Metric Alias
       summary: Modify Metric
       requestBody:
         content:
@@ -10089,7 +10089,7 @@ paths:
         description: Unique identifier for the alert
     delete:
       tags:
-        - Alert Metric_alias
+        - Alert Metric Alias
       summary: Delete Metric
       responses:
         '200':
