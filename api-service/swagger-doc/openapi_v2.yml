@@ -10,12 +10,12 @@ servers:
   - url: http://localhost:3000
   - url: http://{{host_ip}}
 tags:
-  - name: Dataset api's
+  - name: Dataset API's
     description: >-
       The Dataset APIs facilitate efficient management of datasets by enabling
       users to create, read, and update dataset records, along with the
       capability to list multiple records based on specific criteria.
-  - name: Connector api's
+  - name: Connector API's
   - name: Data Ingest
   - name: Data query
   - name: Query Templates
@@ -27,8 +27,8 @@ paths:
   /v2/datasets/create:
     post:
       tags:
-        - Dataset api's
-      summary: Dataset create
+        - Dataset API's
+      summary: Dataset Create
       description: >-
         This API allows you to create new datasets used by the analytical data
         source.
@@ -100,6 +100,35 @@ paths:
       responses:
         '200':
           description: OK
+          headers:
+            X-Powered-By:
+              schema:
+                type: string
+                example: Express
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Content-Length:
+              schema:
+                type: integer
+                example: '287'
+            ETag:
+              schema:
+                type: string
+                example: W/"11f-uBTr0zBIIFpz/sdLJx6WQf0rAbQ"
+            Date:
+              schema:
+                type: string
+                example: Mon, 15 Jul 2024 13:14:09 GMT
+            Connection:
+              schema:
+                type: string
+                example: keep-alive
+            Keep-Alive:
+              schema:
+                type: string
+                example: timeout=5
           content:
             application/json:
               schema:
@@ -163,6 +192,35 @@ paths:
                       version_key: '1721220593027'
         '400':
           description: Bad Request
+          headers:
+            X-Powered-By:
+              schema:
+                type: string
+                example: Express
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Content-Length:
+              schema:
+                type: integer
+                example: '362'
+            ETag:
+              schema:
+                type: string
+                example: W/"16a-Jn1DYy5EYoYF/Syd3f9LOvOK0lI"
+            Date:
+              schema:
+                type: string
+                example: Tue, 16 Jul 2024 03:09:00 GMT
+            Connection:
+              schema:
+                type: string
+                example: keep-alive
+            Keep-Alive:
+              schema:
+                type: string
+                example: timeout=5
           content:
             application/json:
               schema:
@@ -184,6 +242,35 @@ paths:
                     'dataset_id'
         '409':
           description: Conflict
+          headers:
+            X-Powered-By:
+              schema:
+                type: string
+                example: Express
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Content-Length:
+              schema:
+                type: integer
+                example: '337'
+            ETag:
+              schema:
+                type: string
+                example: W/"151-a7dJ9XBUyT3AXNxl1TPcraxMX08"
+            Date:
+              schema:
+                type: string
+                example: Tue, 16 Jul 2024 03:07:28 GMT
+            Connection:
+              schema:
+                type: string
+                example: keep-alive
+            Keep-Alive:
+              schema:
+                type: string
+                example: timeout=5
           content:
             application/json:
               schema:
@@ -192,7 +279,7 @@ paths:
                 example-0:
                   summary: 'Failure: Master dataset already exists'
                   value:
-                    id: api.datasets.create
+                    id: api.files.generate-url
                     ver: v2
                     ts: '2024-07-16T08:37:28+05:30'
                     params:
@@ -207,7 +294,7 @@ paths:
                 example-1:
                   summary: 'Failure: Dataset already exists'
                   value:
-                    id: api.datasets.create
+                    id: api.files.generate-url
                     ver: v2
                     ts: '2024-07-16T08:38:05+05:30'
                     params:
@@ -222,8 +309,8 @@ paths:
   /v2/files/generate-url:
     post:
       tags:
-        - Dataset api's
-      summary: File generate url
+        - Dataset API's
+      summary: Generate Presigned URLs
       description: This API generates presigned URLs to upload or download files from cloud
       requestBody:
         content:
@@ -250,6 +337,35 @@ paths:
       responses:
         '200':
           description: OK
+          headers:
+            X-Powered-By:
+              schema:
+                type: string
+                example: Express
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Content-Length:
+              schema:
+                type: integer
+                example: '1344'
+            ETag:
+              schema:
+                type: string
+                example: W/"540-790rZel+H/rDwgvZRxvlUmZ8Gpc"
+            Date:
+              schema:
+                type: string
+                example: Tue, 16 Jul 2024 02:56:19 GMT
+            Connection:
+              schema:
+                type: string
+                example: keep-alive
+            Keep-Alive:
+              schema:
+                type: string
+                example: timeout=5
           content:
             application/json:
               schema:
@@ -300,6 +416,35 @@ paths:
                           https://test-connector.s3.us-east-2.amazonaws.com/test-connector/api-service/user_uploads/school_data.json?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIA2SANCC6IV26VYMEG%2F20240716%2Fus-east-2%2Fs3%2Faws4_request&X-Amz-Date=20240716T040140Z&X-Amz-Expires=600&X-Amz-Signature=e02f34103615f7dcc206c3afc8365ebfe9b58a00eb4c0200aa986bce58406cbd&X-Amz-SignedHeaders=host&x-id=GetObject
         '400':
           description: Bad Request
+          headers:
+            X-Powered-By:
+              schema:
+                type: string
+                example: Express
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Content-Length:
+              schema:
+                type: integer
+                example: '355'
+            ETag:
+              schema:
+                type: string
+                example: W/"163-9oQYJJEaBH3mJAnzDHXn2MxE848"
+            Date:
+              schema:
+                type: string
+                example: Tue, 16 Jul 2024 03:03:04 GMT
+            Connection:
+              schema:
+                type: string
+                example: keep-alive
+            Keep-Alive:
+              schema:
+                type: string
+                example: timeout=5
           content:
             application/json:
               schema:
@@ -340,8 +485,8 @@ paths:
   /v2/datasets/update:
     patch:
       tags:
-        - Dataset api's
-      summary: Dataset update
+        - Dataset API's
+      summary: Update Dataset
       description: >-
         This API allows you to update existing datasets, add or remove denorm
         fields used by the analytical data source. User can even add, remove or
@@ -452,6 +597,35 @@ paths:
       responses:
         '200':
           description: OK
+          headers:
+            X-Powered-By:
+              schema:
+                type: string
+                example: Express
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Content-Length:
+              schema:
+                type: integer
+                example: '331'
+            ETag:
+              schema:
+                type: string
+                example: W/"14b-fNmMHDpT4Ka5pwuzbYvZo7jECEo"
+            Date:
+              schema:
+                type: string
+                example: Tue, 16 Jul 2024 13:00:45 GMT
+            Connection:
+              schema:
+                type: string
+                example: keep-alive
+            Keep-Alive:
+              schema:
+                type: string
+                example: timeout=5
           content:
             application/json:
               schema:
@@ -489,6 +663,35 @@ paths:
                       version_key: '1721134675878'
         '400':
           description: Bad Request
+          headers:
+            X-Powered-By:
+              schema:
+                type: string
+                example: Express
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Content-Length:
+              schema:
+                type: integer
+                example: '369'
+            ETag:
+              schema:
+                type: string
+                example: W/"171-iNJoyWUecOEsXbHZwx6rld3Sr1I"
+            Date:
+              schema:
+                type: string
+                example: Tue, 16 Jul 2024 12:59:21 GMT
+            Connection:
+              schema:
+                type: string
+                example: keep-alive
+            Keep-Alive:
+              schema:
+                type: string
+                example: timeout=5
           content:
             application/json:
               schema:
@@ -530,6 +733,35 @@ paths:
                         to update the dataset
         '404':
           description: Not Found
+          headers:
+            X-Powered-By:
+              schema:
+                type: string
+                example: Express
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Content-Length:
+              schema:
+                type: integer
+                example: '340'
+            ETag:
+              schema:
+                type: string
+                example: W/"154-4I5VyTBINyYBZZM8Ge9Cnqz2xBY"
+            Date:
+              schema:
+                type: string
+                example: Tue, 16 Jul 2024 12:58:30 GMT
+            Connection:
+              schema:
+                type: string
+                example: keep-alive
+            Keep-Alive:
+              schema:
+                type: string
+                example: timeout=5
           content:
             application/json:
               schema:
@@ -549,6 +781,35 @@ paths:
                   message: Dataset does not exists with id:telemetry_record-t41
         '409':
           description: Conflict
+          headers:
+            X-Powered-By:
+              schema:
+                type: string
+                example: Express
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Content-Length:
+              schema:
+                type: integer
+                example: '383'
+            ETag:
+              schema:
+                type: string
+                example: W/"17f-JnlFVLXyuhwx9KbxYWDRB4mmvVw"
+            Date:
+              schema:
+                type: string
+                example: Tue, 16 Jul 2024 12:53:16 GMT
+            Connection:
+              schema:
+                type: string
+                example: keep-alive
+            Keep-Alive:
+              schema:
+                type: string
+                example: timeout=5
           content:
             application/json:
               schema:
@@ -578,8 +839,8 @@ paths:
         description: Unique identifier for the dataset
     get:
       tags:
-        - Dataset api's
-      summary: Read dataset
+        - Dataset API's
+      summary: Read Dataset
       description: >-
         This API allows you to read dataset from the requested dataset_id. User
         can request for the specific fields and status of the dataset through
@@ -602,6 +863,35 @@ paths:
       responses:
         '200':
           description: OK
+          headers:
+            X-Powered-By:
+              schema:
+                type: string
+                example: Express
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Content-Length:
+              schema:
+                type: integer
+                example: '501'
+            ETag:
+              schema:
+                type: string
+                example: W/"1f5-p+b/6r0nHRFhgr5+URzxk4d/CSg"
+            Date:
+              schema:
+                type: string
+                example: Wed, 17 Jul 2024 12:08:55 GMT
+            Connection:
+              schema:
+                type: string
+                example: keep-alive
+            Keep-Alive:
+              schema:
+                type: string
+                example: timeout=5
           content:
             application/json:
               schema:
@@ -722,6 +1012,35 @@ paths:
                           redis_db: 0
         '400':
           description: Bad Request
+          headers:
+            X-Powered-By:
+              schema:
+                type: string
+                example: Express
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Content-Length:
+              schema:
+                type: integer
+                example: '307'
+            ETag:
+              schema:
+                type: string
+                example: W/"133-TQ9WpmutsrDcTNkRRmbWOhUChMk"
+            Date:
+              schema:
+                type: string
+                example: Wed, 17 Jul 2024 12:20:17 GMT
+            Connection:
+              schema:
+                type: string
+                example: keep-alive
+            Keep-Alive:
+              schema:
+                type: string
+                example: timeout=5
           content:
             application/json:
               schema:
@@ -742,6 +1061,35 @@ paths:
                     found.
         '404':
           description: Not Found
+          headers:
+            X-Powered-By:
+              schema:
+                type: string
+                example: Express
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Content-Length:
+              schema:
+                type: integer
+                example: '304'
+            ETag:
+              schema:
+                type: string
+                example: W/"130-JL/oBB+GUHTrBp278giBHRvO71I"
+            Date:
+              schema:
+                type: string
+                example: Wed, 17 Jul 2024 12:21:12 GMT
+            Connection:
+              schema:
+                type: string
+                example: keep-alive
+            Keep-Alive:
+              schema:
+                type: string
+                example: timeout=5
           content:
             application/json:
               schema:
@@ -763,8 +1111,8 @@ paths:
   /v2/datasets/list:
     post:
       tags:
-        - Dataset api's
-      summary: Dataset list
+        - Dataset API's
+      summary: List Datasets
       description: >-
         This API allows you to list all datasets. User can apply filters on
         dataset status and type.
@@ -786,6 +1134,35 @@ paths:
       responses:
         '200':
           description: OK
+          headers:
+            X-Powered-By:
+              schema:
+                type: string
+                example: Express
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Content-Length:
+              schema:
+                type: integer
+                example: '24340'
+            ETag:
+              schema:
+                type: string
+                example: W/"5f14-Cq3tfdk3YuXhXtjub1V0q8YVdC4"
+            Date:
+              schema:
+                type: string
+                example: Wed, 17 Jul 2024 12:25:36 GMT
+            Connection:
+              schema:
+                type: string
+                example: keep-alive
+            Keep-Alive:
+              schema:
+                type: string
+                example: timeout=5
           content:
             application/json:
               schema:
@@ -3289,6 +3666,35 @@ paths:
                       count: 2
         '400':
           description: Bad Request
+          headers:
+            X-Powered-By:
+              schema:
+                type: string
+                example: Express
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Content-Length:
+              schema:
+                type: integer
+                example: '312'
+            ETag:
+              schema:
+                type: string
+                example: W/"138-XQplwhrgIYKIg0qtQdRCYWIGTNM"
+            Date:
+              schema:
+                type: string
+                example: Wed, 17 Jul 2024 12:32:26 GMT
+            Connection:
+              schema:
+                type: string
+                example: keep-alive
+            Keep-Alive:
+              schema:
+                type: string
+                example: timeout=5
           content:
             application/json:
               schema:
@@ -3310,8 +3716,8 @@ paths:
   /v2/datasets/dataschema:
     post:
       tags:
-        - Dataset api's
-      summary: Data schema generator
+        - Dataset API's
+      summary: Schema Generation
       description: This api is used to generate data schema for the given dataset event.
       requestBody:
         content:
@@ -3599,6 +4005,35 @@ paths:
       responses:
         '200':
           description: OK
+          headers:
+            X-Powered-By:
+              schema:
+                type: string
+                example: Express
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Content-Length:
+              schema:
+                type: integer
+                example: '10760'
+            ETag:
+              schema:
+                type: string
+                example: W/"2a08-QF5x1q0kIlfE9XU/pa9IboJuY8I"
+            Date:
+              schema:
+                type: string
+                example: Mon, 22 Jul 2024 07:02:50 GMT
+            Connection:
+              schema:
+                type: string
+                example: keep-alive
+            Keep-Alive:
+              schema:
+                type: string
+                example: timeout=5
           content:
             application/json:
               schema:
@@ -4112,6 +4547,35 @@ paths:
                           datasource: boolean
         '400':
           description: Bad Request
+          headers:
+            X-Powered-By:
+              schema:
+                type: string
+                example: Express
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Content-Length:
+              schema:
+                type: integer
+                example: '364'
+            ETag:
+              schema:
+                type: string
+                example: W/"16c-tfKVtCWTjNkWCtH8cFw1RrzbgV0"
+            Date:
+              schema:
+                type: string
+                example: Mon, 22 Jul 2024 07:03:47 GMT
+            Connection:
+              schema:
+                type: string
+                example: keep-alive
+            Keep-Alive:
+              schema:
+                type: string
+                example: timeout=5
           content:
             application/json:
               schema:
@@ -4154,7 +4618,7 @@ paths:
   /v2/datasets/status-transition:
     post:
       tags:
-        - Dataset api's
+        - Dataset API's
       summary: Dataset Status Transition
       description: >-
         This API allows you to perform status transition between 2 states.
@@ -4405,7 +4869,7 @@ paths:
   /v2/datasets/import:
     post:
       tags:
-        - Dataset api's
+        - Dataset API's
       summary: Dataset import
       requestBody:
         content:
@@ -5103,6 +5567,35 @@ paths:
       responses:
         '200':
           description: OK
+          headers:
+            X-Powered-By:
+              schema:
+                type: string
+                example: Express
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Content-Length:
+              schema:
+                type: integer
+                example: '346'
+            ETag:
+              schema:
+                type: string
+                example: W/"15a-SX5o6plRdfy+akEYhbMwq9zl+oU"
+            Date:
+              schema:
+                type: string
+                example: Tue, 19 Nov 2024 07:34:26 GMT
+            Connection:
+              schema:
+                type: string
+                example: keep-alive
+            Keep-Alive:
+              schema:
+                type: string
+                example: timeout=5
           content:
             application/json:
               schema:
@@ -5165,6 +5658,35 @@ paths:
                         version_key: '1732001732045'
         '400':
           description: Bad Request
+          headers:
+            X-Powered-By:
+              schema:
+                type: string
+                example: Express
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Content-Length:
+              schema:
+                type: integer
+                example: '364'
+            ETag:
+              schema:
+                type: string
+                example: W/"16c-Dxem7prJM89DOqth+bdZbh0UI1g"
+            Date:
+              schema:
+                type: string
+                example: Tue, 19 Nov 2024 07:38:05 GMT
+            Connection:
+              schema:
+                type: string
+                example: keep-alive
+            Keep-Alive:
+              schema:
+                type: string
+                example: timeout=5
           content:
             application/json:
               schema:
@@ -5186,6 +5708,35 @@ paths:
                     'id'
         '409':
           description: Conflict
+          headers:
+            X-Powered-By:
+              schema:
+                type: string
+                example: Express
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Content-Length:
+              schema:
+                type: integer
+                example: '351'
+            ETag:
+              schema:
+                type: string
+                example: W/"15f-nj5WJ+wiNbI5ViTPWUzGutdBSX4"
+            Date:
+              schema:
+                type: string
+                example: Tue, 19 Nov 2024 07:31:11 GMT
+            Connection:
+              schema:
+                type: string
+                example: keep-alive
+            Keep-Alive:
+              schema:
+                type: string
+                example: timeout=5
           content:
             application/json:
               schema:
@@ -5215,8 +5766,8 @@ paths:
         description: Unique identifier for the dataset
     get:
       tags:
-        - Dataset api's
-      summary: Dataset export
+        - Dataset API's
+      summary: Export Dataset
       parameters:
         - name: status
           in: query
@@ -5226,6 +5777,35 @@ paths:
       responses:
         '200':
           description: OK
+          headers:
+            X-Powered-By:
+              schema:
+                type: string
+                example: Express
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Content-Length:
+              schema:
+                type: integer
+                example: '5155'
+            ETag:
+              schema:
+                type: string
+                example: W/"1423-Tx46QCrIX8So3vSGVkd865IYeEY"
+            Date:
+              schema:
+                type: string
+                example: Tue, 19 Nov 2024 07:16:01 GMT
+            Connection:
+              schema:
+                type: string
+                example: keep-alive
+            Keep-Alive:
+              schema:
+                type: string
+                example: timeout=5
           content:
             application/json:
               schema:
@@ -5776,6 +6356,35 @@ paths:
                       updated_date: '2024-11-12T08:32:27.931Z'
         '400':
           description: Bad Request
+          headers:
+            X-Powered-By:
+              schema:
+                type: string
+                example: Express
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Content-Length:
+              schema:
+                type: integer
+                example: '291'
+            ETag:
+              schema:
+                type: string
+                example: W/"123-E2lDLItXYvKnJxGcDJ3Q0OKjqQY"
+            Date:
+              schema:
+                type: string
+                example: Tue, 19 Nov 2024 07:20:43 GMT
+            Connection:
+              schema:
+                type: string
+                example: keep-alive
+            Keep-Alive:
+              schema:
+                type: string
+                example: timeout=5
           content:
             application/json:
               schema:
@@ -5794,6 +6403,35 @@ paths:
                   message: Dataset with status:Draft cannot be exported
         '404':
           description: Not Found
+          headers:
+            X-Powered-By:
+              schema:
+                type: string
+                example: Express
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Content-Length:
+              schema:
+                type: integer
+                example: '301'
+            ETag:
+              schema:
+                type: string
+                example: W/"12d-vO+8bWB6kFOrTzeJmTIRlcTcYCQ"
+            Date:
+              schema:
+                type: string
+                example: Tue, 19 Nov 2024 07:15:10 GMT
+            Connection:
+              schema:
+                type: string
+                example: keep-alive
+            Keep-Alive:
+              schema:
+                type: string
+                example: timeout=5
           content:
             application/json:
               schema:
@@ -5815,8 +6453,8 @@ paths:
   /v2/datasets/copy:
     post:
       tags:
-        - Dataset api's
-      summary: Dataset copy
+        - Dataset API's
+      summary: Clone Dataset
       requestBody:
         content:
           application/json:
@@ -5843,6 +6481,35 @@ paths:
       responses:
         '200':
           description: OK
+          headers:
+            X-Powered-By:
+              schema:
+                type: string
+                example: Express
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Content-Length:
+              schema:
+                type: integer
+                example: '296'
+            ETag:
+              schema:
+                type: string
+                example: W/"128-bi4wSfgkyMP13qFE8VPTmgDdgLA"
+            Date:
+              schema:
+                type: string
+                example: Tue, 19 Nov 2024 07:26:12 GMT
+            Connection:
+              schema:
+                type: string
+                example: keep-alive
+            Keep-Alive:
+              schema:
+                type: string
+                example: timeout=5
           content:
             application/json:
               schema:
@@ -5861,6 +6528,35 @@ paths:
                   message: Dataset clone successful
         '404':
           description: Not Found
+          headers:
+            X-Powered-By:
+              schema:
+                type: string
+                example: Express
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Content-Length:
+              schema:
+                type: integer
+                example: '328'
+            ETag:
+              schema:
+                type: string
+                example: W/"148-jUDshghYf/jOhmmVkvtHlfJT864"
+            Date:
+              schema:
+                type: string
+                example: Tue, 19 Nov 2024 07:22:41 GMT
+            Connection:
+              schema:
+                type: string
+                example: keep-alive
+            Keep-Alive:
+              schema:
+                type: string
+                example: timeout=5
           content:
             application/json:
               schema:
@@ -5881,8 +6577,8 @@ paths:
   /v2/connectors/list:
     post:
       tags:
-        - Connector api's
-      summary: Connector list
+        - Connector API's
+      summary: List Connectors
       requestBody:
         content:
           application/json:
@@ -5901,6 +6597,35 @@ paths:
       responses:
         '200':
           description: OK
+          headers:
+            X-Powered-By:
+              schema:
+                type: string
+                example: Express
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Content-Length:
+              schema:
+                type: integer
+                example: '250'
+            ETag:
+              schema:
+                type: string
+                example: W/"fa-+eWKIfUxsWBGuJy23qSucgLXke4"
+            Date:
+              schema:
+                type: string
+                example: Tue, 30 Jul 2024 09:55:51 GMT
+            Connection:
+              schema:
+                type: string
+                example: keep-alive
+            Keep-Alive:
+              schema:
+                type: string
+                example: timeout=5
           content:
             application/json:
               schema:
@@ -6342,6 +7067,35 @@ paths:
                       count: 7
         '400':
           description: Bad Request
+          headers:
+            X-Powered-By:
+              schema:
+                type: string
+                example: Express
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Content-Length:
+              schema:
+                type: integer
+                example: '399'
+            ETag:
+              schema:
+                type: string
+                example: W/"18f-Hsau3RTrCuWgbSoS3cqIWuUq45k"
+            Date:
+              schema:
+                type: string
+                example: Tue, 30 Jul 2024 09:43:14 GMT
+            Connection:
+              schema:
+                type: string
+                example: keep-alive
+            Keep-Alive:
+              schema:
+                type: string
+                example: timeout=5
           content:
             application/json:
               schema:
@@ -6371,11 +7125,40 @@ paths:
         description: Unique identifier for the connector
     get:
       tags:
-        - Connector api's
-      summary: Connector Read
+        - Connector API's
+      summary: Read Connector
       responses:
         '200':
           description: OK
+          headers:
+            X-Powered-By:
+              schema:
+                type: string
+                example: Express
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Content-Length:
+              schema:
+                type: integer
+                example: '3304'
+            ETag:
+              schema:
+                type: string
+                example: W/"ce8-fwSqHq6/kVRau9kWO0rqLFp9a28"
+            Date:
+              schema:
+                type: string
+                example: Wed, 31 Jul 2024 12:47:54 GMT
+            Connection:
+              schema:
+                type: string
+                example: keep-alive
+            Keep-Alive:
+              schema:
+                type: string
+                example: timeout=5
           content:
             application/json:
               schema:
@@ -6583,6 +7366,35 @@ paths:
                       live_date: '2024-06-25T04:38:28.847Z'
         '404':
           description: Not Found
+          headers:
+            X-Powered-By:
+              schema:
+                type: string
+                example: Express
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Content-Length:
+              schema:
+                type: integer
+                example: '276'
+            ETag:
+              schema:
+                type: string
+                example: W/"114-izVC8DsHdeSfau/USVJvnIqZIMQ"
+            Date:
+              schema:
+                type: string
+                example: Thu, 01 Aug 2024 09:32:48 GMT
+            Connection:
+              schema:
+                type: string
+                example: keep-alive
+            Keep-Alive:
+              schema:
+                type: string
+                example: timeout=5
           content:
             application/json:
               schema:
@@ -6610,7 +7422,7 @@ paths:
     post:
       tags:
         - Data Ingest
-      summary: Data ingest
+      summary: Ingest Data
       requestBody:
         content:
           application/json:
@@ -6637,6 +7449,35 @@ paths:
       responses:
         '200':
           description: OK
+          headers:
+            X-Powered-By:
+              schema:
+                type: string
+                example: Express
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Content-Length:
+              schema:
+                type: integer
+                example: '261'
+            ETag:
+              schema:
+                type: string
+                example: W/"105-UtaCmh0qZMBRBdniNq74Gr+4YAo"
+            Date:
+              schema:
+                type: string
+                example: Thu, 30 May 2024 18:05:48 GMT
+            Connection:
+              schema:
+                type: string
+                example: keep-alive
+            Keep-Alive:
+              schema:
+                type: string
+                example: timeout=5
           content:
             application/json:
               schema:
@@ -6670,7 +7511,35 @@ paths:
                       message: Data ingested successfully
         '400':
           description: Bad Request
-   
+          headers:
+            X-Powered-By:
+              schema:
+                type: string
+                example: Express
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Content-Length:
+              schema:
+                type: integer
+                example: '300'
+            ETag:
+              schema:
+                type: string
+                example: W/"12c-GNCIUUDxOZD3UfM311sjnmFIgPc"
+            Date:
+              schema:
+                type: string
+                example: Thu, 30 May 2024 18:03:32 GMT
+            Connection:
+              schema:
+                type: string
+                example: keep-alive
+            Keep-Alive:
+              schema:
+                type: string
+                example: timeout=5
           content:
             application/json:
               schema:
@@ -6690,6 +7559,35 @@ paths:
                   trace: ''
         '404':
           description: Not Found
+          headers:
+            X-Powered-By:
+              schema:
+                type: string
+                example: Express
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Content-Length:
+              schema:
+                type: integer
+                example: '316'
+            ETag:
+              schema:
+                type: string
+                example: W/"13c-O9iirC/EyneYXQzth7iwEEy1UV4"
+            Date:
+              schema:
+                type: string
+                example: Thu, 18 Apr 2024 10:17:00 GMT
+            Connection:
+              schema:
+                type: string
+                example: keep-alive
+            Keep-Alive:
+              schema:
+                type: string
+                example: timeout=5
           content:
             application/json:
               schema:
@@ -6747,7 +7645,7 @@ paths:
     post:
       tags:
         - Data query
-      summary: Data query
+      summary: Query Data
       requestBody:
         content:
           application/json:
@@ -6767,6 +7665,35 @@ paths:
       responses:
         '200':
           description: OK
+          headers:
+            X-Powered-By:
+              schema:
+                type: string
+                example: Express
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Content-Length:
+              schema:
+                type: integer
+                example: '313'
+            ETag:
+              schema:
+                type: string
+                example: W/"139-De+IthAwrGNR+J11CwlNf5RSMmw"
+            Date:
+              schema:
+                type: string
+                example: Thu, 30 May 2024 18:17:45 GMT
+            Connection:
+              schema:
+                type: string
+                example: keep-alive
+            Keep-Alive:
+              schema:
+                type: string
+                example: timeout=5
           content:
             application/json:
               schema:
@@ -6850,6 +7777,35 @@ paths:
                         total_students_sum: 12492
         '400':
           description: Bad Request
+          headers:
+            X-Powered-By:
+              schema:
+                type: string
+                example: Express
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Content-Length:
+              schema:
+                type: integer
+                example: '371'
+            ETag:
+              schema:
+                type: string
+                example: W/"173-OP8NcbSqLKFO92PIyUmMk0lNsXs"
+            Date:
+              schema:
+                type: string
+                example: Thu, 30 May 2024 18:16:29 GMT
+            Connection:
+              schema:
+                type: string
+                example: keep-alive
+            Keep-Alive:
+              schema:
+                type: string
+                example: timeout=5
           content:
             application/json:
               schema:
@@ -6872,6 +7828,35 @@ paths:
                   trace: ''
         '404':
           description: Not Found
+          headers:
+            X-Powered-By:
+              schema:
+                type: string
+                example: Express
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Content-Length:
+              schema:
+                type: integer
+                example: '356'
+            ETag:
+              schema:
+                type: string
+                example: W/"164-DSmPP0WJI5ISEqIw3U3B1NFXxVE"
+            Date:
+              schema:
+                type: string
+                example: Thu, 30 May 2024 18:13:12 GMT
+            Connection:
+              schema:
+                type: string
+                example: keep-alive
+            Keep-Alive:
+              schema:
+                type: string
+                example: timeout=5
           content:
             application/json:
               schema:
@@ -6958,10 +7943,39 @@ paths:
     get:
       tags:
         - Query Templates
-      summary: Read template
+      summary: Read Template
       responses:
         '200':
           description: OK
+          headers:
+            X-Powered-By:
+              schema:
+                type: string
+                example: Express
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Content-Length:
+              schema:
+                type: integer
+                example: '537'
+            ETag:
+              schema:
+                type: string
+                example: W/"219-BOO8L4HgRkX4zEKoNwUwfDQA+uU"
+            Date:
+              schema:
+                type: string
+                example: Thu, 30 May 2024 18:24:14 GMT
+            Connection:
+              schema:
+                type: string
+                example: keep-alive
+            Keep-Alive:
+              schema:
+                type: string
+                example: timeout=5
           content:
             application/json:
               schema:
@@ -7011,6 +8025,35 @@ paths:
                       updated_date: '2024-05-13T07:29:04.117Z'
         '404':
           description: Not Found
+          headers:
+            X-Powered-By:
+              schema:
+                type: string
+                example: Express
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Content-Length:
+              schema:
+                type: integer
+                example: '294'
+            ETag:
+              schema:
+                type: string
+                example: W/"126-zq5j1yor+xr1XFEEbP09fQTDI/k"
+            Date:
+              schema:
+                type: string
+                example: Thu, 30 May 2024 18:25:16 GMT
+            Connection:
+              schema:
+                type: string
+                example: keep-alive
+            Keep-Alive:
+              schema:
+                type: string
+                example: timeout=5
           content:
             application/json:
               schema:
@@ -7039,10 +8082,39 @@ paths:
     delete:
       tags:
         - Query Templates
-      summary: Delete template
+      summary: Delete Template
       responses:
         '200':
           description: OK
+          headers:
+            X-Powered-By:
+              schema:
+                type: string
+                example: Express
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Content-Length:
+              schema:
+                type: integer
+                example: '241'
+            ETag:
+              schema:
+                type: string
+                example: W/"f1-FblV17jkZ3FSGFt5MHx6s6dlMuo"
+            Date:
+              schema:
+                type: string
+                example: Tue, 30 Apr 2024 06:28:27 GMT
+            Connection:
+              schema:
+                type: string
+                example: keep-alive
+            Keep-Alive:
+              schema:
+                type: string
+                example: timeout=5
           content:
             application/json:
               schema:
@@ -7059,6 +8131,35 @@ paths:
                   message: Template yashash-k deleted successfully
         '404':
           description: Not Found
+          headers:
+            X-Powered-By:
+              schema:
+                type: string
+                example: Express
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Content-Length:
+              schema:
+                type: integer
+                example: '303'
+            ETag:
+              schema:
+                type: string
+                example: W/"12f-99pWw8VTwuVfDAhinC55JXfNyyg"
+            Date:
+              schema:
+                type: string
+                example: Thu, 30 May 2024 18:28:41 GMT
+            Connection:
+              schema:
+                type: string
+                example: keep-alive
+            Keep-Alive:
+              schema:
+                type: string
+                example: timeout=5
           content:
             application/json:
               schema:
@@ -7108,6 +8209,35 @@ paths:
       responses:
         '200':
           description: OK
+          headers:
+            X-Powered-By:
+              schema:
+                type: string
+                example: Express
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Content-Length:
+              schema:
+                type: integer
+                example: '359'
+            ETag:
+              schema:
+                type: string
+                example: W/"167-HIMd6+dVF/Wyu6lcmb/+68O4AY4"
+            Date:
+              schema:
+                type: string
+                example: Mon, 29 Apr 2024 16:59:01 GMT
+            Connection:
+              schema:
+                type: string
+                example: keep-alive
+            Keep-Alive:
+              schema:
+                type: string
+                example: timeout=5
           content:
             application/json:
               schema:
@@ -7145,6 +8275,35 @@ paths:
                       message: The query template has been saved successfully
         '400':
           description: Bad Request
+          headers:
+            X-Powered-By:
+              schema:
+                type: string
+                example: Express
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Content-Length:
+              schema:
+                type: integer
+                example: '407'
+            ETag:
+              schema:
+                type: string
+                example: W/"197-y0n7/XzKhcV9HKqgPNj2eo8bzh8"
+            Date:
+              schema:
+                type: string
+                example: Mon, 29 Apr 2024 17:05:10 GMT
+            Connection:
+              schema:
+                type: string
+                example: keep-alive
+            Keep-Alive:
+              schema:
+                type: string
+                example: timeout=5
           content:
             application/json:
               schema:
@@ -7188,6 +8347,35 @@ paths:
                       trace: ''
         '409':
           description: Conflict
+          headers:
+            X-Powered-By:
+              schema:
+                type: string
+                example: Express
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Content-Length:
+              schema:
+                type: integer
+                example: '350'
+            ETag:
+              schema:
+                type: string
+                example: W/"15e-FDXFj2WIyZ1MVllwsiSJoBKU4GQ"
+            Date:
+              schema:
+                type: string
+                example: Mon, 29 Apr 2024 17:03:28 GMT
+            Connection:
+              schema:
+                type: string
+                example: keep-alive
+            Keep-Alive:
+              schema:
+                type: string
+                example: timeout=5
           content:
             application/json:
               schema:
@@ -7210,7 +8398,7 @@ paths:
     post:
       tags:
         - Query Templates
-      summary: List templates
+      summary: List Templates
       requestBody:
         content:
           application/json:
@@ -7231,6 +8419,35 @@ paths:
       responses:
         '200':
           description: OK
+          headers:
+            X-Powered-By:
+              schema:
+                type: string
+                example: Express
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Content-Length:
+              schema:
+                type: integer
+                example: '6864'
+            ETag:
+              schema:
+                type: string
+                example: W/"1ad0-xp24UiXXXiFWplmv5Acja7prSYM"
+            Date:
+              schema:
+                type: string
+                example: Mon, 29 Apr 2024 13:46:03 GMT
+            Connection:
+              schema:
+                type: string
+                example: keep-alive
+            Keep-Alive:
+              schema:
+                type: string
+                example: timeout=5
           content:
             application/json:
               schema:
@@ -7801,7 +9018,7 @@ paths:
     patch:
       tags:
         - Query Templates
-      summary: update template
+      summary: Update Template
       requestBody:
         content:
           application/json:
@@ -7822,6 +9039,35 @@ paths:
       responses:
         '200':
           description: OK
+          headers:
+            X-Powered-By:
+              schema:
+                type: string
+                example: Express
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Content-Length:
+              schema:
+                type: integer
+                example: '314'
+            ETag:
+              schema:
+                type: string
+                example: W/"13a-jsb3kdb5RR9P3vnOhZWsAWEr37k"
+            Date:
+              schema:
+                type: string
+                example: Fri, 10 May 2024 05:51:47 GMT
+            Connection:
+              schema:
+                type: string
+                example: keep-alive
+            Keep-Alive:
+              schema:
+                type: string
+                example: timeout=5
           content:
             application/json:
               schema:
@@ -7840,6 +9086,35 @@ paths:
                   templateId: sql11template1
         '400':
           description: Bad Request
+          headers:
+            X-Powered-By:
+              schema:
+                type: string
+                example: Express
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Content-Length:
+              schema:
+                type: integer
+                example: '429'
+            ETag:
+              schema:
+                type: string
+                example: W/"1ad-5sb8WUekFL8s4c1Ink6bUByoHho"
+            Date:
+              schema:
+                type: string
+                example: Fri, 10 May 2024 05:53:54 GMT
+            Connection:
+              schema:
+                type: string
+                example: keep-alive
+            Keep-Alive:
+              schema:
+                type: string
+                example: timeout=5
           content:
             application/json:
               schema:
@@ -7928,7 +9203,7 @@ paths:
     post:
       tags:
         - Query Templates
-      summary: query template
+      summary: Query Template
       requestBody:
         content:
           application/json:
@@ -7949,6 +9224,35 @@ paths:
       responses:
         '200':
           description: OK
+          headers:
+            X-Powered-By:
+              schema:
+                type: string
+                example: Express
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Content-Length:
+              schema:
+                type: integer
+                example: '301'
+            ETag:
+              schema:
+                type: string
+                example: W/"12d-9hKB38iHEwYPT2MgF8puXcq05Ew"
+            Date:
+              schema:
+                type: string
+                example: Tue, 14 May 2024 06:22:24 GMT
+            Connection:
+              schema:
+                type: string
+                example: keep-alive
+            Keep-Alive:
+              schema:
+                type: string
+                example: timeout=5
           content:
             application/json:
               schema:
@@ -7998,6 +9302,35 @@ paths:
                         total_students_sum: 12492
         '400':
           description: Bad Request
+          headers:
+            X-Powered-By:
+              schema:
+                type: string
+                example: Express
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Content-Length:
+              schema:
+                type: integer
+                example: '336'
+            ETag:
+              schema:
+                type: string
+                example: W/"150-T/XeSIt7PR7GcGEbET1e8n9zX7k"
+            Date:
+              schema:
+                type: string
+                example: Thu, 02 May 2024 07:29:14 GMT
+            Connection:
+              schema:
+                type: string
+                example: keep-alive
+            Keep-Alive:
+              schema:
+                type: string
+                example: timeout=5
           content:
             application/json:
               schema:
@@ -8039,6 +9372,35 @@ paths:
                       trace: ''
         '404':
           description: Not Found
+          headers:
+            X-Powered-By:
+              schema:
+                type: string
+                example: Express
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Content-Length:
+              schema:
+                type: integer
+                example: '357'
+            ETag:
+              schema:
+                type: string
+                example: W/"165-Q7Qi9SUmHUwU75fy/RFrXL9Pp3U"
+            Date:
+              schema:
+                type: string
+                example: Mon, 13 May 2024 07:51:46 GMT
+            Connection:
+              schema:
+                type: string
+                example: keep-alive
+            Keep-Alive:
+              schema:
+                type: string
+                example: timeout=5
           content:
             application/json:
               schema:
@@ -8080,7 +9442,7 @@ paths:
     post:
       tags:
         - Alert Notification-channels
-      summary: search channels
+      summary: Search Notificaation Channels
       requestBody:
         content: {}
       responses:
@@ -8092,7 +9454,7 @@ paths:
     post:
       tags:
         - Alert Notification-channels
-      summary: Add channel (Email)
+      summary: Configure channel
       requestBody:
         content:
           application/json:
@@ -8121,7 +9483,7 @@ paths:
     get:
       tags:
         - Alert Notification-channels
-      summary: publish channel
+      summary: Publish Channel
       responses:
         '200':
           description: Successful response
@@ -8131,7 +9493,7 @@ paths:
     post:
       tags:
         - Alert Notification-channels
-      summary: test channel
+      summary: Verify Configured Channel
       requestBody:
         content:
           application/json:
@@ -8164,7 +9526,7 @@ paths:
     patch:
       tags:
         - Alert Notification-channels
-      summary: update channel
+      summary: Update Specific Channel
       requestBody:
         content:
           application/json:
@@ -8188,7 +9550,7 @@ paths:
     delete:
       tags:
         - Alert Notification-channels
-      summary: delete channel
+      summary: Delete Channel
       responses:
         '200':
           description: Successful response
@@ -8269,7 +9631,7 @@ paths:
     patch:
       tags:
         - Alert silence
-      summary: Edit Request
+      summary: Modify Silence Request
       requestBody:
         content:
           application/json:
@@ -8294,7 +9656,7 @@ paths:
     delete:
       tags:
         - Alerts Wrapper
-      summary: 'delete rule '
+      summary: 'Delete Configured Alert Rules '
       description: This URLwill provided access to user to delete any custom rule.
       responses:
         '200':
@@ -8312,7 +9674,7 @@ paths:
     patch:
       tags:
         - Alerts Wrapper
-      summary: 'edit rule '
+      summary: 'Update Rule '
       description: >-
         This URL will provide access to users to edit any properties in the
         Alert rule and save the changes.
@@ -8344,7 +9706,7 @@ paths:
     get:
       tags:
         - Alerts Wrapper
-      summary: 'publish rule '
+      summary: 'Publish Alert Rules '
       responses:
         '200':
           description: Successful response
@@ -8533,7 +9895,7 @@ paths:
     post:
       tags:
         - Alerts Wrapper
-      summary: 'search rule '
+      summary: 'Search Alert Rule'
       requestBody:
         content:
           application/json:
@@ -8557,7 +9919,7 @@ paths:
     get:
       tags:
         - Alerts Wrapper
-      summary: 'get specific rule '
+      summary: 'Get Alert Rule'
       responses:
         '200':
           description: Successful response
@@ -8567,7 +9929,7 @@ paths:
     post:
       tags:
         - Alert Metric_alias
-      summary: add metric
+      summary: Create Custom Metric
       requestBody:
         content:
           application/json:
@@ -8586,7 +9948,7 @@ paths:
     post:
       tags:
         - Alert Metric_alias
-      summary: list metrics
+      summary: List Create Metrics
       requestBody:
         content:
           application/json:
@@ -8609,7 +9971,7 @@ paths:
     patch:
       tags:
         - Alert Metric_alias
-      summary: update metric
+      summary: Modify Metric
       requestBody:
         content:
           application/json:
@@ -8633,104 +9995,9 @@ paths:
     delete:
       tags:
         - Alert Metric_alias
-      summary: remove metric
+      summary: Delete Metric
       responses:
         '200':
           description: Successful response
           content:
             application/json: {}
-  /v2/connector/register:
-    post:
-      summary: Register a connector
-      description: Registers a connector by uploading a file.
-      operationId: registerConnector
-      requestBody:
-        required: true
-        content:
-          multipart/form-data:
-            schema:
-              type: object
-              properties:
-                file3:
-                  type: string
-                  format: binary
-                  description: Connector distribution file to upload.
-      responses:
-        '200':
-          description: Connector registered successfully.
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  id:
-                    type: string
-                    example: api.connector.register
-                  ver:
-                    type: string
-                    example: v2
-                  ts:
-                    type: string
-                    format: date-time
-                    example: "2024-11-19T09:28:47+00:00"
-                  params:
-                    type: object
-                    properties:
-                      status:
-                        type: string
-                        example: SUCCESS
-                      resmsgid:
-                        type: string
-                        example: fc2ce24f-a333-479f-931c-024d61039801
-                  responseCode:
-                    type: string
-                    example: OK
-                  result:
-                    type: object
-                    properties:
-                      message:
-                        type: string
-                        example: connector registered successfully.
-        '500':
-          description: Internal server error while registering the connector.
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  id:
-                    type: string
-                    example: api.connector.register
-                  ver:
-                    type: string
-                    example: v2
-                  ts:
-                    type: string
-                    format: date-time
-                    example: "2024-11-19T09:50:21+00:00"
-                  params:
-                    type: object
-                    properties:
-                      status:
-                        type: string
-                        example: FAILED
-                      resmsgid:
-                        type: string
-                        example: ebaad9d7-c0d4-47e4-8cde-87fb25eef739
-                  responseCode:
-                    type: string
-                    example: INTERNAL_SERVER_ERROR
-                  error:
-                    type: object
-                    properties:
-                      code:
-                        type: string
-                        example: FAILED_TO_REGISTER_CONNECTOR
-                      message:
-                        type: string
-                        example: Failed to Extract the File
-                      trace:
-                        type: string
-                        example: "" 
-      tags:
-        - Connector Register
