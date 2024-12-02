@@ -116,7 +116,7 @@ export const config = {
   "user_token_public_key": process.env.user_token_public_key || "",
   "is_RBAC_enabled": process.env.is_rbac_enabled || "false",
   "otel": {
-    "enable": process.env.OTEL_ENABLE || "false",
-    "collector_endpoint": process.env.OTEL_COLLECTOR_ENDPOINT || "http://localhost:4318"
+    "enable": process.env.otel_enable || "false",
+    "collector_endpoint": process.env.otel_collector_endpoint || "http://localhost:4318"
   }
 }
