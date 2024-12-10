@@ -284,6 +284,9 @@ class ConnectorCommand(ICommand):
         records = self.db_service.execute_select_all(sql=query, params=params)
 
         for record in records:
+            if isinstance(record["connector_source"], str):
+                record["connector_source"] = json.loads(record["connector_source"])
+            
             active_connectors.append(from_dict(
                 data_class=ConnectorInstance, data=record
             ))
