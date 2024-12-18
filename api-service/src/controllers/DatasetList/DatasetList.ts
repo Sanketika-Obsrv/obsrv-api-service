@@ -37,7 +37,7 @@ const listDatasets = async (request: Record<string, any>): Promise<Record<string
     const draftFilters = _.set(_.cloneDeep(filters), "status", _.isEmpty(status) ? draftDatasetStatus : _.intersection(status, draftDatasetStatus));
     const liveFilters = _.set(_.cloneDeep(filters), "status", _.isEmpty(status) ? liveDatasetStatus : _.intersection(status, liveDatasetStatus));
     const liveDatasetList = await datasetService.findDatasets(liveFilters, defaultFields, [["updated_date", "DESC"]]);
-    const draftDatasetList = await datasetService.findDraftDatasets(draftFilters, defaultFields, [["updated_date", "DESC"]]);
+    const draftDatasetList = await datasetService.findDraftDatasets(draftFilters, [...defaultFields, "data_schema", "validation_config", "dedup_config", "denorm_config", "connectors_config", "version_key"], [["updated_date", "DESC"]]);
     return _.compact(_.concat(liveDatasetList, draftDatasetList));
 }
 
