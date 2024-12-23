@@ -22,7 +22,7 @@ export class AWSStorageService implements ICloudService {
                 configuration.endpoint = endpoint;
             }
             if (s3ForcePathStyle) {
-                configuration.s3ForcePathStyle = s3ForcePathStyle;
+                configuration.forcePathStyle = s3ForcePathStyle;
             }
             try {
                 this.client = new S3Client(configuration);

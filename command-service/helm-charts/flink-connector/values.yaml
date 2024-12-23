@@ -4,7 +4,7 @@ fullnameOverride: ""
 
 replicaCount: 1
 
-namespace: "flink"
+namespace: "flink-connectors"
 commonLabels:
   system.processing: "true"
   release: monitoring
