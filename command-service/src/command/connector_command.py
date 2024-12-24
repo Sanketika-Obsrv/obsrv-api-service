@@ -8,7 +8,7 @@ from config import Config
 from model.data_models import Action, ActionResponse, CommandPayload, DatasetStatusType
 from model.db_models import ConnectorInstance
 from service.db_service import DatabaseService
-from datetime import datetime
+import time
 
 
 class ConnectorCommand(ICommand):
@@ -255,7 +255,7 @@ class ConnectorCommand(ICommand):
         release_name = "{}-{}-{}".format(
             dataset_id[:8].lower().replace("_", "-"),
             connector_instance.connector_id[:8].lower().replace("_", "-"),
-            datetime.now().strftime("%Y%m%d%H%M%S")
+            str(time.time_ns())
         )
         connector_source = connector_instance.connector_source
         schedule = connector_instance.operations_config["schedule"]
