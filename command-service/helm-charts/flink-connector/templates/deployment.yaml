@@ -104,9 +104,10 @@ spec:
       labels:
         app.kubernetes.io/name: {{ include "common.names.name" . }}
         app.kubernetes.io/component: {{ printf "%s-%s" $jobName $component }}
-        component: {{ printf "%s-%s" $jobName $component }}
+        dataset: {{ .Values.dataset_id }}
+        connector: {{ .Values.connector_id }}
       annotations:
-        checksum/config: {{ .Files.Glob "cFonfigs/*" | toYaml | sha256sum }}
+        checksum/config: {{ .Files.Glob "configs/*" | toYaml | sha256sum }}
         checksum/job-config: {{ $jobData | toYaml | sha256sum }}
     spec:
       serviceAccountName: {{ include "base.serviceaccountname" . }}

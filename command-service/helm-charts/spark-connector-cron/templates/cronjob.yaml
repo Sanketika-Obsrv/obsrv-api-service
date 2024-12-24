@@ -1,9 +1,11 @@
 apiVersion: batch/v1
 kind: CronJob
 metadata:
-  name: {{ include "base.cronReleaseName" . }}
+  name: {{ .Release.Name }}
   namespace: {{ include "base.namespace" . }}
   labels: {{- include "common.labels.standard" ( dict "customLabels" .Values.commonLabels "context" $ ) | nindent 4 }}
+    app.kubernetes.io/dataset: {{ .Values.dataset_id }}
+    app.kubernetes.io/connector: {{ .Values.connector_id }}
   {{- if .Values.commonAnnotations }}
   annotations: {{- include "common.tplvalues.render" ( dict "value" .Values.commonAnnotations "context" $ ) | nindent 4 }}
   {{- end }}
@@ -19,6 +21,8 @@ spec:
             {{- include "common.tplvalues.render" (dict "value" .Values.podAnnotations "context" $) | nindent 12 }}
             {{- end }}
           labels: {{- include "common.labels.standard" ( dict "customLabels" .Values.commonLabels "context" $ ) | nindent 12 }}
+            app.kubernetes.io/dataset: {{ .Values.dataset_id }}
+            app.kubernetes.io/connector: {{ .Values.connector_id }}
         spec:
           serviceAccountName: {{ .Values.serviceAccount.name }}
           restartPolicy: {{ .Values.restartPolicy }}
