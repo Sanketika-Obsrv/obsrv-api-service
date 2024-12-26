@@ -142,6 +142,9 @@ instance_id: nyt-psql.1
 main_class: org.sunbird.obsrv.connector.JDBCConnector
 main_file: jdbc-connector-1.0.0.jar
 
+dataset_id: ""
+connector_id: ""
+
 ## Object Store Connector
 # technology: python
 # connector-source: object_store_connector-0.1.0

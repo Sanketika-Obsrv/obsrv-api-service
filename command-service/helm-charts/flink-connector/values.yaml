@@ -246,6 +246,7 @@ serviceMonitor:
 # override flink_jobs
 # flink_jobs:
 
+connector_id: ""
 
 commonAnnotations:
   reloader.stakater.com/auto: "true"

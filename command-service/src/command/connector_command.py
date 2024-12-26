@@ -8,6 +8,7 @@ from config import Config
 from model.data_models import Action, ActionResponse, CommandPayload, DatasetStatusType
 from model.db_models import ConnectorInstance
 from service.db_service import DatabaseService
+import time
 
 
 class ConnectorCommand(ICommand):
@@ -38,15 +39,12 @@ class ConnectorCommand(ICommand):
 
     def _deploy_connectors(self, dataset_id, active_connectors, is_masterdata):
         result = None
-        self._stop_connector_jobs(is_masterdata, self.connector_job_config["spark"]["namespace"], active_connectors, dataset_id)
+        self._stop_connector_jobs(is_masterdata, dataset_id)
         result = self._install_jobs(dataset_id, active_connectors, is_masterdata)
 
         return result
 
-    def _stop_connector_jobs(self, is_masterdata, namespace, active_connectors, dataset_id):
-        print(f"Uninstalling jobs for {namespace}..")
-        base_helm_chart = self.connector_job_config["spark"]["base_helm_chart"]
-
+    def _stop_connector_jobs(self, is_masterdata, dataset_id):
         # managed_releases = []
         # connector_jar_config = self.config.find("connector_job")
         # masterdata_jar_config = self.config.find("masterdata_job")
@@ -57,34 +55,66 @@ class ConnectorCommand(ICommand):
         #     for release in masterdata_jar_config:
         #         managed_releases.append(release["release_name"])
 
-        helm_ls_cmd = ["helm", "ls", "--namespace", namespace]
-        helm_ls_result = subprocess.run(
-            helm_ls_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE
+        ## Clear all spark cronjobs for the dataset
+        spark_namespace = self.connector_job_config["spark"]["namespace"]
+        deployed_cron_jobs_cmd = [
+            "kubectl", "get", "cronjobs", "-n", spark_namespace,
+            "--selector", f"app.kubernetes.io/dataset={dataset_id}",
+            "-o", "jsonpath=\"{.items[*].metadata.name}\""
+        ]
+
+        deployed_cron_jobs_result = subprocess.run(
+            deployed_cron_jobs_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE
         )
-        if helm_ls_result.returncode == 0:
-            jobs = helm_ls_result.stdout.decode().splitlines()[1:]
-            job_names = {job.split()[0] for job in jobs if base_helm_chart in job}
-            spark_connector = {connector.id for connector in active_connectors if connector.connector_runtime == "spark"}
-            for release_name in spark_connector:
-                if release_name in job_names:
-                    print(f"Uninstalling job {release_name} related to dataset'{dataset_id}'...")     
-                    helm_uninstall_cmd = [
-                        "helm",
-                        "uninstall",
-                        release_name,
-                        "--namespace",
-                        namespace,
-                    ]
-                    helm_uninstall_result = subprocess.run(
-                        helm_uninstall_cmd,
-                        stdout=subprocess.PIPE,
-                        stderr=subprocess.PIPE,
-                    )
-                    if helm_uninstall_result.returncode == 0:
-                        print(f"Successfully uninstalled job '{release_name}'...")
-                    else:
-                        print(f"Error uninstalling job '{release_name}': {helm_uninstall_result.stderr.decode()}")
-                                
+
+        if deployed_cron_jobs_result.returncode == 0 and len(deployed_cron_jobs_result.stdout.decode().replace("\"", "").splitlines()):
+            jobs = deployed_cron_jobs_result.stdout.decode().replace("\"", "").splitlines()[0].split()
+            for job in jobs:
+                print(f"Uninstalling job {job} related to dataset'{dataset_id}'...")
+                helm_uninstall_cmd = [
+                    "helm",
+                    "uninstall",
+                    job,
+                    "--namespace",
+                    spark_namespace,
+                ]
+                print("Uninstall command: ", " ".join(helm_uninstall_cmd))
+                helm_uninstall_result = subprocess.run(
+                    helm_uninstall_cmd,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE,
+                )
+                if helm_uninstall_result.returncode == 0:
+                    print(f"Successfully uninstalled job '{job}'...")
+                else:
+                    print(f"Error uninstalling job '{job}': {helm_uninstall_result.stderr.decode()}")
+
+        ## Clear all flink connectors that are not active
+        flink_namespace = self.connector_job_config["flink"]["namespace"]
+        registered_connectors = self._get_registered_connectors(runtime="flink")
+        print("Registered flink connectors: ", registered_connectors)
+        for connector in registered_connectors:
+            if connector["instance_count"] == 0:
+                ### Uninstall the helm chart
+                helm_uninstall_cmd = [
+                    "helm",
+                    "uninstall",
+                    connector["id"].replace(".", "-").replace("_", "-"),
+                    "--namespace",
+                    flink_namespace,
+                ]
+
+                print("Uninstall command: ", " ".join(helm_uninstall_cmd))
+                helm_uninstall_result = subprocess.run(
+                    helm_uninstall_cmd,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE,
+                )
+                if helm_uninstall_result.returncode == 0:
+                    print(f"Successfully uninstalled deployment '{connector['id']}'...")
+                else:
+                    print(f"Error uninstalling deployment '{connector['id']}': {helm_uninstall_result.stderr.decode()}")
+
     def _install_jobs(self, dataset_id, active_connectors, is_masterdata):
         result = None
         for connector in active_connectors:
@@ -125,27 +155,27 @@ class ConnectorCommand(ICommand):
 
             deployment_exists = any(job_name in line for line in jobs.splitlines()[1:])
             if deployment_exists:
-                restart_cmd = f"kubectl delete pods --selector app.kubernetes.io/name=flink,component={job_name}-jobmanager --namespace {namespace} && kubectl delete pods --selector app.kubernetes.io/name=flink,component={job_name}-taskmanager --namespace {namespace}".format(
+                restart_cmd = f"kubectl delete pods --selector app.kubernetes.io/name=flink,app.kubernetes.io/component={job_name}-jobmanager --namespace {namespace} && kubectl delete pods --selector app.kubernetes.io/name=flink,app.kubernetes.io/component={job_name}-taskmanager --namespace {namespace}".format(
                     namespace=namespace, job_name=job_name
                 )
                 print("Restart command: ", restart_cmd)
                 # Run the helm command
-                helm_install_result = subprocess.run(
+                restart_cmd_result = subprocess.run(
                     restart_cmd,
                     stdout=subprocess.PIPE,
                     stderr=subprocess.PIPE,
                     shell=True,
                 )
-                if helm_install_result.returncode == 0:
+                if restart_cmd_result.returncode == 0:
                     print(f"Job {job_name} restart succeeded...")
                 else:
                     err = True
+                    print(f"Error restarting pod: {helm_ls_result.stderr.decode()}")
                     return ActionResponse(
                         status="ERROR",
                         status_code=500,
                         error_message="FLINK_HELM_LIST_EXCEPTION",
                     )
-                    print(f"Error restarting pod: {helm_ls_result.stderr.decode()}")
 
                 if err is None:
                         result = ActionResponse(status="OK", status_code=200)
@@ -172,6 +202,8 @@ class ConnectorCommand(ICommand):
                         "--namespace",
                         namespace,
                         "--create-namespace",
+                        "--set", "namespace={}".format(namespace),
+                        "--set", "connector_id={}".format(connector_instance.connector_id),
                         "--set-json",
                         f"""flink_jobs={set_json_value.replace(" ", "")}"""
                     ]
@@ -201,8 +233,6 @@ class ConnectorCommand(ICommand):
                         result = ActionResponse(status="OK", status_code=200)
 
                     return result
-                else:
-                    self._stop_connector_jobs(is_masterdata=False, namespace="flink")
         else:
             print(f"Error checking Flink deployments: {helm_ls_result.stderr.decode()}")
             return ActionResponse(
@@ -214,7 +244,11 @@ class ConnectorCommand(ICommand):
     def _perform_spark_install(self, dataset_id, connector_instance):
         err = None
         result = None
-        release_name = connector_instance.id
+        release_name = "{}-{}-{}".format(
+            dataset_id[:8].lower().replace("_", "-"),
+            connector_instance.connector_id[:8].lower().replace("_", "-"),
+            str(time.time_ns())
+        )
         connector_source = connector_instance.connector_source
         schedule = connector_instance.operations_config["schedule"]
 
@@ -239,7 +273,11 @@ class ConnectorCommand(ICommand):
             "--set",
             "technology={}".format(connector_instance.technology),
             "--set",
-            "instance_id={}".format(release_name),
+            "dataset_id={}".format(dataset_id),
+            "--set",
+            "connector_id={}".format(connector_instance.connector_id),
+            "--set",
+            "instance_id={}".format(connector_instance.id),
             "--set",
             "connector_source={}".format(connector_source["source"]),
             "--set",
@@ -304,7 +342,6 @@ class ConnectorCommand(ICommand):
 
         return is_masterdata
 
-    ## TODO: check for connector_id as well
     def _get_live_instances(self, runtime, connector_instance):
         has_live_instances = False
         query = f"""
@@ -321,48 +358,14 @@ class ConnectorCommand(ICommand):
 
         return has_live_instances
 
-    # def _perform_install(self, release):
-    #     err = None
-    #     result = None
-    #     release_name = release["release_name"]
-    #     helm_install_cmd = [
-    #         "helm",
-    #         "upgrade",
-    #         "--install",
-    #         release_name,
-    #         self.connector_job_chart_dir,
-    #         "--namespace",
-    #         self.connector_job_ns,
-    #         "--create-namespace",
-    #         "--set",
-    #         "file.path={}".format(release["jar"]),
-    #         "--set",
-    #         "class.name={}".format(release["class"]),
-    #         "--set",
-    #         "job.name={}".format(release_name),
-    #         "--set",
-    #         "args={}".format(",".join(release["args"])),
-    #         "--set",
-    #         "schedule={}".format(release["schedule"]),
-    #     ]
-    #     helm_install_result = subprocess.run(
-    #         helm_install_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE
-    #     )
-    #     if helm_install_result.returncode == 0:
-    #         print(f"Job {release_name} deployment succeeded...")
-    #     else:
-    #         err = True
-    #         result = ActionResponse(
-    #             status="ERROR",
-    #             status_code=500,
-    #             error_message="FLINK_HELM_INSTALLATION_EXCEPTION",
-    #         )
-    #         print(
-    #             f"Error re-installing job {release_name}: {helm_install_result.stderr.decode()}"
-    #         )
-
-    #     if err is None:
-    #         result = ActionResponse(status="OK", status_code=200)
-
-    #     return result
-
+    def _get_registered_connectors(self, runtime):
+        query = f"""
+            SELECT cr.id, COUNT(ci.id) AS instance_count
+            FROM connector_registry cr
+            LEFT JOIN connector_instances ci ON cr.id = ci.connector_id
+            WHERE cr.runtime = %s
+            GROUP BY cr.id
+        """
+        params = (runtime,)
+        rows = self.db_service.execute_select_all(sql=query, params=params)
+        return rows
