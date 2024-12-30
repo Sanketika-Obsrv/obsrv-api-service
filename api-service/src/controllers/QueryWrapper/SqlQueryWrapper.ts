@@ -61,10 +61,14 @@ const fetchDruidDataSources = async (): Promise<{ TABLE_NAME: string }[]> => {
 
 const isTableSchemaQuery = (sqlQuery?: string): boolean => {
     return (
-        sqlQuery?.trim() ===
-        "SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = 'druid'"
+      sqlQuery
+        ?.trim()
+        .replace(/\s+/g, " ")
+        .toUpperCase() ===
+      "SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = 'DRUID'"
     );
-};
+  };
+  
 
 const createMockAxiosResponse = (data: any): AxiosResponse => {
     return {
