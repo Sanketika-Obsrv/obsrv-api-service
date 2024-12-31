@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import { ResponseHandler } from "../../helpers/ResponseHandler";
 import httpStatus from "http-status";
 import _ from "lodash";
-import { datasetService } from "../../services/DatasetService";
+import { datasetService, validateStorageSupport } from "../../services/DatasetService";
 import { datasetImportValidation, migrateExportedDatasetV1 } from "./DatasetImportHelper";
 import { obsrvError } from "../../types/ObsrvError";
 
@@ -21,6 +21,7 @@ const datasetImport = async (req: Request, res: Response) => {
     const { updatedDataset, ignoredFields } = await datasetImportValidation({ ...requestBody, "request": datasetPayload })
     const { successMsg, partialIgnored } = getResponseData(ignoredFields)
 
+    validateStorageSupport(updatedDataset);
     const dataset = await importDataset(updatedDataset, overwrite, userID);
     ResponseHandler.successResponse(req, res, { status: httpStatus.OK, data: { message: successMsg, data: dataset, ...(!_.isEmpty(partialIgnored) && { ignoredFields: partialIgnored }) } });
 }

@@ -118,5 +118,6 @@ export const config = {
   "otel": {
     "enable": process.env.otel_enable || "false",
     "collector_endpoint": process.env.otel_collector_endpoint || "http://localhost:4318"
-  }
+  },
+  "storage_support": process.env.STORAGE_TYPE || 'lakehouse,druid'
 }

@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import _ from "lodash";
 import { ResponseHandler } from "../../helpers/ResponseHandler";
-import { datasetService } from "../../services/DatasetService";
+import { datasetService, validateStorageSupport } from "../../services/DatasetService";
 import { schemaValidation } from "../../services/ValidationService";
 import StatusTransitionSchema from "./RequestValidationSchema.json";
 import ReadyToPublishSchema from "./ReadyToPublishSchema.json"
@@ -88,6 +88,7 @@ const deleteDataset = async (dataset: Record<string, any>) => {
 const readyForPublish = async (dataset: Record<string, any>, updated_by: any) => {
 
     const draftDataset: any = await datasetService.getDraftDataset(dataset.dataset_id)
+    validateStorageSupport(draftDataset);
     let defaultConfigs: any = _.cloneDeep(defaultDatasetConfig)
     defaultConfigs = _.omit(defaultConfigs, ["router_config"])
     defaultConfigs = _.omit(defaultConfigs, "dedup_config.dedup_key");
@@ -136,6 +137,7 @@ const readyForPublish = async (dataset: Record<string, any>, updated_by: any) =>
 const publishDataset = async (dataset: Record<string, any>, userID: any) => {
 
     const draftDataset: Record<string, any> = await datasetService.getDraftDataset(dataset.dataset_id) as unknown as Record<string, any>
+    validateStorageSupport(draftDataset);
     _.set(draftDataset, ["created_by"], userID);
     _.set(draftDataset, ["updated_by"], userID);
     await validateAndUpdateDenormConfig(draftDataset);
