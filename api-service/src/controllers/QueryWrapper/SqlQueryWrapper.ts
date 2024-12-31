@@ -5,6 +5,8 @@ import logger from "../../logger";
 import { ResponseHandler } from "../../helpers/ResponseHandler";
 import { ErrorObject } from "../../types/ResponseModel";
 import { druidHttpService } from "../../connections/druidConnection";
+import { getDatasourceList } from "../../services/DatasourceService";
+import { AxiosResponse } from "axios";
 
 const apiId = "api.obsrv.data.sql-query";
 const errorCode = "SQL_QUERY_FAILURE"
@@ -25,10 +27,16 @@ export const sqlQuery = async (req: Request, res: Response) => {
             } as ErrorObject, req, res);
         }
 
-        const result = await druidHttpService.post(`${config.query_api.druid.sql_query_path}`, req.body, {
-            headers: { Authorization: authorization },
-        });
-
+        const query = req.body.query as string;
+        let result: AxiosResponse;
+        if (isTableSchemaQuery(query)) {
+            const dataSources = await fetchDruidDataSources();
+            result = createMockAxiosResponse(dataSources);
+        } else {
+            result = await druidHttpService.post(`${config.query_api.druid.sql_query_path}`, req.body, {
+                headers: { Authorization: authorization },
+            });
+        }
         logger.info({ messsge: "Successfully fetched data using sql query", apiId, resmsgid })
         ResponseHandler.flatResponse(req, res, result)
     } catch (error: any) {
@@ -38,3 +46,36 @@ export const sqlQuery = async (req: Request, res: Response) => {
         ResponseHandler.errorResponse(errorMessage, req, res);
     }
 }
+
+const fetchDruidDataSources = async (): Promise<{ TABLE_NAME: string }[]> => {
+    try {
+        const dataSources = await getDatasourceList();
+        return dataSources
+            .filter((ds: any) => ds.type === "druid")
+            .map((ds: any) => ({ TABLE_NAME: ds.dataValues.datasource_ref }));
+    } catch (error) {
+        logger.error({ message: "Failed to fetch Druid data sources", error });
+        throw new Error("Failed to fetch Druid data sources");
+    }
+};
+
+const isTableSchemaQuery = (sqlQuery?: string): boolean => {
+    return (
+      sqlQuery
+        ?.trim()
+        .replace(/\s+/g, " ")
+        .toUpperCase() ===
+      "SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = 'DRUID'"
+    );
+  };
+  
+
+const createMockAxiosResponse = (data: any): AxiosResponse => {
+    return {
+        data,
+        status: 200,
+        statusText: "OK",
+        headers: {},
+        config: {},
+    } as AxiosResponse;
+};

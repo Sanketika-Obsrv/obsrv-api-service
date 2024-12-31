@@ -6,6 +6,7 @@ metadata:
   labels: {{- include "common.labels.standard" ( dict "customLabels" .Values.commonLabels "context" $ ) | nindent 4 }}
     app.kubernetes.io/dataset: {{ .Values.dataset_id }}
     app.kubernetes.io/connector: {{ .Values.connector_id }}
+    app.kubernetes.io/connector_instance: {{ .Values.instance_id }}
   {{- if .Values.commonAnnotations }}
   annotations: {{- include "common.tplvalues.render" ( dict "value" .Values.commonAnnotations "context" $ ) | nindent 4 }}
   {{- end }}
@@ -23,6 +24,7 @@ spec:
           labels: {{- include "common.labels.standard" ( dict "customLabels" .Values.commonLabels "context" $ ) | nindent 12 }}
             app.kubernetes.io/dataset: {{ .Values.dataset_id }}
             app.kubernetes.io/connector: {{ .Values.connector_id }}
+            app.kubernetes.io/connector_instance: {{ .Values.instance_id }}
         spec:
           serviceAccountName: {{ .Values.serviceAccount.name }}
           restartPolicy: {{ .Values.restartPolicy }}
