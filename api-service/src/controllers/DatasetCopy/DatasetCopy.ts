@@ -4,7 +4,7 @@ import { ResponseHandler } from "../../helpers/ResponseHandler";
 import * as _ from "lodash";
 import { schemaValidation } from "../../services/ValidationService";
 import validationSchema from "./RequestValidationSchema.json";
-import { datasetService, getLiveDatasetConfigs } from "../../services/DatasetService";
+import { datasetService, getLiveDatasetConfigs, validateStorageSupport } from "../../services/DatasetService";
 import { updateRecords } from "./DatasetCopyHelper";
 import { obsrvError } from "../../types/ObsrvError";
 
@@ -40,6 +40,7 @@ const datasetCopy = async (req: Request, res: Response) => {
     validateRequest(req);
     const newDatasetId = _.get(req, "body.request.destination.datasetId");
     const dataset = await fetchDataset(req);
+    validateStorageSupport(dataset);
     const userID = (req as any)?.userID;
     _.set(dataset, "created_by", userID);
     _.set(dataset, "updated_by", userID);

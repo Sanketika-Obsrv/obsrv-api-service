@@ -1,7 +1,7 @@
 import _ from "lodash";
 import { Request, Response } from "express";
 import httpStatus from "http-status";
-import { datasetService } from "../../services/DatasetService";
+import { datasetService, validateStorageSupport } from "../../services/DatasetService";
 import DatasetCreate from "./DatasetCreateValidationSchema.json";
 import { schemaValidation } from "../../services/ValidationService";
 import { ResponseHandler } from "../../helpers/ResponseHandler";
@@ -28,6 +28,7 @@ const validateRequest = async (req: Request) => {
         throw obsrvError(datasetId, "DATASET_DUPLICATE_DENORM_KEY", "Duplicate denorm output fields found.", "BAD_REQUEST", 400, undefined, {duplicateKeys: duplicateDenormKeys})
     }
 
+    validateStorageSupport(_.get(req, ["body", "request"]))
 }
 
 const datasetCreate = async (req: Request, res: Response) => {

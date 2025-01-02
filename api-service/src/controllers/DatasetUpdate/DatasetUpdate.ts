@@ -5,7 +5,7 @@ import Model from "sequelize/types/model";
 import { DatasetStatus } from "../../types/DatasetModels";
 import { ResponseHandler } from "../../helpers/ResponseHandler";
 import { cipherService } from "../../services/CipherService";
-import { datasetService } from "../../services/DatasetService";
+import { datasetService, validateStorageSupport } from "../../services/DatasetService";
 import { schemaValidation } from "../../services/ValidationService";
 import DatasetUpdate from "./DatasetUpdateValidationSchema.json";
 import { obsrvError } from "../../types/ObsrvError";
@@ -30,6 +30,7 @@ const validateRequest = async (req: Request) => {
         throw obsrvError(datasetId, "DATASET_UPDATE_NO_FIELDS", "Provide atleast one field in addition to the dataset_id to update the dataset", "BAD_REQUEST", 400)
     }
 
+    validateStorageSupport(_.get(req, ["body", "request"]))
 }
 
 const validateDataset = (dataset: Record<string, any> | null, req: Request) => {
