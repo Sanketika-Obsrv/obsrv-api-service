@@ -412,14 +412,14 @@ export const getV1Connectors = async (datasetId: string) => {
     return modifiedV1Connectors;
 }
 
-const storageSupport = _.split(config.storage_support, ",")
+const storageTypes = _.split(config.storage_types, ",")
 export const validateStorageSupport = (dataset: Record<string, any>) => {
     const { olap_store_enabled, lakehouse_enabled } = _.get(dataset, ["dataset_config", "indexing_config"]) || {}
-    if (olap_store_enabled && !_.includes(storageSupport, "druid")) {
-        throw obsrvError("", "DATASET_UNSUPPORTED_STORAGE_TYPE", `The storage type "olap_store" is not available. Please use one of the available storage types: ${storageSupport}`, "BAD_REQUEST", 400)
+    if (olap_store_enabled && !_.includes(storageTypes, "druid")) {
+        throw obsrvError("", "DATASET_UNSUPPORTED_STORAGE_TYPE", `The storage type "olap_store" is not available. Please use one of the available storage types: ${storageTypes}`, "BAD_REQUEST", 400)
     }
-    if (lakehouse_enabled && !_.includes(storageSupport, "lakehouse")) {
-        throw obsrvError("", "DATASET_UNSUPPORTED_STORAGE_TYPE", `The storage type "lakehouse" is not available. Please use one of the available storage types: ${storageSupport}`, "BAD_REQUEST", 400)
+    if (lakehouse_enabled && !_.includes(storageTypes, "datalake")) {
+        throw obsrvError("", "DATASET_UNSUPPORTED_STORAGE_TYPE", `The storage type "datalake" is not available. Please use one of the available storage types: ${storageTypes}`, "BAD_REQUEST", 400)
     }
 }
 
