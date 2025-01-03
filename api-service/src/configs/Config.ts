@@ -119,5 +119,5 @@ export const config = {
     "enable": process.env.otel_enable || "false",
     "collector_endpoint": process.env.otel_collector_endpoint || "http://localhost:4318"
   },
-  "storage_types": process.env.storage_types || 'druid,datalake'
+  "storage_types": process.env.storage_types || '{"lake_house":true,"realtime_store":true}'
 }
