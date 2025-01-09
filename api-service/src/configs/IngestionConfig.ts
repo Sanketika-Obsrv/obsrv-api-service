@@ -89,7 +89,7 @@ export const rawIngestionSpecDefaults = {
         },
         {
             "type": "path",
-            "expr": "$.obsrv_meta.source.connectorInstance",
+            "expr": "$.obsrv_meta.source.id",
             "name": "obsrv.meta.source.id"
         }
     ],
