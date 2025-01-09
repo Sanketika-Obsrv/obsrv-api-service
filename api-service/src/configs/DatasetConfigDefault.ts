@@ -17,7 +17,7 @@ export const defaultDatasetConfig = {
         }
     },
     "dedup_config": {
-        "drop_duplicates": true,
+        "drop_duplicates": false,
         "dedup_key": "id",
         "dedup_period": 604800, // 7 days
     },

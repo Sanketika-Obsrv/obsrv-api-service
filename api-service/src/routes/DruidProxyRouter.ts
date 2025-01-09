@@ -21,3 +21,4 @@ druidProxyRouter.get(/\/druid\/v2(.*)/, setDataToRequestObject("query.wrapper.na
 druidProxyRouter.delete("/druid/v2/:queryId", setDataToRequestObject("query.wrapper.native.delete"), onRequest({ entity: Entity.DruidProxy }), wrapperService.forwardNativeDel)
 druidProxyRouter.get("/status", setDataToRequestObject("query.wrapper.status"), onRequest({ entity: Entity.DruidProxy }), wrapperService.nativeStatus)
 druidProxyRouter.get("/health", setDataToRequestObject("api.health"), onRequest({ entity: Entity.DruidProxy }), healthService.checkDruidHealth)
+druidProxyRouter.get(/\/druid\/coordinator(.*)/, setDataToRequestObject("query.wrapper.native.get"), onRequest({entity: Entity.DruidProxy}), wrapperService.forwardNativeGetDatasource)

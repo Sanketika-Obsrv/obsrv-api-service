@@ -18,6 +18,7 @@ import { obsrvError } from "../types/ObsrvError";
 import { druidHttpService } from "../connections/druidConnection";
 import { tableGenerator } from "./TableGenerator";
 import { deleteAlertByDataset, deleteMetricAliasByDataset } from "./managers";
+import { config } from "../configs/Config";
 
 class DatasetService {
 
@@ -409,6 +410,18 @@ export const getV1Connectors = async (datasetId: string) => {
         }
     })
     return modifiedV1Connectors;
+}
+
+const storageTypes = JSON.parse(config.storage_types)
+export const validateStorageSupport = (dataset: Record<string, any>) => {
+    const { olap_store_enabled, lakehouse_enabled } = _.get(dataset, ["dataset_config", "indexing_config"]) || {}
+    const validStorageType = _.keys(storageTypes).filter(key => storageTypes[key] === true);
+    if (olap_store_enabled && !_.get(storageTypes, "realtime_store") === true) {
+        throw obsrvError("", "DATASET_UNSUPPORTED_STORAGE_TYPE", `The storage type "realtime_store" is not available. Please use one of the available storage types: ${validStorageType}`, "BAD_REQUEST", 400)
+    }
+    if (lakehouse_enabled && !_.get(storageTypes, "lake_house") == true) {
+        throw obsrvError("", "DATASET_UNSUPPORTED_STORAGE_TYPE", `The storage type "lake_house" is not available. Please use one of the available storage types: ${validStorageType}`, "BAD_REQUEST", 400)
+    }
 }
 
 export const datasetService = new DatasetService();

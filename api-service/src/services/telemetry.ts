@@ -3,6 +3,7 @@ import { v4 } from "uuid";
 import _ from "lodash";
 import { config as appConfig } from "../configs/Config";
 import {send} from "../connections/kafkaConnection"
+import { OTelService } from "./otel/OTelService";
 
 const {env, version} = _.pick(appConfig, ["env","version"])
 const telemetryTopic = _.get(appConfig, "telemetry_dataset");
@@ -50,7 +51,8 @@ const getDefaultEdata = ({ action }: any) => ({
 })
 
 const sendTelemetryEvents = async (event: Record<string, any>) => {
-    send({ messages: [{ value: JSON.stringify(event) }] }, telemetryTopic).catch(console.log);
+    OTelService.generateOTelLog(event, 'INFO', 'audit-log');
+    send(event, telemetryTopic).catch(console.log);
 }
 
 const transformProps = (body: Record<string, any>) => {

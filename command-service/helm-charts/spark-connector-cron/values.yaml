@@ -22,10 +22,10 @@ commonAnnotations: {}
 
 podAnnotations: {}
 
-podSecurityContext: {}
-  # runAsNonRoot: true
-  # runAsUser: 1001
-  # fsGroup: 1001
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 1001
+  fsGroup: 1001
 
 securityContext: {}
   # readOnlyRootFilesystem: false
@@ -141,6 +141,9 @@ connector_source: jdbc-connector-1.0.0
 instance_id: nyt-psql.1
 main_class: org.sunbird.obsrv.connector.JDBCConnector
 main_file: jdbc-connector-1.0.0.jar
+
+dataset_id: ""
+connector_id: ""
 
 ## Object Store Connector
 # technology: python

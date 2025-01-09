@@ -2,12 +2,22 @@ import _ from "lodash"
 import { Conflict, ConflictTypes, Suggestion, SuggestionsTemplate } from "../../types/SchemaModel"
 import constants from "./Constants.json"
 import { SchemaSuggestionTemplate } from "./Template"
+import { dataMappingPaths } from "./SchemaHandler"
+import DataMappings from "./SchemaMapping.json";
 
 export class SuggestionTemplate {
 
     public createSuggestionTemplate(sample: ConflictTypes[]): SuggestionsTemplate[] {
         return _.map(sample, (value) => {
-            const dataTypeSuggestions = this.getSchemaMessageTemplate(value.schema)
+            let updatedConflicts: any = {}
+            if (value.schema.conflicts) {
+                updatedConflicts = _.mapKeys(value.schema.conflicts, (value, key) => {
+                    const storeFormat = _.get(dataMappingPaths, key);
+                    if (!storeFormat) return key
+                    return _.get(DataMappings, storeFormat);
+                })
+            }
+            const dataTypeSuggestions = this.getSchemaMessageTemplate({ ...value.schema, ...(!_.isEmpty(updatedConflicts) && { conflicts: updatedConflicts }) })
             const requiredSuggestions = this.getRequiredMessageTemplate(value.required)
             const formatSuggestions = this.getPropertyFormatTemplate(value.formats)
             return <SuggestionsTemplate>{

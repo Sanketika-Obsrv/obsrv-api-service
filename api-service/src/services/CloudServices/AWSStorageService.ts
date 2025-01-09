@@ -16,9 +16,13 @@ export class AWSStorageService implements ICloudService {
             const accessKeyId = _.get(config, "identity")
             const secretAccessKey = _.get(config, "credential")
             const endpoint = _.get(config, "endpoint")
+            const s3ForcePathStyle = _.get(config, "s3ForcePathStyle")
             const configuration: any = { region, credentials: { accessKeyId, secretAccessKey } }
             if(endpoint) {
                 configuration.endpoint = endpoint;
+            }
+            if (s3ForcePathStyle) {
+                configuration.forcePathStyle = s3ForcePathStyle;
             }
             try {
                 this.client = new S3Client(configuration);

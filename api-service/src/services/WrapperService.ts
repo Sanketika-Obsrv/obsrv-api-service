@@ -85,6 +85,22 @@ class WrapperService {
         } catch (error: any) { this.errorHandler.handleError(req, res, next, error, false); }
     };
 
+    public forwardNativeGetDatasource = async (
+        req: Request,
+        res: Response,
+        next: NextFunction
+    ) => {
+        try {
+            const headers = req?.headers;
+            const url = req?.url;
+            const result = await axios.get(
+                `${config.query_api.druid.host}:${config.query_api.druid.port}${url}`,
+                { headers }
+            );
+            ResponseHandler.flatResponse(req, res, result);
+        } catch (error: any) { this.errorHandler.handleError(req, res, next, error, false); }
+    };
+
     public nativeStatus = async (
         req: Request,
         res: Response,

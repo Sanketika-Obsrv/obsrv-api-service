@@ -4,7 +4,7 @@ fullnameOverride: ""
 
 replicaCount: 1
 
-namespace: "flink"
+namespace: "flink-connectors"
 commonLabels:
   system.processing: "true"
   release: monitoring
@@ -246,6 +246,7 @@ serviceMonitor:
 # override flink_jobs
 # flink_jobs:
 
+connector_id: ""
 
 commonAnnotations:
   reloader.stakater.com/auto: "true"

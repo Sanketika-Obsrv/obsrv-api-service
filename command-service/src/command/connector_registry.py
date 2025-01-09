@@ -214,9 +214,6 @@ class ConnectorRegistry:
                 query, params = self.build_insert_query(registry_meta)
                 success = self.execute_query(query, params)
 
-                subprocess.run(["rm", "-rf", self.extraction_path])
-                subprocess.run(["rm", "-rf", self.download_path])
-
                 if not success:
                     return RegistryResponse(
                         status="failure",
@@ -224,13 +221,16 @@ class ConnectorRegistry:
                         statusCode=status.HTTP_500_INTERNAL_SERVER_ERROR,
                     )
                 result.append(registry_meta.to_dict())
+
+            subprocess.run(["rm", "-rf", self.extraction_path])
+            subprocess.run(["rm", "-rf", self.download_path])
+
             return RegistryResponse(
                 status="success",
                 connector_info=result,
                 message="Connectors registered successfully",
                 statusCode=status.HTTP_200_OK
             )
-
         else:
             connector_id = (
                 self.metadata.get("metadata", {}).get("id", "").replace(" ", "-")

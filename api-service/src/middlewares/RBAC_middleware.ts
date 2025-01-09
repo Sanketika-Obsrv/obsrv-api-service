@@ -77,7 +77,7 @@ const checkAccess = (decoded: any, action: string, req: Request, res: Response) 
 
 const basicToken = (token: string, req: Request, res: Response, next: NextFunction) => {
   try {
-    const decoded = jwt.verify(token, config.user_token_public_key);
+    const decoded = jwt.verify(token, config.user_token_public_key, { algorithms: ['RS256'] });
 
     if (!decoded || !_.isObject(decoded)) {
       return errorHandler(401, "Token verification failed or invalid token", req, res);
@@ -125,8 +125,8 @@ export default {
         (req as any).userID = "SYSTEM";
         return next();
       }
-
-      const token = req.get("x-user-token");
+      const authHeader = req.headers['authorization'];
+      const token = authHeader && authHeader.split(' ')[1];
       if (!token) {
         return errorHandler(401, "No token provided", req, res);
       }

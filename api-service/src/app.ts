@@ -1,17 +1,23 @@
 import express, { Application } from "express";
-import {router as v2Router} from "./routes/Router"
-import { metricRouter } from "./routes/MetricRouter"
-import { druidProxyRouter } from "./routes/DruidProxyRouter"
+import { druidProxyRouter } from "./routes/DruidProxyRouter";
+import { metricRouter } from "./routes/MetricRouter";
+import { router as v2Router } from "./routes/Router";
 
 import bodyParser from "body-parser";
-import { errorHandler, obsrvErrorHandler } from "./middlewares/errors";
-import { ResponseHandler } from "./helpers/ResponseHandler";
 import { config } from "./configs/Config";
+import { ResponseHandler } from "./helpers/ResponseHandler";
+import { errorHandler, obsrvErrorHandler } from "./middlewares/errors";
+import { OTelService } from "./services/otel/OTelService";
 import { alertsRouter } from "./routes/AlertsRouter";
 import { interceptAuditEvents } from "./services/telemetry";
+import _ from "lodash";
+
+
 
 const app: Application = express();
- 
+// Initialisation of Open telemetry Service.
+(config.otel && _.toLower(config?.otel?.enable) === "true") ? OTelService.init() : console.info("OpenTelemetry Service is Disabled"); 
+
 app.use(bodyParser.json({ limit: config.body_parser_limit}));
 app.use(express.text());
 app.use(express.json());

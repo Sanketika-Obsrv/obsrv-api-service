@@ -1,9 +1,12 @@
 apiVersion: batch/v1
 kind: CronJob
 metadata:
-  name: {{ include "base.cronReleaseName" . }}
+  name: {{ .Release.Name }}
   namespace: {{ include "base.namespace" . }}
   labels: {{- include "common.labels.standard" ( dict "customLabels" .Values.commonLabels "context" $ ) | nindent 4 }}
+    app.kubernetes.io/dataset: {{ .Values.dataset_id }}
+    app.kubernetes.io/connector: {{ .Values.connector_id }}
+    app.kubernetes.io/connector_instance: {{ .Values.instance_id }}
   {{- if .Values.commonAnnotations }}
   annotations: {{- include "common.tplvalues.render" ( dict "value" .Values.commonAnnotations "context" $ ) | nindent 4 }}
   {{- end }}
@@ -19,6 +22,9 @@ spec:
             {{- include "common.tplvalues.render" (dict "value" .Values.podAnnotations "context" $) | nindent 12 }}
             {{- end }}
           labels: {{- include "common.labels.standard" ( dict "customLabels" .Values.commonLabels "context" $ ) | nindent 12 }}
+            app.kubernetes.io/dataset: {{ .Values.dataset_id }}
+            app.kubernetes.io/connector: {{ .Values.connector_id }}
+            app.kubernetes.io/connector_instance: {{ .Values.instance_id }}
         spec:
           serviceAccountName: {{ .Values.serviceAccount.name }}
           restartPolicy: {{ .Values.restartPolicy }}
@@ -70,7 +76,7 @@ spec:
               - |
                 # Wait for the Spark pod to be ready
                 SPARK_POD=$(kubectl get pods -l app.kubernetes.io/name=spark,app.kubernetes.io/component=master -o jsonpath='{.items[0].metadata.name}')
-                kubectl exec -it $SPARK_POD -- bash -c "/opt/bitnami/spark/bin/spark-submit --master=local[*] --conf spark.pyspark.driver.python={{ .Values.python_path }} --conf spark.pyspark.python={{ .Values.python_path }} --jars /data/connectors/{{ .Values.connector_source }}/libs/\* /data/connectors/{{ .Values.connector_source }}/{{ .Values.main_file }} -f /data/conf/connectors-python-config.yaml -c {{ .Values.instance_id }}"
+                kubectl exec -it $SPARK_POD -- bash -c "/opt/bitnami/spark/bin/spark-submit --master={{ .Values.spark.master.host }} --conf spark.pyspark.driver.python={{ .Values.python_path }} --conf spark.pyspark.python={{ .Values.python_path }} --jars /data/connectors/{{ .Values.connector_source }}/libs/\* /data/connectors/{{ .Values.connector_source }}/{{ .Values.main_file }} -f /data/conf/connectors-python-config.yaml -c {{ .Values.instance_id }}"
               {{- end }}
               {{- with .Values.sidecars }}
               {{- toYaml . | nindent 12 }}

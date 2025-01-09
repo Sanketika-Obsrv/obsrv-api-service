@@ -43,8 +43,11 @@ export class SchemaHandler {
         return _.set(schema, `${absolutePath}`, {
             ...schema[absolutePath],
             ...{
-                type: resolution.value,
-                oneof: conflict.schema.values.map(key => ({ type: key })),
+                type: resolution.value || _.first(conflict.schema.values),
+                oneof: conflict.schema.values.map(key => {
+                    const storeFormat = _.get(dataMappingPaths, key);
+                    return { type: _.get(DataMappings, storeFormat) }
+                }),
             }
         });
     }
@@ -89,12 +92,13 @@ export class SchemaHandler {
     }
 
     private getArrivalFormat(schema: any, fieldData: any, property: any, type: string) {
-        const types = _.get(fieldData, type);
-        types && types.map((item: any) => {
-            const storeFormat = _.get(dataMappingPaths, item.type);
+        const types = _.get(fieldData, type)
+        const propType = _.get(fieldData, "type")
+        if(types){
+            const storeFormat = _.get(dataMappingPaths, propType);
             _.set(schema, `${property}.arrival_format`, _.first(storeFormat.split(".")));
             _.set(schema, `${property}.data_type`, _.get(DataMappings, storeFormat));
-        })
+        }
         return;
     }
 

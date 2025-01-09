@@ -175,7 +175,7 @@ connector_jobs:
     namespace: spark
     base_helm_chart: spark-connector-cron
   flink:
-    namespace: flink
+    namespace: flink-connectors
     base_helm_chart: flink-connector
 
 connector_registry:

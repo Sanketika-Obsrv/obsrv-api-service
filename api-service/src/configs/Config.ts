@@ -42,8 +42,8 @@ export const config = {
         "connectionTimeout": process.env.kafka_connection_timeout ? parseInt(process.env.kafka_connection_timeout) : 5000
       },
       "topics": {  // Default Kafka topics depend on type of dataset.
-        "createDataset": `${process.env.system_env || "local"}.ingest`,
-        "createMasterDataset": `${process.env.system_env || "local"}.masterdata.ingest`
+        "createDataset": `ingest`,
+        "createMasterDataset": `masterdata.ingest`
       }
     }
   },
@@ -115,4 +115,9 @@ export const config = {
   },
   "user_token_public_key": process.env.user_token_public_key || "",
   "is_RBAC_enabled": process.env.is_rbac_enabled || "false",
+  "otel": {
+    "enable": process.env.otel_enable || "false",
+    "collector_endpoint": process.env.otel_collector_endpoint || "http://localhost:4318"
+  },
+  "storage_types": process.env.storage_types || '{"lake_house":true,"realtime_store":true}'
 }

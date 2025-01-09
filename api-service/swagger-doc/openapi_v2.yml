@@ -28,7 +28,7 @@ paths:
     post:
       tags:
         - Dataset API's
-      summary: Dataset Create
+      summary: Create Dataset
       description: >-
         This API allows you to create new datasets used by the analytical data
         source.
@@ -7415,7 +7415,7 @@ paths:
     post:
       tags:
         - Connector API's
-      summary: Register a connector
+      summary: Register Connector
       description: Registers a connector by uploading a file.
       operationId: registerConnector
       requestBody:
@@ -7736,7 +7736,7 @@ paths:
                       code: TOPIC_NOT_FOUND
                       message: Entry topic is not defined
                       trace: ''
-  /v2/data/query/test:
+  /v2/data/query/{dataset_id}:
     post:
       tags:
         - Data Query
@@ -7755,7 +7755,7 @@ paths:
                 context:
                   aggregationLevel: day
                 query: >-
-                  Select * from   "check" WHERE __time >= timestamp '2020-12-31'
+                  Select * from  "check" WHERE __time >= timestamp '2020-12-31'
                   AND __time < TIMESTAMP '2024-01-21' Limit 1
       responses:
         '200':
