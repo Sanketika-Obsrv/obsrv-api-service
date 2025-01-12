@@ -1,0 +1,56 @@
+{
+    "type": "object",
+    "properties": {
+        "id": {
+            "type": "string",
+            "enum": [
+                "api.table.metrics"
+            ]
+        },
+        "ver": {
+            "type": "string"
+        },
+        "ts": {
+            "type": "string"
+        },
+        "params": {
+            "type": "object",
+            "properties": {
+                "msgid": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "msgid"
+            ],
+            "additionalProperties": false
+        },
+        "request": {
+            "type": "object",
+            "properties": {
+                "category": {
+                    "type": "array",
+                    "items": {
+                        "type": "string",
+                        "enum": [
+                            "data_freshness",
+                            "data_observability",
+                            "data_volume",
+                            "data_lineage",
+                            "connectors"
+                        ]
+                    },
+                    "minItems": 1
+                },
+                "volume_by_days": {
+                    "type": "integer",
+                    "minimum": 1
+                }
+            },
+            "required": [
+                "category"
+            ]
+        }
+    },
+    "required": ["id", "ver", "ts", "params", "request"]
+}
