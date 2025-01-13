@@ -37,7 +37,8 @@
                             "data_observability",
                             "data_volume",
                             "data_lineage",
-                            "connectors"
+                            "connectors",
+                            "data_quality"
                         ]
                     },
                     "minItems": 1
