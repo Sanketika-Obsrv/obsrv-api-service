@@ -14,7 +14,7 @@ const tableMetrics = async (req: Request, res: Response) => {
     const msgid = _.get(req, "body.params.msgid");
     const requestBody = req.body;
 
-    const { category, volume_by_days }: any = req.body.request;
+    const { category, volume_by_days = 10 }: any = req.body.request;
     const defaultThreshold = (typeof config?.data_observability?.default_freshness_threshold === 'number' ? config?.data_observability?.default_freshness_threshold : 5) * 60 * 1000; // 5 minutes in milliseconds
     const dateFormat = 'YYYY-MM-DDTHH:mm:ss';
     const startDate = '2000-01-01T00:00:00+05:30';
