@@ -37,8 +37,8 @@ export const handleDataFreshness = async (dataset_id: string, intervals: string,
 export const handleDataObservability = async (dataset_id: string, intervals: string) => {
     const totalEventsPayload = totalEventsQuery(intervals, dataset_id);
     const totalFailedEventsPayload = totalFailedEventsQuery(intervals, dataset_id);
-    const totalQueryCalls = generateTotalQueryCallsQuery(config?.data_out_query_time_period);
-    const totalQueryCallsAtDatasetLevel = generateDatasetQueryCallsQuery(dataset_id, config?.data_out_query_time_period);
+    const totalQueryCalls = generateTotalQueryCallsQuery(config?.data_observability?.data_out_query_time_period);
+    const totalQueryCallsAtDatasetLevel = generateDatasetQueryCallsQuery(dataset_id, config?.data_observability?.data_out_query_time_period);
 
     const [totalEventsResponse, totalFailedEventsResponse, totalApiCallsResponse, totalCallsAtDatasetLevelResponse] = await Promise.all([
         axios.post(nativeQueryEndpoint, totalEventsPayload),
