@@ -32,6 +32,7 @@ import telemetryActions from "../telemetry/telemetryActions";
 import datasetMetrics from "../controllers/DatasetMetrics/DatasetMetricsController";
 import checkRBAC from "../middlewares/RBAC_middleware";
 import connectorRegisterController from "../controllers/ConnectorRegister/ConnectorRegisterController";
+import tableMetrics from "../controllers/TableMetrics/Metrics";
 
 export const router = express.Router();
 
@@ -63,4 +64,4 @@ router.post("/connector/register", setDataToRequestObject("api.connector.registe
 //Wrapper Service
 router.post("/obsrv/data/sql-query", setDataToRequestObject("api.obsrv.data.sql-query"), onRequest({ entity: Entity.Data_out }), checkRBAC.handler(), sqlQuery);
 router.post("/data/metrics", setDataToRequestObject("api.data.metrics"), onRequest({ entity: Entity.Data_out }), datasetMetrics)
-
+router.post("/table/metrics/:dataset_id",setDataToRequestObject("api.table.metrics"), tableMetrics);
