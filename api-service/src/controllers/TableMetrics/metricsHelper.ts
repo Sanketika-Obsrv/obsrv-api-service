@@ -139,7 +139,7 @@ export const handleDataVolume = async (dataset_id: string, volume_by_days: numbe
             { type: "volume_percentage_by_hour", value: volumePercentageByHour },
             { type: "volume_percentage_by_day", value: volumePercentageByDay },
             { type: "volume_percentage_by_week", value: volumePercentageByWeek },
-            { type: "growth_rate_percentage", value: volumePercentageByHour } // Assuming growth rate is same as volume percentage by hour
+            { type: "growth_rate_percentage", value: volumePercentageByHour }
         ]
     };
 };
