@@ -119,5 +119,9 @@ export const config = {
     "enable": process.env.otel_enable || "false",
     "collector_endpoint": process.env.otel_collector_endpoint || "http://localhost:4318"
   },
-  "storage_types": process.env.storage_types || '{"lake_house":true,"realtime_store":true}'
+  "storage_types": process.env.storage_types || '{"lake_house":true,"realtime_store":true}',
+  "data_observability": {
+    "default_freshness_threshold": process.env.default_freshness_threshold || 5, // in minutes
+    "data_out_query_time_period": process.env.data_out_query_time_period || "1d",
+  }
 }
