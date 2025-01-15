@@ -10096,3 +10096,212 @@ paths:
           description: Successful response
           content:
             application/json: {}
+  /v2/dataset/metrics:
+    post:
+      tags:
+        - Dataset metrics
+      summary: Dataset metrics
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                id: api.dataset.metrics
+                ver: v2
+                ts: '2024-04-10T16:10:50+05:30'
+                params:
+                  msgid: 4a7f14c3-d61e-4d4f-be78-181834eeff6d
+                request:
+                  dataset_id: test
+                  category:
+                    - data_freshness
+                    - data_observability
+                    - data_volume
+                    - data_lineage
+                    - connectors
+                    - data_quality
+                  query_time_period: 1
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+              examples:
+                example-0:
+                  summary: 'Success: Get all the data'
+                  value:
+                    id: api.dataset.metrics
+                    ver: v2
+                    ts: '2025-01-15T15:24:21+05:30'
+                    params:
+                      status: SUCCESS
+                      msgid: 4a7f14c3-d61e-4d4f-be78-181834eeff6d
+                      resmsgid: ef86ff9c-4342-4cdc-a573-d469cbf436eb
+                    responseCode: OK
+                    result:
+                      - category: data_freshness
+                        status: Healthy
+                        components:
+                          - type: average_time_difference_in_min
+                            threshold: 5
+                            value: 0
+                            status: Healthy
+                          - type: freshness_query_time_in_min
+                            threshold: 10
+                            value: 0
+                            status: Healthy
+                      - category: data_observability
+                        status: Unhealthy
+                        components:
+                          - type: data_observability_health
+                            status: Unhealthy
+                          - type: failure_percentage
+                            value: 35.39823008849557
+                          - type: threshold_percentage
+                            value: 5
+                          - type: importance_score
+                            value: 0
+                      - category: data_volume
+                        components:
+                          - type: events_per_hour
+                            value: 0
+                          - type: events_per_day
+                            value: 95
+                          - type: events_per_n_day
+                            value: 765
+                          - type: volume_percentage_by_hour
+                            value: 0
+                          - type: volume_percentage_by_day
+                            value: -87.58169934640523
+                          - type: volume_percentage_by_week
+                            value: 0
+                          - type: growth_rate_percentage
+                            value: 0
+                      - category: data_lineage
+                        components:
+                          - type: transformation_success
+                            value: 765
+                          - type: dedup_success
+                            value: 384
+                          - type: denormalization_success
+                            value: 572
+                          - type: total_success
+                            value: 1339
+                          - type: total_failed
+                            value: 1034
+                          - type: transformation_failed
+                            value: 1
+                          - type: dedup_failed
+                            value: 574
+                          - type: denorm_failed
+                            value: 193
+                      - category: connectors
+                        components:
+                          category: connectors
+                          components:
+                            - id: failed
+                              type: failed
+                              value: 1608
+                            - id: api
+                              type: success
+                              value: 765
+                      - category: data_quality
+                        components:
+                          - type: incidents_failed
+                            value: 1034
+                          - type: incidents_success
+                            value: 1339
+                          - type: total_incidents
+                            value: 2373
+                example-1:
+                  summary: 'Success : Get particular category data'
+                  value:
+                    id: api.dataset.metrics
+                    ver: v2
+                    ts: '2025-01-15T15:25:13+05:30'
+                    params:
+                      status: SUCCESS
+                      msgid: 4a7f14c3-d61e-4d4f-be78-181834eeff6d
+                      resmsgid: 10915ec3-a265-4502-bc9b-673562f94512
+                    responseCode: OK
+                    result:
+                      - category: data_lineage
+                        components:
+                          - type: transformation_success
+                            value: 765
+                          - type: dedup_success
+                            value: 384
+                          - type: denormalization_success
+                            value: 572
+                          - type: total_success
+                            value: 1339
+                          - type: total_failed
+                            value: 1034
+                          - type: transformation_failed
+                            value: 1
+                          - type: dedup_failed
+                            value: 574
+                          - type: denorm_failed
+                            value: 193
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                id: api.dataset.metrics
+                ver: v2
+                ts: '2025-01-15T15:23:22+05:30'
+                params:
+                  status: FAILED
+                  msgid: 4a7f14c3-d61e-4d4f-be78-181834eeff6d
+                  resmsgid: a6a26834-bb32-4e32-8dfd-473b0d21c8e8
+                responseCode: BAD_REQUEST
+                error:
+                  code: DATA_OUT_INVALID_INPUT
+                  message: >-
+                    #properties/request/required must have required property
+                    'dataset_id'
+                  trace: ''
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                id: api.dataset.metrics
+                ver: v2
+                ts: '2025-01-15T15:15:30+05:30'
+                params:
+                  status: FAILED
+                  msgid: 4a7f14c3-d61e-4d4f-be78-181834eeff6d
+                  resmsgid: 25107bba-6d88-4e9b-b951-61e29a72b97a
+                responseCode: NOT_FOUND
+                error:
+                  code: DATASET_NOT_FOUND
+                  message: Dataset with id test not found in live table
+                  trace: ''
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                id: api.dataset.metrics
+                ver: v2
+                ts: '2025-01-15T15:29:49+05:30'
+                params:
+                  status: FAILED
+                  msgid: 4a7f14c3-d61e-4d4f-be78-181834eeff6d
+                  resmsgid: 211553f9-ad91-4a4d-a6ba-d77d3e14b7ac
+                responseCode: FAILED
+                error:
+                  code: FAILED_TO_FETCH_METRICS
+                  message: Error while fetching metrics
+                  trace: ''
