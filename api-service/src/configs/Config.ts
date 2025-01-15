@@ -121,7 +121,7 @@ export const config = {
   },
   "storage_types": process.env.storage_types || '{"lake_house":true,"realtime_store":true}',
   "data_observability": {
-    "default_freshness_threshold": process.env.default_freshness_threshold || 5, // in minutes
+    "default_freshness_threshold": process.env.default_freshness_threshold ? parseInt(process.env.default_freshness_threshold) : 5, // in minutes
     "data_out_query_time_period": process.env.data_out_query_time_period || "1d",
   }
 }
