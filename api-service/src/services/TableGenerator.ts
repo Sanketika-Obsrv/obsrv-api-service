@@ -66,7 +66,7 @@ class BaseTableGenerator {
         }
         if (!_.isEmpty(transformations_config)) {
             const transformationFields = _.map(transformations_config, (tf) => ({
-                expr: "$." + `['${tf.field_key}']`,
+                expr: "$." + tf.field_key.split('.').map((fieldpart: string) => `['${fieldpart}']`).join('.'),
                 name: tf.field_key,
                 data_type: tf.transformation_function.datatype,
                 arrival_format: tf.transformation_function.datatype,
