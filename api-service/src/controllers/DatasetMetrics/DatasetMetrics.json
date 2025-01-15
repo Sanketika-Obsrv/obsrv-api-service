@@ -46,10 +46,6 @@
                     },
                     "minItems": 1
                 },
-                "volume_by_days": {
-                    "type": "integer",
-                    "minimum": 1
-                },
                 "query_time_period":{
                     "type": "integer",
                     "minimum": 1

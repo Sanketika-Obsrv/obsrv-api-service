@@ -16,7 +16,7 @@ const datasetMetrics = async (req: Request, res: Response) => {
     const dataset_id = _.get(req, "body.request.dataset_id");
     const timePeriod = _.get(req, "body.request.query_time_period") || config?.data_observability?.default_query_time_period;
 
-    const { category, volume_by_days = 10 }: any = req.body.request;
+    const { category }: any = req.body.request;
     const defaultThreshold = (typeof config?.data_observability?.default_freshness_threshold === 'number' ? config?.data_observability?.default_freshness_threshold : 5) * 60 * 1000; // 5 minutes in milliseconds
     const dateFormat = 'YYYY-MM-DDTHH:mm:ss';
     const endDate = dayjs().add(1, 'day').format(dateFormat);
@@ -48,7 +48,7 @@ const datasetMetrics = async (req: Request, res: Response) => {
         }
 
         if (!category || category.includes("data_volume")) {
-            const dataVolumeResult = await getDataVolume(dataset_id, volume_by_days, dateFormat);
+            const dataVolumeResult = await getDataVolume(dataset_id, timePeriod, dateFormat);
             results.push(dataVolumeResult);
         }
 
