@@ -7737,6 +7737,13 @@ paths:
                       message: Entry topic is not defined
                       trace: ''
   /v2/data/query/{dataset_id}:
+    parameters:
+        - name: dataset_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Unique identifier for the dataset
     post:
       tags:
         - Data Query
@@ -10200,14 +10207,12 @@ paths:
                             value: 193
                       - category: connectors
                         components:
-                          category: connectors
-                          components:
-                            - id: failed
-                              type: failed
-                              value: 1608
-                            - id: api
-                              type: success
-                              value: 765
+                          - id: failed
+                            type: failed
+                            value: 1608
+                          - id: api
+                            type: success
+                            value: 765
                       - category: data_quality
                         components:
                           - type: incidents_failed
