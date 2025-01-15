@@ -4,6 +4,7 @@
             "api.datasets.list",
             "api.datasets.read",
             "api.datasets.export",
+            "api.dataset.health",
             "api.data.out",
             "api.data.exhaust",
             "api.alert.list",
@@ -47,7 +48,6 @@
             "api.datasets.update",
             "api.datasets.import",
             "api.datasets.copy",
-            "api.dataset.health",
             "api.datasets.dataschema"
         ],
         "data": [
@@ -117,7 +117,11 @@
             "file",
             "connector",
             "sqlQuery",
-            "restricted_dataset_api"
+            "restricted_dataset_api",
+            "alert",
+            "metric",
+            "silence",
+            "notificationChannel"
         ],
         "operations_admin": [
             "alert",
