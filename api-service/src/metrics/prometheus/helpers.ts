@@ -58,7 +58,7 @@ const getMetricLabels = (req: any, res: Response) => {
     const { statusCode = 200 } = res
     const request_size = req.socket.bytesRead
     const response_size = res.getHeader("content-length");
-    const dataset_id = _.get(req, ["body", "request", "datasetId"]) || _.get(req, ["params", "datasetId"]) || null    
+    const dataset_id = _.get(req, ["body", "request", "dataset_id"]) || _.get(req, ["params", "dataset_id"]) || null    
     const duration = getDuration(startTime);
     const metricLabels = { entity, id, endpoint: originalUrl, dataset_id, status: statusCode, request_size, response_size }
     return { duration, metricLabels }
