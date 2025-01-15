@@ -29,7 +29,7 @@ const datasetReset = async (req: Request, res: Response) => {
 
     const category = _.get(req, ["body", "request", "category"]);
     const datasetId = _.get(req, ["params"," dataset_id"]);
-
+    const userToken = req.get('authorization') as string;
     await validateRequest(req);
     if (category == "processing") {
         const pipeLineStatus = await getFlinkHealthStatus()
