@@ -7,7 +7,7 @@ export const processingTimeQuery = (intervals: string, dataset_id: string) => ({
     intervals: intervals,
     granularity: {
       type: "all",
-      timeZone: "Asia/Kolkata"
+      timeZone: "UTC"
     },
     filter: {
       type: "and",
@@ -49,7 +49,8 @@ export const totalEventsQuery = (intervals: string, dataset_id: string) => ({
     matchValue: dataset_id
   },
   granularity: {
-    type: "all"
+    type: "all",
+    timeZone: "UTC"
   },
   aggregations: [
     {
@@ -77,7 +78,8 @@ export const totalFailedEventsQuery = (intervals: string, dataset_id: string) =>
     matchValue: dataset_id
   },
   granularity: {
-    type: "all"
+    type: "all",
+    timeZone: "UTC"
   },
   aggregations: [
     {
@@ -115,7 +117,7 @@ export const generateTimeseriesQuery = (intervals: string, dataset_id: string) =
   intervals: intervals,
   granularity: {
     type: "all",
-    timeZone: "Asia/Kolkata"
+    timeZone: "UTC"
   },
   filter: {
     type: "and",
@@ -137,7 +139,7 @@ export const generateTimeseriesQueryEventsPerHour = (intervals: string, dataset_
   intervals: intervals,
   granularity: {
     type: "all",
-    timeZone: "Asia/Kolkata"
+    timeZone: "UTC"
   },
   filter: {
     type: "and",
@@ -181,7 +183,8 @@ export const dataLineageSuccessQuery = (intervals: string, dataset_id: string, c
     ]
   },
   granularity: {
-    type: "all"
+    type: "all",
+    timeZone: "UTC"
   },
   aggregations: [
     {
@@ -209,7 +212,8 @@ export const generateTransformationFailedQuery = (intervals: string, dataset_id:
     matchValue: dataset_id
   },
   granularity: {
-    type: "all"
+    type: "all",
+    timeZone: "UTC"
   },
   aggregations: [
     {
@@ -258,7 +262,8 @@ export const generateDedupFailedQuery = (intervals: string, dataset_id: string) 
     matchValue: dataset_id
   },
   granularity: {
-    type: "all"
+    type: "all",
+    timeZone: "UTC"
   },
   aggregations: [
     {
@@ -307,7 +312,8 @@ export const generateDenormFailedQuery = (intervals: string, dataset_id: string)
     matchValue: dataset_id
   },
   granularity: {
-    type: "all"
+    type: "all",
+    timeZone: "UTC"
   },
   aggregations: [
     {
@@ -369,7 +375,8 @@ export const generateConnectorQuery = (intervals: string, dataset_id: string) =>
     matchValue: dataset_id
   },
   granularity: {
-    type: "all"
+    type: "all",
+    timeZone: "UTC"
   },
   aggregations: [
     {
