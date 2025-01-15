@@ -1,6 +1,6 @@
 import dayjs from "dayjs";
 
-export const processingTimeQuery = (intervals: string, dataset: string) => ({
+export const processingTimeQuery = (intervals: string, dataset_id: string) => ({
   query: {
     queryType: "groupBy",
     dataSource: "system-events",
@@ -13,7 +13,7 @@ export const processingTimeQuery = (intervals: string, dataset: string) => ({
       type: "and",
       fields: [
         { type: "selector", dimension: "ctx_module", value: "processing" },
-        { type: "selector", dimension: "ctx_dataset", value: dataset },
+        { type: "selector", dimension: "ctx_dataset", value: dataset_id },
         { type: "selector", dimension: "ctx_pdata_pid", value: "router" },
         { type: "selector", dimension: "error_code", value: null }
       ]
@@ -32,7 +32,7 @@ export const processingTimeQuery = (intervals: string, dataset: string) => ({
   }
 });
 
-export const totalEventsQuery = (intervals: string, dataset: string) => ({
+export const totalEventsQuery = (intervals: string, dataset_id: string) => ({
   queryType: "timeseries",
   dataSource: {
     type: "table",
@@ -46,7 +46,7 @@ export const totalEventsQuery = (intervals: string, dataset: string) => ({
     type: "equals",
     column: "ctx_dataset",
     matchValueType: "STRING",
-    matchValue: dataset
+    matchValue: dataset_id
   },
   granularity: {
     type: "all"
@@ -60,7 +60,7 @@ export const totalEventsQuery = (intervals: string, dataset: string) => ({
   ]
 });
 
-export const totalFailedEventsQuery = (intervals: string, dataset: string) => ({
+export const totalFailedEventsQuery = (intervals: string, dataset_id: string) => ({
   queryType: "timeseries",
   dataSource: {
     type: "table",
@@ -74,7 +74,7 @@ export const totalFailedEventsQuery = (intervals: string, dataset: string) => ({
     type: "equals",
     column: "ctx_dataset",
     matchValueType: "STRING",
-    matchValue: dataset
+    matchValue: dataset_id
   },
   granularity: {
     type: "all"
@@ -109,7 +109,7 @@ export const totalFailedEventsQuery = (intervals: string, dataset: string) => ({
   ]
 });
 
-export const generateTimeseriesQuery = (intervals: string, dataset: string) => ({
+export const generateTimeseriesQuery = (intervals: string, dataset_id: string) => ({
   queryType: "timeseries",
   dataSource: "system-events",
   intervals: intervals,
@@ -121,7 +121,7 @@ export const generateTimeseriesQuery = (intervals: string, dataset: string) => (
     type: "and",
     fields: [
       { type: "selector", dimension: "ctx_module", value: "processing" },
-      { type: "selector", dimension: "ctx_dataset", value: dataset },
+      { type: "selector", dimension: "ctx_dataset", value: dataset_id },
       { type: "selector", dimension: "ctx_pdata_pid", value: "router" },
       { type: "selector", dimension: "error_code", value: null }
     ]
@@ -131,7 +131,7 @@ export const generateTimeseriesQuery = (intervals: string, dataset: string) => (
   ]
 });
 
-export const generateTimeseriesQueryEventsPerHour = (intervals: string, dataset: string) => ({
+export const generateTimeseriesQueryEventsPerHour = (intervals: string, dataset_id: string) => ({
   queryType: "timeseries",
   dataSource: "system-events",
   intervals: intervals,
@@ -143,7 +143,7 @@ export const generateTimeseriesQueryEventsPerHour = (intervals: string, dataset:
     type: "and",
     fields: [
       { type: "selector", dimension: "ctx_module", value: "processing" },
-      { type: "selector", dimension: "ctx_dataset", value: dataset },
+      { type: "selector", dimension: "ctx_dataset", value: dataset_id },
       { type: "selector", dimension: "ctx_pdata_pid", value: "router" },
       { type: "selector", dimension: "error_code", value: null }
     ]
@@ -153,7 +153,7 @@ export const generateTimeseriesQueryEventsPerHour = (intervals: string, dataset:
   ]
 });
 
-export const dataLineageSuccessQuery = (intervals: string, dataset: string, column: string, value: string) => ({
+export const dataLineageSuccessQuery = (intervals: string, dataset_id: string, column: string, value: string) => ({
   queryType: "timeseries",
   dataSource: {
     type: "table",
@@ -176,7 +176,7 @@ export const dataLineageSuccessQuery = (intervals: string, dataset: string, colu
         type: "equals",
         column: "ctx_dataset",
         matchValueType: "STRING",
-        matchValue: dataset
+        matchValue: dataset_id
       }
     ]
   },
@@ -192,7 +192,7 @@ export const dataLineageSuccessQuery = (intervals: string, dataset: string, colu
   ]
 });
 
-export const generateTransformationFailedQuery = (intervals: string, dataset: string) => ({
+export const generateTransformationFailedQuery = (intervals: string, dataset_id: string) => ({
   queryType: "timeseries",
   dataSource: {
     type: "table",
@@ -206,7 +206,7 @@ export const generateTransformationFailedQuery = (intervals: string, dataset: st
     type: "equals",
     column: "ctx_dataset",
     matchValueType: "STRING",
-    matchValue: dataset
+    matchValue: dataset_id
   },
   granularity: {
     type: "all"
@@ -241,7 +241,7 @@ export const generateTransformationFailedQuery = (intervals: string, dataset: st
   ]
 });
 
-export const generateDedupFailedQuery = (intervals: string, dataset: string) => ({
+export const generateDedupFailedQuery = (intervals: string, dataset_id: string) => ({
   queryType: "timeseries",
   dataSource: {
     type: "table",
@@ -255,7 +255,7 @@ export const generateDedupFailedQuery = (intervals: string, dataset: string) => 
     type: "equals",
     column: "ctx_dataset",
     matchValueType: "STRING",
-    matchValue: dataset
+    matchValue: dataset_id
   },
   granularity: {
     type: "all"
@@ -290,7 +290,7 @@ export const generateDedupFailedQuery = (intervals: string, dataset: string) => 
   ]
 });
 
-export const generateDenormFailedQuery = (intervals: string, dataset: string) => ({
+export const generateDenormFailedQuery = (intervals: string, dataset_id: string) => ({
   queryType: "timeseries",
   dataSource: {
     type: "table",
@@ -304,7 +304,7 @@ export const generateDenormFailedQuery = (intervals: string, dataset: string) =>
     type: "equals",
     column: "ctx_dataset",
     matchValueType: "STRING",
-    matchValue: dataset
+    matchValue: dataset_id
   },
   granularity: {
     type: "all"
@@ -339,7 +339,7 @@ export const generateDenormFailedQuery = (intervals: string, dataset: string) =>
   ]
 });
 
-export const generateConnectorQuery = (intervals: string, dataset: string) => ({
+export const generateConnectorQuery = (intervals: string, dataset_id: string) => ({
   queryType: "topN",
   dataSource: {
     type: "table",
@@ -366,7 +366,7 @@ export const generateConnectorQuery = (intervals: string, dataset: string) => ({
     type: "equals",
     column: "ctx_dataset",
     matchValueType: "STRING",
-    matchValue: dataset
+    matchValue: dataset_id
   },
   granularity: {
     type: "all"
