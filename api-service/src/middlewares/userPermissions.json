@@ -51,7 +51,8 @@
             "api.datasets.dataschema"
         ],
         "data": [
-            "api.data.in"
+            "api.data.in",
+            "api.data.analyze.pii"
         ],
         "queryTemplate": [
             "api.query.template.create",
@@ -93,7 +94,8 @@
             "schema",
             "file",
             "connector",
-            "sqlQuery"
+            "sqlQuery",
+            "data"
         ],
         "dataset_manager": [
             "general_access",
@@ -105,7 +107,8 @@
             "file",
             "connector",
             "sqlQuery",
-            "restricted_dataset_api"
+            "restricted_dataset_api",
+            "data"
         ],
         "admin": [
             "general_access",
@@ -121,7 +124,8 @@
             "alert",
             "metric",
             "silence",
-            "notificationChannel"
+            "notificationChannel",
+            "data"
         ],
         "operations_admin": [
             "alert",
