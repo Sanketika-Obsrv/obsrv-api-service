@@ -83,7 +83,7 @@ export const handleDataObservability = async (dataset_id: string, intervals: str
             },
             {
                 type: "importance_score",
-                value: importanceScore
+                value: importanceScore || 0
             }
         ]
     };
