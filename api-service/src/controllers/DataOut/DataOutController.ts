@@ -9,7 +9,7 @@ import { executeNativeQuery, executeSqlQuery } from "../../connections/druidConn
 
 export const apiId = "api.data.out";
 const dataOut = async (req: Request, res: Response) => {
-    const datasetId = req.params?.datasetId;
+    const datasetId = req.params?.dataset_id;
     const requestBody = req.body;
     const msgid = _.get(req, "body.params.msgid");
     const isValidSchema = schemaValidation(requestBody, validationSchema);
