@@ -14,12 +14,12 @@ const datasetMetrics = async (req: Request, res: Response) => {
     const msgid = _.get(req, "body.params.msgid");
     const requestBody = req.body;
     const dataset_id = _.get(req, "body.request.dataset_id");
-    const startDateValue = _.get(req, "body.request.start_date") || config?.data_observability?.default_query_time_period;
+    const startDateValue = _.get(req, "body.request.query_time_period") || config?.data_observability?.default_query_time_period;
 
     const { category, volume_by_days = 10 }: any = req.body.request;
     const defaultThreshold = (typeof config?.data_observability?.default_freshness_threshold === 'number' ? config?.data_observability?.default_freshness_threshold : 5) * 60 * 1000; // 5 minutes in milliseconds
     const dateFormat = 'YYYY-MM-DDTHH:mm:ss';
-    const endDate = dayjs().format(dateFormat);
+    const endDate = dayjs().add(1, 'day').format(dateFormat);
     const startDate = dayjs(endDate).subtract(startDateValue, 'day').format(dateFormat);
     const intervals = `${startDate}/${endDate}`;
     const isValidSchema = schemaValidation(requestBody, validationSchema);
