@@ -1,14 +1,14 @@
 import axios from "axios";
 import dayjs from "dayjs";
 import _ from "lodash";
-import { config } from "../../configs/Config";
-import { dataLineageSuccessQuery, generateConnectorQuery, generateDatasetQueryCallsQuery, generateDedupFailedQuery, generateDenormFailedQuery, generateTimeseriesQuery, generateTimeseriesQueryEventsPerHour, generateTotalQueryCallsQuery, generateTransformationFailedQuery, processingTimeQuery, totalEventsQuery, totalFailedEventsQuery } from "./queries";
+import { config } from "../configs/Config";
+import { dataLineageSuccessQuery, generateConnectorQuery, generateDatasetQueryCallsQuery, generateDedupFailedQuery, generateDenormFailedQuery, generateTimeseriesQuery, generateTimeseriesQueryEventsPerHour, generateTotalQueryCallsQuery, generateTransformationFailedQuery, processingTimeQuery, totalEventsQuery, totalFailedEventsQuery } from "../controllers/DatasetMetrics/queries";
 const druidPort = _.get(config, "query_api.druid.port");
 const druidHost = _.get(config, "query_api.druid.host");
 const nativeQueryEndpoint = `${druidHost}:${druidPort}${config.query_api.druid.native_query_path}`;
 const prometheusEndpoint = `${config.query_api.prometheus.url}/api/v1/query_range`;
 
-export const handleDataFreshness = async (dataset_id: string, intervals: string, defaultThreshold: number) => {
+export const getDataFreshness = async (dataset_id: string, intervals: string, defaultThreshold: number) => {
     const queryPayload = processingTimeQuery(intervals, dataset_id);
     const druidResponse = await axios.post(nativeQueryEndpoint, queryPayload?.query);
     const avgProcessingTime = _.get(druidResponse, "data[0].average_processing_time", 0);
@@ -34,7 +34,7 @@ export const handleDataFreshness = async (dataset_id: string, intervals: string,
     };
 };
 
-export const handleDataObservability = async (dataset_id: string, intervals: string) => {
+export const getDataObservability = async (dataset_id: string, intervals: string) => {
     const totalEventsPayload = totalEventsQuery(intervals, dataset_id);
     const totalFailedEventsPayload = totalFailedEventsQuery(intervals, dataset_id);
     const totalQueryCalls = generateTotalQueryCallsQuery(config?.data_observability?.data_out_query_time_period);
@@ -89,7 +89,7 @@ export const handleDataObservability = async (dataset_id: string, intervals: str
     };
 };
 
-export const handleDataVolume = async (dataset_id: string, volume_by_days: number, dateFormat: string) => {
+export const getDataVolume = async (dataset_id: string, volume_by_days: number, dateFormat: string) => {
     const currentHourIntervals = dayjs().subtract(1, "hour").startOf("hour").toISOString() + "/" + dayjs().startOf("hour").toISOString();
     const currentDayIntervals = dayjs().subtract(1, 'day').startOf('day').format(dateFormat) + '/' + dayjs().endOf('day').format(dateFormat);
     const currentWeekIntervals = dayjs().subtract(1, 'week').startOf('week').format(dateFormat) + '/' + dayjs().endOf('week').format(dateFormat);
@@ -144,7 +144,7 @@ export const handleDataVolume = async (dataset_id: string, volume_by_days: numbe
     };
 };
 
-export const handleDataLineage = async (dataset_id: string, intervals: string) => {
+export const getDataLineage = async (dataset_id: string, intervals: string) => {
     const transformationSuccessPayload = dataLineageSuccessQuery(intervals, dataset_id, "transformer_status", "success");
     const dedupSuccessPayload = dataLineageSuccessQuery(intervals, dataset_id, "dedup_status", "success");
     const denormSuccessPayload = dataLineageSuccessQuery(intervals, dataset_id, "denorm_status", "success");
@@ -196,7 +196,7 @@ export const handleDataLineage = async (dataset_id: string, intervals: string) =
 };
 
 
-export const handleConnectors = async (dataset_id: string, intervals: string) => {
+export const getConnectors = async (dataset_id: string, intervals: string) => {
     const connectorQueryPayload = generateConnectorQuery(intervals, dataset_id);
     const connectorResponse = await axios.post(nativeQueryEndpoint, connectorQueryPayload);
     const connectorsData = _.get(connectorResponse, "data[0].result", []);
@@ -215,7 +215,7 @@ export const handleConnectors = async (dataset_id: string, intervals: string) =>
     };
 };
 
-export const handleDataQuality = async (dataset_id: string, intervals: string) => {
+export const getDataQuality = async (dataset_id: string, intervals: string) => {
     const totalValidationPayload = dataLineageSuccessQuery(intervals, dataset_id, "ctx_dataset", dataset_id);
     const totalValidationFailedPayload = dataLineageSuccessQuery(intervals, dataset_id, "error_pdata_status", "failed");
     const [totalValidationResponse, totalValidationFailedResponse,
