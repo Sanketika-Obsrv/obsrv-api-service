@@ -29,19 +29,20 @@ import ConnectorsRead from "../controllers/ConnectorsRead/ConnectorsRead";
 import DatasetImport from "../controllers/DatasetImport/DatasetImport";
 import { OperationType, telemetryAuditStart } from "../services/telemetry";
 import telemetryActions from "../telemetry/telemetryActions";
-import datasetMetrics from "../controllers/DatasetMetrics/DatasetMetricsController";
 import checkRBAC from "../middlewares/RBAC_middleware";
 import connectorRegisterController from "../controllers/ConnectorRegister/ConnectorRegisterController";
+import dataMetrics from "../controllers/DataMetrics/DataMetricsController";
+import datasetMetrics from "../controllers/DatasetMetrics/DatasetMetricsController";
 
 export const router = express.Router();
 
-router.post("/data/in/:datasetId", setDataToRequestObject("api.data.in"), onRequest({ entity: Entity.Data_in }), telemetryAuditStart({action: telemetryActions.createDataset, operationType: OperationType.CREATE}), checkRBAC.handler(), dataIn);
-router.post("/data/query/:datasetId", setDataToRequestObject("api.data.out"), onRequest({ entity: Entity.Data_out }), checkRBAC.handler(), dataOut);
+router.post("/data/in/:dataset_id", setDataToRequestObject("api.data.in"), onRequest({ entity: Entity.Data_in }), telemetryAuditStart({action: telemetryActions.createDataset, operationType: OperationType.CREATE}), checkRBAC.handler(), dataIn);
+router.post("/data/query/:dataset_id", setDataToRequestObject("api.data.out"), onRequest({ entity: Entity.Data_out }), checkRBAC.handler(), dataOut);
 router.post("/datasets/create", setDataToRequestObject("api.datasets.create"), onRequest({ entity: Entity.Management }),telemetryAuditStart({action: telemetryActions.createDataset, operationType: OperationType.CREATE}), checkRBAC.handler(),DatasetCreate)
 router.patch("/datasets/update", setDataToRequestObject("api.datasets.update"), onRequest({ entity: Entity.Management }),telemetryAuditStart({action: telemetryActions.updateDataset, operationType: OperationType.UPDATE}), checkRBAC.handler(), DatasetUpdate)
 router.get("/datasets/read/:dataset_id", setDataToRequestObject("api.datasets.read"), onRequest({ entity: Entity.Management }), telemetryAuditStart({action: telemetryActions.readDataset, operationType: OperationType.GET}), checkRBAC.handler(), DatasetRead)
 router.post("/datasets/list", setDataToRequestObject("api.datasets.list"), onRequest({ entity: Entity.Management }), telemetryAuditStart({action: telemetryActions.listDatasets, operationType: OperationType.LIST}), checkRBAC.handler(), DatasetList)
-router.get("/data/exhaust/:datasetId", setDataToRequestObject("api.data.exhaust"), onRequest({ entity: Entity.Management }), telemetryAuditStart({action: telemetryActions.datasetExhaust, operationType: OperationType.GET}), checkRBAC.handler(), dataExhaust);
+router.get("/data/exhaust/:dataset_id", setDataToRequestObject("api.data.exhaust"), onRequest({ entity: Entity.Management }), telemetryAuditStart({action: telemetryActions.datasetExhaust, operationType: OperationType.GET}), checkRBAC.handler(), dataExhaust);
 router.post("/template/create", setDataToRequestObject("api.query.template.create"), checkRBAC.handler(), createQueryTemplate);
 router.get("/template/read/:templateId", setDataToRequestObject("api.query.template.read"), checkRBAC.handler(), readQueryTemplate);
 router.delete("/template/delete/:templateId", setDataToRequestObject("api.query.template.delete"), checkRBAC.handler(), deleteQueryTemplate);
@@ -52,7 +53,7 @@ router.post("/template/query/:templateId", setDataToRequestObject("api.query.tem
 router.post("/files/generate-url", setDataToRequestObject("api.files.generate-url"), onRequest({ entity: Entity.Management }), checkRBAC.handler(), GenerateSignedURL);
 router.post("/datasets/status-transition", setDataToRequestObject("api.datasets.status-transition"), onRequest({ entity: Entity.Management }), telemetryAuditStart({action: telemetryActions.createTransformation, operationType: OperationType.CREATE}), checkRBAC.handler(), DatasetStatusTansition);
 router.post("/datasets/health", setDataToRequestObject("api.dataset.health"), onRequest({ entity: Entity.Management }), checkRBAC.handler(), datasetHealth);
-router.post("/datasets/reset/:datasetId", setDataToRequestObject("api.dataset.reset"), onRequest({ entity: Entity.Management }), checkRBAC.handler(), datasetReset);
+router.post("/datasets/reset/:dataset_id", setDataToRequestObject("api.dataset.reset"), onRequest({ entity: Entity.Management }), checkRBAC.handler(), datasetReset);
 router.post("/datasets/dataschema", setDataToRequestObject("api.datasets.dataschema"), onRequest({ entity: Entity.Management }), checkRBAC.handler(), DataSchemaGenerator);
 router.get("/datasets/export/:dataset_id", setDataToRequestObject("api.datasets.export"), onRequest({ entity: Entity.Management }), checkRBAC.handler(), DatasetExport);
 router.post("/datasets/copy", setDataToRequestObject("api.datasets.copy"), onRequest({ entity: Entity.Management }), telemetryAuditStart({action: telemetryActions.copyDataset, operationType: OperationType.CREATE}), checkRBAC.handler(), DatasetCopy);
@@ -62,5 +63,5 @@ router.post("/datasets/import", setDataToRequestObject("api.datasets.import"), o
 router.post("/connector/register", setDataToRequestObject("api.connector.register"), onRequest({ entity: Entity.Management }), connectorRegisterController);
 //Wrapper Service
 router.post("/obsrv/data/sql-query", setDataToRequestObject("api.obsrv.data.sql-query"), onRequest({ entity: Entity.Data_out }), checkRBAC.handler(), sqlQuery);
-router.post("/data/metrics", setDataToRequestObject("api.data.metrics"), onRequest({ entity: Entity.Data_out }), datasetMetrics)
-
+router.post("/data/metrics", setDataToRequestObject("api.data.metrics"), onRequest({ entity: Entity.Data_out }), dataMetrics)
+router.post("/dataset/metrics", setDataToRequestObject("api.dataset.metrics"), onRequest({ entity: Entity.Management }), checkRBAC.handler(), datasetMetrics);

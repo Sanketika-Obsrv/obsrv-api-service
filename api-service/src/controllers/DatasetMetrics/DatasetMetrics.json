@@ -1,0 +1,61 @@
+{
+    "type": "object",
+    "properties": {
+        "id": {
+            "type": "string",
+            "enum": [
+                "api.dataset.metrics"
+            ]
+        },
+        "ver": {
+            "type": "string"
+        },
+        "ts": {
+            "type": "string"
+        },
+        "params": {
+            "type": "object",
+            "properties": {
+                "msgid": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "msgid"
+            ],
+            "additionalProperties": false
+        },
+        "request": {
+            "type": "object",
+            "properties": {
+                "dataset_id": {
+                    "type": "string"
+                },
+                "category": {
+                    "type": "array",
+                    "items": {
+                        "type": "string",
+                        "enum": [
+                            "data_freshness",
+                            "data_observability",
+                            "data_volume",
+                            "data_lineage",
+                            "connectors",
+                            "data_quality"
+                        ]
+                    },
+                    "minItems": 1
+                },
+                "query_time_period":{
+                    "type": "integer",
+                    "minimum": 1
+                }
+            },
+            "required": [
+                "category",
+                "dataset_id"
+            ]
+        }
+    },
+    "required": ["id", "ver", "ts", "params", "request"]
+}

@@ -27,7 +27,7 @@ const apiId = "api.data.in";
 const dataIn = async (req: Request, res: Response) => {
 
     const requestBody = req.body;
-        const datasetId = req.params.datasetId.trim();
+        const datasetId = req.params.dataset_id.trim();
 
         const isValidSchema = schemaValidation(requestBody, validationSchema)
         if (!isValidSchema?.isValid) {
