@@ -4,7 +4,7 @@
         "id": {
             "type": "string",
             "enum": [
-                "api.table.metrics"
+                "api.dataset.metrics"
             ]
         },
         "ver": {
@@ -28,6 +28,9 @@
         "request": {
             "type": "object",
             "properties": {
+                "dataset_id": {
+                    "type": "string"
+                },
                 "category": {
                     "type": "array",
                     "items": {
@@ -49,7 +52,8 @@
                 }
             },
             "required": [
-                "category"
+                "category",
+                "dataset_id"
             ]
         }
     },
