@@ -4,6 +4,7 @@
             "api.datasets.list",
             "api.datasets.read",
             "api.datasets.export",
+            "api.dataset.health",
             "api.data.out",
             "api.data.exhaust",
             "api.alert.list",
@@ -12,7 +13,8 @@
             "api.alert.silence.list",
             "api.alert.silence.get",
             "api.alert.notification.list",
-            "api.alert.notification.get"
+            "api.alert.notification.get",
+            "api.dataset.metrics"
         ],
         "restricted_dataset_api": [
             "api.datasets.reset",
@@ -46,11 +48,11 @@
             "api.datasets.update",
             "api.datasets.import",
             "api.datasets.copy",
-            "api.dataset.health",
             "api.datasets.dataschema"
         ],
         "data": [
-            "api.data.in"
+            "api.data.in",
+            "api.data.analyze.pii"
         ],
         "queryTemplate": [
             "api.query.template.create",
@@ -92,7 +94,8 @@
             "schema",
             "file",
             "connector",
-            "sqlQuery"
+            "sqlQuery",
+            "data"
         ],
         "dataset_manager": [
             "general_access",
@@ -104,7 +107,8 @@
             "file",
             "connector",
             "sqlQuery",
-            "restricted_dataset_api"
+            "restricted_dataset_api",
+            "data"
         ],
         "admin": [
             "general_access",
@@ -116,7 +120,12 @@
             "file",
             "connector",
             "sqlQuery",
-            "restricted_dataset_api"
+            "restricted_dataset_api",
+            "alert",
+            "metric",
+            "silence",
+            "notificationChannel",
+            "data"
         ],
         "operations_admin": [
             "alert",

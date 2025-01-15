@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import _ from "lodash";
 import { ResponseHandler } from "../../helpers/ResponseHandler";
-import { datasetService } from "../../services/DatasetService";
+import { datasetService, validateStorageSupport } from "../../services/DatasetService";
 import { schemaValidation } from "../../services/ValidationService";
 import StatusTransitionSchema from "./RequestValidationSchema.json";
 import ReadyToPublishSchema from "./ReadyToPublishSchema.json"
@@ -50,6 +50,7 @@ const validateDataset = (dataset: any, datasetId: any, action: string) => {
 const datasetStatusTransition = async (req: Request, res: Response) => {
 
     const { dataset_id, status } = _.get(req.body, "request");
+    const userToken = req.get('authorization') as string;
     validateRequest(req, dataset_id);
 
     const dataset: Record<string, any> = (_.includes(liveDatasetActions, status)) ? await datasetService.getDataset(dataset_id, ["id", "status", "type", "api_version", "name"], true) : await datasetService.getDraftDataset(dataset_id, ["id", "dataset_id", "status", "type", "api_version"])
@@ -64,10 +65,10 @@ const datasetStatusTransition = async (req: Request, res: Response) => {
             await readyForPublish(dataset, userID);
             break;
         case "Live":
-            await publishDataset(dataset, userID);
+            await publishDataset(dataset, userID, userToken);
             break;
         case "Retire":
-            await retireDataset(dataset, userID);
+            await retireDataset(dataset, userID, userToken);
             break;
         default:
             throw obsrvError(dataset.id, "UNKNOWN_STATUS_TRANSITION", "Unknown status transition requested", "BAD_REQUEST", 400)
@@ -88,6 +89,7 @@ const deleteDataset = async (dataset: Record<string, any>) => {
 const readyForPublish = async (dataset: Record<string, any>, updated_by: any) => {
 
     const draftDataset: any = await datasetService.getDraftDataset(dataset.dataset_id)
+    validateStorageSupport(draftDataset);
     let defaultConfigs: any = _.cloneDeep(defaultDatasetConfig)
     defaultConfigs = _.omit(defaultConfigs, ["router_config"])
     defaultConfigs = _.omit(defaultConfigs, "dedup_config.dedup_key");
@@ -133,14 +135,15 @@ const readyForPublish = async (dataset: Record<string, any>, updated_by: any) =>
  * 
  * @param dataset 
  */
-const publishDataset = async (dataset: Record<string, any>, userID: any) => {
+const publishDataset = async (dataset: Record<string, any>, userID: any, userToken: string) => {
 
     const draftDataset: Record<string, any> = await datasetService.getDraftDataset(dataset.dataset_id) as unknown as Record<string, any>
+    validateStorageSupport(draftDataset);
     _.set(draftDataset, ["created_by"], userID);
     _.set(draftDataset, ["updated_by"], userID);
     await validateAndUpdateDenormConfig(draftDataset);
     await updateMasterDataConfig(draftDataset)
-    await datasetService.publishDataset(draftDataset)
+    await datasetService.publishDataset(draftDataset, userToken);
 }
 
 const validateAndUpdateDenormConfig = async (draftDataset: Record<string, any>) => {
@@ -225,11 +228,11 @@ const updateMasterDataConfig = async (draftDataset: Record<string, any>) => {
     }
 }
 
-const retireDataset = async (dataset: Record<string, any>, updated_by: any) => {
+const retireDataset = async (dataset: Record<string, any>, updated_by: any, userToken: string) => {
 
     await canRetireIfMasterDataset(dataset);
     await datasetService.retireDataset(dataset, updated_by);
-    await restartPipeline(dataset);
+    await restartPipeline(dataset, userToken);
 }
 
 
@@ -252,8 +255,8 @@ const canRetireIfMasterDataset = async (dataset: Record<string, any>) => {
     }
 }
 
-export const restartPipeline = async (dataset: Record<string, any>) => {
-    return executeCommand(dataset.id, "RESTART_PIPELINE")
+export const restartPipeline = async (dataset: Record<string, any>, userToken: string) => {
+    return executeCommand(dataset.id, "RESTART_PIPELINE", userToken)
 }
 
 export default datasetStatusTransition;

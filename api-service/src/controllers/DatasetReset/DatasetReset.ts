@@ -18,7 +18,7 @@ const validateRequest = async (req: Request) => {
     if (!isRequestValid.isValid) {
         throw obsrvError("", "DATASET_INVALID_INPUT", isRequestValid.message, "BAD_REQUEST", 400)
     }
-    const datasetId = _.get(req, ["params", "datasetId"])
+    const datasetId = _.get(req, ["params", "dataset_id"])
     const isDataSetExists = await datasetService.checkDatasetExists(datasetId);
     if (!isDataSetExists) {
         throw obsrvError(datasetId, "DATASET_NOT_FOUND", `Dataset not exists with id:${datasetId}`, httpStatus[httpStatus.NOT_FOUND], 404)
@@ -28,13 +28,13 @@ const validateRequest = async (req: Request) => {
 const datasetReset = async (req: Request, res: Response) => {
 
     const category = _.get(req, ["body", "request", "category"]);
-    const datasetId = _.get(req, ["params"," datasetId"]);
-
+    const datasetId = _.get(req, ["params"," dataset_id"]);
+    const userToken = req.get('authorization') as string;
     await validateRequest(req);
     if (category == "processing") {
         const pipeLineStatus = await getFlinkHealthStatus()
         if (pipeLineStatus == HealthStatus.UnHealthy) {
-            await restartPipeline({ "dataset": { "dataset_id": datasetId } })
+            await restartPipeline({ "dataset": { "dataset_id": datasetId } }, userToken)
         }
     } else if (category == "query") {
         const datasources = await datasetService.findDatasources({"dataset_id": datasetId})
