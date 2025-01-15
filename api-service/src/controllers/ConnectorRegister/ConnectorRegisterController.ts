@@ -22,8 +22,7 @@ const connectorRegisterController = async (req: Request, res: Response) => {
             relative_path: uploadStreamResponse[0]
         }
         logger.info({ apiId, resmsgid, message: `File uploaded to cloud provider successfully` })
-        const userToken = req.get('authorization') as string;
-        const registryResponse = await registerConnector(payload, userToken);
+        const registryResponse = await registerConnector(payload);
         logger.info({ apiId, resmsgid, message: `Connector registered successfully` })
         ResponseHandler.successResponse(req, res, { status: httpStatus.OK, data: { message: registryResponse?.data?.message } })
     } catch (error: any) {

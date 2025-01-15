@@ -29,13 +29,12 @@ const datasetReset = async (req: Request, res: Response) => {
 
     const category = _.get(req, ["body", "request", "category"]);
     const datasetId = _.get(req, ["params"," datasetId"]);
-    const userToken = req.get('authorization') as string;
 
     await validateRequest(req);
     if (category == "processing") {
         const pipeLineStatus = await getFlinkHealthStatus()
         if (pipeLineStatus == HealthStatus.UnHealthy) {
-            await restartPipeline({ "dataset": { "dataset_id": datasetId } }, userToken)
+            await restartPipeline({ "dataset": { "dataset_id": datasetId } })
         }
     } else if (category == "query") {
         const datasources = await datasetService.findDatasources({"dataset_id": datasetId})
