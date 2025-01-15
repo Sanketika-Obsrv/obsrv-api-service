@@ -32,6 +32,7 @@ import telemetryActions from "../telemetry/telemetryActions";
 import datasetMetrics from "../controllers/DatasetMetrics/DatasetMetricsController";
 import checkRBAC from "../middlewares/RBAC_middleware";
 import connectorRegisterController from "../controllers/ConnectorRegister/ConnectorRegisterController";
+import { dataAnalyzePII } from "../controllers/DataAnalyzePII/DataAnalyzePIIController";
 
 export const router = express.Router();
 
@@ -60,6 +61,7 @@ router.post("/connectors/list", setDataToRequestObject("api.connectors.list"), o
 router.get("/connectors/read/:id", setDataToRequestObject("api.connectors.read"), onRequest({entity: Entity.Management }), telemetryAuditStart({action: telemetryActions.readConnectors, operationType: OperationType.GET}), checkRBAC.handler(), ConnectorsRead);
 router.post("/datasets/import", setDataToRequestObject("api.datasets.import"), onRequest({ entity: Entity.Management }), checkRBAC.handler(), DatasetImport);
 router.post("/connector/register", setDataToRequestObject("api.connector.register"), onRequest({ entity: Entity.Management }), connectorRegisterController);
+router.post("/data/analyze/pii", setDataToRequestObject("api.data.analyze.pii"), onRequest({ entity: Entity.Management }),checkRBAC.handler(), dataAnalyzePII);
 //Wrapper Service
 router.post("/obsrv/data/sql-query", setDataToRequestObject("api.obsrv.data.sql-query"), onRequest({ entity: Entity.Data_out }), checkRBAC.handler(), sqlQuery);
 router.post("/data/metrics", setDataToRequestObject("api.data.metrics"), onRequest({ entity: Entity.Data_out }), datasetMetrics)
