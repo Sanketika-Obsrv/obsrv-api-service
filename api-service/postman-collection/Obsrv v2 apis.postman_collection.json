@@ -4,8 +4,8 @@
 		"name": "Obsrv v2 apis",
 		"description": "Obsrv is a set of APIs that provide access to a variety of data sources and datasets. These APIs can be used to analyze different types of events, as well as to manage data sources and datasets.",
 		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json",
-		"_exporter_id": "26192103",
-		"_collection_link": "https://speeding-star-177775.postman.co/workspace/sanketika-obsrv~2ce96556-12e2-48bd-8e42-9c1dba428cc8/collection/26192103-d3ffc748-3d71-4395-9298-e065845f7bfb?action=share&source=collection_link&creator=26192103"
+		"_exporter_id": "33916975",
+		"_collection_link": "https://speeding-star-177775.postman.co/workspace/sanketika-obsrv~2ce96556-12e2-48bd-8e42-9c1dba428cc8/collection/26192103-d3ffc748-3d71-4395-9298-e065845f7bfb?action=share&source=collection_link&creator=33916975"
 	},
 	"item": [
 		{
@@ -6652,6 +6652,290 @@
 						"url": "localhost:3000/v2/connector/register"
 					},
 					"response": []
+				}
+			]
+		},
+		{
+			"name": "Dataset metrics",
+			"item": [
+				{
+					"name": "Dataset metrics",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"id\": \"api.dataset.metrics\",\n    \"ver\": \"v2\",\n    \"ts\": \"2024-04-10T16:10:50+05:30\",\n    \"params\": {\n        \"msgid\": \"4a7f14c3-d61e-4d4f-be78-181834eeff6d\"\n    },\n    \"request\": {\n        \"dataset_id\": \"test\",\n        \"category\": [\n            \"data_freshness\",\n            \"data_observability\",\n            \"data_volume\",\n            \"data_lineage\",\n            \"connectors\",\n            \"data_quality\"\n        ],\n        \"query_time_period\":1\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "localhost:3007/v2/dataset/metrics"
+					},
+					"response": [
+						{
+							"name": "Failure: Dataset not found",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"id\": \"api.dataset.metrics\",\n    \"ver\": \"v2\",\n    \"ts\": \"2024-04-10T16:10:50+05:30\",\n    \"params\": {\n        \"msgid\": \"4a7f14c3-d61e-4d4f-be78-181834eeff6d\"\n    },\n    \"request\": {\n        \"dataset_id\": \"test\",\n        \"category\": [\n            \"data_freshness\",\n            \"data_observability\",\n            \"data_volume\",\n            \"data_lineage\",\n            \"connectors\",\n            \"data_quality\"\n        ],\n        \"query_time_period\":1\n    }\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "localhost:3007/v2/dataset/metrics"
+							},
+							"status": "Not Found",
+							"code": 404,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "330"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"14a-RKjp44K2gCKCdq3dClRy/aYxcd8\""
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 15 Jan 2025 09:45:30 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"id\": \"api.dataset.metrics\",\n    \"ver\": \"v2\",\n    \"ts\": \"2025-01-15T15:15:30+05:30\",\n    \"params\": {\n        \"status\": \"FAILED\",\n        \"msgid\": \"4a7f14c3-d61e-4d4f-be78-181834eeff6d\",\n        \"resmsgid\": \"25107bba-6d88-4e9b-b951-61e29a72b97a\"\n    },\n    \"responseCode\": \"NOT_FOUND\",\n    \"error\": {\n        \"code\": \"DATASET_NOT_FOUND\",\n        \"message\": \"Dataset with id test not found in live table\",\n        \"trace\": \"\"\n    }\n}"
+						},
+						{
+							"name": "Failure: Request validation failed",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"id\": \"api.dataset.metrics\",\n    \"ver\": \"v2\",\n    \"ts\": \"2024-04-10T16:10:50+05:30\",\n    \"params\": {\n        \"msgid\": \"4a7f14c3-d61e-4d4f-be78-181834eeff6d\"\n    },\n    \"request\": {\n        // \"dataset_id\": \"test-obsev\",\n        \"category\": [\n            \"data_freshness\",\n            \"data_observability\",\n            \"data_volume\",\n            \"data_lineage\",\n            \"connectors\",\n            \"data_quality\"\n        ],\n        \"query_time_period\":1\n    }\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "localhost:3007/v2/dataset/metrics"
+							},
+							"status": "Bad Request",
+							"code": 400,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "362"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"16a-pmYCarF3FSxd3J7zVBlhwST+rq8\""
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 15 Jan 2025 09:53:22 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"id\": \"api.dataset.metrics\",\n    \"ver\": \"v2\",\n    \"ts\": \"2025-01-15T15:23:22+05:30\",\n    \"params\": {\n        \"status\": \"FAILED\",\n        \"msgid\": \"4a7f14c3-d61e-4d4f-be78-181834eeff6d\",\n        \"resmsgid\": \"a6a26834-bb32-4e32-8dfd-473b0d21c8e8\"\n    },\n    \"responseCode\": \"BAD_REQUEST\",\n    \"error\": {\n        \"code\": \"DATA_OUT_INVALID_INPUT\",\n        \"message\": \"#properties/request/required must have required property 'dataset_id'\",\n        \"trace\": \"\"\n    }\n}"
+						},
+						{
+							"name": "Success: Get all the data",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"id\": \"api.dataset.metrics\",\n    \"ver\": \"v2\",\n    \"ts\": \"2024-04-10T16:10:50+05:30\",\n    \"params\": {\n        \"msgid\": \"4a7f14c3-d61e-4d4f-be78-181834eeff6d\"\n    },\n    \"request\": {\n        \"dataset_id\": \"test-obsev\",\n        \"category\": [\n            \"data_freshness\",\n            \"data_observability\",\n            \"data_volume\",\n            \"data_lineage\",\n            \"connectors\",\n            \"data_quality\"\n        ],\n        \"query_time_period\":10\n    }\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "localhost:3007/v2/dataset/metrics"
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "1780"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"6f4-nUo39jrIJBlBgZ4cY4UL84W7UNU\""
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 15 Jan 2025 09:54:21 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"id\": \"api.dataset.metrics\",\n    \"ver\": \"v2\",\n    \"ts\": \"2025-01-15T15:24:21+05:30\",\n    \"params\": {\n        \"status\": \"SUCCESS\",\n        \"msgid\": \"4a7f14c3-d61e-4d4f-be78-181834eeff6d\",\n        \"resmsgid\": \"ef86ff9c-4342-4cdc-a573-d469cbf436eb\"\n    },\n    \"responseCode\": \"OK\",\n    \"result\": [\n        {\n            \"category\": \"data_freshness\",\n            \"status\": \"Healthy\",\n            \"components\": [\n                {\n                    \"type\": \"average_time_difference_in_min\",\n                    \"threshold\": 5,\n                    \"value\": 0,\n                    \"status\": \"Healthy\"\n                },\n                {\n                    \"type\": \"freshness_query_time_in_min\",\n                    \"threshold\": 10,\n                    \"value\": 0,\n                    \"status\": \"Healthy\"\n                }\n            ]\n        },\n        {\n            \"category\": \"data_observability\",\n            \"status\": \"Unhealthy\",\n            \"components\": [\n                {\n                    \"type\": \"data_observability_health\",\n                    \"status\": \"Unhealthy\"\n                },\n                {\n                    \"type\": \"failure_percentage\",\n                    \"value\": 35.39823008849557\n                },\n                {\n                    \"type\": \"threshold_percentage\",\n                    \"value\": 5\n                },\n                {\n                    \"type\": \"importance_score\",\n                    \"value\": 0\n                }\n            ]\n        },\n        {\n            \"category\": \"data_volume\",\n            \"components\": [\n                {\n                    \"type\": \"events_per_hour\",\n                    \"value\": 0\n                },\n                {\n                    \"type\": \"events_per_day\",\n                    \"value\": 95\n                },\n                {\n                    \"type\": \"events_per_n_day\",\n                    \"value\": 765\n                },\n                {\n                    \"type\": \"volume_percentage_by_hour\",\n                    \"value\": 0\n                },\n                {\n                    \"type\": \"volume_percentage_by_day\",\n                    \"value\": -87.58169934640523\n                },\n                {\n                    \"type\": \"volume_percentage_by_week\",\n                    \"value\": 0\n                },\n                {\n                    \"type\": \"growth_rate_percentage\",\n                    \"value\": 0\n                }\n            ]\n        },\n        {\n            \"category\": \"data_lineage\",\n            \"components\": [\n                {\n                    \"type\": \"transformation_success\",\n                    \"value\": 765\n                },\n                {\n                    \"type\": \"dedup_success\",\n                    \"value\": 384\n                },\n                {\n                    \"type\": \"denormalization_success\",\n                    \"value\": 572\n                },\n                {\n                    \"type\": \"total_success\",\n                    \"value\": 1339\n                },\n                {\n                    \"type\": \"total_failed\",\n                    \"value\": 1034\n                },\n                {\n                    \"type\": \"transformation_failed\",\n                    \"value\": 1\n                },\n                {\n                    \"type\": \"dedup_failed\",\n                    \"value\": 574\n                },\n                {\n                    \"type\": \"denorm_failed\",\n                    \"value\": 193\n                }\n            ]\n        },\n        {\n            \"category\": \"connectors\",\n            \"components\": {\n                \"category\": \"connectors\",\n                \"components\": [\n                    {\n                        \"id\": \"failed\",\n                        \"type\": \"failed\",\n                        \"value\": 1608\n                    },\n                    {\n                        \"id\": \"api\",\n                        \"type\": \"success\",\n                        \"value\": 765\n                    }\n                ]\n            }\n        },\n        {\n            \"category\": \"data_quality\",\n            \"components\": [\n                {\n                    \"type\": \"incidents_failed\",\n                    \"value\": 1034\n                },\n                {\n                    \"type\": \"incidents_success\",\n                    \"value\": 1339\n                },\n                {\n                    \"type\": \"total_incidents\",\n                    \"value\": 2373\n                }\n            ]\n        }\n    ]\n}"
+						},
+						{
+							"name": "Success : Get particular category data",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"id\": \"api.dataset.metrics\",\n    \"ver\": \"v2\",\n    \"ts\": \"2024-04-10T16:10:50+05:30\",\n    \"params\": {\n        \"msgid\": \"4a7f14c3-d61e-4d4f-be78-181834eeff6d\"\n    },\n    \"request\": {\n        \"dataset_id\": \"test-obsev\",\n        \"category\": [\n            // \"data_freshness\",\n            // \"data_observability\",\n            // \"data_volume\",\n            \"data_lineage\"\n            // \"connectors\",\n            // \"data_quality\"\n        ],\n        \"query_time_period\":10\n    }\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "localhost:3007/v2/dataset/metrics"
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "594"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"252-mKqBPcpjk0LPbqNHyghckQWQnHs\""
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 15 Jan 2025 09:55:13 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"id\": \"api.dataset.metrics\",\n    \"ver\": \"v2\",\n    \"ts\": \"2025-01-15T15:25:13+05:30\",\n    \"params\": {\n        \"status\": \"SUCCESS\",\n        \"msgid\": \"4a7f14c3-d61e-4d4f-be78-181834eeff6d\",\n        \"resmsgid\": \"10915ec3-a265-4502-bc9b-673562f94512\"\n    },\n    \"responseCode\": \"OK\",\n    \"result\": [\n        {\n            \"category\": \"data_lineage\",\n            \"components\": [\n                {\n                    \"type\": \"transformation_success\",\n                    \"value\": 765\n                },\n                {\n                    \"type\": \"dedup_success\",\n                    \"value\": 384\n                },\n                {\n                    \"type\": \"denormalization_success\",\n                    \"value\": 572\n                },\n                {\n                    \"type\": \"total_success\",\n                    \"value\": 1339\n                },\n                {\n                    \"type\": \"total_failed\",\n                    \"value\": 1034\n                },\n                {\n                    \"type\": \"transformation_failed\",\n                    \"value\": 1\n                },\n                {\n                    \"type\": \"dedup_failed\",\n                    \"value\": 574\n                },\n                {\n                    \"type\": \"denorm_failed\",\n                    \"value\": 193\n                }\n            ]\n        }\n    ]\n}"
+						},
+						{
+							"name": "Failure: Failed to fetch metrics",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"id\": \"api.dataset.metrics\",\n    \"ver\": \"v2\",\n    \"ts\": \"2024-04-10T16:10:50+05:30\",\n    \"params\": {\n        \"msgid\": \"4a7f14c3-d61e-4d4f-be78-181834eeff6d\"\n    },\n    \"request\": {\n        \"dataset_id\": \"test-obsev\",\n        \"category\": [\n            \"data_freshness\",\n            \"data_observability\",\n            \"data_volume\",\n            \"data_lineage\",\n            \"connectors\",\n            \"data_quality\"\n        ],\n        \"query_time_period\":10\n    }\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "localhost:3007/v2/dataset/metrics"
+							},
+							"status": "Internal Server Error",
+							"code": 500,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "317"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"13d-xfZKi6jq4UY4l8MNfhQmydAroPc\""
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 15 Jan 2025 09:59:49 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"id\": \"api.dataset.metrics\",\n    \"ver\": \"v2\",\n    \"ts\": \"2025-01-15T15:29:49+05:30\",\n    \"params\": {\n        \"status\": \"FAILED\",\n        \"msgid\": \"4a7f14c3-d61e-4d4f-be78-181834eeff6d\",\n        \"resmsgid\": \"211553f9-ad91-4a4d-a6ba-d77d3e14b7ac\"\n    },\n    \"responseCode\": \"FAILED\",\n    \"error\": {\n        \"code\": \"FAILED_TO_FETCH_METRICS\",\n        \"message\": \"Error while fetching metrics\",\n        \"trace\": \"\"\n    }\n}"
+						}
+					]
 				}
 			]
 		}
