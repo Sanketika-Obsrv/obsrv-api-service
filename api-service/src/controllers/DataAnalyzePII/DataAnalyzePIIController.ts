@@ -10,9 +10,9 @@ export const dataAnalyzePII = async (req: Request, res: Response) => {
     const apiId =  _.get(req, 'id')
     try {
         const userToken = req.get('authorization') as string;
-        const piiSuggestionsResponse = await detectPII(_.get(req, ['body', 'data']), userToken);
+        const piiSuggestionsResponse = await detectPII(_.get(req, ['body', 'request']), userToken);
         logger.info({apiId , message: `Detected PII successfully` })
-        ResponseHandler.successResponse(req, res, { status: httpStatus.OK, data: piiSuggestionsResponse?.data})
+        ResponseHandler.successResponse(req, res, { status: httpStatus.OK, data: _.get(piiSuggestionsResponse, ["data", "result"]) });
     } catch (error: any) {
         const errMessage = _.get(error, "response.data.detail")
         logger.error(error, apiId, code);
