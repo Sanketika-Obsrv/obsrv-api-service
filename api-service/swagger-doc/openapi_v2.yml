@@ -10310,3 +10310,107 @@ paths:
                   code: FAILED_TO_FETCH_METRICS
                   message: Error while fetching metrics
                   trace: ''
+  /v2/data/analyze/pii:
+    post:
+      tags:
+        - Data Analyze PII
+      summary: Data Analyze PII
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                id: api.data.analyze.pii
+                ver: v2
+                ts: '1711966306164'
+                params:
+                  msgid: e180ecac-8f41-4f21-9a21-0b3a1a368917
+                request:
+                  id: 268cb552-7de9-41cc-a413-a8bd3b64734c
+                  dataset_id: taxi-payment-data
+                  data:
+                    - tripID: f0f5186b-3195-486e-9b79-0cd9da895707
+                      VendorID: '1'
+                      tpep_pickup_datetime: '2024-10-31 00:46:40'
+                      tpep_dropoff_datetime: '2024-10-31 00:53:20'
+                      passenger_count: '1'
+                      trip_distance: '1.50'
+                      RatecodeID: '1'
+                      store_and_fwd_flag: 'N'
+                      PULocationID: '151'
+                      DOLocationID: '239'
+                      payment_type: '1'
+                      primary_passenger.email: Herminia_Veum@hotmail.com
+                      primary_passenger.mobile: 200-329-2445 x3611
+      parameters:
+        - name: Content-Type
+          in: header
+          schema:
+            type: string
+          example: application/json
+        - name: Authorization
+          in: header
+          schema:
+            type: string
+          example: Bearer {{token}}
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                id: api.data.analyze.pii
+                ver: v2
+                ts: '2025-01-16T10:27:56+05:30'
+                params:
+                  status: SUCCESS
+                  msgid: e180ecac-8f41-4f21-9a21-0b3a1a368917
+                  resmsgid: 8fd2cfe2-7912-40d1-8710-9b7da9a35bd9
+                responseCode: OK
+                result:
+                  - field: primary_passenger.email
+                    type: internet
+                    score: 0.5
+                    reason:
+                      - code: en
+                        resourceKey: pii.descriptions.m014
+                        region: ''
+                        score: 1
+                      - code: en
+                        resourceKey: pii.descriptions.m004
+                        region: ''
+                        score: 1
+                  - field: primary_passenger.mobile
+                    type: phone
+                    score: 0.5
+                    reason:
+                      - code: en
+                        resourceKey: pii.descriptions.m018
+                        region: USA
+                        score: 1
+                      - code: en
+                        resourceKey: pii.descriptions.m005
+                        region: ''
+                        score: 1
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                id: api.data.analyze.pii
+                ver: v2
+                ts: '2025-01-16T10:29:58+05:30'
+                params:
+                  status: FAILED
+                  msgid: e180ecac-8f41-4f21-9a21-0b3a1a368917
+                  resmsgid: 75aa71f9-ef84-41b9-ae1b-64cc7afd3ffb
+                responseCode: INTERNAL_SERVER_ERROR
+                error:
+                  code: ERR_BAD_REQUEST
+                  message: Request failed with status code 401
+                  trace: ''
