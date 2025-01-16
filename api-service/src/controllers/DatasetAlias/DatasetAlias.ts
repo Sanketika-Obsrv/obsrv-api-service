@@ -46,9 +46,8 @@ const attachAlias = async (dataset:Record<string,any>, alias_name: string, userI
 }
 
 const detachAlias = async (dataset: Record<string,any>, userID: string) => {
-    const alias_name = await validateDatasetToDetach(dataset);
+    await validateDatasetToDetach(dataset);
     await Dataset.update({ alias: null, updated_by: userID }, { where: { id:  _.get(dataset, "id") } });
-    return alias_name;
 }
 
 const validateDatasetToAttach = async (dataset:Record<string,any>, alias: string) => {
@@ -69,7 +68,6 @@ const validateDatasetToDetach = async (dataset: Record<string,any>) => {
     if (!_.get(dataset, "alias")) {
         throw obsrvError(dataset_id, "DATASET_ALIAS_NOT_EXISTS", `Dataset '${dataset_id}' does not have any alias associated with it`, "NOT_FOUND", 404);
     }
-    return _.get(dataset, "alias")
 }
 
 export default datasetAlias;
