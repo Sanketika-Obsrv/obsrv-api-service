@@ -40,17 +40,17 @@ const datasetAlias = async (req: Request, res: Response) => {
     ResponseHandler.successResponse(req, res, { status: httpStatus.OK, data: { message: `Dataset alias name '${alias_name || _.get(dataset, "alias")}' ${action}ed successfully`, dataset_id } });
 }
 
-const attachAlias = async (dataset:Record<string,any>, alias_name: string, userID: string) => {
+const attachAlias = async (dataset: Record<string, any>, alias_name: string, userID: string) => {
     await validateDatasetToAttach(dataset, alias_name);
     await Dataset.update({ alias: alias_name, updated_by: userID }, { where: { id: _.get(dataset, "id") } });
 }
 
-const detachAlias = async (dataset: Record<string,any>, userID: string) => {
+const detachAlias = async (dataset: Record<string, any>, userID: string) => {
     await validateDatasetToDetach(dataset);
-    await Dataset.update({ alias: null, updated_by: userID }, { where: { id:  _.get(dataset, "id") } });
+    await Dataset.update({ alias: null, updated_by: userID }, { where: { id: _.get(dataset, "id") } });
 }
 
-const validateDatasetToAttach = async (dataset:Record<string,any>, alias: string) => {
+const validateDatasetToAttach = async (dataset: Record<string, any>, alias: string) => {
 
     const dataset_id = _.get(dataset, "id")
     if (_.get(dataset, "alias")) {
@@ -63,7 +63,7 @@ const validateDatasetToAttach = async (dataset:Record<string,any>, alias: string
     }
 }
 
-const validateDatasetToDetach = async (dataset: Record<string,any>) => {
+const validateDatasetToDetach = async (dataset: Record<string, any>) => {
     const dataset_id = _.get(dataset, "id")
     if (!_.get(dataset, "alias")) {
         throw obsrvError(dataset_id, "DATASET_ALIAS_NOT_EXISTS", `Dataset '${dataset_id}' does not have any alias associated with it`, "NOT_FOUND", 404);
