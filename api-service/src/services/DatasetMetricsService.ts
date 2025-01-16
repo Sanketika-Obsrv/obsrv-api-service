@@ -209,10 +209,7 @@ export const getConnectors = async (dataset_id: string, intervals: string) => {
         }))
     };
 
-    return {
-        category: "connectors",
-        components: result
-    };
+    return result;
 };
 
 export const getDataQuality = async (dataset_id: string, intervals: string) => {
