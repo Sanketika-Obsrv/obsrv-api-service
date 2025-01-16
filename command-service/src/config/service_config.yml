@@ -32,41 +32,48 @@ commands:
 alert_manager:
   metrics:
     - flink:
-      - metric: "flink_taskmanager_job_task_operator_ExtractorJob_dataset_id_failed_event_count"
+      - metric: "sum(sum_over_time(flink_taskmanager_job_task_operator_ExtractorJob_dataset_id_extractor_failed_count[5m]))"
         alias: "Number of Failed Extraction Events"
         description: "This alert tracks how many events failed the extraction stage"
         frequency: 5m
         interval: 5m
         operator: "gt"
-        threshold: 100
-      - metric: "flink_taskmanager_job_task_operator_ExtractorJob_dataset_id_duplicate_extraction_count"
+        threshold: 0
+      - metric: "sum(sum_over_time(flink_taskmanager_job_task_operator_ExtractorJob_dataset_id_extractor_duplicate_count[5m]))"
         alias: "Number of Duplicate Extraction Events"
         description: "This alert tracks how many duplicate events were found during extraction stage"
         frequency: 5m
         interval: 5m
         operator: "gt"
-        threshold: 100
-      - metric: "flink_taskmanager_job_task_operator_PipelinePreprocessorJob_dataset_id_failed_event_count"
-        alias: "Number of Failed Preprocessing Events"
-        description: "This alert tracks how many events failed the preprocessing stage"
-        frequency: 5m
-        interval: 5m
-        operator: "gt"
-        threshold: 100
-      - metric: "flink_taskmanager_job_task_operator_PipelinePreprocessorJob_dataset_id_duplicate_event_count"
+        threshold: 0
+      - metric: "sum(sum_over_time(flink_taskmanager_job_task_operator_PipelinePreprocessorJob_dataset_id_dedup_failed_count[5m]))"
         alias: "Number of Duplicate Preprocessing Events"
         description: "This alert tracks how many duplicate events were found during preprocessing stage"
         frequency: 5m
         interval: 5m
         operator: "gt"
-        threshold: 100
-      - metric: "flink_taskmanager_job_task_operator_PipelinePreprocessorJob_dataset_id_validation_failed_event_count"
+        threshold: 0
+      - metric: "sum(sum_over_time(flink_taskmanager_job_task_operator_PipelinePreprocessorJob_dataset_id_validator_failed_count[5m]))"
         alias: "Number of Failed Validation Events"
         description: "This alert tracks how many events failed the validation stage"
         frequency: 5m
         interval: 5m
         operator: "gt"
-        threshold: 100
+        threshold: 0
+      - metric: "sum(sum_over_time(flink_taskmanager_job_task_operator_DenormalizerJob_dataset_id_denorm_failed[5m])) + sum(sum_over_time(flink_taskmanager_job_task_operator_DenormalizerJob_dataset_id_denorm_partial_success[5m]))"
+        alias: "Number of Failed Denorm Events"
+        description: "This alert tracks how many events failed the denorm stage"
+        frequency: 5m
+        interval: 5m
+        operator: "gt"
+        threshold: 0
+      - metric: "sum(sum_over_time(flink_taskmanager_job_task_operator_TransformerJob_dataset_id_transform_failed_count[5m])) + sum(sum_over_time(flink_taskmanager_job_task_operator_TransformerJob_dataset_id_transform_partial_count[5m]))"
+        alias: "Number of Failed Transformer Events"
+        description: "This alert tracks how many events failed the transformation stage"
+        frequency: 5m
+        interval: 5m
+        operator: "gt"
+        threshold: 0
   object_connector_metrics:
     - metric: "sum_over_time(ObjectDiscoveryJob_cloud_authentication_failure{datasetId='dataset_id'}[1h])"
       alias: "Cloud Authentication Failure"

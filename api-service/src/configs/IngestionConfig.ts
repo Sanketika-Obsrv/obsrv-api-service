@@ -84,12 +84,12 @@ export const rawIngestionSpecDefaults = {
     "flattenSpec": [
         {
             "type": "path",
-            "expr": "$.obsrv_meta.source.connector",
+            "expr": "$.obsrv_meta.source.entry_source",
             "name": "obsrv.meta.source.connector"
         },
         {
             "type": "path",
-            "expr": "$.obsrv_meta.source.connectorInstance",
+            "expr": "$.obsrv_meta.source.id",
             "name": "obsrv.meta.source.id"
         }
     ],

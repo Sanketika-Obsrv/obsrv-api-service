@@ -303,7 +303,7 @@ class DatasetService {
         }
     }
 
-    publishDataset = async (draftDataset: Record<string, any>) => {
+    publishDataset = async (draftDataset: Record<string, any>, userToken: string) => {
 
         const indexingConfig = draftDataset.dataset_config.indexing_config;
         const transaction = await sequelize.transaction()
@@ -326,7 +326,7 @@ class DatasetService {
             await transaction.rollback()
             throw obsrvError(draftDataset.id, "FAILED_TO_PUBLISH_DATASET", err.message, "SERVER_ERROR", 500, err);
         }
-        await executeCommand(draftDataset.dataset_id, "PUBLISH_DATASET");
+        await executeCommand(draftDataset.dataset_id, "PUBLISH_DATASET", userToken);
 
     }
 

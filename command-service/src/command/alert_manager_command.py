@@ -5,7 +5,7 @@ from config import Config
 from model.data_models import Action, ActionResponse, CommandPayload
 from service.db_service import DatabaseService
 from service.http_service import HttpService
-
+from copy import deepcopy
 
 class AlertManagerService(ICommand):
 
@@ -95,17 +95,18 @@ class AlertManagerService(ICommand):
     def get_modified_metric(
         self, service: str, metric: dict, payload: CommandPayload
     ) -> dict:
+        metric_data = deepcopy(metric)
         if service == "flink":
             substring = f"{payload.dataset_id}"
             modified_substring = substring.replace("-", "_")
-            modified_metric = metric["metric"].replace("dataset_id", modified_substring)
-            metric["metric"] = modified_metric
-            return metric
+            modified_metric = metric_data["metric"].replace("dataset_id", modified_substring)
+            metric_data["metric"] = modified_metric
+            return metric_data
         else:
-            metric["metric"] = metric["metric"].replace(
+            metric_data["metric"] = metric_data["metric"].replace(
                 "dataset_id", payload.dataset_id
             )
-            return metric
+            return metric_data
 
     def create_alert_metric(
         self, payload: CommandPayload, service: str, metric: dict, dataset_name: str
