@@ -31,11 +31,10 @@ import { OperationType, telemetryAuditStart } from "../services/telemetry";
 import telemetryActions from "../telemetry/telemetryActions";
 import checkRBAC from "../middlewares/RBAC_middleware";
 import connectorRegisterController from "../controllers/ConnectorRegister/ConnectorRegisterController";
-import attachAlias from "../controllers/DatasetAlias/AttachAlias";
-import detachAlias from "../controllers/DatasetAlias/DetachAlias";
 import dataMetrics from "../controllers/DataMetrics/DataMetricsController";
 import datasetMetrics from "../controllers/DatasetMetrics/DatasetMetricsController";
 import { dataAnalyzePII } from "../controllers/DataAnalyzePII/DataAnalyzePIIController";
+import datasetAlias from "../controllers/DatasetAlias/DatasetAlias";
 
 export const router = express.Router();
 
@@ -64,8 +63,7 @@ router.post("/connectors/list", setDataToRequestObject("api.connectors.list"), o
 router.get("/connectors/read/:id", setDataToRequestObject("api.connectors.read"), onRequest({entity: Entity.Management }), telemetryAuditStart({action: telemetryActions.readConnectors, operationType: OperationType.GET}), checkRBAC.handler(), ConnectorsRead);
 router.post("/datasets/import", setDataToRequestObject("api.datasets.import"), onRequest({ entity: Entity.Management }), checkRBAC.handler(), DatasetImport);
 router.post("/connector/register", setDataToRequestObject("api.connector.register"), onRequest({ entity: Entity.Management }), connectorRegisterController);
-router.post("/datasets/alias/attach", setDataToRequestObject("api.datasets.alias.attach"), onRequest({ entity: Entity.Management }), checkRBAC.handler(), attachAlias);
-router.delete("/datasets/alias/detach/:dataset_id", setDataToRequestObject("api.datasets.alias.detach"), onRequest({ entity: Entity.Management }), checkRBAC.handler(), detachAlias);
+router.post("/datasets/alias", setDataToRequestObject("api.datasets.alias"), onRequest({ entity: Entity.Management }), checkRBAC.handler(), datasetAlias);
 router.post("/data/analyze/pii", setDataToRequestObject("api.data.analyze.pii"), onRequest({ entity: Entity.Management }),checkRBAC.handler(), dataAnalyzePII);
 //Wrapper Service
 router.post("/obsrv/data/sql-query", setDataToRequestObject("api.obsrv.data.sql-query"), onRequest({ entity: Entity.Data_out }), checkRBAC.handler(), sqlQuery);
