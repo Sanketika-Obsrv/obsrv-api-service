@@ -38,7 +38,8 @@ const validateRequest = async (req: Request) => {
 const attachAlias = async (req: Request, res: Response) => {
     await validateRequest(req)
     const { dataset_id, alias_name } = _.get(req, ["body", "request"])
-    await Dataset.update({ alias: alias_name }, { where: { id: dataset_id } });
+    const userID = (req as any)?.userID;
+    await Dataset.update({ alias: alias_name, updated_by: userID }, { where: { id: dataset_id } });
     ResponseHandler.successResponse(req, res, { status: httpStatus.OK, data: { message: `Dataset alias name attached successfully`, dataset_id } });
 }
 

@@ -19,8 +19,9 @@ const validateDataset = async (dataset_id: string) => {
 
 const detachAlias = async (req: Request, res: Response) => {
     const dataset_id = req.params.dataset_id
-    const alias_name=await validateDataset(dataset_id);
-    await Dataset.update({ alias: null }, { where: { id: dataset_id } });
+    const alias_name = await validateDataset(dataset_id);
+    const userID = (req as any)?.userID;
+    await Dataset.update({ alias: null, updated_by: userID }, { where: { id: dataset_id } });
     ResponseHandler.successResponse(req, res, { status: httpStatus.OK, data: { message: `Dataset alias name '${alias_name}' detached successfully`, dataset_id } });
 }
 
