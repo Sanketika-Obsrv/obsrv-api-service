@@ -28,6 +28,5 @@ export const registerConnector = async (requestBody: any, userToken: string) => 
 }
 
 export const detectPII = async (requestBody: any, userToken: string) => {
-    console.log(`analyzePIIPath : ${analyzePIIPath}`)
     return commandHttpService.post(analyzePIIPath, requestBody, { headers: { Authorization: userToken }})
 }
