@@ -1,11 +1,11 @@
 {
 	"info": {
-		"_postman_id": "d3ffc748-3d71-4395-9298-e065845f7bfb",
+		"_postman_id": "b94beefb-2a07-49ac-bd5b-07d66fe7ba85",
 		"name": "Obsrv v2 apis",
 		"description": "Obsrv is a set of APIs that provide access to a variety of data sources and datasets. These APIs can be used to analyze different types of events, as well as to manage data sources and datasets.",
-		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json",
-		"_exporter_id": "26192103",
-		"_collection_link": "https://speeding-star-177775.postman.co/workspace/sanketika-obsrv~2ce96556-12e2-48bd-8e42-9c1dba428cc8/collection/26192103-d3ffc748-3d71-4395-9298-e065845f7bfb?action=share&source=collection_link&creator=26192103"
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "406673",
+		"_collection_link": "https://galactic-flare-389256.postman.co/workspace/config-service-workspace~0ba551f8-be4b-4755-9d4d-bf4578113e5f/collection/406673-b94beefb-2a07-49ac-bd5b-07d66fe7ba85?action=share&source=collection_link&creator=406673"
 	},
 	"item": [
 		{
@@ -30,7 +30,18 @@
 								}
 							}
 						},
-						"url": "localhost:3000/v2/datasets/create",
+						"url": {
+							"raw": "localhost:3000/v2/datasets/create",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"v2",
+								"datasets",
+								"create"
+							]
+						},
 						"description": "This API allows you to create new datasets used by the analytical data source."
 					},
 					"response": [
@@ -53,7 +64,18 @@
 										}
 									}
 								},
-								"url": "localhost:3000/v2/datasets/create"
+								"url": {
+									"raw": "localhost:3000/v2/datasets/create",
+									"host": [
+										"localhost"
+									],
+									"port": "3000",
+									"path": [
+										"v2",
+										"datasets",
+										"create"
+									]
+								}
 							},
 							"status": "OK",
 							"code": 200,
@@ -110,7 +132,18 @@
 										}
 									}
 								},
-								"url": "localhost:3000/v2/datasets/create"
+								"url": {
+									"raw": "localhost:3000/v2/datasets/create",
+									"host": [
+										"localhost"
+									],
+									"port": "3000",
+									"path": [
+										"v2",
+										"datasets",
+										"create"
+									]
+								}
 							},
 							"status": "OK",
 							"code": 200,
@@ -167,7 +200,18 @@
 										}
 									}
 								},
-								"url": "localhost:3000/v2/datasets/create"
+								"url": {
+									"raw": "localhost:3000/v2/datasets/create",
+									"host": [
+										"localhost"
+									],
+									"port": "3000",
+									"path": [
+										"v2",
+										"datasets",
+										"create"
+									]
+								}
 							},
 							"status": "Conflict",
 							"code": 409,
@@ -224,7 +268,18 @@
 										}
 									}
 								},
-								"url": "localhost:3000/v2/datasets/create"
+								"url": {
+									"raw": "localhost:3000/v2/datasets/create",
+									"host": [
+										"localhost"
+									],
+									"port": "3000",
+									"path": [
+										"v2",
+										"datasets",
+										"create"
+									]
+								}
 							},
 							"status": "Conflict",
 							"code": 409,
@@ -281,7 +336,18 @@
 										}
 									}
 								},
-								"url": "localhost:3000/v2/datasets/create"
+								"url": {
+									"raw": "localhost:3000/v2/datasets/create",
+									"host": [
+										"localhost"
+									],
+									"port": "3000",
+									"path": [
+										"v2",
+										"datasets",
+										"create"
+									]
+								}
 							},
 							"status": "Bad Request",
 							"code": 400,
@@ -338,7 +404,18 @@
 										}
 									}
 								},
-								"url": "localhost:3000/v2/datasets/create"
+								"url": {
+									"raw": "localhost:3000/v2/datasets/create",
+									"host": [
+										"localhost"
+									],
+									"port": "3000",
+									"path": [
+										"v2",
+										"datasets",
+										"create"
+									]
+								}
 							},
 							"status": "OK",
 							"code": 200,
@@ -395,7 +472,18 @@
 										}
 									}
 								},
-								"url": "localhost:3000/v2/datasets/create"
+								"url": {
+									"raw": "localhost:3000/v2/datasets/create",
+									"host": [
+										"localhost"
+									],
+									"port": "3000",
+									"path": [
+										"v2",
+										"datasets",
+										"create"
+									]
+								}
 							},
 							"status": "OK",
 							"code": 200,
@@ -454,7 +542,18 @@
 								}
 							}
 						},
-						"url": "localhost:3000/v2/files/generate-url",
+						"url": {
+							"raw": "localhost:3000/v2/files/generate-url",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"v2",
+								"files",
+								"generate-url"
+							]
+						},
 						"description": "This API generates presigned URLs to upload or download files from cloud"
 					},
 					"response": [
@@ -477,7 +576,18 @@
 										}
 									}
 								},
-								"url": "localhost:3000/v2/files/generate-url"
+								"url": {
+									"raw": "localhost:3000/v2/files/generate-url",
+									"host": [
+										"localhost"
+									],
+									"port": "3000",
+									"path": [
+										"v2",
+										"files",
+										"generate-url"
+									]
+								}
 							},
 							"status": "OK",
 							"code": 200,
@@ -535,7 +645,18 @@
 										}
 									}
 								},
-								"url": "localhost:3000/v2/files/generate-url"
+								"url": {
+									"raw": "localhost:3000/v2/files/generate-url",
+									"host": [
+										"localhost"
+									],
+									"port": "3000",
+									"path": [
+										"v2",
+										"files",
+										"generate-url"
+									]
+								}
 							},
 							"status": "OK",
 							"code": 200,
@@ -593,7 +714,18 @@
 										}
 									}
 								},
-								"url": "localhost:3000/v2/files/generate-url"
+								"url": {
+									"raw": "localhost:3000/v2/files/generate-url",
+									"host": [
+										"localhost"
+									],
+									"port": "3000",
+									"path": [
+										"v2",
+										"files",
+										"generate-url"
+									]
+								}
 							},
 							"status": "Bad Request",
 							"code": 400,
@@ -651,7 +783,18 @@
 										}
 									}
 								},
-								"url": "localhost:3000/v2/files/generate-url"
+								"url": {
+									"raw": "localhost:3000/v2/files/generate-url",
+									"host": [
+										"localhost"
+									],
+									"port": "3000",
+									"path": [
+										"v2",
+										"files",
+										"generate-url"
+									]
+								}
 							},
 							"status": "Bad Request",
 							"code": 400,
@@ -710,7 +853,18 @@
 								}
 							}
 						},
-						"url": "localhost:3000/v2/datasets/update",
+						"url": {
+							"raw": "localhost:3000/v2/datasets/update",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"v2",
+								"datasets",
+								"update"
+							]
+						},
 						"description": "This API allows you to update existing datasets, add or remove denorm fields used by the analytical data source. User can even add, remove or update transformations and connectors"
 					},
 					"response": [
@@ -733,7 +887,18 @@
 										}
 									}
 								},
-								"url": "localhost:3000/v2/datasets/update"
+								"url": {
+									"raw": "localhost:3000/v2/datasets/update",
+									"host": [
+										"localhost"
+									],
+									"port": "3000",
+									"path": [
+										"v2",
+										"datasets",
+										"update"
+									]
+								}
 							},
 							"status": "OK",
 							"code": 200,
@@ -790,7 +955,18 @@
 										}
 									}
 								},
-								"url": "localhost:3000/v2/datasets/update"
+								"url": {
+									"raw": "localhost:3000/v2/datasets/update",
+									"host": [
+										"localhost"
+									],
+									"port": "3000",
+									"path": [
+										"v2",
+										"datasets",
+										"update"
+									]
+								}
 							},
 							"status": "OK",
 							"code": 200,
@@ -847,7 +1023,18 @@
 										}
 									}
 								},
-								"url": "localhost:3000/v2/datasets/update"
+								"url": {
+									"raw": "localhost:3000/v2/datasets/update",
+									"host": [
+										"localhost"
+									],
+									"port": "3000",
+									"path": [
+										"v2",
+										"datasets",
+										"update"
+									]
+								}
 							},
 							"status": "Conflict",
 							"code": 409,
@@ -904,7 +1091,18 @@
 										}
 									}
 								},
-								"url": "localhost:3000/v2/datasets/update"
+								"url": {
+									"raw": "localhost:3000/v2/datasets/update",
+									"host": [
+										"localhost"
+									],
+									"port": "3000",
+									"path": [
+										"v2",
+										"datasets",
+										"update"
+									]
+								}
 							},
 							"status": "Not Found",
 							"code": 404,
@@ -961,7 +1159,18 @@
 										}
 									}
 								},
-								"url": "localhost:3000/v2/datasets/update"
+								"url": {
+									"raw": "localhost:3000/v2/datasets/update",
+									"host": [
+										"localhost"
+									],
+									"port": "3000",
+									"path": [
+										"v2",
+										"datasets",
+										"update"
+									]
+								}
 							},
 							"status": "Bad Request",
 							"code": 400,
@@ -1018,7 +1227,18 @@
 										}
 									}
 								},
-								"url": "localhost:3000/v2/datasets/update"
+								"url": {
+									"raw": "localhost:3000/v2/datasets/update",
+									"host": [
+										"localhost"
+									],
+									"port": "3000",
+									"path": [
+										"v2",
+										"datasets",
+										"update"
+									]
+								}
 							},
 							"status": "Bad Request",
 							"code": 400,
@@ -1100,7 +1320,19 @@
 										"value": "connect.sid=s%3AAYYroI28UhzQVPM909UpLjZlcqMlDMlZ.gAO6bTMTktZi7udh7jntL%2Bw2xVWiI1z6gsSAb3bhZp4"
 									}
 								],
-								"url": "localhost:3000/v2/datasets/read/master-test"
+								"url": {
+									"raw": "localhost:3000/v2/datasets/read/master-test",
+									"host": [
+										"localhost"
+									],
+									"port": "3000",
+									"path": [
+										"v2",
+										"datasets",
+										"read",
+										"master-test"
+									]
+								}
 							},
 							"status": "OK",
 							"code": 200,
@@ -1482,7 +1714,19 @@
 										"value": "connect.sid=s%3AAYYroI28UhzQVPM909UpLjZlcqMlDMlZ.gAO6bTMTktZi7udh7jntL%2Bw2xVWiI1z6gsSAb3bhZp4"
 									}
 								],
-								"url": "localhost:3000/v2/datasets/read/new_telemetry_record.1"
+								"url": {
+									"raw": "localhost:3000/v2/datasets/read/new_telemetry_record.1",
+									"host": [
+										"localhost"
+									],
+									"port": "3000",
+									"path": [
+										"v2",
+										"datasets",
+										"read",
+										"new_telemetry_record.1"
+									]
+								}
 							},
 							"status": "Not Found",
 							"code": 404,
@@ -1536,7 +1780,18 @@
 								}
 							}
 						},
-						"url": "localhost:3000/v2/datasets/list",
+						"url": {
+							"raw": "localhost:3000/v2/datasets/list",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"v2",
+								"datasets",
+								"list"
+							]
+						},
 						"description": "This API allows you to list all datasets. User can apply filters on dataset status and type."
 					},
 					"response": [
@@ -1554,7 +1809,18 @@
 										}
 									}
 								},
-								"url": "localhost:3000/v2/datasets/list"
+								"url": {
+									"raw": "localhost:3000/v2/datasets/list",
+									"host": [
+										"localhost"
+									],
+									"port": "3000",
+									"path": [
+										"v2",
+										"datasets",
+										"list"
+									]
+								}
 							},
 							"status": "OK",
 							"code": 200,
@@ -1606,7 +1872,18 @@
 										}
 									}
 								},
-								"url": "localhost:3000/v2/datasets/list"
+								"url": {
+									"raw": "localhost:3000/v2/datasets/list",
+									"host": [
+										"localhost"
+									],
+									"port": "3000",
+									"path": [
+										"v2",
+										"datasets",
+										"list"
+									]
+								}
 							},
 							"status": "OK",
 							"code": 200,
@@ -1658,7 +1935,18 @@
 										}
 									}
 								},
-								"url": "localhost:3000/v2/datasets/list"
+								"url": {
+									"raw": "localhost:3000/v2/datasets/list",
+									"host": [
+										"localhost"
+									],
+									"port": "3000",
+									"path": [
+										"v2",
+										"datasets",
+										"list"
+									]
+								}
 							},
 							"status": "OK",
 							"code": 200,
@@ -1710,7 +1998,18 @@
 										}
 									}
 								},
-								"url": "localhost:3000/v2/datasets/list"
+								"url": {
+									"raw": "localhost:3000/v2/datasets/list",
+									"host": [
+										"localhost"
+									],
+									"port": "3000",
+									"path": [
+										"v2",
+										"datasets",
+										"list"
+									]
+								}
 							},
 							"status": "OK",
 							"code": 200,
@@ -1762,7 +2061,18 @@
 										}
 									}
 								},
-								"url": "localhost:3000/v2/datasets/list"
+								"url": {
+									"raw": "localhost:3000/v2/datasets/list",
+									"host": [
+										"localhost"
+									],
+									"port": "3000",
+									"path": [
+										"v2",
+										"datasets",
+										"list"
+									]
+								}
 							},
 							"status": "Bad Request",
 							"code": 400,
@@ -1825,7 +2135,18 @@
 								}
 							}
 						},
-						"url": "localhost:3000/v2/datasets/dataschema",
+						"url": {
+							"raw": "localhost:3000/v2/datasets/dataschema",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"v2",
+								"datasets",
+								"dataschema"
+							]
+						},
 						"description": "This api is used to generate data schema for the given dataset event."
 					},
 					"response": [
@@ -1852,7 +2173,18 @@
 										}
 									}
 								},
-								"url": "localhost:3000/v2/datasets/dataschema"
+								"url": {
+									"raw": "localhost:3000/v2/datasets/dataschema",
+									"host": [
+										"localhost"
+									],
+									"port": "3000",
+									"path": [
+										"v2",
+										"datasets",
+										"dataschema"
+									]
+								}
 							},
 							"status": "OK",
 							"code": 200,
@@ -1913,7 +2245,18 @@
 										}
 									}
 								},
-								"url": "localhost:3000/v2/datasets/dataschema"
+								"url": {
+									"raw": "localhost:3000/v2/datasets/dataschema",
+									"host": [
+										"localhost"
+									],
+									"port": "3000",
+									"path": [
+										"v2",
+										"datasets",
+										"dataschema"
+									]
+								}
 							},
 							"status": "Bad Request",
 							"code": 400,
@@ -1974,7 +2317,18 @@
 										}
 									}
 								},
-								"url": "localhost:3000/v2/datasets/dataschema"
+								"url": {
+									"raw": "localhost:3000/v2/datasets/dataschema",
+									"host": [
+										"localhost"
+									],
+									"port": "3000",
+									"path": [
+										"v2",
+										"datasets",
+										"dataschema"
+									]
+								}
 							},
 							"status": "Bad Request",
 							"code": 400,
@@ -2028,7 +2382,18 @@
 								}
 							}
 						},
-						"url": "localhost:3000/v2/datasets/status-transition",
+						"url": {
+							"raw": "localhost:3000/v2/datasets/status-transition",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"v2",
+								"datasets",
+								"status-transition"
+							]
+						},
 						"description": "This API allows you to perform status transition between 2 states. Allowed status transition are Draft to ReadyToPublish, ReadyToPublish to Live, Live to Retired and even Delete a dataset."
 					},
 					"response": [
@@ -2046,7 +2411,18 @@
 										}
 									}
 								},
-								"url": "localhost:3000/v2/datasets/status-transition"
+								"url": {
+									"raw": "localhost:3000/v2/datasets/status-transition",
+									"host": [
+										"localhost"
+									],
+									"port": "3000",
+									"path": [
+										"v2",
+										"datasets",
+										"status-transition"
+									]
+								}
 							},
 							"status": "OK",
 							"code": 200,
@@ -2069,7 +2445,18 @@
 										}
 									}
 								},
-								"url": "localhost:3000/v2/datasets/status-transition"
+								"url": {
+									"raw": "localhost:3000/v2/datasets/status-transition",
+									"host": [
+										"localhost"
+									],
+									"port": "3000",
+									"path": [
+										"v2",
+										"datasets",
+										"status-transition"
+									]
+								}
 							},
 							"status": "Not Found",
 							"code": 404,
@@ -2092,7 +2479,18 @@
 										}
 									}
 								},
-								"url": "localhost:3000/v2/datasets/status-transition"
+								"url": {
+									"raw": "localhost:3000/v2/datasets/status-transition",
+									"host": [
+										"localhost"
+									],
+									"port": "3000",
+									"path": [
+										"v2",
+										"datasets",
+										"status-transition"
+									]
+								}
 							},
 							"status": "OK",
 							"code": 200,
@@ -2115,7 +2513,18 @@
 										}
 									}
 								},
-								"url": "localhost:3000/v2/datasets/status-transition"
+								"url": {
+									"raw": "localhost:3000/v2/datasets/status-transition",
+									"host": [
+										"localhost"
+									],
+									"port": "3000",
+									"path": [
+										"v2",
+										"datasets",
+										"status-transition"
+									]
+								}
 							},
 							"status": "Not Found",
 							"code": 404,
@@ -2138,7 +2547,18 @@
 										}
 									}
 								},
-								"url": "localhost:3000/v2/datasets/status-transition"
+								"url": {
+									"raw": "localhost:3000/v2/datasets/status-transition",
+									"host": [
+										"localhost"
+									],
+									"port": "3000",
+									"path": [
+										"v2",
+										"datasets",
+										"status-transition"
+									]
+								}
 							},
 							"status": "Bad Request",
 							"code": 400,
@@ -2161,7 +2581,18 @@
 										}
 									}
 								},
-								"url": "localhost:3000/v2/datasets/status-transition"
+								"url": {
+									"raw": "localhost:3000/v2/datasets/status-transition",
+									"host": [
+										"localhost"
+									],
+									"port": "3000",
+									"path": [
+										"v2",
+										"datasets",
+										"status-transition"
+									]
+								}
 							},
 							"status": "OK",
 							"code": 200,
@@ -2184,7 +2615,18 @@
 										}
 									}
 								},
-								"url": "localhost:3000/v2/datasets/status-transition"
+								"url": {
+									"raw": "localhost:3000/v2/datasets/status-transition",
+									"host": [
+										"localhost"
+									],
+									"port": "3000",
+									"path": [
+										"v2",
+										"datasets",
+										"status-transition"
+									]
+								}
 							},
 							"status": "Bad Request",
 							"code": 400,
@@ -2207,7 +2649,18 @@
 										}
 									}
 								},
-								"url": "localhost:3000/v2/datasets/status-transition"
+								"url": {
+									"raw": "localhost:3000/v2/datasets/status-transition",
+									"host": [
+										"localhost"
+									],
+									"port": "3000",
+									"path": [
+										"v2",
+										"datasets",
+										"status-transition"
+									]
+								}
 							},
 							"status": "Bad Request",
 							"code": 400,
@@ -2230,7 +2683,18 @@
 										}
 									}
 								},
-								"url": "localhost:3000/v2/datasets/status-transition"
+								"url": {
+									"raw": "localhost:3000/v2/datasets/status-transition",
+									"host": [
+										"localhost"
+									],
+									"port": "3000",
+									"path": [
+										"v2",
+										"datasets",
+										"status-transition"
+									]
+								}
 							},
 							"status": "OK",
 							"code": 200,
@@ -2253,7 +2717,18 @@
 										}
 									}
 								},
-								"url": "localhost:3000/v2/datasets/status-transition"
+								"url": {
+									"raw": "localhost:3000/v2/datasets/status-transition",
+									"host": [
+										"localhost"
+									],
+									"port": "3000",
+									"path": [
+										"v2",
+										"datasets",
+										"status-transition"
+									]
+								}
 							},
 							"status": "Not Found",
 							"code": 404,
@@ -2276,7 +2751,18 @@
 										}
 									}
 								},
-								"url": "localhost:3000/v2/datasets/status-transition"
+								"url": {
+									"raw": "localhost:3000/v2/datasets/status-transition",
+									"host": [
+										"localhost"
+									],
+									"port": "3000",
+									"path": [
+										"v2",
+										"datasets",
+										"status-transition"
+									]
+								}
 							},
 							"status": "Bad Request",
 							"code": 400,
@@ -2299,7 +2785,18 @@
 										}
 									}
 								},
-								"url": "localhost:3000/v2/datasets/status-transition"
+								"url": {
+									"raw": "localhost:3000/v2/datasets/status-transition",
+									"host": [
+										"localhost"
+									],
+									"port": "3000",
+									"path": [
+										"v2",
+										"datasets",
+										"status-transition"
+									]
+								}
 							},
 							"status": "Bad Request",
 							"code": 400,
@@ -2322,7 +2819,18 @@
 										}
 									}
 								},
-								"url": "localhost:3000/v2/datasets/status-transition"
+								"url": {
+									"raw": "localhost:3000/v2/datasets/status-transition",
+									"host": [
+										"localhost"
+									],
+									"port": "3000",
+									"path": [
+										"v2",
+										"datasets",
+										"status-transition"
+									]
+								}
 							},
 							"status": "Bad Request",
 							"code": 400,
@@ -2780,10 +3288,10 @@
 									]
 								}
 							},
-							"_postman_previewlanguage": null,
-							"header": null,
+							"_postman_previewlanguage": "Text",
+							"header": [],
 							"cookie": [],
-							"body": null
+							"body": ""
 						},
 						{
 							"name": "Dataset import",
@@ -2823,10 +3331,10 @@
 									]
 								}
 							},
-							"_postman_previewlanguage": null,
-							"header": null,
+							"_postman_previewlanguage": "Text",
+							"header": [],
 							"cookie": [],
-							"body": null
+							"body": ""
 						}
 					]
 				},
@@ -3121,7 +3629,18 @@
 								}
 							}
 						},
-						"url": "localhost:3000/v2/datasets/copy"
+						"url": {
+							"raw": "localhost:3000/v2/datasets/copy",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"v2",
+								"datasets",
+								"copy"
+							]
+						}
 					},
 					"response": [
 						{
@@ -3143,7 +3662,18 @@
 										}
 									}
 								},
-								"url": "localhost:3000/v2/datasets/copy"
+								"url": {
+									"raw": "localhost:3000/v2/datasets/copy",
+									"host": [
+										"localhost"
+									],
+									"port": "3000",
+									"path": [
+										"v2",
+										"datasets",
+										"copy"
+									]
+								}
 							},
 							"status": "OK",
 							"code": 200,
@@ -3200,7 +3730,18 @@
 										}
 									}
 								},
-								"url": "localhost:3000/v2/datasets/copy"
+								"url": {
+									"raw": "localhost:3000/v2/datasets/copy",
+									"host": [
+										"localhost"
+									],
+									"port": "3000",
+									"path": [
+										"v2",
+										"datasets",
+										"copy"
+									]
+								}
 							},
 							"status": "Not Found",
 							"code": 404,
@@ -3260,7 +3801,19 @@
 								}
 							}
 						},
-						"url": "http://localhost:3000/v2/connectors/list"
+						"url": {
+							"raw": "http://localhost:3000/v2/connectors/list",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"v2",
+								"connectors",
+								"list"
+							]
+						}
 					},
 					"response": [
 						{
@@ -3277,7 +3830,19 @@
 										}
 									}
 								},
-								"url": "http://localhost:3000/v2/connectors/list"
+								"url": {
+									"raw": "http://localhost:3000/v2/connectors/list",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "3000",
+									"path": [
+										"v2",
+										"connectors",
+										"list"
+									]
+								}
 							},
 							"status": "Bad Request",
 							"code": 400,
@@ -3329,7 +3894,19 @@
 										}
 									}
 								},
-								"url": "http://localhost:3000/v2/connectors/list"
+								"url": {
+									"raw": "http://localhost:3000/v2/connectors/list",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "3000",
+									"path": [
+										"v2",
+										"connectors",
+										"list"
+									]
+								}
 							},
 							"status": "OK",
 							"code": 200,
@@ -3381,7 +3958,19 @@
 										}
 									}
 								},
-								"url": "http://localhost:3000/v2/connectors/list"
+								"url": {
+									"raw": "http://localhost:3000/v2/connectors/list",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "3000",
+									"path": [
+										"v2",
+										"connectors",
+										"list"
+									]
+								}
 							},
 							"status": "OK",
 							"code": 200,
@@ -3433,7 +4022,19 @@
 										}
 									}
 								},
-								"url": "http://localhost:3000/v2/connectors/list"
+								"url": {
+									"raw": "http://localhost:3000/v2/connectors/list",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "3000",
+									"path": [
+										"v2",
+										"connectors",
+										"list"
+									]
+								}
 							},
 							"status": "OK",
 							"code": 200,
@@ -3485,7 +4086,19 @@
 										}
 									}
 								},
-								"url": "http://localhost:3000/v2/connectors/list"
+								"url": {
+									"raw": "http://localhost:3000/v2/connectors/list",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "3000",
+									"path": [
+										"v2",
+										"connectors",
+										"list"
+									]
+								}
 							},
 							"status": "OK",
 							"code": 200,
@@ -3530,7 +4143,20 @@
 					"request": {
 						"method": "GET",
 						"header": [],
-						"url": "http://localhost:3000/v2/connectors/read/postgres-connector-1.0.0"
+						"url": {
+							"raw": "http://localhost:3000/v2/connectors/read/postgres-connector-1.0.0",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"v2",
+								"connectors",
+								"read",
+								"postgres-connector-1.0.0"
+							]
+						}
 					},
 					"response": [
 						{
@@ -3538,7 +4164,20 @@
 							"originalRequest": {
 								"method": "GET",
 								"header": [],
-								"url": "http://localhost:3000/v2/connectors/read/postgres-connector-1.0.0"
+								"url": {
+									"raw": "http://localhost:3000/v2/connectors/read/postgres-connector-1.0.0",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "3000",
+									"path": [
+										"v2",
+										"connectors",
+										"read",
+										"postgres-connector-1.0.0"
+									]
+								}
 							},
 							"status": "OK",
 							"code": 200,
@@ -3643,7 +4282,20 @@
 							"originalRequest": {
 								"method": "GET",
 								"header": [],
-								"url": "http://localhost:3000/v2/connectors/read/postgres-conn"
+								"url": {
+									"raw": "http://localhost:3000/v2/connectors/read/postgres-conn",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "3000",
+									"path": [
+										"v2",
+										"connectors",
+										"read",
+										"postgres-conn"
+									]
+								}
 							},
 							"status": "Not Found",
 							"code": 404,
@@ -3707,7 +4359,19 @@
 								}
 							}
 						},
-						"url": "localhost:3000/v2/data/in/sb-telemetry-imported"
+						"url": {
+							"raw": "localhost:3000/v2/data/in/sb-telemetry-imported",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"v2",
+								"data",
+								"in",
+								"sb-telemetry-imported"
+							]
+						}
 					},
 					"response": [
 						{
@@ -3730,7 +4394,19 @@
 										}
 									}
 								},
-								"url": "localhost:3000/v2/data/in/sample-test"
+								"url": {
+									"raw": "localhost:3000/v2/data/in/sample-test",
+									"host": [
+										"localhost"
+									],
+									"port": "3000",
+									"path": [
+										"v2",
+										"data",
+										"in",
+										"sample-test"
+									]
+								}
 							},
 							"status": "Not Found",
 							"code": 404,
@@ -3788,7 +4464,19 @@
 										}
 									}
 								},
-								"url": "localhost:3000/v2/data/in/test2"
+								"url": {
+									"raw": "localhost:3000/v2/data/in/test2",
+									"host": [
+										"localhost"
+									],
+									"port": "3000",
+									"path": [
+										"v2",
+										"data",
+										"in",
+										"test2"
+									]
+								}
 							},
 							"status": "Bad Request",
 							"code": 400,
@@ -3846,7 +4534,19 @@
 										}
 									}
 								},
-								"url": "localhost:3000/v2/data/in/test"
+								"url": {
+									"raw": "localhost:3000/v2/data/in/test",
+									"host": [
+										"localhost"
+									],
+									"port": "3000",
+									"path": [
+										"v2",
+										"data",
+										"in",
+										"test"
+									]
+								}
 							},
 							"status": "OK",
 							"code": 200,
@@ -3904,7 +4604,19 @@
 										}
 									}
 								},
-								"url": "localhost:3000/v2/data/in/test2"
+								"url": {
+									"raw": "localhost:3000/v2/data/in/test2",
+									"host": [
+										"localhost"
+									],
+									"port": "3000",
+									"path": [
+										"v2",
+										"data",
+										"in",
+										"test2"
+									]
+								}
 							},
 							"status": "OK",
 							"code": 200,
@@ -3962,7 +4674,19 @@
 										}
 									}
 								},
-								"url": "localhost:3000/v2/data/in/added-tags"
+								"url": {
+									"raw": "localhost:3000/v2/data/in/added-tags",
+									"host": [
+										"localhost"
+									],
+									"port": "3000",
+									"path": [
+										"v2",
+										"data",
+										"in",
+										"added-tags"
+									]
+								}
 							},
 							"status": "Not Found",
 							"code": 404,
@@ -4020,7 +4744,19 @@
 										}
 									}
 								},
-								"url": "localhost:3000/v2/data/in/sample1"
+								"url": {
+									"raw": "localhost:3000/v2/data/in/sample1",
+									"host": [
+										"localhost"
+									],
+									"port": "3000",
+									"path": [
+										"v2",
+										"data",
+										"in",
+										"sample1"
+									]
+								}
 							},
 							"status": "Not Found",
 							"code": 404,
@@ -4085,7 +4821,19 @@
 								}
 							}
 						},
-						"url": "localhost:3000/v2/data/query/test"
+						"url": {
+							"raw": "localhost:3000/v2/data/query/test",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"v2",
+								"data",
+								"query",
+								"test"
+							]
+						}
 					},
 					"response": [
 						{
@@ -4109,7 +4857,19 @@
 										}
 									}
 								},
-								"url": "localhost:3000/v2/data/query/test"
+								"url": {
+									"raw": "localhost:3000/v2/data/query/test",
+									"host": [
+										"localhost"
+									],
+									"port": "3000",
+									"path": [
+										"v2",
+										"data",
+										"query",
+										"test"
+									]
+								}
 							},
 							"status": "OK",
 							"code": 200,
@@ -4168,7 +4928,19 @@
 										}
 									}
 								},
-								"url": "localhost:3000/v2/data/query/test"
+								"url": {
+									"raw": "localhost:3000/v2/data/query/test",
+									"host": [
+										"localhost"
+									],
+									"port": "3000",
+									"path": [
+										"v2",
+										"data",
+										"query",
+										"test"
+									]
+								}
 							},
 							"status": "OK",
 							"code": 200,
@@ -4227,7 +4999,19 @@
 										}
 									}
 								},
-								"url": "localhost:3000/v2/data/query/test"
+								"url": {
+									"raw": "localhost:3000/v2/data/query/test",
+									"host": [
+										"localhost"
+									],
+									"port": "3000",
+									"path": [
+										"v2",
+										"data",
+										"query",
+										"test"
+									]
+								}
 							},
 							"status": "OK",
 							"code": 200,
@@ -4286,7 +5070,19 @@
 										}
 									}
 								},
-								"url": "localhost:3000/v2/data/query/telemetry-eventssss"
+								"url": {
+									"raw": "localhost:3000/v2/data/query/telemetry-eventssss",
+									"host": [
+										"localhost"
+									],
+									"port": "3000",
+									"path": [
+										"v2",
+										"data",
+										"query",
+										"telemetry-eventssss"
+									]
+								}
 							},
 							"status": "Not Found",
 							"code": 404,
@@ -4345,7 +5141,19 @@
 										}
 									}
 								},
-								"url": "localhost:3000/v2/data/query/telemetry-events"
+								"url": {
+									"raw": "localhost:3000/v2/data/query/telemetry-events",
+									"host": [
+										"localhost"
+									],
+									"port": "3000",
+									"path": [
+										"v2",
+										"data",
+										"query",
+										"telemetry-events"
+									]
+								}
 							},
 							"status": "Bad Request",
 							"code": 400,
@@ -4404,7 +5212,19 @@
 										}
 									}
 								},
-								"url": "localhost:3000/v2/data/query/test"
+								"url": {
+									"raw": "localhost:3000/v2/data/query/test",
+									"host": [
+										"localhost"
+									],
+									"port": "3000",
+									"path": [
+										"v2",
+										"data",
+										"query",
+										"test"
+									]
+								}
 							},
 							"status": "Not Found",
 							"code": 404,
@@ -4463,7 +5283,19 @@
 										}
 									}
 								},
-								"url": "localhost:3000/v2/data/query/test"
+								"url": {
+									"raw": "localhost:3000/v2/data/query/test",
+									"host": [
+										"localhost"
+									],
+									"port": "3000",
+									"path": [
+										"v2",
+										"data",
+										"query",
+										"test"
+									]
+								}
 							},
 							"status": "OK",
 							"code": 200,
@@ -4522,7 +5354,19 @@
 										}
 									}
 								},
-								"url": "localhost:3000/v2/data/query/test"
+								"url": {
+									"raw": "localhost:3000/v2/data/query/test",
+									"host": [
+										"localhost"
+									],
+									"port": "3000",
+									"path": [
+										"v2",
+										"data",
+										"query",
+										"test"
+									]
+								}
 							},
 							"status": "Not Found",
 							"code": 404,
@@ -4581,7 +5425,19 @@
 										}
 									}
 								},
-								"url": "localhost:3000/v2/data/query/undefined"
+								"url": {
+									"raw": "localhost:3000/v2/data/query/undefined",
+									"host": [
+										"localhost"
+									],
+									"port": "3000",
+									"path": [
+										"v2",
+										"data",
+										"query",
+										"undefined"
+									]
+								}
 							},
 							"status": "Not Found",
 							"code": 404,
@@ -4671,7 +5527,19 @@
 					"request": {
 						"method": "GET",
 						"header": [],
-						"url": "localhost:3000/v2/template/read/sql_template_11"
+						"url": {
+							"raw": "localhost:3000/v2/template/read/sql_template_11",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"v2",
+								"template",
+								"read",
+								"sql_template_11"
+							]
+						}
 					},
 					"response": [
 						{
@@ -4679,7 +5547,19 @@
 							"originalRequest": {
 								"method": "GET",
 								"header": [],
-								"url": "localhost:3000/v2/template/read/jsontemplate111"
+								"url": {
+									"raw": "localhost:3000/v2/template/read/jsontemplate111",
+									"host": [
+										"localhost"
+									],
+									"port": "3000",
+									"path": [
+										"v2",
+										"template",
+										"read",
+										"jsontemplate111"
+									]
+								}
 							},
 							"status": "OK",
 							"code": 200,
@@ -4722,7 +5602,19 @@
 							"originalRequest": {
 								"method": "GET",
 								"header": [],
-								"url": "localhost:3000/v2/template/read/sql1"
+								"url": {
+									"raw": "localhost:3000/v2/template/read/sql1",
+									"host": [
+										"localhost"
+									],
+									"port": "3000",
+									"path": [
+										"v2",
+										"template",
+										"read",
+										"sql1"
+									]
+								}
 							},
 							"status": "OK",
 							"code": 200,
@@ -4765,7 +5657,19 @@
 							"originalRequest": {
 								"method": "GET",
 								"header": [],
-								"url": "localhost:3000/v2/template/read/sql100"
+								"url": {
+									"raw": "localhost:3000/v2/template/read/sql100",
+									"host": [
+										"localhost"
+									],
+									"port": "3000",
+									"path": [
+										"v2",
+										"template",
+										"read",
+										"sql100"
+									]
+								}
 							},
 							"status": "Not Found",
 							"code": 404,
@@ -4810,7 +5714,19 @@
 					"request": {
 						"method": "DELETE",
 						"header": [],
-						"url": "localhost:3000/v2/template/delete/yashash-k"
+						"url": {
+							"raw": "localhost:3000/v2/template/delete/yashash-k",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"v2",
+								"template",
+								"delete",
+								"yashash-k"
+							]
+						}
 					},
 					"response": [
 						{
@@ -4818,7 +5734,19 @@
 							"originalRequest": {
 								"method": "DELETE",
 								"header": [],
-								"url": "localhost:3000/v2/template/delete/yashash-k"
+								"url": {
+									"raw": "localhost:3000/v2/template/delete/yashash-k",
+									"host": [
+										"localhost"
+									],
+									"port": "3000",
+									"path": [
+										"v2",
+										"template",
+										"delete",
+										"yashash-k"
+									]
+								}
 							},
 							"status": "OK",
 							"code": 200,
@@ -4861,7 +5789,19 @@
 							"originalRequest": {
 								"method": "DELETE",
 								"header": [],
-								"url": "localhost:3000/v2/template/delete/json_template"
+								"url": {
+									"raw": "localhost:3000/v2/template/delete/json_template",
+									"host": [
+										"localhost"
+									],
+									"port": "3000",
+									"path": [
+										"v2",
+										"template",
+										"delete",
+										"json_template"
+									]
+								}
 							},
 							"status": "Not Found",
 							"code": 404,
@@ -4921,7 +5861,18 @@
 								}
 							}
 						},
-						"url": "localhost:3000/v2/template/create"
+						"url": {
+							"raw": "localhost:3000/v2/template/create",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"v2",
+								"template",
+								"create"
+							]
+						}
 					},
 					"response": [
 						{
@@ -4944,7 +5895,18 @@
 										}
 									}
 								},
-								"url": "localhost:3000/v2/template/create"
+								"url": {
+									"raw": "localhost:3000/v2/template/create",
+									"host": [
+										"localhost"
+									],
+									"port": "3000",
+									"path": [
+										"v2",
+										"template",
+										"create"
+									]
+								}
 							},
 							"status": "OK",
 							"code": 200,
@@ -5002,7 +5964,18 @@
 										}
 									}
 								},
-								"url": "localhost:3000/v2/template/create"
+								"url": {
+									"raw": "localhost:3000/v2/template/create",
+									"host": [
+										"localhost"
+									],
+									"port": "3000",
+									"path": [
+										"v2",
+										"template",
+										"create"
+									]
+								}
 							},
 							"status": "OK",
 							"code": 200,
@@ -5060,7 +6033,18 @@
 										}
 									}
 								},
-								"url": "localhost:3000/v2/template/create"
+								"url": {
+									"raw": "localhost:3000/v2/template/create",
+									"host": [
+										"localhost"
+									],
+									"port": "3000",
+									"path": [
+										"v2",
+										"template",
+										"create"
+									]
+								}
 							},
 							"status": "Conflict",
 							"code": 409,
@@ -5118,7 +6102,18 @@
 										}
 									}
 								},
-								"url": "localhost:3000/v2/template/create"
+								"url": {
+									"raw": "localhost:3000/v2/template/create",
+									"host": [
+										"localhost"
+									],
+									"port": "3000",
+									"path": [
+										"v2",
+										"template",
+										"create"
+									]
+								}
 							},
 							"status": "Bad Request",
 							"code": 400,
@@ -5176,7 +6171,18 @@
 										}
 									}
 								},
-								"url": "localhost:3000/v2/template/create"
+								"url": {
+									"raw": "localhost:3000/v2/template/create",
+									"host": [
+										"localhost"
+									],
+									"port": "3000",
+									"path": [
+										"v2",
+										"template",
+										"create"
+									]
+								}
 							},
 							"status": "Bad Request",
 							"code": 400,
@@ -5230,7 +6236,18 @@
 								}
 							}
 						},
-						"url": "localhost:3000/v2/template/list"
+						"url": {
+							"raw": "localhost:3000/v2/template/list",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"v2",
+								"template",
+								"list"
+							]
+						}
 					},
 					"response": [
 						{
@@ -5247,7 +6264,18 @@
 										}
 									}
 								},
-								"url": "localhost:3000/v2/template/list"
+								"url": {
+									"raw": "localhost:3000/v2/template/list",
+									"host": [
+										"localhost"
+									],
+									"port": "3000",
+									"path": [
+										"v2",
+										"template",
+										"list"
+									]
+								}
 							},
 							"status": "OK",
 							"code": 200,
@@ -5299,7 +6327,18 @@
 										}
 									}
 								},
-								"url": "localhost:3000/v2/template/list"
+								"url": {
+									"raw": "localhost:3000/v2/template/list",
+									"host": [
+										"localhost"
+									],
+									"port": "3000",
+									"path": [
+										"v2",
+										"template",
+										"list"
+									]
+								}
 							},
 							"status": "OK",
 							"code": 200,
@@ -5351,7 +6390,18 @@
 										}
 									}
 								},
-								"url": "localhost:3000/v2/template/list"
+								"url": {
+									"raw": "localhost:3000/v2/template/list",
+									"host": [
+										"localhost"
+									],
+									"port": "3000",
+									"path": [
+										"v2",
+										"template",
+										"list"
+									]
+								}
 							},
 							"status": "OK",
 							"code": 200,
@@ -5403,7 +6453,18 @@
 										}
 									}
 								},
-								"url": "localhost:3000/v2/template/list"
+								"url": {
+									"raw": "localhost:3000/v2/template/list",
+									"host": [
+										"localhost"
+									],
+									"port": "3000",
+									"path": [
+										"v2",
+										"template",
+										"list"
+									]
+								}
 							},
 							"status": "OK",
 							"code": 200,
@@ -5457,7 +6518,19 @@
 								}
 							}
 						},
-						"url": "localhost:3000/v2/template/update/sql11template1"
+						"url": {
+							"raw": "localhost:3000/v2/template/update/sql11template1",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"v2",
+								"template",
+								"update",
+								"sql11template1"
+							]
+						}
 					},
 					"response": [
 						{
@@ -5474,7 +6547,19 @@
 										}
 									}
 								},
-								"url": "localhost:3000/v2/template/update/sql11template1"
+								"url": {
+									"raw": "localhost:3000/v2/template/update/sql11template1",
+									"host": [
+										"localhost"
+									],
+									"port": "3000",
+									"path": [
+										"v2",
+										"template",
+										"update",
+										"sql11template1"
+									]
+								}
 							},
 							"status": "OK",
 							"code": 200,
@@ -5526,7 +6611,19 @@
 										}
 									}
 								},
-								"url": "localhost:3000/v2/template/update/sql11template1"
+								"url": {
+									"raw": "localhost:3000/v2/template/update/sql11template1",
+									"host": [
+										"localhost"
+									],
+									"port": "3000",
+									"path": [
+										"v2",
+										"template",
+										"update",
+										"sql11template1"
+									]
+								}
 							},
 							"status": "Bad Request",
 							"code": 400,
@@ -5578,7 +6675,19 @@
 										}
 									}
 								},
-								"url": "localhost:3000/v2/template/update/sql11template1"
+								"url": {
+									"raw": "localhost:3000/v2/template/update/sql11template1",
+									"host": [
+										"localhost"
+									],
+									"port": "3000",
+									"path": [
+										"v2",
+										"template",
+										"update",
+										"sql11template1"
+									]
+								}
 							},
 							"status": "Bad Request",
 							"code": 400,
@@ -5630,7 +6739,19 @@
 										}
 									}
 								},
-								"url": "localhost:3000/v2/template/update/sql11template1"
+								"url": {
+									"raw": "localhost:3000/v2/template/update/sql11template1",
+									"host": [
+										"localhost"
+									],
+									"port": "3000",
+									"path": [
+										"v2",
+										"template",
+										"update",
+										"sql11template1"
+									]
+								}
 							},
 							"status": "Bad Request",
 							"code": 400,
@@ -5682,7 +6803,19 @@
 										}
 									}
 								},
-								"url": "localhost:3000/v2/template/update/sql11template1"
+								"url": {
+									"raw": "localhost:3000/v2/template/update/sql11template1",
+									"host": [
+										"localhost"
+									],
+									"port": "3000",
+									"path": [
+										"v2",
+										"template",
+										"update",
+										"sql11template1"
+									]
+								}
 							},
 							"status": "Bad Request",
 							"code": 400,
@@ -5736,7 +6869,19 @@
 								}
 							}
 						},
-						"url": "localhost:3000/v2/template/query/sql_test_1"
+						"url": {
+							"raw": "localhost:3000/v2/template/query/sql_test_1",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"v2",
+								"template",
+								"query",
+								"sql_test_1"
+							]
+						}
 					},
 					"response": [
 						{
@@ -5830,7 +6975,19 @@
 										}
 									}
 								},
-								"url": "localhost:3000/v2/template/query/sql_test_1"
+								"url": {
+									"raw": "localhost:3000/v2/template/query/sql_test_1",
+									"host": [
+										"localhost"
+									],
+									"port": "3000",
+									"path": [
+										"v2",
+										"template",
+										"query",
+										"sql_test_1"
+									]
+								}
 							},
 							"status": "Not Found",
 							"code": 404,
@@ -5882,7 +7039,19 @@
 										}
 									}
 								},
-								"url": "localhost:3000/v2/template/query/sql_test_1"
+								"url": {
+									"raw": "localhost:3000/v2/template/query/sql_test_1",
+									"host": [
+										"localhost"
+									],
+									"port": "3000",
+									"path": [
+										"v2",
+										"template",
+										"query",
+										"sql_test_1"
+									]
+								}
 							},
 							"status": "Not Found",
 							"code": 404,
@@ -5934,7 +7103,19 @@
 										}
 									}
 								},
-								"url": "localhost:3000/v2/template/query/sql_test_1"
+								"url": {
+									"raw": "localhost:3000/v2/template/query/sql_test_1",
+									"host": [
+										"localhost"
+									],
+									"port": "3000",
+									"path": [
+										"v2",
+										"template",
+										"query",
+										"sql_test_1"
+									]
+								}
 							},
 							"status": "Bad Request",
 							"code": 400,
@@ -5992,7 +7173,19 @@
 										}
 									}
 								},
-								"url": "localhost:3000/v2/template/query/jsontemplate1"
+								"url": {
+									"raw": "localhost:3000/v2/template/query/jsontemplate1",
+									"host": [
+										"localhost"
+									],
+									"port": "3000",
+									"path": [
+										"v2",
+										"template",
+										"query",
+										"jsontemplate1"
+									]
+								}
 							},
 							"status": "OK",
 							"code": 200,
@@ -6044,7 +7237,19 @@
 										}
 									}
 								},
-								"url": "localhost:3000/v2/template/query/sql_test_1"
+								"url": {
+									"raw": "localhost:3000/v2/template/query/sql_test_1",
+									"host": [
+										"localhost"
+									],
+									"port": "3000",
+									"path": [
+										"v2",
+										"template",
+										"query",
+										"sql_test_1"
+									]
+								}
 							},
 							"status": "OK",
 							"code": 200,
@@ -6103,7 +7308,19 @@
 								}
 							}
 						},
-						"url": "localhost:3000/data/v2/schema/validate"
+						"url": {
+							"raw": "localhost:3000/data/v2/schema/validate",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"data",
+								"v2",
+								"schema",
+								"validate"
+							]
+						}
 					},
 					"response": [
 						{
@@ -6120,7 +7337,18 @@
 										}
 									}
 								},
-								"url": "localhost:3000/v2/schema/validate"
+								"url": {
+									"raw": "localhost:3000/v2/schema/validate",
+									"host": [
+										"localhost"
+									],
+									"port": "3000",
+									"path": [
+										"v2",
+										"schema",
+										"validate"
+									]
+								}
 							},
 							"status": "OK",
 							"code": 200,
@@ -6172,7 +7400,18 @@
 										}
 									}
 								},
-								"url": "localhost:3000/v2/schema/validate"
+								"url": {
+									"raw": "localhost:3000/v2/schema/validate",
+									"host": [
+										"localhost"
+									],
+									"port": "3000",
+									"path": [
+										"v2",
+										"schema",
+										"validate"
+									]
+								}
 							},
 							"status": "Not Found",
 							"code": 404,
@@ -6222,7 +7461,18 @@
 					"request": {
 						"method": "POST",
 						"header": [],
-						"url": "{{HOST_IP}}/alerts/v1/notifications/search"
+						"url": {
+							"raw": "{{HOST_IP}}/alerts/v1/notifications/search",
+							"host": [
+								"{{HOST_IP}}"
+							],
+							"path": [
+								"alerts",
+								"v1",
+								"notifications",
+								"search"
+							]
+						}
 					},
 					"response": []
 				},
@@ -6240,7 +7490,18 @@
 								}
 							}
 						},
-						"url": "{{HOST_IP}}/alerts/v1/notifications/create"
+						"url": {
+							"raw": "{{HOST_IP}}/alerts/v1/notifications/create",
+							"host": [
+								"{{HOST_IP}}"
+							],
+							"path": [
+								"alerts",
+								"v1",
+								"notifications",
+								"create"
+							]
+						}
 					},
 					"response": []
 				},
@@ -6249,7 +7510,19 @@
 					"request": {
 						"method": "GET",
 						"header": [],
-						"url": "{{HOST_IP}}/alerts/v1/notifications/publish/c033ce5e-e3fb-49c2-8eee-ac142da2fe8d"
+						"url": {
+							"raw": "{{HOST_IP}}/alerts/v1/notifications/publish/c033ce5e-e3fb-49c2-8eee-ac142da2fe8d",
+							"host": [
+								"{{HOST_IP}}"
+							],
+							"path": [
+								"alerts",
+								"v1",
+								"notifications",
+								"publish",
+								"c033ce5e-e3fb-49c2-8eee-ac142da2fe8d"
+							]
+						}
 					},
 					"response": []
 				},
@@ -6267,7 +7540,18 @@
 								}
 							}
 						},
-						"url": "{{HOST_IP}}/alerts/v1/notifications/test"
+						"url": {
+							"raw": "{{HOST_IP}}/alerts/v1/notifications/test",
+							"host": [
+								"{{HOST_IP}}"
+							],
+							"path": [
+								"alerts",
+								"v1",
+								"notifications",
+								"test"
+							]
+						}
 					},
 					"response": []
 				},
@@ -6285,7 +7569,19 @@
 								}
 							}
 						},
-						"url": "{{HOST_IP}}/alerts/v1/notifications/update/c033ce5e-e3fb-49c2-8eee-ac142da2fe8d"
+						"url": {
+							"raw": "{{HOST_IP}}/alerts/v1/notifications/update/c033ce5e-e3fb-49c2-8eee-ac142da2fe8d",
+							"host": [
+								"{{HOST_IP}}"
+							],
+							"path": [
+								"alerts",
+								"v1",
+								"notifications",
+								"update",
+								"c033ce5e-e3fb-49c2-8eee-ac142da2fe8d"
+							]
+						}
 					},
 					"response": []
 				},
@@ -6294,7 +7590,19 @@
 					"request": {
 						"method": "DELETE",
 						"header": [],
-						"url": "{{HOST_IP}}/alerts/v1/notifications/delete/c033ce5e-e3fb-49c2-8eee-ac142da2fe8d"
+						"url": {
+							"raw": "{{HOST_IP}}/alerts/v1/notifications/delete/c033ce5e-e3fb-49c2-8eee-ac142da2fe8d",
+							"host": [
+								"{{HOST_IP}}"
+							],
+							"path": [
+								"alerts",
+								"v1",
+								"notifications",
+								"delete",
+								"c033ce5e-e3fb-49c2-8eee-ac142da2fe8d"
+							]
+						}
 					},
 					"response": []
 				},
@@ -6312,7 +7620,18 @@
 								}
 							}
 						},
-						"url": "{{HOST_IP}}/alerts/v1/notifications/create"
+						"url": {
+							"raw": "{{HOST_IP}}/alerts/v1/notifications/create",
+							"host": [
+								"{{HOST_IP}}"
+							],
+							"path": [
+								"alerts",
+								"v1",
+								"notifications",
+								"create"
+							]
+						}
 					},
 					"response": []
 				}
@@ -6335,7 +7654,18 @@
 								}
 							}
 						},
-						"url": "{{HOST_IP}}/alerts/v1/silence/create"
+						"url": {
+							"raw": "{{HOST_IP}}/alerts/v1/silence/create",
+							"host": [
+								"{{HOST_IP}}"
+							],
+							"path": [
+								"alerts",
+								"v1",
+								"silence",
+								"create"
+							]
+						}
 					},
 					"response": []
 				},
@@ -6344,7 +7674,19 @@
 					"request": {
 						"method": "GET",
 						"header": [],
-						"url": "{{HOST_IP}}/alerts/v1/silence/get/0ec52a4c-4529-4f70-b6f1-0de4b1e81c13"
+						"url": {
+							"raw": "{{HOST_IP}}/alerts/v1/silence/get/0ec52a4c-4529-4f70-b6f1-0de4b1e81c13",
+							"host": [
+								"{{HOST_IP}}"
+							],
+							"path": [
+								"alerts",
+								"v1",
+								"silence",
+								"get",
+								"0ec52a4c-4529-4f70-b6f1-0de4b1e81c13"
+							]
+						}
 					},
 					"response": []
 				},
@@ -6353,7 +7695,19 @@
 					"request": {
 						"method": "DELETE",
 						"header": [],
-						"url": "{{HOST_IP}}/alerts/v1/silence/delete/39c7eec1-db78-4f5d-8e77-38385cc3b7dc"
+						"url": {
+							"raw": "{{HOST_IP}}/alerts/v1/silence/delete/39c7eec1-db78-4f5d-8e77-38385cc3b7dc",
+							"host": [
+								"{{HOST_IP}}"
+							],
+							"path": [
+								"alerts",
+								"v1",
+								"silence",
+								"delete",
+								"39c7eec1-db78-4f5d-8e77-38385cc3b7dc"
+							]
+						}
 					},
 					"response": []
 				},
@@ -6362,7 +7716,18 @@
 					"request": {
 						"method": "GET",
 						"header": [],
-						"url": "{{HOST_IP}}/alerts/v1/silence/search"
+						"url": {
+							"raw": "{{HOST_IP}}/alerts/v1/silence/search",
+							"host": [
+								"{{HOST_IP}}"
+							],
+							"path": [
+								"alerts",
+								"v1",
+								"silence",
+								"search"
+							]
+						}
 					},
 					"response": []
 				},
@@ -6380,7 +7745,19 @@
 								}
 							}
 						},
-						"url": "{{HOST_IP}}/alerts/v1/silence/update/da46091b-65db-4df9-85d1-c2341168bcb8"
+						"url": {
+							"raw": "{{HOST_IP}}/alerts/v1/silence/update/da46091b-65db-4df9-85d1-c2341168bcb8",
+							"host": [
+								"{{HOST_IP}}"
+							],
+							"path": [
+								"alerts",
+								"v1",
+								"silence",
+								"update",
+								"da46091b-65db-4df9-85d1-c2341168bcb8"
+							]
+						}
 					},
 					"response": []
 				}
@@ -6394,7 +7771,18 @@
 					"request": {
 						"method": "DELETE",
 						"header": [],
-						"url": "{{HOST_IP}}/alerts/v1/delete/0c3e08d4-8e4f-4810-b591-f5a294ee378e",
+						"url": {
+							"raw": "{{HOST_IP}}/alerts/v1/delete/0c3e08d4-8e4f-4810-b591-f5a294ee378e",
+							"host": [
+								"{{HOST_IP}}"
+							],
+							"path": [
+								"alerts",
+								"v1",
+								"delete",
+								"0c3e08d4-8e4f-4810-b591-f5a294ee378e"
+							]
+						},
 						"description": "This URLwill provided access to user to delete any custom rule."
 					},
 					"response": []
@@ -6413,7 +7801,18 @@
 								}
 							}
 						},
-						"url": "{{HOST_IP}}/alerts/v1/update/a6c46c48-79c1-4e34-9552-fe8f13d3c73e",
+						"url": {
+							"raw": "{{HOST_IP}}/alerts/v1/update/a6c46c48-79c1-4e34-9552-fe8f13d3c73e",
+							"host": [
+								"{{HOST_IP}}"
+							],
+							"path": [
+								"alerts",
+								"v1",
+								"update",
+								"a6c46c48-79c1-4e34-9552-fe8f13d3c73e"
+							]
+						},
 						"description": "This URL will provide access to users to edit any properties in the Alert rule and save the changes."
 					},
 					"response": []
@@ -6430,7 +7829,18 @@
 							"mode": "raw",
 							"raw": ""
 						},
-						"url": "{{HOST_IP}}/alerts/v1/publish/c6c93917-9e5e-4aa6-9986-1c53c45ba7fe"
+						"url": {
+							"raw": "{{HOST_IP}}/alerts/v1/publish/c6c93917-9e5e-4aa6-9986-1c53c45ba7fe",
+							"host": [
+								"{{HOST_IP}}"
+							],
+							"path": [
+								"alerts",
+								"v1",
+								"publish",
+								"c6c93917-9e5e-4aa6-9986-1c53c45ba7fe"
+							]
+						}
 					},
 					"response": []
 				},
@@ -6500,7 +7910,17 @@
 							"mode": "raw",
 							"raw": "{\n    \"name\": \"Total Api Calls1\",\n    \"manager\":\"grafana\",\n    \"description\": \"This alert is set up to notify you when the CPU usage on a host reaches a Low level.\",\n    \"expression\": \"(node_total_api_calls) > 20\",\n    \"category\": \"Infra\",\n    \"severity\":\"warning\",\n    \"frequency\": \"1m\",\n    \"interval\": \"1m\",\n    \"labels\": {\n        \"component\": \"api\",\n        \"notificationChannel\": \"slack\"\n    },\n    \"annotations\":{\n        \"summary\":\"Host Low CPU usage\"\n    },\n    \"metadata\": {\n        \"query\": [\n            {\n                \"refId\": \"A\",\n                \"datasourceUid\": \"$datasourceUid\",\n                \"queryType\": \"\",\n                \"relativeTimeRange\": {\n                    \"from\": 600,\n                    \"to\": 0\n                },\n                \"model\": {\n                    \"refId\": \"A\",\n                    \"hide\": false,\n                    \"editorMode\": \"code\",\n                    \"expr\": \"node_total_api_calls\",\n                    \"legendFormat\": \"__auto\",\n                    \"range\": true\n                }\n            },\n            {\n                \"refId\": \"B\",\n                \"datasourceUid\": \"__expr__\",\n                \"queryType\": \"\",\n                \"model\": {\n                    \"refId\": \"B\",\n                    \"hide\": false,\n                    \"type\": \"reduce\",\n                    \"datasource\": {\n                        \"uid\": \"__expr__\",\n                        \"type\": \"__expr__\"\n                    },\n                    \"conditions\": [\n                        {\n                            \"type\": \"query\",\n                            \"evaluator\": {\n                                \"params\": [],\n                                \"type\": \"gt\"\n                            },\n                            \"operator\": {\n                                \"type\": \"and\"\n                            },\n                            \"query\": {\n                                \"params\": [\n                                    \"B\"\n                                ]\n                            },\n                            \"reducer\": {\n                                \"params\": [],\n                                \"type\": \"last\"\n                            }\n                        }\n                    ],\n                    \"reducer\": \"last\",\n                    \"expression\": \"A\"\n                },\n                \"relativeTimeRange\": {\n                    \"from\": 600,\n                    \"to\": 0\n                }\n            },\n            {\n                \"refId\": \"C\",\n                \"datasourceUid\": \"__expr__\",\n                \"queryType\": \"\",\n                \"model\": {\n                    \"refId\": \"C\",\n                    \"hide\": false,\n                    \"type\": \"threshold\",\n                    \"datasource\": {\n                        \"uid\": \"__expr__\",\n                        \"type\": \"__expr__\"\n                    },\n                    \"conditions\": [\n                        {\n                            \"type\": \"query\",\n                            \"evaluator\": {\n                                \"params\": [\n                                    20\n                                ],\n                                \"type\": \"gt\"\n                            },\n                            \"operator\": {\n                                \"type\": \"and\"\n                            },\n                            \"query\": {\n                                \"params\": [\n                                    \"C\"\n                                ]\n                            },\n                            \"reducer\": {\n                                \"params\": [],\n                                \"type\": \"last\"\n                            }\n                        }\n                    ],\n                    \"expression\": \"B\"\n                },\n                \"relativeTimeRange\": {\n                    \"from\": 600,\n                    \"to\": 0\n                }\n            }\n        ]\n    }\n}"
 						},
-						"url": "{{HOST_IP}}/alerts/v1/create"
+						"url": {
+							"raw": "{{HOST_IP}}/alerts/v1/create",
+							"host": [
+								"{{HOST_IP}}"
+							],
+							"path": [
+								"alerts",
+								"v1",
+								"create"
+							]
+						}
 					},
 					"response": []
 				},
@@ -6518,7 +7938,17 @@
 								}
 							}
 						},
-						"url": "{{HOST_IP}}/alerts/v1/search"
+						"url": {
+							"raw": "{{HOST_IP}}/alerts/v1/search",
+							"host": [
+								"{{HOST_IP}}"
+							],
+							"path": [
+								"alerts",
+								"v1",
+								"search"
+							]
+						}
 					},
 					"response": []
 				},
@@ -6527,7 +7957,18 @@
 					"request": {
 						"method": "GET",
 						"header": [],
-						"url": "{{HOST_IP}}/alerts/v1/get/dbbe4fbc-df7c-4ad0-84c0-1b7034d5d8ff"
+						"url": {
+							"raw": "{{HOST_IP}}/alerts/v1/get/dbbe4fbc-df7c-4ad0-84c0-1b7034d5d8ff",
+							"host": [
+								"{{HOST_IP}}"
+							],
+							"path": [
+								"alerts",
+								"v1",
+								"get",
+								"dbbe4fbc-df7c-4ad0-84c0-1b7034d5d8ff"
+							]
+						}
 					},
 					"response": []
 				}
@@ -6550,7 +7991,19 @@
 								}
 							}
 						},
-						"url": "{{HOST_IP}}/alerts/v1/metric/alias/create"
+						"url": {
+							"raw": "{{HOST_IP}}/alerts/v1/metric/alias/create",
+							"host": [
+								"{{HOST_IP}}"
+							],
+							"path": [
+								"alerts",
+								"v1",
+								"metric",
+								"alias",
+								"create"
+							]
+						}
 					},
 					"response": []
 				},
@@ -6568,7 +8021,19 @@
 								}
 							}
 						},
-						"url": "{{HOST_IP}}/alerts/v1/metric/alias/search"
+						"url": {
+							"raw": "{{HOST_IP}}/alerts/v1/metric/alias/search",
+							"host": [
+								"{{HOST_IP}}"
+							],
+							"path": [
+								"alerts",
+								"v1",
+								"metric",
+								"alias",
+								"search"
+							]
+						}
 					},
 					"response": []
 				},
@@ -6586,7 +8051,20 @@
 								}
 							}
 						},
-						"url": "{{HOST_IP}}/alerts/v1/metric/alias/update/48aad878-d59c-4046-aeb5-fb87aefbcfed"
+						"url": {
+							"raw": "{{HOST_IP}}/alerts/v1/metric/alias/update/48aad878-d59c-4046-aeb5-fb87aefbcfed",
+							"host": [
+								"{{HOST_IP}}"
+							],
+							"path": [
+								"alerts",
+								"v1",
+								"metric",
+								"alias",
+								"update",
+								"48aad878-d59c-4046-aeb5-fb87aefbcfed"
+							]
+						}
 					},
 					"response": []
 				},
@@ -6595,7 +8073,20 @@
 					"request": {
 						"method": "DELETE",
 						"header": [],
-						"url": "{{HOST_IP}}/alerts/v1/metric/alias/delete/f168707f-5908-4e2e-9111-e73c41e2700d"
+						"url": {
+							"raw": "{{HOST_IP}}/alerts/v1/metric/alias/delete/f168707f-5908-4e2e-9111-e73c41e2700d",
+							"host": [
+								"{{HOST_IP}}"
+							],
+							"path": [
+								"alerts",
+								"v1",
+								"metric",
+								"alias",
+								"delete",
+								"f168707f-5908-4e2e-9111-e73c41e2700d"
+							]
+						}
 					},
 					"response": []
 				}
@@ -6649,9 +8140,517 @@
 								}
 							]
 						},
-						"url": "localhost:3000/v2/connector/register"
+						"url": {
+							"raw": "localhost:3000/v2/connector/register",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"v2",
+								"connector",
+								"register"
+							]
+						}
 					},
 					"response": []
+				}
+			]
+		},
+		{
+			"name": "Dataset metrics",
+			"item": [
+				{
+					"name": "Dataset metrics",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"id\": \"api.dataset.metrics\",\n    \"ver\": \"v2\",\n    \"ts\": \"2024-04-10T16:10:50+05:30\",\n    \"params\": {\n        \"msgid\": \"4a7f14c3-d61e-4d4f-be78-181834eeff6d\"\n    },\n    \"request\": {\n        \"dataset_id\": \"test\",\n        \"category\": [\n            \"data_freshness\",\n            \"data_observability\",\n            \"data_volume\",\n            \"data_lineage\",\n            \"connectors\",\n            \"data_quality\"\n        ],\n        \"query_time_period\":1\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:3007/v2/dataset/metrics",
+							"host": [
+								"localhost"
+							],
+							"port": "3007",
+							"path": [
+								"v2",
+								"dataset",
+								"metrics"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Failure: Dataset not found",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"id\": \"api.dataset.metrics\",\n    \"ver\": \"v2\",\n    \"ts\": \"2024-04-10T16:10:50+05:30\",\n    \"params\": {\n        \"msgid\": \"4a7f14c3-d61e-4d4f-be78-181834eeff6d\"\n    },\n    \"request\": {\n        \"dataset_id\": \"test\",\n        \"category\": [\n            \"data_freshness\",\n            \"data_observability\",\n            \"data_volume\",\n            \"data_lineage\",\n            \"connectors\",\n            \"data_quality\"\n        ],\n        \"query_time_period\":1\n    }\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "localhost:3007/v2/dataset/metrics",
+									"host": [
+										"localhost"
+									],
+									"port": "3007",
+									"path": [
+										"v2",
+										"dataset",
+										"metrics"
+									]
+								}
+							},
+							"status": "Not Found",
+							"code": 404,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "330"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"14a-RKjp44K2gCKCdq3dClRy/aYxcd8\""
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 15 Jan 2025 09:45:30 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"id\": \"api.dataset.metrics\",\n    \"ver\": \"v2\",\n    \"ts\": \"2025-01-15T15:15:30+05:30\",\n    \"params\": {\n        \"status\": \"FAILED\",\n        \"msgid\": \"4a7f14c3-d61e-4d4f-be78-181834eeff6d\",\n        \"resmsgid\": \"25107bba-6d88-4e9b-b951-61e29a72b97a\"\n    },\n    \"responseCode\": \"NOT_FOUND\",\n    \"error\": {\n        \"code\": \"DATASET_NOT_FOUND\",\n        \"message\": \"Dataset with id test not found in live table\",\n        \"trace\": \"\"\n    }\n}"
+						},
+						{
+							"name": "Failure: Request validation failed",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"id\": \"api.dataset.metrics\",\n    \"ver\": \"v2\",\n    \"ts\": \"2024-04-10T16:10:50+05:30\",\n    \"params\": {\n        \"msgid\": \"4a7f14c3-d61e-4d4f-be78-181834eeff6d\"\n    },\n    \"request\": {\n        // \"dataset_id\": \"test-obsev\",\n        \"category\": [\n            \"data_freshness\",\n            \"data_observability\",\n            \"data_volume\",\n            \"data_lineage\",\n            \"connectors\",\n            \"data_quality\"\n        ],\n        \"query_time_period\":1\n    }\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "localhost:3007/v2/dataset/metrics",
+									"host": [
+										"localhost"
+									],
+									"port": "3007",
+									"path": [
+										"v2",
+										"dataset",
+										"metrics"
+									]
+								}
+							},
+							"status": "Bad Request",
+							"code": 400,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "362"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"16a-pmYCarF3FSxd3J7zVBlhwST+rq8\""
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 15 Jan 2025 09:53:22 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"id\": \"api.dataset.metrics\",\n    \"ver\": \"v2\",\n    \"ts\": \"2025-01-15T15:23:22+05:30\",\n    \"params\": {\n        \"status\": \"FAILED\",\n        \"msgid\": \"4a7f14c3-d61e-4d4f-be78-181834eeff6d\",\n        \"resmsgid\": \"a6a26834-bb32-4e32-8dfd-473b0d21c8e8\"\n    },\n    \"responseCode\": \"BAD_REQUEST\",\n    \"error\": {\n        \"code\": \"DATA_OUT_INVALID_INPUT\",\n        \"message\": \"#properties/request/required must have required property 'dataset_id'\",\n        \"trace\": \"\"\n    }\n}"
+						},
+						{
+							"name": "Success: Get all the data",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"id\": \"api.dataset.metrics\",\n    \"ver\": \"v2\",\n    \"ts\": \"2024-04-10T16:10:50+05:30\",\n    \"params\": {\n        \"msgid\": \"4a7f14c3-d61e-4d4f-be78-181834eeff6d\"\n    },\n    \"request\": {\n        \"dataset_id\": \"test-obsev\",\n        \"category\": [\n            \"data_freshness\",\n            \"data_observability\",\n            \"data_volume\",\n            \"data_lineage\",\n            \"connectors\",\n            \"data_quality\"\n        ],\n        \"query_time_period\":10\n    }\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "localhost:3007/v2/dataset/metrics",
+									"host": [
+										"localhost"
+									],
+									"port": "3007",
+									"path": [
+										"v2",
+										"dataset",
+										"metrics"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "1780"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"6f4-nUo39jrIJBlBgZ4cY4UL84W7UNU\""
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 15 Jan 2025 09:54:21 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"id\": \"api.dataset.metrics\",\n    \"ver\": \"v2\",\n    \"ts\": \"2025-01-15T15:24:21+05:30\",\n    \"params\": {\n        \"status\": \"SUCCESS\",\n        \"msgid\": \"4a7f14c3-d61e-4d4f-be78-181834eeff6d\",\n        \"resmsgid\": \"ef86ff9c-4342-4cdc-a573-d469cbf436eb\"\n    },\n    \"responseCode\": \"OK\",\n    \"result\": [\n        {\n            \"category\": \"data_freshness\",\n            \"status\": \"Healthy\",\n            \"components\": [\n                {\n                    \"type\": \"average_time_difference_in_min\",\n                    \"threshold\": 5,\n                    \"value\": 0,\n                    \"status\": \"Healthy\"\n                },\n                {\n                    \"type\": \"freshness_query_time_in_min\",\n                    \"threshold\": 10,\n                    \"value\": 0,\n                    \"status\": \"Healthy\"\n                }\n            ]\n        },\n        {\n            \"category\": \"data_observability\",\n            \"status\": \"Unhealthy\",\n            \"components\": [\n                {\n                    \"type\": \"data_observability_health\",\n                    \"status\": \"Unhealthy\"\n                },\n                {\n                    \"type\": \"failure_percentage\",\n                    \"value\": 35.39823008849557\n                },\n                {\n                    \"type\": \"threshold_percentage\",\n                    \"value\": 5\n                },\n                {\n                    \"type\": \"importance_score\",\n                    \"value\": 0\n                }\n            ]\n        },\n        {\n            \"category\": \"data_volume\",\n            \"components\": [\n                {\n                    \"type\": \"events_per_hour\",\n                    \"value\": 0\n                },\n                {\n                    \"type\": \"events_per_day\",\n                    \"value\": 95\n                },\n                {\n                    \"type\": \"events_per_n_day\",\n                    \"value\": 765\n                },\n                {\n                    \"type\": \"volume_percentage_by_hour\",\n                    \"value\": 0\n                },\n                {\n                    \"type\": \"volume_percentage_by_day\",\n                    \"value\": -87.58169934640523\n                },\n                {\n                    \"type\": \"volume_percentage_by_week\",\n                    \"value\": 0\n                },\n                {\n                    \"type\": \"growth_rate_percentage\",\n                    \"value\": 0\n                }\n            ]\n        },\n        {\n            \"category\": \"data_lineage\",\n            \"components\": [\n                {\n                    \"type\": \"transformation_success\",\n                    \"value\": 765\n                },\n                {\n                    \"type\": \"dedup_success\",\n                    \"value\": 384\n                },\n                {\n                    \"type\": \"denormalization_success\",\n                    \"value\": 572\n                },\n                {\n                    \"type\": \"total_success\",\n                    \"value\": 1339\n                },\n                {\n                    \"type\": \"total_failed\",\n                    \"value\": 1034\n                },\n                {\n                    \"type\": \"transformation_failed\",\n                    \"value\": 1\n                },\n                {\n                    \"type\": \"dedup_failed\",\n                    \"value\": 574\n                },\n                {\n                    \"type\": \"denorm_failed\",\n                    \"value\": 193\n                }\n            ]\n        },\n        {\n            \"category\": \"connectors\",\n            \"components\": {\n                \"category\": \"connectors\",\n                \"components\": [\n                    {\n                        \"id\": \"failed\",\n                        \"type\": \"failed\",\n                        \"value\": 1608\n                    },\n                    {\n                        \"id\": \"api\",\n                        \"type\": \"success\",\n                        \"value\": 765\n                    }\n                ]\n            }\n        },\n        {\n            \"category\": \"data_quality\",\n            \"components\": [\n                {\n                    \"type\": \"incidents_failed\",\n                    \"value\": 1034\n                },\n                {\n                    \"type\": \"incidents_success\",\n                    \"value\": 1339\n                },\n                {\n                    \"type\": \"total_incidents\",\n                    \"value\": 2373\n                }\n            ]\n        }\n    ]\n}"
+						},
+						{
+							"name": "Success : Get particular category data",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"id\": \"api.dataset.metrics\",\n    \"ver\": \"v2\",\n    \"ts\": \"2024-04-10T16:10:50+05:30\",\n    \"params\": {\n        \"msgid\": \"4a7f14c3-d61e-4d4f-be78-181834eeff6d\"\n    },\n    \"request\": {\n        \"dataset_id\": \"test-obsev\",\n        \"category\": [\n            // \"data_freshness\",\n            // \"data_observability\",\n            // \"data_volume\",\n            \"data_lineage\"\n            // \"connectors\",\n            // \"data_quality\"\n        ],\n        \"query_time_period\":10\n    }\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "localhost:3007/v2/dataset/metrics",
+									"host": [
+										"localhost"
+									],
+									"port": "3007",
+									"path": [
+										"v2",
+										"dataset",
+										"metrics"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "594"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"252-mKqBPcpjk0LPbqNHyghckQWQnHs\""
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 15 Jan 2025 09:55:13 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"id\": \"api.dataset.metrics\",\n    \"ver\": \"v2\",\n    \"ts\": \"2025-01-15T15:25:13+05:30\",\n    \"params\": {\n        \"status\": \"SUCCESS\",\n        \"msgid\": \"4a7f14c3-d61e-4d4f-be78-181834eeff6d\",\n        \"resmsgid\": \"10915ec3-a265-4502-bc9b-673562f94512\"\n    },\n    \"responseCode\": \"OK\",\n    \"result\": [\n        {\n            \"category\": \"data_lineage\",\n            \"components\": [\n                {\n                    \"type\": \"transformation_success\",\n                    \"value\": 765\n                },\n                {\n                    \"type\": \"dedup_success\",\n                    \"value\": 384\n                },\n                {\n                    \"type\": \"denormalization_success\",\n                    \"value\": 572\n                },\n                {\n                    \"type\": \"total_success\",\n                    \"value\": 1339\n                },\n                {\n                    \"type\": \"total_failed\",\n                    \"value\": 1034\n                },\n                {\n                    \"type\": \"transformation_failed\",\n                    \"value\": 1\n                },\n                {\n                    \"type\": \"dedup_failed\",\n                    \"value\": 574\n                },\n                {\n                    \"type\": \"denorm_failed\",\n                    \"value\": 193\n                }\n            ]\n        }\n    ]\n}"
+						},
+						{
+							"name": "Failure: Failed to fetch metrics",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"id\": \"api.dataset.metrics\",\n    \"ver\": \"v2\",\n    \"ts\": \"2024-04-10T16:10:50+05:30\",\n    \"params\": {\n        \"msgid\": \"4a7f14c3-d61e-4d4f-be78-181834eeff6d\"\n    },\n    \"request\": {\n        \"dataset_id\": \"test-obsev\",\n        \"category\": [\n            \"data_freshness\",\n            \"data_observability\",\n            \"data_volume\",\n            \"data_lineage\",\n            \"connectors\",\n            \"data_quality\"\n        ],\n        \"query_time_period\":10\n    }\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "localhost:3007/v2/dataset/metrics",
+									"host": [
+										"localhost"
+									],
+									"port": "3007",
+									"path": [
+										"v2",
+										"dataset",
+										"metrics"
+									]
+								}
+							},
+							"status": "Internal Server Error",
+							"code": 500,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "317"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"13d-xfZKi6jq4UY4l8MNfhQmydAroPc\""
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 15 Jan 2025 09:59:49 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"id\": \"api.dataset.metrics\",\n    \"ver\": \"v2\",\n    \"ts\": \"2025-01-15T15:29:49+05:30\",\n    \"params\": {\n        \"status\": \"FAILED\",\n        \"msgid\": \"4a7f14c3-d61e-4d4f-be78-181834eeff6d\",\n        \"resmsgid\": \"211553f9-ad91-4a4d-a6ba-d77d3e14b7ac\"\n    },\n    \"responseCode\": \"FAILED\",\n    \"error\": {\n        \"code\": \"FAILED_TO_FETCH_METRICS\",\n        \"message\": \"Error while fetching metrics\",\n        \"trace\": \"\"\n    }\n}"
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Data Analyze PII",
+			"item": [
+				{
+					"name": "Data Analyze PII",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"id\": \"api.data.analyze.pii\",\n    \"ver\": \"v2\",\n    \"ts\": \"1711966306164\",\n    \"params\": {\n        \"msgid\": \"e180ecac-8f41-4f21-9a21-0b3a1a368917\"\n    },\n    \"request\": {\n        \"id\": \"268cb552-7de9-41cc-a413-a8bd3b64734c\",\n        \"dataset_id\": \"taxi-payment-data\",\n        \"data\": [\n            {\n                \"tripID\": \"f0f5186b-3195-486e-9b79-0cd9da895707\",\n                \"VendorID\": \"1\",\n                \"tpep_pickup_datetime\": \"2024-10-31 00:46:40\",\n                \"tpep_dropoff_datetime\": \"2024-10-31 00:53:20\",\n                \"passenger_count\": \"1\",\n                \"trip_distance\": \"1.50\",\n                \"RatecodeID\": \"1\",\n                \"store_and_fwd_flag\": \"N\",\n                \"PULocationID\": \"151\",\n                \"DOLocationID\": \"239\",\n                \"payment_type\": \"1\",\n                \"primary_passenger.email\": \"Herminia_Veum@hotmail.com\",\n                \"primary_passenger.mobile\": \"200-329-2445 x3611\"\n            }\n        ]\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:3005/v2/data/analyze/pii",
+							"host": [
+								"localhost"
+							],
+							"port": "3005",
+							"path": [
+								"v2",
+								"data",
+								"analyze",
+								"pii"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Success - Data Analyze PII",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"value": "Bearer {{token}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"id\": \"api.data.analyze.pii\",\n    \"ver\": \"v2\",\n    \"ts\": \"1711966306164\",\n    \"params\": {\n        \"msgid\": \"e180ecac-8f41-4f21-9a21-0b3a1a368917\"\n    },\n    \"request\": {\n        \"id\": \"268cb552-7de9-41cc-a413-a8bd3b64734c\",\n        \"dataset_id\": \"taxi-payment-data\",\n        \"data\": [\n            {\n                \"tripID\": \"f0f5186b-3195-486e-9b79-0cd9da895707\",\n                \"VendorID\": \"1\",\n                \"tpep_pickup_datetime\": \"2024-10-31 00:46:40\",\n                \"tpep_dropoff_datetime\": \"2024-10-31 00:53:20\",\n                \"passenger_count\": \"1\",\n                \"trip_distance\": \"1.50\",\n                \"RatecodeID\": \"1\",\n                \"store_and_fwd_flag\": \"N\",\n                \"PULocationID\": \"151\",\n                \"DOLocationID\": \"239\",\n                \"payment_type\": \"1\",\n                \"primary_passenger.email\": \"Herminia_Veum@hotmail.com\",\n                \"primary_passenger.mobile\": \"200-329-2445 x3611\"\n            }\n        ]\n    }\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "localhost:3005/v2/data/analyze/pii",
+									"host": [
+										"localhost"
+									],
+									"port": "3005",
+									"path": [
+										"v2",
+										"data",
+										"analyze",
+										"pii"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json",
+									"description": "",
+									"type": "text"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"id\": \"api.data.analyze.pii\",\n    \"ver\": \"v2\",\n    \"ts\": \"2025-01-16T10:27:56+05:30\",\n    \"params\": {\n        \"status\": \"SUCCESS\",\n        \"msgid\": \"e180ecac-8f41-4f21-9a21-0b3a1a368917\",\n        \"resmsgid\": \"8fd2cfe2-7912-40d1-8710-9b7da9a35bd9\"\n    },\n    \"responseCode\": \"OK\",\n    \"result\": [\n        {\n            \"field\": \"primary_passenger.email\",\n            \"type\": \"internet\",\n            \"score\": 0.5,\n            \"reason\": [\n                {\n                    \"code\": \"en\",\n                    \"resourceKey\": \"pii.descriptions.m014\",\n                    \"region\": \"\",\n                    \"score\": 1\n                },\n                {\n                    \"code\": \"en\",\n                    \"resourceKey\": \"pii.descriptions.m004\",\n                    \"region\": \"\",\n                    \"score\": 1\n                }\n            ]\n        },\n        {\n            \"field\": \"primary_passenger.mobile\",\n            \"type\": \"phone\",\n            \"score\": 0.5,\n            \"reason\": [\n                {\n                    \"code\": \"en\",\n                    \"resourceKey\": \"pii.descriptions.m018\",\n                    \"region\": \"USA\",\n                    \"score\": 1\n                },\n                {\n                    \"code\": \"en\",\n                    \"resourceKey\": \"pii.descriptions.m005\",\n                    \"region\": \"\",\n                    \"score\": 1\n                }\n            ]\n        }\n    ]\n}"
+						},
+						{
+							"name": "Failure - Data Analyze PII",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"value": "Bearer {{token}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"id\": \"api.data.analyze.pii\",\n    \"ver\": \"v2\",\n    \"ts\": \"1711966306164\",\n    \"params\": {\n        \"msgid\": \"e180ecac-8f41-4f21-9a21-0b3a1a368917\"\n    },\n    \"request\": {\n        \"id\": \"268cb552-7de9-41cc-a413-a8bd3b64734c\",\n        \"dataset_id\": \"taxi-payment-data\",\n        \"data\": [\n            {\n                \"tripID\": \"f0f5186b-3195-486e-9b79-0cd9da895707\",\n                \"VendorID\": \"1\",\n                \"tpep_pickup_datetime\": \"2024-10-31 00:46:40\",\n                \"tpep_dropoff_datetime\": \"2024-10-31 00:53:20\",\n                \"passenger_count\": \"1\",\n                \"trip_distance\": \"1.50\",\n                \"RatecodeID\": \"1\",\n                \"store_and_fwd_flag\": \"N\",\n                \"PULocationID\": \"151\",\n                \"DOLocationID\": \"239\",\n                \"payment_type\": \"1\",\n                \"primary_passenger.email\": \"Herminia_Veum@hotmail.com\",\n                \"primary_passenger.mobile\": \"200-329-2445 x3611\"\n            }\n        ]\n    }\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "localhost:3005/v2/data/analyze/pii",
+									"host": [
+										"localhost"
+									],
+									"port": "3005",
+									"path": [
+										"v2",
+										"data",
+										"analyze",
+										"pii"
+									]
+								}
+							},
+							"status": "Internal Server Error",
+							"code": 500,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json",
+									"description": "",
+									"type": "text"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"id\": \"api.data.analyze.pii\",\n    \"ver\": \"v2\",\n    \"ts\": \"2025-01-16T10:29:58+05:30\",\n    \"params\": {\n        \"status\": \"FAILED\",\n        \"msgid\": \"e180ecac-8f41-4f21-9a21-0b3a1a368917\",\n        \"resmsgid\": \"75aa71f9-ef84-41b9-ae1b-64cc7afd3ffb\"\n    },\n    \"responseCode\": \"INTERNAL_SERVER_ERROR\",\n    \"error\": {\n        \"code\": \"ERR_BAD_REQUEST\",\n        \"message\": \"Request failed with status code 401\",\n        \"trace\": \"\"\n    }\n}"
+						}
+					]
 				}
 			]
 		}
