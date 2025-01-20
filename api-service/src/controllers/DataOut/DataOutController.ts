@@ -17,10 +17,10 @@ const requestValidation = async (req: Request) => {
     if (!isValidSchema?.isValid) {
         throw obsrvError(datasetKey, "DATA_OUT_INVALID_INPUT", isValidSchema?.message, "BAD_REQUEST", 400)
     }
-    let dataset = await datasetService.getDatasetWithAlias(datasetKey, ["dataset_id"], true) //dataset check considering datakey as alias name
+    let dataset = await datasetService.getDatasetWithAlias(datasetKey, ["dataset_id"], true) //dataset check considering datasetKey as alias name
     if (_.isEmpty(dataset)) {
         logger.info({ apiId, message: `Dataset with alias '${datasetKey}' does not exist` })
-        dataset = await datasetService.getDataset(datasetKey, ["dataset_id"], true) //dataset check considering datakey as dataset_id
+        dataset = await datasetService.getDataset(datasetKey, ["dataset_id"], true) //dataset check considering datasetKey as dataset_id
         if (_.isEmpty(dataset)) {
             throw obsrvError(datasetKey, "DATASET_NOT_FOUND", `Dataset with id/alias name '${datasetKey}' not found`, "NOT_FOUND", 404)
         }
