@@ -5,7 +5,6 @@ import { schemaValidation } from "../../services/ValidationService";
 import { ResponseHandler } from "../../helpers/ResponseHandler";
 import { send } from "../../connections/kafkaConnection";
 import { datasetService } from "../../services/DatasetService";
-import logger from "../../logger";
 import { config } from "../../configs/Config";
 import { obsrvError } from "../../types/ObsrvError";
 
@@ -18,13 +17,9 @@ const requestValidation = async (req: Request) => {
     if (!isValidSchema?.isValid) {
         throw obsrvError("", "DATA_INGESTION_INVALID_INPUT", isValidSchema?.message, "BAD_REQUEST", 400)
     }
-    let dataset = await datasetService.getDatasetWithAlias(datasetKey, ["id", "entry_topic", "api_version", "dataset_config", "dataset_id", "extraction_config"], true) //dataset check considering datasetKey as alias name
+    const dataset = await datasetService.getDatasetWithDatasetkey(datasetKey, ["id", "entry_topic", "api_version", "dataset_config", "dataset_id", "extraction_config"], true)
     if (_.isEmpty(dataset)) {
-        logger.info({ apiId, message: `Dataset with alias '${datasetKey}' does not exist` })
-        dataset = await datasetService.getLiveDataset(datasetKey, ["id", "entry_topic", "api_version", "dataset_config", "dataset_id", "extraction_config"], true) //dataset check considering datasetKey as dataset_id
-        if (_.isEmpty(dataset)) {
-            throw obsrvError(datasetKey, "DATASET_NOT_FOUND", `Dataset with id/alias name '${datasetKey}' not found`, "NOT_FOUND", 404)
-        }
+        throw obsrvError(datasetKey, "DATASET_NOT_FOUND", `Dataset with id/alias name '${datasetKey}' not found`, "NOT_FOUND", 404)
     }
     return dataset
 }
