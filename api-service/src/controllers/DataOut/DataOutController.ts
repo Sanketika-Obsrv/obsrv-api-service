@@ -20,7 +20,7 @@ const requestValidation = async (req: Request) => {
     let dataset = await datasetService.getDatasetWithAlias(datasetKey, ["dataset_id"], true) //dataset check considering datasetKey as alias name
     if (_.isEmpty(dataset)) {
         logger.info({ apiId, message: `Dataset with alias '${datasetKey}' does not exist` })
-        dataset = await datasetService.getDataset(datasetKey, ["dataset_id"], true) //dataset check considering datasetKey as dataset_id
+        dataset = await datasetService.getLiveDataset(datasetKey, ["dataset_id"], true) //dataset check considering datasetKey as dataset_id
         if (_.isEmpty(dataset)) {
             throw obsrvError(datasetKey, "DATASET_NOT_FOUND", `Dataset with id/alias name '${datasetKey}' not found`, "NOT_FOUND", 404)
         }
