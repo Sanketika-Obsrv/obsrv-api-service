@@ -26,20 +26,20 @@ const validateRequest = async (req: Request) => {
 
     if (action === "attach") {
         if (_.get(dataset, "alias")) {
-            throw obsrvError(dataset_id, "DATASET_ALIAS_EXISTS", `Dataset already has alias '${_.get(dataset, "alias")}' associated with it. Please detach the existing alias and try again`, "CONFLICT", 409);
+            throw obsrvError(dataset_id, "DATASET_ALIAS_EXISTS", `Dataset already has alias '${_.get(dataset, "alias")}' associated with it. Please detach the existing alias and try again`, "BAD_REQUEST", 400);
         }
 
         const datasetList = await datasetService.findDatasets({ [Op.or]: [{ dataset_id: alias }, { name: alias }, { alias }] }, ["id"]);
         const draftDatasetList = await datasetService.findDraftDatasets({ [Op.or]: [{ dataset_id: alias }, { name: alias }] }, ["id"]);
         if (!(_.isEmpty(datasetList) && _.isEmpty(draftDatasetList))) {
-            throw obsrvError(dataset_id, "DATASET_ALIAS_NOT_UNIQUE", `Dataset alias must be unique. The alias '${alias}' cannot be the same as the dataset id, dataset name or alias name of any other dataset.`, "CONFLICT", 409);
+            throw obsrvError(dataset_id, "DATASET_ALIAS_NOT_UNIQUE", `Dataset alias must be unique. The alias '${alias}' cannot be the same as the dataset id, dataset name or alias name of any other dataset.`, "BAD_REQUEST", 400);
         }
     }
 
     if (action === "detach") {
         const existingAliasName = _.get(dataset, "alias")
         if (!existingAliasName) {
-            throw obsrvError(dataset_id, "DATASET_ALIAS_NOT_EXISTS", `Dataset '${dataset_id}' does not have any alias associated with it`, "NOT_FOUND", 404);
+            throw obsrvError(dataset_id, "DATASET_ALIAS_NOT_EXISTS", `Dataset '${dataset_id}' does not have any alias associated with it`, "BAD_REQUEST", 400);
         }
         datasetAlias = existingAliasName;
     }
