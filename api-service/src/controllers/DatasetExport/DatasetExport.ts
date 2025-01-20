@@ -25,6 +25,8 @@ const validateDataset = async (req: Request) => {
         const migratedConfigs = await datasetService.migrateDatasetV1(dataset_id, datasetRecord)
         datasetRecord = { ...datasetRecord, ...migratedConfigs }
     }
+        
+    datasetRecord = _.omit(datasetRecord, "alias")
     return datasetRecord;
 }
 

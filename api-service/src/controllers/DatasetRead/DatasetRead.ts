@@ -6,6 +6,7 @@ import { DatasetDraft } from "../../models/DatasetDraft";
 import { datasetService, getV1Connectors } from "../../services/DatasetService";
 import { obsrvError } from "../../types/ObsrvError";
 import { cipherService } from "../../services/CipherService";
+import { Dataset } from "../../models/Dataset";
 
 export const apiId = "api.datasets.read";
 export const errorCode = "DATASET_READ_FAILURE"
@@ -16,9 +17,9 @@ export const defaultFields = ["dataset_id", "name", "type", "status", "tags", "v
 const validateRequest = (req: Request) => {
 
     const { dataset_id } = req.params;
-    const { fields } = req.query;
+    const { fields, mode } = req.query;
     const fieldValues = fields ? _.split(fields as string, ",") : [];
-    const invalidFields = _.difference(fieldValues, Object.keys(DatasetDraft.getAttributes()));
+    const invalidFields = mode === "edit" ? _.difference(fieldValues, Object.keys(DatasetDraft.getAttributes())) : _.difference(fieldValues, Object.keys(Dataset.getAttributes()));
     if (!_.isEmpty(invalidFields)) {
         throw obsrvError(dataset_id, "DATASET_INVALID_FIELDS", `The specified fields [${invalidFields}] in the dataset cannot be found.`, "BAD_REQUEST", 400);
     }
@@ -37,7 +38,7 @@ const datasetRead = async (req: Request, res: Response) => {
         throw obsrvError(dataset_id, "DATASET_NOT_FOUND", `Dataset with the given dataset_id:${dataset_id} not found`, "NOT_FOUND", 404);
     }
     if (dataset.connectors_config) {
-        dataset.connectors_config =  processConnectorsConfig(dataset.connectors_config);
+        dataset.connectors_config = processConnectorsConfig(dataset.connectors_config);
     }
     ResponseHandler.successResponse(req, res, { status: httpStatus.OK, data: dataset });
 }
