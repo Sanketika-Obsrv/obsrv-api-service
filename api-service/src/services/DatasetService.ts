@@ -26,6 +26,10 @@ class DatasetService {
         return Dataset.findOne({ where: { id: datasetId }, attributes, raw: raw });
     }
 
+    getDatasetWithAlias = async (alias: string, attributes?: string[], raw = false): Promise<any> => {
+        return Dataset.findOne({ where: { alias }, attributes, raw: raw });
+    }
+
     findDatasets = async (where?: Record<string, any>, attributes?: string[], order?: any): Promise<any> => {
         return Dataset.findAll({ where, attributes, order, raw: true })
     }
