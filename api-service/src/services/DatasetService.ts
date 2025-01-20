@@ -19,11 +19,23 @@ import { druidHttpService } from "../connections/druidConnection";
 import { tableGenerator } from "./TableGenerator";
 import { deleteAlertByDataset, deleteMetricAliasByDataset } from "./managers";
 import { config } from "../configs/Config";
+import { Op } from "sequelize";
 
 class DatasetService {
 
     getDataset = async (datasetId: string, attributes?: string[], raw = false): Promise<any> => {
         return Dataset.findOne({ where: { id: datasetId }, attributes, raw: raw });
+    }
+
+    getDatasetWithDatasetkey = async (datasetKey: string, attributes?: string[], raw = false): Promise<any> => {
+        return Dataset.findOne({
+            where: {
+                [Op.and]: [
+                    { [Op.or]: [{ dataset_id: datasetKey }, { alias: datasetKey }] },
+                    { status: DatasetStatus.Live }
+                ]
+            }, attributes, raw: raw
+        });
     }
 
     findDatasets = async (where?: Record<string, any>, attributes?: string[], order?: any): Promise<any> => {
