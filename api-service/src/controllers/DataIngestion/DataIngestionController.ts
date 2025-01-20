@@ -9,14 +9,6 @@ import logger from "../../logger";
 import { config } from "../../configs/Config";
 import { obsrvError } from "../../types/ObsrvError";
 
-const errorObject = {
-    topicNotFound: {
-        "message": "Entry topic is not defined",
-        "statusCode": 404,
-        "errCode": "BAD_REQUEST",
-        "code": "TOPIC_NOT_FOUND"
-    }
-}
 const apiId = "api.data.in";
 
 const requestValidation = async (req: Request) => {
@@ -43,8 +35,7 @@ const dataIn = async (req: Request, res: Response) => {
     const { entry_topic, dataset_config, extraction_config, api_version, dataset_id } = dataset
     const entryTopic = api_version !== "v2" ? _.get(dataset_config, "entry_topic") : entry_topic
     if (!entryTopic) {
-        logger.error({ apiId, message: "Entry topic not found", code: "TOPIC_NOT_FOUND" })
-        return ResponseHandler.errorResponse(errorObject.topicNotFound, req, res);
+        throw obsrvError(dataset_id, "TOPIC_NOT_FOUND", `Entry topic not found`, "NOT_FOUND", 404)
     }
     await send(addMetadataToEvents(dataset_id, req.body, extraction_config), entryTopic)
     ResponseHandler.successResponse(req, res, { status: 200, data: { message: "Data ingested successfully" } });
