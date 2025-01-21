@@ -15,7 +15,7 @@ const draftDatasetStatus = ["Draft", "ReadyToPublish"]
 const defaultFields = ["dataset_id", "name", "type", "status", "tags", "version", "api_version", "dataset_config", "created_date", "updated_date"]
 
 const datasetList = async (req: Request, res: Response) => {
-    
+
     const isRequestValid: Record<string, any> = schemaValidation(req.body, DatasetCreate)
     if (!isRequestValid.isValid) {
         throw obsrvError("", "DATASET_LIST_INPUT_INVALID", isRequestValid.message, "BAD_REQUEST", 400)
@@ -24,9 +24,9 @@ const datasetList = async (req: Request, res: Response) => {
     const datasetBody = req.body.request;
     const datasetList = await listDatasets(datasetBody)
     const responseData = { data: datasetList, count: _.size(datasetList) }
-    logger.info({req: req.body, resmsgid: _.get(res, "resmsgid"), message: `Datasets are listed successfully with a dataset count (${_.size(datasetList)})` })
+    logger.info({ req: req.body, resmsgid: _.get(res, "resmsgid"), message: `Datasets are listed successfully with a dataset count (${_.size(datasetList)})` })
     ResponseHandler.successResponse(req, res, { status: httpStatus.OK, data: responseData });
-    
+
 }
 
 const listDatasets = async (request: Record<string, any>): Promise<Record<string, any>> => {
@@ -36,7 +36,7 @@ const listDatasets = async (request: Record<string, any>): Promise<Record<string
     const status = _.isArray(datasetStatus) ? datasetStatus : _.compact([datasetStatus])
     const draftFilters = _.set(_.cloneDeep(filters), "status", _.isEmpty(status) ? draftDatasetStatus : _.intersection(status, draftDatasetStatus));
     const liveFilters = _.set(_.cloneDeep(filters), "status", _.isEmpty(status) ? liveDatasetStatus : _.intersection(status, liveDatasetStatus));
-    const liveDatasetList = await datasetService.findDatasets(liveFilters, defaultFields, [["updated_date", "DESC"]]);
+    const liveDatasetList = await datasetService.findDatasets(liveFilters, [...defaultFields, "alias"], [["updated_date", "DESC"]]);
     const draftDatasetList = await datasetService.findDraftDatasets(draftFilters, [...defaultFields, "data_schema", "validation_config", "dedup_config", "denorm_config", "connectors_config", "version_key"], [["updated_date", "DESC"]]);
     return _.compact(_.concat(liveDatasetList, draftDatasetList));
 }
