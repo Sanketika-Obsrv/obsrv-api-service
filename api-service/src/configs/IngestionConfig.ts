@@ -96,12 +96,12 @@ export const rawIngestionSpecDefaults = {
     "hudi_flattenSpec": [
         {
             "type": "path",
-            "expr": "$.obsrv_meta.source.connector",
+            "expr": "$.obsrv_meta.source.entry_source",
             "name": "obsrv_meta_source_connector"
         },
         {
             "type": "path",
-            "expr": "$.obsrv_meta.source.connectorInstance",
+            "expr": "$.obsrv_meta.source.id",
             "name": "obsrv_meta_source_id"
         }
     ]
