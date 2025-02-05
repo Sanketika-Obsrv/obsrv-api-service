@@ -14,7 +14,7 @@ const initialiseServiceProvider = (provider: any, config: any): AzureStorageServ
             return new AzureStorageService(config);
         case "aws":
             return new AWSStorageService(config);
-        case "gcloud":
+        case "gcp":
             return new GCPStorageService(config);
         default:
             throw new Error(`Client Cloud Service - ${provider} provider is not supported`);
