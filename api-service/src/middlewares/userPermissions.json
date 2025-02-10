@@ -48,7 +48,8 @@
             "api.datasets.update",
             "api.datasets.import",
             "api.datasets.copy",
-            "api.datasets.dataschema"
+            "api.datasets.dataschema",
+            "api.datasets.alias"
         ],
         "data": [
             "api.data.in",

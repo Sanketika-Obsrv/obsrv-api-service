@@ -6,17 +6,29 @@ import validationSchema from "./DataOutValidationSchema.json";
 import { validateQuery } from "./QueryValidator";
 import * as _ from "lodash";
 import { executeNativeQuery, executeSqlQuery } from "../../connections/druidConnection";
+import { datasetService } from "../../services/DatasetService";
+import { obsrvError } from "../../types/ObsrvError";
 
 export const apiId = "api.data.out";
+
+const requestValidation = async (req: Request) => {
+    const datasetKey = req.params?.dataset_id;
+    const isValidSchema = schemaValidation(req.body, validationSchema);
+    if (!isValidSchema?.isValid) {
+        throw obsrvError(datasetKey, "DATA_OUT_INVALID_INPUT", isValidSchema?.message, "BAD_REQUEST", 400)
+    }
+    const dataset = await datasetService.getDatasetWithDatasetkey(datasetKey, ["dataset_id"], true)
+    if (_.isEmpty(dataset)) {
+        throw obsrvError(datasetKey, "DATASET_NOT_FOUND", `Dataset with id/alias name '${datasetKey}' not found`, "NOT_FOUND", 404)
+    }
+    return dataset
+}
+
 const dataOut = async (req: Request, res: Response) => {
-    const datasetId = req.params?.dataset_id;
     const requestBody = req.body;
     const msgid = _.get(req, "body.params.msgid");
-    const isValidSchema = schemaValidation(requestBody, validationSchema);
-    if (!isValidSchema?.isValid) {
-        logger.error({ apiId, datasetId, msgid, requestBody, message: isValidSchema?.message, code: "DATA_OUT_INVALID_INPUT" })
-        return ResponseHandler.errorResponse({ message: isValidSchema?.message, statusCode: 400, errCode: "BAD_REQUEST", code: "DATA_OUT_INVALID_INPUT" }, req, res);
-    }
+    const dataset = await requestValidation(req)
+    const datasetId = _.get(dataset, "dataset_id")
     const isValidQuery: any = await validateQuery(req.body, datasetId);
     const query = _.get(req, "body.query", "")
 

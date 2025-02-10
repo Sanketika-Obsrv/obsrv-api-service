@@ -19,11 +19,23 @@ import { druidHttpService } from "../connections/druidConnection";
 import { tableGenerator } from "./TableGenerator";
 import { deleteAlertByDataset, deleteMetricAliasByDataset } from "./managers";
 import { config } from "../configs/Config";
+import { Op } from "sequelize";
 
 class DatasetService {
 
     getDataset = async (datasetId: string, attributes?: string[], raw = false): Promise<any> => {
         return Dataset.findOne({ where: { id: datasetId }, attributes, raw: raw });
+    }
+
+    getDatasetWithDatasetkey = async (datasetKey: string, attributes?: string[], raw = false): Promise<any> => {
+        return Dataset.findOne({
+            where: {
+                [Op.and]: [
+                    { [Op.or]: [{ dataset_id: datasetKey }, { alias: datasetKey }] },
+                    { status: DatasetStatus.Live }
+                ]
+            }, attributes, raw: raw
+        });
     }
 
     findDatasets = async (where?: Record<string, any>, attributes?: string[], order?: any): Promise<any> => {
@@ -269,7 +281,7 @@ class DatasetService {
 
         const transaction = await sequelize.transaction();
         try {
-            await Dataset.update({ status: DatasetStatus.Retired, updated_by: updatedBy }, { where: { id: dataset.id }, transaction });
+            await Dataset.update({ status: DatasetStatus.Retired, updated_by: updatedBy, alias: null }, { where: { id: dataset.id }, transaction });
             await DatasetSourceConfig.update({ status: DatasetStatus.Retired, updated_by: updatedBy }, { where: { dataset_id: dataset.id }, transaction });
             await Datasource.update({ status: DatasetStatus.Retired, updated_by: updatedBy }, { where: { dataset_id: dataset.id }, transaction });
             await DatasetTransformations.update({ status: DatasetStatus.Retired, updated_by: updatedBy }, { where: { dataset_id: dataset.id }, transaction });
@@ -332,7 +344,7 @@ class DatasetService {
 
     private createDruidDataSource = async (draftDataset: Record<string, any>, transaction: Transaction) => {
 
-        const {created_by, updated_by} = draftDataset;
+        const { created_by, updated_by } = draftDataset;
         const allFields = await tableGenerator.getAllFields(draftDataset, "druid");
         const draftDatasource = this.createDraftDatasource(draftDataset, "druid");
         const ingestionSpec = tableGenerator.getDruidIngestionSpec(draftDataset, allFields, draftDatasource.datasource_ref);
@@ -344,7 +356,7 @@ class DatasetService {
 
     private createHudiDataSource = async (draftDataset: Record<string, any>, transaction: Transaction) => {
 
-        const {created_by, updated_by} = draftDataset;
+        const { created_by, updated_by } = draftDataset;
         const allFields = await tableGenerator.getAllFieldsHudi(draftDataset, "datalake");
         const draftDatasource = this.createDraftDatasource(draftDataset, "datalake");
         const ingestionSpec = tableGenerator.getHudiIngestionSpecForCreate(draftDataset, allFields, draftDatasource.datasource_ref);
@@ -356,7 +368,7 @@ class DatasetService {
 
     private updateHudiDataSource = async (draftDataset: Record<string, any>, transaction: Transaction) => {
 
-        const {created_by, updated_by} = draftDataset;
+        const { created_by, updated_by } = draftDataset;
         const allFields = await tableGenerator.getAllFieldsHudi(draftDataset, "datalake");
         const draftDatasource = this.createDraftDatasource(draftDataset, "datalake");
         const dsId = _.join([draftDataset.dataset_id, "events", "datalake"], "_")
