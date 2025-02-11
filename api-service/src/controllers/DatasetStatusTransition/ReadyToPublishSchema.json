@@ -317,7 +317,6 @@
             }
           },
           "required": [
-            "data_key",
             "timestamp_key"
           ],
           "additionalProperties": false
