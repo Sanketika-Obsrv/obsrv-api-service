@@ -321,12 +321,16 @@ class DatasetService {
         const transaction = await sequelize.transaction()
         try {
             await DatasetDraft.update(draftDataset, { where: { id: draftDataset.id }, transaction })
+            const liveDataset = await this.getDataset(draftDataset.dataset_id, ["id", "api_version"], true);
             if (indexingConfig.olap_store_enabled) {
-                await this.createDruidDataSource(draftDataset, transaction);
+                if (liveDataset && liveDataset.api_version === "v1") {
+                    await this.updateDruidDataSource(draftDataset, transaction);
+                }
+                else {
+                    await this.createDruidDataSource(draftDataset, transaction);
+                }
             }
             if (indexingConfig.lakehouse_enabled) {
-                const liveDataset = await this.getDataset(draftDataset.dataset_id, ["id", "api_version"], true);
-
                 if (liveDataset && liveDataset.api_version === "v2") {
                     await this.updateHudiDataSource(draftDataset, transaction)
                 } else {
@@ -348,6 +352,23 @@ class DatasetService {
         const allFields = await tableGenerator.getAllFields(draftDataset, "druid");
         const draftDatasource = this.createDraftDatasource(draftDataset, "druid");
         const ingestionSpec = tableGenerator.getDruidIngestionSpec(draftDataset, allFields, draftDatasource.datasource_ref);
+        _.set(draftDatasource, "ingestion_spec", ingestionSpec)
+        _.set(draftDatasource, "created_by", created_by);
+        _.set(draftDatasource, "updated_by", updated_by);
+        await DatasourceDraft.upsert(draftDatasource, { transaction })
+    }
+
+    private updateDruidDataSource = async (draftDataset: Record<string, any>, transaction: Transaction) => {
+
+        const { created_by, updated_by } = draftDataset;
+        const existingDatasource = await Datasource.findAll({ where: { dataset_id: draftDataset.dataset_id }, attributes: ["dataset", "id", "metadata", "datasource"], raw: true }) as unknown as Record<string, any>
+        const getDatasetDatasource = _.find(existingDatasource, datasource => !_.get(datasource, "metadata.aggregated") && _.get(datasource, "metadata.granularity") === "day")
+        if (_.isEmpty(getDatasetDatasource)) {
+            throw obsrvError("", "DATASOURCE_NOT_FOUND", `Datasource not found for dataset ${draftDataset.dataset_id}`, "BAD_REQUEST", 400)
+        }
+        const allFields = await tableGenerator.getAllFields(draftDataset, "druid");
+        const ingestionSpec = tableGenerator.getDruidIngestionSpec(draftDataset, allFields, getDatasetDatasource.datasource_ref);
+        let draftDatasource = getDatasetDatasource
         _.set(draftDatasource, "ingestion_spec", ingestionSpec)
         _.set(draftDatasource, "created_by", created_by);
         _.set(draftDatasource, "updated_by", updated_by);
