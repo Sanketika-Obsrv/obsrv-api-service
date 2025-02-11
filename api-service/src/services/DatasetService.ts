@@ -361,7 +361,7 @@ class DatasetService {
     private updateDruidDataSource = async (draftDataset: Record<string, any>, transaction: Transaction) => {
 
         const { created_by, updated_by } = draftDataset;
-        const existingDatasource = await Datasource.findAll({ where: { dataset_id: draftDataset.dataset_id }, attributes: ["dataset_id", "id", "metadata", "datasource"], raw: true }) as unknown as Record<string, any>
+        const existingDatasource = await Datasource.findAll({ where: { dataset_id: draftDataset.dataset_id }, raw: true }) as unknown as Record<string, any>
         const getDatasetDatasource = _.find(existingDatasource, datasource => !_.get(datasource, "metadata.aggregated") && _.get(datasource, "metadata.granularity") === "day")
         if (_.isEmpty(getDatasetDatasource)) {
             throw obsrvError("", "DATASOURCE_NOT_FOUND", `Datasource not found for dataset ${draftDataset.dataset_id}`, "BAD_REQUEST", 400)
@@ -372,6 +372,7 @@ class DatasetService {
         _.set(draftDatasource, "ingestion_spec", ingestionSpec)
         _.set(draftDatasource, "created_by", created_by);
         _.set(draftDatasource, "updated_by", updated_by);
+        _.set(draftDatasource, "type", "druid");
         await DatasourceDraft.upsert(draftDatasource, { transaction })
     }
 
