@@ -342,6 +342,38 @@
           "additionalProperties": false
         }
       },
+      "if": {
+        "properties": {
+          "indexing_config": {
+            "type": "object",
+            "anyOf": [
+              {
+                "properties": {
+                  "lakehouse_enabled": {
+                    "const": true
+                  }
+                }
+              },
+              {
+                "properties": {
+                  "cache_enabled": {
+                    "const": true
+                  }
+                }
+              }
+            ]
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "keys_config": {
+            "required": [
+              "data_key"
+            ]
+          }
+        }
+      },
       "required": [
         "indexing_config",
         "keys_config",
