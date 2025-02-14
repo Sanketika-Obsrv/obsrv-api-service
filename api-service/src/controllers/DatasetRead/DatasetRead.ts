@@ -3,7 +3,7 @@ import httpStatus from "http-status";
 import _ from "lodash";
 import { ResponseHandler } from "../../helpers/ResponseHandler";
 import { DatasetDraft } from "../../models/DatasetDraft";
-import { datasetService, getV1Connectors } from "../../services/DatasetService";
+import { datasetService } from "../../services/DatasetService";
 import { obsrvError } from "../../types/ObsrvError";
 import { cipherService } from "../../services/CipherService";
 import { Dataset } from "../../models/Dataset";
@@ -37,7 +37,7 @@ const datasetRead = async (req: Request, res: Response) => {
     if (!dataset) {
         throw obsrvError(dataset_id, "DATASET_NOT_FOUND", `Dataset with the given dataset_id:${dataset_id} not found`, "NOT_FOUND", 404);
     }
-    if (dataset.connectors_config) {
+    if (!_.isEmpty(dataset.connectors_config)) {
         dataset.connectors_config = processConnectorsConfig(dataset.connectors_config);
     }
     ResponseHandler.successResponse(req, res, { status: httpStatus.OK, data: dataset });
@@ -71,7 +71,6 @@ const readDataset = async (datasetId: string, attributes: string[]): Promise<any
     const datasetConfigs: any = {}
     const transformations_config = await datasetService.getTransformations(datasetId, ["field_key", "transformation_function", "mode", "metadata"])
     if (api_version !== "v2") {
-        datasetConfigs["connectors_config"] = await getV1Connectors(datasetId)
         datasetConfigs["transformations_config"] = _.map(transformations_config, (config) => {
             const section: any = _.get(config, "metadata.section") || _.get(config, "transformation_function.category");
             return {
@@ -86,9 +85,8 @@ const readDataset = async (datasetId: string, attributes: string[]): Promise<any
         })
     }
     else {
-        const v1connectors = await getV1Connectors(datasetId)
         const v2connectors = await datasetService.getConnectors(datasetId, ["id", "connector_id", "connector_config", "operations_config"]);
-        datasetConfigs["connectors_config"] = _.concat(v1connectors, v2connectors)
+        datasetConfigs["connectors_config"] = v2connectors
         datasetConfigs["transformations_config"] = transformations_config;
     }
     return { ...dataset, ...datasetConfigs };

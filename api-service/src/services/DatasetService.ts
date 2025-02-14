@@ -151,16 +151,6 @@ class DatasetService {
                 mode: _.get(config, ["mode"])
             }
         })
-        const connectorsFields = ["id", "connector_type", "connector_config"]
-        const connectors = _.includes([DatasetStatus.Live], status) ? await this.getConnectorsV1(dataset_id, connectorsFields) : await this.getDraftConnectors(dataset_id, connectorsFields);
-        draftDataset["connectors_config"] = _.map(connectors, (config) => {
-            return {
-                id: _.get(config, ["id"]),
-                connector_id: _.get(config, ["connector_type"]),
-                connector_config: _.get(config, ["connector_config"]),
-                version: "v1"
-            }
-        })
         draftDataset["validation_config"] = _.omit(_.get(dataset, "validation_config"), ["validation_mode"])
         draftDataset["sample_data"] = dataset_config?.mergedEvent
         draftDataset["status"] = DatasetStatus.Draft
@@ -192,15 +182,6 @@ class DatasetService {
                 keys_config: { data_key: dataset_config.data_key, timestamp_key: dataset_config.timestamp_key },
                 cache_config: { redis_db_host: dataset_config.redis_db_host, redis_db_port: dataset_config.redis_db_port, redis_db: dataset_config.redis_db }
             }
-            const connectors = await this.getConnectorsV1(draftDataset.dataset_id, ["id", "connector_type", "connector_config"]);
-            draftDataset["connectors_config"] = _.map(connectors, (config) => {
-                return {
-                    id: _.get(config, "id"),
-                    connector_id: _.get(config, "connector_type"),
-                    connector_config: _.get(config, "connector_config"),
-                    version: "v1"
-                }
-            })
             const transformations = await this.getTransformations(draftDataset.dataset_id, ["field_key", "transformation_function", "mode", "metadata"]);
             draftDataset["transformations_config"] = _.map(transformations, (config) => {
                 const section: any = _.get(config, "metadata.section");
@@ -219,9 +200,8 @@ class DatasetService {
             draftDataset["sample_data"] = dataset_config?.mergedEvent
             draftDataset["validation_config"] = _.omit(_.get(dataset, "validation_config"), ["validation_mode"])
         } else {
-            const v1connectors = await getV1Connectors(draftDataset.dataset_id);
             const v2connectors = await this.getConnectors(draftDataset.dataset_id, ["id", "connector_id", "connector_config", "operations_config"]);
-            draftDataset["connectors_config"] = _.concat(v1connectors, v2connectors)
+            draftDataset["connectors_config"] = v2connectors;
             const transformations = await this.getTransformations(draftDataset.dataset_id, ["field_key", "transformation_function", "mode"]);
             draftDataset["transformations_config"] = transformations
         }
@@ -417,9 +397,7 @@ export const getLiveDatasetConfigs = async (dataset_id: string) => {
 
     const datasetRecord = await datasetService.getDataset(dataset_id, undefined, true)
     const transformations = await datasetService.getTransformations(dataset_id, ["field_key", "transformation_function", "mode"])
-    const connectorsV2 = await datasetService.getConnectors(dataset_id, ["id", "connector_id", "connector_config", "operations_config"])
-    const connectorsV1 = await getV1Connectors(dataset_id)
-    const connectors = _.concat(connectorsV1, connectorsV2)
+    const connectors = await datasetService.getConnectors(dataset_id, ["id", "connector_id", "connector_config", "operations_config"])
 
     if (!_.isEmpty(transformations)) {
         datasetRecord["transformations_config"] = transformations
@@ -430,18 +408,6 @@ export const getLiveDatasetConfigs = async (dataset_id: string) => {
     return datasetRecord;
 }
 
-export const getV1Connectors = async (datasetId: string) => {
-    const v1connectors = await datasetService.getConnectorsV1(datasetId, ["id", "connector_type", "connector_config"]);
-    const modifiedV1Connectors = _.map(v1connectors, (config) => {
-        return {
-            id: _.get(config, "id"),
-            connector_id: _.get(config, "connector_type"),
-            connector_config: _.get(config, "connector_config"),
-            version: "v1"
-        }
-    })
-    return modifiedV1Connectors;
-}
 
 const storageTypes = JSON.parse(config.storage_types)
 export const validateStorageSupport = (dataset: Record<string, any>) => {

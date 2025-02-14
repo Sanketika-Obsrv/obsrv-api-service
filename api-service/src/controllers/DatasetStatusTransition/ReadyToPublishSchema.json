@@ -337,7 +337,8 @@
           },
           "required": [
             "redis_db_host",
-            "redis_db_port"
+            "redis_db_port",
+            "redis_db"
           ],
           "additionalProperties": false
         }
