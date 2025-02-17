@@ -62,6 +62,8 @@ export class AWSStorageService implements ICloudService {
 
     generateSignedURLs(container: any, filesList: any, access: string = URLAccess.Read, urlExpiry?: number) {
         const AWSCommand = access === URLAccess.Read ? this.getAWSCommand : this.putAWSCommand
+        console.log("This is globalConfig", globalConfig);
+        
         const containerURLExpiry = urlExpiry ? urlExpiry : globalConfig.cloud_config.storage_url_expiry
         const signedURLs = filesList.map((fileNameWithPrefix: any) => {
             return new Promise((resolve, reject) => {
