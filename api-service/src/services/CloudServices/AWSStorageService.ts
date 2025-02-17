@@ -71,6 +71,8 @@ export class AWSStorageService implements ICloudService {
                     try {
                         const command = AWSCommand(container, fileNameWithPrefix);
                         const fileName = fileNameWithPrefix.split("/").pop();
+                        console.log("Client is", this.client);
+                        
                         if (!this.client) {
                             console.log("Client not initialized", this.client, typeof this.client);
                         }
