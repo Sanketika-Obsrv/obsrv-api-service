@@ -14,7 +14,7 @@ export class AWSStorageService implements ICloudService {
     constructor(config: any) {
         console.log("AWSStorageService :: constructor :: config", config);
 
-        if (_.get(config, "identity") && _.get(config, "credential") && _.get(config, "region")) {
+        if (_.get(config, "region")) {
             const region = _.get(config, "region")
             const accessKeyId = _.get(config, "identity")
             const secretAccessKey = _.get(config, "credential")
