@@ -12,6 +12,7 @@ import { fromContainerMetadata, fromInstanceMetadata } from "@aws-sdk/credential
 export class AWSStorageService implements ICloudService {
     client: any;
     constructor(config: any) {
+        console.log("AWS Storage Service..")
         if (_.get(config, "identity") && _.get(config, "credential") && _.get(config, "region")) {
             const region = _.get(config, "region")
             const accessKeyId = _.get(config, "identity")
@@ -29,9 +30,9 @@ export class AWSStorageService implements ICloudService {
                 if (_.isEmpty(secretAccessKey) && _.isEmpty(accessKeyId)) {
                     console.log("Using Instance Metadata")
                     this.client = new S3Client({
-                        credentials: fromContainerMetadata({
+                        credentials: fromInstanceMetadata({
                             timeout: 1000,
-                            maxRetries: 0
+                            maxRetries: 2
                         })
                     });
                 } else {
