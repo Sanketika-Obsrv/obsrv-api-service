@@ -27,6 +27,7 @@ export class AWSStorageService implements ICloudService {
             }
             try {
                 if (_.isEmpty(secretAccessKey) && _.isEmpty(accessKeyId)) {
+                    console.log("Using Instance Metadata")
                     this.client = new S3Client({
                         credentials: fromContainerMetadata({
                             timeout: 1000,
@@ -34,6 +35,7 @@ export class AWSStorageService implements ICloudService {
                         })
                     });
                 } else {
+                    console.log("Using AWS Credentials")
                     this.client = new S3Client(configuration);
                 }
             }
