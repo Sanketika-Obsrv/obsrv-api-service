@@ -13,7 +13,7 @@ export class AWSStorageService implements ICloudService {
     client: any;
     constructor(config: any) {
         console.log("AWSStorageService :: constructor :: config", config);
-        
+
         if (_.get(config, "identity") && _.get(config, "credential") && _.get(config, "region")) {
             const region = _.get(config, "region")
             const accessKeyId = _.get(config, "identity")
@@ -32,8 +32,8 @@ export class AWSStorageService implements ICloudService {
                     console.log("Using Instance Metadata")
                     this.client = new S3Client({
                         credentials: fromContainerMetadata({
-                            timeout: 1000,  
-                            maxRetries: 2   
+                            timeout: 1000,
+                            maxRetries: 2
                         }),
                         region: region
                     });
@@ -63,7 +63,7 @@ export class AWSStorageService implements ICloudService {
     generateSignedURLs(container: any, filesList: any, access: string = URLAccess.Read, urlExpiry?: number) {
         const AWSCommand = access === URLAccess.Read ? this.getAWSCommand : this.putAWSCommand
         console.log("This is globalConfig", globalConfig);
-        
+
         const containerURLExpiry = urlExpiry ? urlExpiry : globalConfig.cloud_config.storage_url_expiry
         const signedURLs = filesList.map((fileNameWithPrefix: any) => {
             return new Promise((resolve, reject) => {
@@ -71,6 +71,9 @@ export class AWSStorageService implements ICloudService {
                     try {
                         const command = AWSCommand(container, fileNameWithPrefix);
                         const fileName = fileNameWithPrefix.split("/").pop();
+                        if (!this.client) {
+                            console.log("Client not initialized", this.client, typeof this.client);
+                        }
                         const presignedURL = await getSignedUrl(this.client, command, { expiresIn: containerURLExpiry });
                         resolve({ [fileName]: presignedURL });
                     }
