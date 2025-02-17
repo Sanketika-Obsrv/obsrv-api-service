@@ -7,7 +7,7 @@ import { getFileKey } from "../../utils/common"
 import { FilterDataByDateRange, ICloudService } from "./types";
 import { URLAccess } from "../../types/SampleURLModel";
 import logger from "../../logger";
-import { fromContainerMetadata, fromInstanceMetadata } from "@aws-sdk/credential-providers";
+import { fromContainerMetadata, fromInstanceMetadata, fromTokenFile } from "@aws-sdk/credential-providers";
 
 export class AWSStorageService implements ICloudService {
     client: any;
@@ -31,9 +31,9 @@ export class AWSStorageService implements ICloudService {
                 if (_.isEmpty(secretAccessKey) && _.isEmpty(accessKeyId)) {
                     console.log("Using Instance Metadata")
                     this.client = new S3Client({
-                        credentials: fromContainerMetadata({
-                            timeout: 1000,
-                            maxRetries: 2
+                        credentials: fromTokenFile({
+                            webIdentityTokenFile: process.env.AWS_WEB_IDENTITY_TOKEN_FILE,
+                            roleArn: process.env.AWS_ROLE_ARN
                         }),
                         region: region
                     });
