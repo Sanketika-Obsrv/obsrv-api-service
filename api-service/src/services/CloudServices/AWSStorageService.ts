@@ -7,6 +7,7 @@ import { getFileKey } from "../../utils/common"
 import { FilterDataByDateRange, ICloudService } from "./types";
 import { URLAccess } from "../../types/SampleURLModel";
 import logger from "../../logger";
+import { fromContainerMetadata, fromInstanceMetadata } from "@aws-sdk/credential-providers";
 
 export class AWSStorageService implements ICloudService {
     client: any;
@@ -18,14 +19,23 @@ export class AWSStorageService implements ICloudService {
             const endpoint = _.get(config, "endpoint")
             const s3ForcePathStyle = _.get(config, "s3ForcePathStyle")
             const configuration: any = { region, credentials: { accessKeyId, secretAccessKey } }
-            if(endpoint) {
+            if (endpoint) {
                 configuration.endpoint = endpoint;
             }
             if (s3ForcePathStyle) {
                 configuration.forcePathStyle = s3ForcePathStyle;
             }
             try {
-                this.client = new S3Client(configuration);
+                if (_.isEmpty(secretAccessKey) && _.isEmpty(accessKeyId)) {
+                    this.client = new S3Client({
+                        credentials: fromContainerMetadata({
+                            timeout: 1000,
+                            maxRetries: 0
+                        })
+                    });
+                } else {
+                    this.client = new S3Client(configuration);
+                }
             }
             catch (err) {
                 logger.error(err)
