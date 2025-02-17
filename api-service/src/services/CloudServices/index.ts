@@ -9,6 +9,8 @@ const cloudConfig = _.get(config, "cloud_config.cloud_storage_config");
 const cloudProviderConfig = _.isString(cloudConfig) ? JSON.parse(cloudConfig) : cloudConfig;
 
 const initialiseServiceProvider = (provider: any, config: any): AzureStorageService | AWSStorageService | GCPStorageService => {
+    console.log("Provider is ", provider);
+    
     switch (provider) {
         case "azure":
             return new AzureStorageService(config);

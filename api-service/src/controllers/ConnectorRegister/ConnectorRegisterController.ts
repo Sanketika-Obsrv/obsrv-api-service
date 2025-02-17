@@ -18,6 +18,7 @@ const connectorRegisterController = async (req: Request, res: Response) => {
     resmsgid = _.get(res, "resmsgid");
     try {
         const uploadStreamResponse: any = await uploadStream(req);
+        console.log("generated preSignedUrl", uploadStreamResponse);
         const payload = {
             relative_path: uploadStreamResponse[0]
         }
@@ -59,6 +60,7 @@ const uploadStream = async (req: Request) => {
             fileCount++;
             const processFile = async () => {
                 const fileName = info?.filename;
+                console.log("Comes to processFile", fileName);
                 try {
                     const preSignedUrl: any = await generatePreSignedUrl("write", [fileName], "connector")
                     const filePath = preSignedUrl[0]?.filePath

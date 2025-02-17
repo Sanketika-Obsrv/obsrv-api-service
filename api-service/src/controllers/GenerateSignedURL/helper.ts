@@ -7,7 +7,11 @@ import { v4 as uuidv4 } from "uuid";
 
 export const generatePreSignedUrl = async (access: string, files: any, containerType: string) => {
     const { filesList, updatedFileNames } = transformFileNames(files, access, containerType);
+    console.log("These are transformed files list", filesList)
+    console.log("These are updated file names", updatedFileNames);
     const urlExpiry: number = getURLExpiry(access);
+    console.log("configs are ", config.cloud_config.container);
+    
     const preSignedUrls = await Promise.all(cloudProvider.generateSignedURLs(config.cloud_config.container, updatedFileNames, access, urlExpiry));
     const signedUrlList = _.map(preSignedUrls, list => {
         const fileNameWithUid = _.keys(list)[0];
@@ -21,8 +25,13 @@ export const generatePreSignedUrl = async (access: string, files: any, container
 }
 
 const getFilePath = (file: string, containerType: string) => {
+    console.log("Came to get File path", file);
+    
     const datasetUploadPath = `${config.presigned_url_configs.service}/user_uploads/${file}`;
     const connectorUploadPath = `${config.cloud_config.container_prefix}/${file}`;
+
+    console.log("Connector Upload Path", connectorUploadPath);
+    
     const paths: Record<string, string> = {
         "dataset": datasetUploadPath,
         "connector": connectorUploadPath
