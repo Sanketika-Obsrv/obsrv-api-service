@@ -83,6 +83,7 @@ const readDataset = async (datasetId: string, attributes: string[]): Promise<any
                 mode: _.get(config, "mode")
             }
         })
+        datasetConfigs["connectors_config"] = []
     }
     else {
         const v2connectors = await datasetService.getConnectors(datasetId, ["id", "connector_id", "connector_config", "operations_config"]);

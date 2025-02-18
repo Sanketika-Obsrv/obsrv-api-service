@@ -7,13 +7,13 @@ import { getFileKey } from "../../utils/common"
 import { FilterDataByDateRange, ICloudService } from "./types";
 import { URLAccess } from "../../types/SampleURLModel";
 import logger from "../../logger";
-import { fromContainerMetadata, fromInstanceMetadata } from "@aws-sdk/credential-providers";
+import { fromTokenFile } from "@aws-sdk/credential-providers";
 
 export class AWSStorageService implements ICloudService {
     client: any;
     constructor(config: any) {
         console.log("AWS Storage Service..")
-        if (_.get(config, "identity") && _.get(config, "credential") && _.get(config, "region")) {
+        if (_.get(config, "region")) {
             const region = _.get(config, "region")
             const accessKeyId = _.get(config, "identity")
             const secretAccessKey = _.get(config, "credential")
@@ -30,10 +30,11 @@ export class AWSStorageService implements ICloudService {
                 if (_.isEmpty(secretAccessKey) && _.isEmpty(accessKeyId)) {
                     console.log("Using Instance Metadata")
                     this.client = new S3Client({
-                        credentials: fromInstanceMetadata({
-                            timeout: 1000,
-                            maxRetries: 2
-                        })
+                        credentials: fromTokenFile({
+                            webIdentityTokenFile: process.env.AWS_WEB_IDENTITY_TOKEN_FILE,
+                            roleArn: process.env.AWS_ROLE_ARN
+                        }),
+                        region: region
                     });
                 } else {
                     console.log("Using AWS Credentials")
@@ -67,6 +68,9 @@ export class AWSStorageService implements ICloudService {
                     try {
                         const command = AWSCommand(container, fileNameWithPrefix);
                         const fileName = fileNameWithPrefix.split("/").pop();
+                        if(!this.client) {
+                            throw new Error("AWS Client not initialized")
+                        }
                         const presignedURL = await getSignedUrl(this.client, command, { expiresIn: containerURLExpiry });
                         resolve({ [fileName]: presignedURL });
                     }
