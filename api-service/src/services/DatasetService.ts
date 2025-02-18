@@ -196,6 +196,7 @@ class DatasetService {
                     mode: _.get(config, "mode")
                 }
             })
+            draftDataset["connectors_config"] = [];
             draftDataset["api_version"] = "v2"
             draftDataset["sample_data"] = dataset_config?.mergedEvent
             draftDataset["validation_config"] = _.omit(_.get(dataset, "validation_config"), ["validation_mode"])

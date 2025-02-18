@@ -498,8 +498,7 @@
         "required": [
           "id",
           "connector_id",
-          "connector_config",
-          "version"
+          "connector_config"
         ]
       }
     }
