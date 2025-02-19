@@ -189,7 +189,7 @@ class DBCommand(ICommand):
                 current_timestamp,
                 json.dumps(draft_datasource.metadata).replace("'", "''"),
 
-                draft_datasource.datasource,
+                draft_datasource.datasource_ref,
                 json.dumps(draft_datasource.ingestion_spec),
                 draft_datasource.type,
                 json.dumps(draft_datasource.retention_period).replace("'", "''"),
