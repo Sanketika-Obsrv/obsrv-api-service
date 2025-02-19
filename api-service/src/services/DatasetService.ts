@@ -344,6 +344,7 @@ class DatasetService {
 
     private updateDruidDataSource = async (draftDataset: Record<string, any>, transaction: Transaction, existingDatasource: Record<string, any>) => {
 
+        const liveDataset = await this.getDataset(draftDataset.dataset_id, ["id", "api_version"], true);
         const { created_by, updated_by, dataset_id, api_version } = draftDataset;
         const allFields = await tableGenerator.getAllFields(draftDataset, "druid");
         const ingestionSpec = tableGenerator.getDruidIngestionSpec(draftDataset, allFields, existingDatasource.datasource_ref);
@@ -352,7 +353,7 @@ class DatasetService {
         _.set(draftDatasource, "created_by", created_by);
         _.set(draftDatasource, "updated_by", updated_by);
         _.set(draftDatasource, "type", "druid");
-        if (api_version === "v1") {
+        if (_.get(liveDataset, "api_version") === "v1") {
             _.set(draftDatasource, "datasource", dataset_id)
         }
         await DatasourceDraft.upsert(draftDatasource, { transaction })
