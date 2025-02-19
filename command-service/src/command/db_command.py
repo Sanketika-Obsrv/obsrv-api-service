@@ -190,6 +190,7 @@ class DBCommand(ICommand):
                 json.dumps(draft_datasource.metadata).replace("'", "''"),
 
                 draft_datasource.datasource_ref,
+                draft_datasource.datasource,
                 json.dumps(draft_datasource.ingestion_spec),
                 draft_datasource.type,
                 json.dumps(draft_datasource.retention_period).replace("'", "''"),
@@ -227,6 +228,7 @@ class DBCommand(ICommand):
                 )
                 ON CONFLICT (id) DO UPDATE
                 SET datasource_ref = %s,
+                datasource = %s,
                 ingestion_spec = %s,
                 type = %s,
                 retention_period = %s,
