@@ -12,7 +12,6 @@ import { fromTokenFile } from "@aws-sdk/credential-providers";
 export class AWSStorageService implements ICloudService {
     client: any;
     constructor(config: any) {
-        console.log("AWS Storage Service..")
         if (_.get(config, "region")) {
             const region = _.get(config, "region")
             const accessKeyId = _.get(config, "identity")
@@ -68,7 +67,7 @@ export class AWSStorageService implements ICloudService {
                     try {
                         const command = AWSCommand(container, fileNameWithPrefix);
                         const fileName = fileNameWithPrefix.split("/").pop();
-                        if(!this.client) {
+                        if (!this.client) {
                             throw new Error("AWS Client not initialized")
                         }
                         const presignedURL = await getSignedUrl(this.client, command, { expiresIn: containerURLExpiry });

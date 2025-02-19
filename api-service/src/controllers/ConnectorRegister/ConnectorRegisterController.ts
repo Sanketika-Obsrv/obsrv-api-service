@@ -91,7 +91,6 @@ const uploadStream = async (req: Request) => {
                 await Promise.all(filePromises);
                 resolve(relative_path);
             } catch (error) {
-                console.log(error)
                 logger.error({ apiId, error, resmsgid, message: "Fail to upload a file", code: "FAILED_TO_UPLOAD" })
                 reject({
                     code: "FAILED_TO_UPLOAD",
