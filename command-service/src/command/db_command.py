@@ -170,6 +170,7 @@ class DBCommand(ICommand):
         for record in draft_datasource_record:
             draft_datasource = from_dict(data_class=DatasourcesDraft, data=record)
             current_timestamp = dt.now()
+            print(f"Datasource is", draft_datasource.datasource)
             params = (
                 draft_datasource.id,
                 draft_datasource.datasource,
