@@ -161,10 +161,18 @@ class DBCommand(ICommand):
     def _insert_datasource_record(self, dataset_id, draft_dataset_id):
 
         result = {}
+        print(f"Inserting datasource record for dataset_id {dataset_id}...")
+        print(f"Draft Dataset ID is {draft_dataset_id}")
         draft_datasource_record = self.db_service.execute_select_all(
             sql=f"SELECT * FROM datasources_draft WHERE dataset_id = %s",
             params=(draft_dataset_id,)
         )
+        print(f"Draft Datasource Record is using draft_dataset_id is>>> {draft_datasource_record}")
+        datasource_record = self.db_service.execute_select_all(
+            sql=f"SELECT * FROM datasources_draft WHERE dataset_id = %s",
+            params=(dataset_id,)
+        )
+        print(f"Draft Datasource Record is using dataset_id>>> {datasource_record}")
         if draft_datasource_record is None:
             return result
         for record in draft_datasource_record:
