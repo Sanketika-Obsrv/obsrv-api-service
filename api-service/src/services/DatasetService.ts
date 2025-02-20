@@ -355,7 +355,7 @@ class DatasetService {
         _.set(draftDatasource, "type", "druid");
         console.log("Updating datasource for v1 dataset with dataset_id change to id", id);
         
-        _.set(draftDatasource, "dataset_id", id);
+        _.set(draftDatasource, "dataset_id", dataset_id);
         if (_.get(liveDataset, "api_version") === "v1") {
             console.log("Updating datasource for v1 dataset with datasource change to dataset_id", dataset_id);
             _.set(draftDatasource, "datasource", dataset_id)
