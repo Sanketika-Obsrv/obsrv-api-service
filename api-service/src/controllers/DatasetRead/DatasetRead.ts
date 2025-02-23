@@ -7,6 +7,7 @@ import { datasetService } from "../../services/DatasetService";
 import { obsrvError } from "../../types/ObsrvError";
 import { cipherService } from "../../services/CipherService";
 import { Dataset } from "../../models/Dataset";
+import { Datasource } from "../../models/Datasource";
 
 export const apiId = "api.datasets.read";
 export const errorCode = "DATASET_READ_FAILURE"
@@ -70,6 +71,8 @@ const readDataset = async (datasetId: string, attributes: string[]): Promise<any
     const api_version = _.get(dataset, "api_version")
     const datasetConfigs: any = {}
     const transformations_config = await datasetService.getTransformations(datasetId, ["field_key", "transformation_function", "mode", "metadata"])
+    const datasourceConfig = await Datasource.findOne({ where: { dataset_id: datasetId, is_primary: true }, attributes: ["datasource"], raw: true })
+    datasetConfigs["alias"] = _.get(datasourceConfig, "datasource")
     if (api_version !== "v2") {
         datasetConfigs["transformations_config"] = _.map(transformations_config, (config) => {
             const section: any = _.get(config, "metadata.section") || _.get(config, "transformation_function.category");

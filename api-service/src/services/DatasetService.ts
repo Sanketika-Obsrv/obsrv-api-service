@@ -27,14 +27,27 @@ class DatasetService {
         return Dataset.findOne({ where: { id: datasetId }, attributes, raw: raw });
     }
 
+    getDatasourceWithKey = async (datasourceKey: string, attributes?: string[], raw = false, is_primary?: boolean): Promise<any> => {
+        const whereCondition: any = {
+            [Op.or]: [{ datasource: datasourceKey }, { id: datasourceKey }]
+        };
+
+        if (is_primary) {
+            whereCondition.is_primary = true;
+        }
+
+        return Datasource.findOne({
+            where: whereCondition,
+            attributes,
+            raw: raw
+        });
+    }
+
     getDatasetWithDatasetkey = async (datasetKey: string, attributes?: string[], raw = false): Promise<any> => {
+        const datasource = await this.getDatasourceWithKey(datasetKey, ["datasource_ref", "dataset_id"], true, true)
+        const dataset_id = !_.isEmpty(datasource) ? _.get(datasource, "dataset_id") : datasetKey
         return Dataset.findOne({
-            where: {
-                [Op.and]: [
-                    { [Op.or]: [{ dataset_id: datasetKey }, { alias: datasetKey }] },
-                    { status: DatasetStatus.Live }
-                ]
-            }, attributes, raw: raw
+            where: { dataset_id }, attributes, raw: raw
         });
     }
 
@@ -84,6 +97,14 @@ class DatasetService {
 
     getConnectors = async (dataset_id: string, attributes?: string[]): Promise<Record<string, any>> => {
         return ConnectorInstances.findAll({ where: { dataset_id }, attributes, raw: true });
+    }
+
+    getDatasource = async (datasource_id: string, attributes?: string[]) => {
+        return Datasource.findOne({ where: { id: datasource_id }, attributes, raw: true });
+    }
+
+    updateDatasource = async (payload: Record<string, any>, where: Record<string, any>): Promise<Record<string, any>> => {
+        return Datasource.update(payload, { where });
     }
 
     getTransformations = async (dataset_id: string, attributes?: string[]) => {

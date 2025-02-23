@@ -7,6 +7,8 @@ import DatasetCreate from "./DatasetListValidationSchema.json";
 import { ResponseHandler } from "../../helpers/ResponseHandler";
 import { datasetService } from "../../services/DatasetService";
 import { obsrvError } from "../../types/ObsrvError";
+import { Dataset } from "../../models/Dataset";
+import { Datasource } from "../../models/Datasource";
 
 export const apiId = "api.datasets.list"
 export const errorCode = "DATASET_LIST_FAILURE"
@@ -36,9 +38,25 @@ const listDatasets = async (request: Record<string, any>): Promise<Record<string
     const status = _.isArray(datasetStatus) ? datasetStatus : _.compact([datasetStatus])
     const draftFilters = _.set(_.cloneDeep(filters), "status", _.isEmpty(status) ? draftDatasetStatus : _.intersection(status, draftDatasetStatus));
     const liveFilters = _.set(_.cloneDeep(filters), "status", _.isEmpty(status) ? liveDatasetStatus : _.intersection(status, liveDatasetStatus));
-    const liveDatasetList = await datasetService.findDatasets(liveFilters, [...defaultFields, "alias"], [["updated_date", "DESC"]]);
+    const liveDatasetList = await getLiveDatasets(liveFilters)
     const draftDatasetList = await datasetService.findDraftDatasets(draftFilters, [...defaultFields, "data_schema", "validation_config", "dedup_config", "denorm_config", "connectors_config", "version_key"], [["updated_date", "DESC"]]);
     return _.compact(_.concat(liveDatasetList, draftDatasetList));
+}
+
+const getLiveDatasets = async (filters: Record<string, any>): Promise<Record<string, any>> => {
+    Dataset.hasMany(Datasource, { foreignKey: 'dataset_id' });
+    const datasets = await Dataset.findAll({
+        include: [
+            {
+                model: Datasource,
+                attributes: ['datasource'],
+                where: { is_primary: true },
+                required: false
+            },
+        ], raw: true, where: filters, attributes: defaultFields, order: [["updated_date", "DESC"]]
+    });
+    const updatedDatasets = _.map(datasets, (dataset) => ({ ...dataset, alias: _.get(dataset, "datasources.datasource") }))
+    return updatedDatasets;
 }
 
 export default datasetList;
