@@ -203,7 +203,7 @@ class DBCommand(ICommand):
                 current_timestamp,
                 json.dumps(draft_datasource.metadata).replace("'", "''"), 
                 DatasetStatusType.Live.name,
-                True,
+                True
             )
             insert_query = f"""
                 INSERT INTO datasources(id, datasource, dataset_id, datasource_ref, ingestion_spec, type, retention_period,
