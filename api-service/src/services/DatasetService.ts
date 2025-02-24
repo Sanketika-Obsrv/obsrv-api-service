@@ -20,6 +20,7 @@ import { tableGenerator } from "./TableGenerator";
 import { deleteAlertByDataset, deleteMetricAliasByDataset } from "./managers";
 import { config } from "../configs/Config";
 import { Op } from "sequelize";
+import TableDraft from "../models/Table";
 
 class DatasetService {
 
@@ -300,6 +301,10 @@ class DatasetService {
 
     findDatasources = async (where?: Record<string, any>, attributes?: string[], order?: any): Promise<any> => {
         return Datasource.findAll({ where, attributes, order, raw: true })
+    }
+
+    findDraftDatasources = async (where?: Record<string, any>, attributes?: string[], order?: any): Promise<any> => {
+        return TableDraft.findAll({ where, attributes, order, raw: true })
     }
 
     private deleteDruidSupervisors = async (dataset: Record<string, any>) => {

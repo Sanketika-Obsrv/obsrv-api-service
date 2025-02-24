@@ -1,0 +1,59 @@
+{
+    "type": "object",
+    "properties": {
+      "id": {
+        "type": "string",
+        "enum": ["api.datasources.list"]
+      },
+      "ver": {
+        "type": "string"
+      },
+      "ts": {
+        "type": "string"
+      },
+      "params": {
+        "type": "object",
+        "properties": {
+          "msgid": {
+            "type": "string"
+          }
+        },
+        "required": ["msgid"],
+        "additionalProperties": false
+      },
+      "request": {
+        "type": "object",
+        "properties": {
+          "filters": {
+            "type": "object",
+            "properties": {
+              "status": {
+                "anyOf": [
+                  {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "enum": ["Draft", "Live", "Retired", "Purged"]
+                    }
+                  },
+                  {
+                    "type": "string",
+                    "enum": ["Draft", "Live", "Retired"]
+                  }
+                ]
+              },
+              "type": {
+                "type": "string",
+                "enum": ["druid", "datalake"]
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "required": ["id", "ver", "ts", "params", "request"],
+    "additionalProperties": false
+  }
+  
