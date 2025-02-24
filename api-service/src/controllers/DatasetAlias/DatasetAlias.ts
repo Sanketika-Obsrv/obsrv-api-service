@@ -21,7 +21,7 @@ const validateRequest = async (req: Request) => {
         throw obsrvError("", "ALIAS_NAME_INVALID", `Alias name must only contain lowercase letters, numbers, periods, and dashes.`, "BAD_REQUEST", 400);
     }
 
-    const dataset = await datasetService.getDataset(dataset_id, ["id", "name", "alias"], true);
+    const dataset = await datasetService.getDataset(dataset_id, ["id", "name"], true);
     if (_.isEmpty(dataset)) {
         throw obsrvError(dataset_id, "DATASET_NOT_EXISTS", `Dataset does not exists with id:${dataset_id}`, "NOT_FOUND", 404);
     }
