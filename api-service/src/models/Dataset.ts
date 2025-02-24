@@ -75,10 +75,6 @@ export const Dataset = sequelize.define("datasets", {
     entry_topic: {
         type: DataTypes.STRING,
         allowNull: false
-    },
-    alias: {
-        type: DataTypes.STRING,
-        allowNull: true
     }
 }, {
     tableName: "datasets",
