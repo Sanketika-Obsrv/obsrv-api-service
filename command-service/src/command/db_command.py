@@ -226,6 +226,7 @@ class DBCommand(ICommand):
                     %s,
                     %s,
                     %s,
+                    %s,
                     %s
                 )
                 ON CONFLICT (id) DO UPDATE
