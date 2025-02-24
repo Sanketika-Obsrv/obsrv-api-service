@@ -27,14 +27,27 @@ class DatasetService {
         return Dataset.findOne({ where: { id: datasetId }, attributes, raw: raw });
     }
 
+    getDatasourceWithKey = async (datasourceKey: string, attributes?: string[], raw = false, is_primary?: boolean): Promise<any> => {
+        const whereCondition: any = {
+            [Op.or]: [{ datasource: datasourceKey }, { id: datasourceKey }]
+        };
+
+        if (is_primary) {
+            whereCondition.is_primary = true;
+        }
+
+        return Datasource.findOne({
+            where: whereCondition,
+            attributes,
+            raw: raw
+        });
+    }
+
     getDatasetWithDatasetkey = async (datasetKey: string, attributes?: string[], raw = false): Promise<any> => {
+        const datasource = await this.getDatasourceWithKey(datasetKey, ["datasource_ref", "dataset_id"], true, true)
+        const dataset_id = !_.isEmpty(datasource) ? _.get(datasource, "dataset_id") : datasetKey
         return Dataset.findOne({
-            where: {
-                [Op.and]: [
-                    { [Op.or]: [{ dataset_id: datasetKey }, { alias: datasetKey }] },
-                    { status: DatasetStatus.Live }
-                ]
-            }, attributes, raw: raw
+            where: { dataset_id }, attributes, raw: raw
         });
     }
 
@@ -84,6 +97,14 @@ class DatasetService {
 
     getConnectors = async (dataset_id: string, attributes?: string[]): Promise<Record<string, any>> => {
         return ConnectorInstances.findAll({ where: { dataset_id }, attributes, raw: true });
+    }
+
+    getDatasource = async (datasource_id: string, attributes?: string[]) => {
+        return Datasource.findOne({ where: { id: datasource_id }, attributes, raw: true });
+    }
+
+    updateDatasource = async (payload: Record<string, any>, where: Record<string, any>): Promise<Record<string, any>> => {
+        return Datasource.update(payload, { where });
     }
 
     getTransformations = async (dataset_id: string, attributes?: string[]) => {
@@ -344,8 +365,7 @@ class DatasetService {
 
     private updateDruidDataSource = async (draftDataset: Record<string, any>, transaction: Transaction, existingDatasource: Record<string, any>) => {
 
-        const liveDataset = await this.getDataset(draftDataset.dataset_id, ["id", "api_version"], true);
-        const { created_by, updated_by, dataset_id, id } = draftDataset;
+        const { created_by, updated_by } = draftDataset;
         const allFields = await tableGenerator.getAllFields(draftDataset, "druid");
         const ingestionSpec = tableGenerator.getDruidIngestionSpec(draftDataset, allFields, existingDatasource.datasource_ref);
         let draftDatasource = existingDatasource
@@ -353,13 +373,6 @@ class DatasetService {
         _.set(draftDatasource, "created_by", created_by);
         _.set(draftDatasource, "updated_by", updated_by);
         _.set(draftDatasource, "type", "druid");
-        console.log("Updating datasource for v1 dataset with dataset_id change to id", id);
-        
-        _.set(draftDatasource, "dataset_id", dataset_id);
-        if (_.get(liveDataset, "api_version") === "v1") {
-            console.log("Updating datasource for v1 dataset with datasource change to dataset_id", dataset_id);
-            _.set(draftDatasource, "datasource", dataset_id)
-        }
         await DatasourceDraft.upsert(draftDatasource, { transaction })
     }
 
