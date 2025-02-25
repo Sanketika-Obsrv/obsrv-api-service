@@ -36,6 +36,12 @@ export const datasetImportValidation = async (payload: Record<string, any>): Pro
 
     const datasetConfig = payload.request;
 
+    const datasetId = _.get(datasetConfig, "dataset_id") || "";
+    const isDatasourceExists = await datasetService.checkDatasourceExist(datasetId);
+    if (isDatasourceExists) {
+        throw obsrvError(datasetId, "DATASOURCE_EXISTS", `Datasource Already exists with id:${datasetId}`, "CONFLICT", 409)
+    }
+
     const connectors = _.get(datasetConfig, "connectors_config", []);
     const transformations = _.get(datasetConfig, "transformations_config", []);
     const denormConfig = _.get(datasetConfig, "denorm_config", { denorm_fields: [] });

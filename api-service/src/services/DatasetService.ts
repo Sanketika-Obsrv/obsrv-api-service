@@ -76,6 +76,21 @@ class DatasetService {
         }
     }
 
+    checkDatasourceExist = async (id: string): Promise<boolean> => {
+        const datasourceRef = await this.getDatasourceWithKey(id, ["id"], true);
+        if (_.isEmpty(datasourceRef)) {
+            const tables = TableDraft.findOne({ where: { id }, attributes: ["id"], raw: true }).catch((err: any) => {
+                if (err?.original?.code === '42P01') {
+                    logger.warn("Table 'table_draft' does not exist, returning empty array.");
+                    return null
+                }
+                throw obsrvError("", "FAILED_TO_FETCH_TABLES", err.message, "SERVER_ERROR", 500, err);
+            })
+            return !_.isEmpty(tables)
+        }
+        return true;
+    }
+
     getDraftDataset = async (dataset_id: string, attributes?: string[]) => {
         return DatasetDraft.findOne({ where: { dataset_id }, attributes, raw: true });
     }
@@ -307,7 +322,7 @@ class DatasetService {
     findDraftDatasources = async (where?: Record<string, any>, attributes?: string[], order?: any): Promise<any> => {
         return TableDraft.findAll({ where, attributes, order, raw: true }).catch((err: any) => {
             if (err?.original?.code === '42P01') {
-                console.warn("Table 'table_draft' does not exist, returning empty array.");
+                logger.warn("Table 'table_draft' does not exist, returning empty array.");
                 return [];
             }
             throw obsrvError("", "FAILED_TO_FETCH_TABLES", err.message, "SERVER_ERROR", 500, err);
