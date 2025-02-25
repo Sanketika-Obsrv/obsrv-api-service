@@ -225,7 +225,8 @@ class DatasetService {
             draftDataset["validation_config"] = _.omit(_.get(dataset, "validation_config"), ["validation_mode"])
         } else {
             const v2connectors = await this.getConnectors(draftDataset.dataset_id, ["id", "connector_id", "connector_config", "operations_config"]);
-            draftDataset["connectors_config"] = v2connectors;
+            const updatedConnectorsPayload = getUpdatedV2ConnectorsPayload(v2connectors)
+            draftDataset["connectors_config"] = updatedConnectorsPayload;
             const transformations = await this.getTransformations(draftDataset.dataset_id, ["field_key", "transformation_function", "mode"]);
             draftDataset["transformations_config"] = transformations
         }
@@ -427,17 +428,22 @@ class DatasetService {
 
 }
 
+export const getUpdatedV2ConnectorsPayload = (connectors: Record<string, any>) => {
+    return _.map(connectors, connector => ({ ...connector, "version": "v2" }))
+}
+
 export const getLiveDatasetConfigs = async (dataset_id: string) => {
 
     const datasetRecord = await datasetService.getDataset(dataset_id, undefined, true)
     const transformations = await datasetService.getTransformations(dataset_id, ["field_key", "transformation_function", "mode"])
     const connectors = await datasetService.getConnectors(dataset_id, ["id", "connector_id", "connector_config", "operations_config"])
+    const updatedConnectorsPayload = getUpdatedV2ConnectorsPayload(connectors)
 
     if (!_.isEmpty(transformations)) {
         datasetRecord["transformations_config"] = transformations
     }
     if (!_.isEmpty(connectors)) {
-        datasetRecord["connectors_config"] = connectors
+        datasetRecord["connectors_config"] = updatedConnectorsPayload
     }
     return datasetRecord;
 }
