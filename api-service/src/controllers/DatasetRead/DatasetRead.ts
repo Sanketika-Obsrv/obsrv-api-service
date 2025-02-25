@@ -3,7 +3,7 @@ import httpStatus from "http-status";
 import _ from "lodash";
 import { ResponseHandler } from "../../helpers/ResponseHandler";
 import { DatasetDraft } from "../../models/DatasetDraft";
-import { datasetService } from "../../services/DatasetService";
+import { datasetService, getUpdatedV2ConnectorsPayload } from "../../services/DatasetService";
 import { obsrvError } from "../../types/ObsrvError";
 import { cipherService } from "../../services/CipherService";
 import { Dataset } from "../../models/Dataset";
@@ -89,7 +89,8 @@ const readDataset = async (datasetId: string, attributes: string[]): Promise<any
     }
     else {
         const v2connectors = await datasetService.getConnectors(datasetId, ["id", "connector_id", "connector_config", "operations_config"]);
-        datasetConfigs["connectors_config"] = v2connectors
+        const updatedConnectorsPayload = getUpdatedV2ConnectorsPayload(v2connectors)
+        datasetConfigs["connectors_config"] = updatedConnectorsPayload
         datasetConfigs["transformations_config"] = transformations_config;
     }
     return { ...dataset, ...datasetConfigs };

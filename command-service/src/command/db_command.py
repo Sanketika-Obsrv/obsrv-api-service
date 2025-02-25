@@ -261,7 +261,8 @@ class DBCommand(ICommand):
             )
             current_timestamp = dt.now()
             operations_config =  connector_config.operations_config if connector_config.operations_config is not None else {}
-            params = (
+            if connector_config.version == 'v2':
+                params = (
                     connector_config.id,
                     dataset_id,
                     connector_config.connector_id,
@@ -282,7 +283,7 @@ class DBCommand(ICommand):
                     current_timestamp,
                     DatasetStatusType.Live.name,
                 )
-            insert_query = f"""
+                insert_query = f"""
                     INSERT INTO connector_instances(id, dataset_id, connector_id, connector_config, operations_config,
                     status, connector_state, connector_stats, created_by, updated_by, created_date, 
                     updated_date, published_date)
@@ -308,9 +309,9 @@ class DBCommand(ICommand):
                     updated_date = %s,
                     published_date = %s,
                     status = %s;
-            """
-            result = self.db_service.execute_upsert(sql=insert_query, params=params)
-            print(f"Connector[v2] Instance record for [dataset={dataset_id},connector={connector_config.connector_id},id={connector_config.id}] inserted successfully...")
+                """
+                result = self.db_service.execute_upsert(sql=insert_query, params=params)
+                print(f"Connector[v2] Instance record for [dataset={dataset_id},connector={connector_config.connector_id},id={connector_config.id}] inserted successfully...")
             
         return result
 
