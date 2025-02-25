@@ -304,7 +304,13 @@ class DatasetService {
     }
 
     findDraftDatasources = async (where?: Record<string, any>, attributes?: string[], order?: any): Promise<any> => {
-        return TableDraft.findAll({ where, attributes, order, raw: true })
+        return TableDraft.findAll({ where, attributes, order, raw: true }).catch((err: any) => {
+            if (err?.original?.code === '42P01') {
+                console.warn("Table 'table_draft' does not exist, returning empty array.");
+                return [];
+            }
+            throw obsrvError("", "FAILED_TO_FETCH_TABLES", err.message, "SERVER_ERROR", 500, err);
+        });
     }
 
     private deleteDruidSupervisors = async (dataset: Record<string, any>) => {
