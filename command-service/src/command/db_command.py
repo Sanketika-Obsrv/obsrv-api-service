@@ -190,7 +190,7 @@ class DBCommand(ICommand):
                 json.dumps(draft_datasource.metadata).replace("'", "''"),
                 True,
 
-                draft_datasource.datasource,
+                draft_datasource.datasource_ref,
                 json.dumps(draft_datasource.ingestion_spec),
                 draft_datasource.type,
                 json.dumps(draft_datasource.retention_period).replace("'", "''"),
@@ -202,13 +202,14 @@ class DBCommand(ICommand):
                 current_timestamp,
                 json.dumps(draft_datasource.metadata).replace("'", "''"), 
                 DatasetStatusType.Live.name,
-                True,
+                True
             )
             insert_query = f"""
                 INSERT INTO datasources(id, datasource, dataset_id, datasource_ref, ingestion_spec, type, retention_period,
                 archival_policy, purge_policy, backup_config, status, created_by, updated_by, created_date,
                 updated_date, published_date, metadata, is_primary)
                 VALUES (
+                    %s,
                     %s,
                     %s,
                     %s,
