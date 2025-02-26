@@ -127,6 +127,22 @@ class DatasetService {
         return DatasetTransformations.findAll({ where: { dataset_id }, attributes, raw: true });
     }
 
+    getLiveDatasets = async (filters: Record<string, any>, attributes?: string[]): Promise<Record<string, any>> => {
+        Dataset.hasMany(Datasource, { foreignKey: 'dataset_id' });
+        const datasets = await Dataset.findAll({
+            include: [
+                {
+                    model: Datasource,
+                    attributes: ['datasource'],
+                    where: { is_primary: true },
+                    required: false
+                },
+            ], raw: true, where: filters, attributes, order: [["updated_date", "DESC"]]
+        });
+        const updatedDatasets = _.map(datasets, (dataset) => ({ ...dataset, alias: _.get(dataset, "datasources.datasource") }))
+        return updatedDatasets;
+    }
+
     updateDraftDataset = async (draftDataset: Record<string, any>): Promise<Record<string, any>> => {
 
         await DatasetDraft.update(draftDataset, { where: { id: draftDataset.id } });
@@ -434,17 +450,13 @@ class DatasetService {
         const datasource = _.join([draftDataset.dataset_id, "events"], "_")
         return {
             id: _.join([datasource, type], "_"),
-            datasource: draftDataset.dataset_id,
+            datasource: _.join([draftDataset.dataset_id, type], "_"),
             dataset_id: draftDataset.id,
             datasource_ref: datasource,
             type
         }
     }
 
-}
-
-export const getUpdatedV2ConnectorsPayload = (connectors: Record<string, any>) => {
-    return _.map(connectors, connector => ({ ...connector, "version": "v2" }))
 }
 
 export const getLiveDatasetConfigs = async (dataset_id: string) => {
@@ -463,6 +475,9 @@ export const getLiveDatasetConfigs = async (dataset_id: string) => {
     return datasetRecord;
 }
 
+export const getUpdatedV2ConnectorsPayload = (connectors: Record<string, any>) => {
+    return _.map(connectors, connector => ({ ...connector, "version": "v2" }))
+}
 
 const storageTypes = JSON.parse(config.storage_types)
 export const validateStorageSupport = (dataset: Record<string, any>) => {

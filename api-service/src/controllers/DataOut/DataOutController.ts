@@ -28,13 +28,13 @@ const dataOut = async (req: Request, res: Response) => {
     const requestBody = req.body;
     const msgid = _.get(req, "body.params.msgid");
     const dataset = await requestValidation(req)
-    const { dataset_id, datasource_ref } = dataset
-    const isValidQuery: any = await validateQuery(req.body, dataset_id, datasource_ref);
+    const { dataset_id: datasetId, datasource_ref } = dataset
+    const isValidQuery: any = await validateQuery(req.body, datasetId, datasource_ref);
     const query = _.get(req, "body.query", "")
 
     if (isValidQuery === true && _.isObject(query)) {
         const result = await executeNativeQuery(query);
-        logger.info({ apiId, msgid, requestBody, dataset_id, message: "Native query executed successfully" })
+        logger.info({ apiId, msgid, requestBody, datasetId, message: "Native query executed successfully" })
         return ResponseHandler.successResponse(req, res, {
             status: 200, data: result?.data
         });
@@ -42,14 +42,14 @@ const dataOut = async (req: Request, res: Response) => {
 
     if (isValidQuery === true && _.isString(query)) {
         const result = await executeSqlQuery({ query })
-        logger.info({ apiId, msgid, requestBody, dataset_id, message: "SQL query executed successfully" })
+        logger.info({ apiId, msgid, requestBody, datasetId, message: "SQL query executed successfully" })
         return ResponseHandler.successResponse(req, res, {
             status: 200, data: result?.data
         });
     }
 
     else {
-        logger.error({ apiId, msgid, requestBody, dataset_id, message: isValidQuery?.message, code: isValidQuery?.code })
+        logger.error({ apiId, msgid, requestBody, datasetId, message: isValidQuery?.message, code: isValidQuery?.code })
         return ResponseHandler.errorResponse({ message: isValidQuery?.message, statusCode: isValidQuery?.statusCode, errCode: isValidQuery?.errCode, code: isValidQuery?.code }, req, res);
     }
 }

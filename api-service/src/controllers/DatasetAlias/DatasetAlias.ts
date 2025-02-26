@@ -31,7 +31,7 @@ const validateRequest = async (req: Request) => {
             throw obsrvError("", "TABLE_NOT_EXISTS", `Table does not exists with name:${table_name}`, "NOT_FOUND", 404);
         }
         if (_.isEmpty(_.get(tableRecord, "datasource"))) {
-            throw obsrvError(dataset_id, "ALIAS_NOT_EXISTS", `Alias name for dataset ${dataset_id} does not exists`, "BAD_REQUEST", 400);
+            throw obsrvError(dataset_id, "ALIAS_NOT_EXISTS", `Alias name for table ${table_name} does not exists`, "BAD_REQUEST", 400);
         }
         const datasourceRecords = await datasetService.findDatasources({ datasource: alias }, ["datasource_ref"])
         if (!_.isEmpty(datasourceRecords)) {
@@ -49,7 +49,7 @@ const datasetAlias = async (req: Request, res: Response) => {
         await datasetService.updateDatasource({ datasource: alias_name, updated_by: userID }, { id: table_name });
     }
     else {
-        await datasetService.updateDatasource({ datasource: alias_name, updated_by: userID }, { dataset_id, is_primary: true });
+        await datasetService.updateDatasource({ datasource: alias_name, updated_by: userID }, { dataset_id, is_primary: true, type: "druid" });
     }
     ResponseHandler.successResponse(req, res, { status: httpStatus.OK, data: { message: `Dataset alias name '${alias_name}' updated successfully`, dataset_id } });
 }
