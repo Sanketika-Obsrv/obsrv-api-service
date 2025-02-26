@@ -422,7 +422,7 @@ class DatasetService {
         const datasource = _.join([draftDataset.dataset_id, "events"], "_")
         return {
             id: _.join([datasource, type], "_"),
-            datasource: draftDataset.dataset_id,
+            datasource: _.join([draftDataset.dataset_id, type], "_"),
             dataset_id: draftDataset.id,
             datasource_ref: datasource,
             type

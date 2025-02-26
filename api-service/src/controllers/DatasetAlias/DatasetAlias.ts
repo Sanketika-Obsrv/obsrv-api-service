@@ -49,7 +49,7 @@ const datasetAlias = async (req: Request, res: Response) => {
         await datasetService.updateDatasource({ datasource: alias_name, updated_by: userID }, { id: table_name });
     }
     else {
-        await datasetService.updateDatasource({ datasource: alias_name, updated_by: userID }, { dataset_id, is_primary: true });
+        await datasetService.updateDatasource({ datasource: alias_name, updated_by: userID }, { dataset_id, is_primary: true, type: "druid" });
     }
     ResponseHandler.successResponse(req, res, { status: httpStatus.OK, data: { message: `Dataset alias name '${alias_name}' updated successfully`, dataset_id } });
 }
