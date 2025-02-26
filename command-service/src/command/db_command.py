@@ -188,8 +188,9 @@ class DBCommand(ICommand):
                 current_timestamp,
                 current_timestamp,
                 json.dumps(draft_datasource.metadata).replace("'", "''"),
+                True,
 
-                draft_datasource.datasource,
+                draft_datasource.datasource_ref,
                 json.dumps(draft_datasource.ingestion_spec),
                 draft_datasource.type,
                 json.dumps(draft_datasource.retention_period).replace("'", "''"),
@@ -201,12 +202,14 @@ class DBCommand(ICommand):
                 current_timestamp,
                 json.dumps(draft_datasource.metadata).replace("'", "''"), 
                 DatasetStatusType.Live.name,
+                True
             )
             insert_query = f"""
                 INSERT INTO datasources(id, datasource, dataset_id, datasource_ref, ingestion_spec, type, retention_period,
                 archival_policy, purge_policy, backup_config, status, created_by, updated_by, created_date,
-                updated_date, published_date, metadata)
+                updated_date, published_date, metadata, is_primary)
                 VALUES (
+                    %s,
                     %s,
                     %s,
                     %s,
@@ -237,7 +240,8 @@ class DBCommand(ICommand):
                 updated_date = %s,
                 published_date = %s,
                 metadata = %s,
-                status = %s;
+                status = %s,
+                is_primary = %s;
             """
             result = self.db_service.execute_upsert(sql=insert_query, params=params)
             print(
@@ -308,54 +312,7 @@ class DBCommand(ICommand):
                     status = %s;
                 """
                 result = self.db_service.execute_upsert(sql=insert_query, params=params)
-                print(
-                    f"Connector[v2] Instance record for [dataset={dataset_id},connector={connector_config.connector_id},id={connector_config.id}] inserted successfully..."
-                )
-            else:
-                params = (
-                    connector_config.id,
-                    dataset_id,
-                    connector_config.connector_id,
-                    json.dumps(connector_config.connector_config).replace("'", "''"),
-                    DatasetStatusType.Live.name,
-                    draft_dataset_record.get('created_by'),
-                    draft_dataset_record.get('updated_by'),
-                    current_timestamp,
-                    current_timestamp,
-                    current_timestamp,
-
-                    json.dumps(connector_config.connector_config).replace("'", "''"),
-                    draft_dataset_record.get('updated_by'),
-                    current_timestamp,
-                    current_timestamp,
-                    DatasetStatusType.Live.name,
-                )
-                insert_query = f"""
-                    INSERT INTO dataset_source_config(id, dataset_id, connector_type, connector_config,
-                    status, created_by, updated_by, created_date, updated_date, published_date)
-                    VALUES (
-                        %s,
-                        %s,
-                        %s,
-                        %s,
-                        %s,
-                        %s,
-                        %s,
-                        %s,
-                        %s,
-                        %s
-                    )
-                    ON CONFLICT (id) DO UPDATE
-                    SET connector_config = %s,
-                    updated_by = %s,
-                    updated_date = %s,
-                    published_date = %s,
-                    status = %s;
-                """
-                result = self.db_service.execute_upsert(sql=insert_query, params=params)
-                print(
-                    f"Connector[v1] record for [dataset={dataset_id},connector={connector_config.connector_id},id={connector_config.id}] inserted successfully..."
-                )
+                print(f"Connector[v2] Instance record for [dataset={dataset_id},connector={connector_config.connector_id},id={connector_config.id}] inserted successfully...")
             
         return result
 

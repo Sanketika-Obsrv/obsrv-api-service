@@ -27,14 +27,27 @@ class DatasetService {
         return Dataset.findOne({ where: { id: datasetId }, attributes, raw: raw });
     }
 
+    getDatasourceWithKey = async (datasourceKey: string, attributes?: string[], raw = false, is_primary?: boolean): Promise<any> => {
+        const whereCondition: any = {
+            [Op.or]: [{ datasource: datasourceKey }, { id: datasourceKey }]
+        };
+
+        if (is_primary) {
+            whereCondition.is_primary = true;
+        }
+
+        return Datasource.findOne({
+            where: whereCondition,
+            attributes,
+            raw: raw
+        });
+    }
+
     getDatasetWithDatasetkey = async (datasetKey: string, attributes?: string[], raw = false): Promise<any> => {
+        const datasource = await this.getDatasourceWithKey(datasetKey, ["datasource_ref", "dataset_id"], true, true)
+        const dataset_id = !_.isEmpty(datasource) ? _.get(datasource, "dataset_id") : datasetKey
         return Dataset.findOne({
-            where: {
-                [Op.and]: [
-                    { [Op.or]: [{ dataset_id: datasetKey }, { alias: datasetKey }] },
-                    { status: DatasetStatus.Live }
-                ]
-            }, attributes, raw: raw
+            where: { dataset_id }, attributes, raw: raw
         });
     }
 
@@ -86,8 +99,32 @@ class DatasetService {
         return ConnectorInstances.findAll({ where: { dataset_id }, attributes, raw: true });
     }
 
+    getDatasource = async (datasource_id: string, attributes?: string[]) => {
+        return Datasource.findOne({ where: { id: datasource_id }, attributes, raw: true });
+    }
+
+    updateDatasource = async (payload: Record<string, any>, where: Record<string, any>): Promise<Record<string, any>> => {
+        return Datasource.update(payload, { where });
+    }
+
     getTransformations = async (dataset_id: string, attributes?: string[]) => {
         return DatasetTransformations.findAll({ where: { dataset_id }, attributes, raw: true });
+    }
+
+    getLiveDatasets = async (filters: Record<string, any>, attributes?: string[]): Promise<Record<string, any>> => {
+        Dataset.hasMany(Datasource, { foreignKey: 'dataset_id' });
+        const datasets = await Dataset.findAll({
+            include: [
+                {
+                    model: Datasource,
+                    attributes: ['datasource'],
+                    where: { is_primary: true },
+                    required: false
+                },
+            ], raw: true, where: filters, attributes, order: [["updated_date", "DESC"]]
+        });
+        const updatedDatasets = _.map(datasets, (dataset) => ({ ...dataset, alias: _.get(dataset, "datasources.datasource") }))
+        return updatedDatasets;
     }
 
     updateDraftDataset = async (draftDataset: Record<string, any>): Promise<Record<string, any>> => {
@@ -201,7 +238,8 @@ class DatasetService {
             draftDataset["validation_config"] = _.omit(_.get(dataset, "validation_config"), ["validation_mode"])
         } else {
             const v2connectors = await this.getConnectors(draftDataset.dataset_id, ["id", "connector_id", "connector_config", "operations_config"]);
-            draftDataset["connectors_config"] = v2connectors;
+            const updatedConnectorsPayload = getUpdatedV2ConnectorsPayload(v2connectors)
+            draftDataset["connectors_config"] = updatedConnectorsPayload;
             const transformations = await this.getTransformations(draftDataset.dataset_id, ["field_key", "transformation_function", "mode"]);
             draftDataset["transformations_config"] = transformations
         }
@@ -384,7 +422,7 @@ class DatasetService {
         const datasource = _.join([draftDataset.dataset_id, "events"], "_")
         return {
             id: _.join([datasource, type], "_"),
-            datasource: draftDataset.dataset_id,
+            datasource: _.join([draftDataset.dataset_id, type], "_"),
             dataset_id: draftDataset.id,
             datasource_ref: datasource,
             type
@@ -398,16 +436,20 @@ export const getLiveDatasetConfigs = async (dataset_id: string) => {
     const datasetRecord = await datasetService.getDataset(dataset_id, undefined, true)
     const transformations = await datasetService.getTransformations(dataset_id, ["field_key", "transformation_function", "mode"])
     const connectors = await datasetService.getConnectors(dataset_id, ["id", "connector_id", "connector_config", "operations_config"])
+    const updatedConnectorsPayload = getUpdatedV2ConnectorsPayload(connectors)
 
     if (!_.isEmpty(transformations)) {
         datasetRecord["transformations_config"] = transformations
     }
     if (!_.isEmpty(connectors)) {
-        datasetRecord["connectors_config"] = connectors
+        datasetRecord["connectors_config"] = updatedConnectorsPayload
     }
     return datasetRecord;
 }
 
+export const getUpdatedV2ConnectorsPayload = (connectors: Record<string, any>) => {
+    return _.map(connectors, connector => ({ ...connector, "version": "v2" }))
+}
 
 const storageTypes = JSON.parse(config.storage_types)
 export const validateStorageSupport = (dataset: Record<string, any>) => {

@@ -11,6 +11,7 @@ import { obsrvError } from "../../types/ObsrvError";
 const parser = new Parser();
 
 const momentFormat = "YYYY-MM-DD HH:MM:SS";
+let datasourceId: string;
 let dataset_id: string;
 let requestBody: any;
 let msgid: string;
@@ -19,8 +20,9 @@ const errCode = {
     invalidDateRange: "DATA_OUT_INVALID_DATE_RANGE"
 }
 
-export const validateQuery = async (requestPayload: any, datasetId: string) => {
+export const validateQuery = async (requestPayload: any, datasetId: string, datasourceRef: string = "") => {
     requestBody = requestPayload;
+    datasourceId = datasourceRef;
     dataset_id = datasetId;
     msgid = _.get(requestPayload, "params.msgid");
     const query = requestPayload?.query;
@@ -207,7 +209,7 @@ const checkSupervisorAvailability = async (datasourceRef: string) => {
 
 const setDatasourceRef = async (datasetId: string, payload: any): Promise<any> => {
     const granularity = _.get(payload, "context.aggregationLevel")
-    const datasourceRef = await getDataSourceRef(datasetId, granularity);
+    const datasourceRef = _.isEmpty(datasourceId) ? await getDataSourceRef(datasetId, granularity) : datasourceId;
     if (!datasourceRef) {
         throw obsrvError("", "DATASOURCE_NOT_FOUND", "Datasource not found to query", "NOT_FOUND", 404)
     }
