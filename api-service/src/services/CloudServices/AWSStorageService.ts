@@ -12,11 +12,13 @@ import { fromTokenFile } from "@aws-sdk/credential-providers";
 export class AWSStorageService implements ICloudService {
     client: any;
     constructor(config: any) {
-        if (_.get(config, "region")) {
+        if (_.get(config, "identity") && _.get(config, "credential") && _.get(config, "region") || _.get(config, "webIdentityTokenFile") && _.get(config, "roleArn")) {
             const region = _.get(config, "region")
             const accessKeyId = _.get(config, "identity")
             const secretAccessKey = _.get(config, "credential")
             const endpoint = _.get(config, "endpoint")
+            const webIdentityTokenFile = _.get(config, "webIdentityTokenFile")
+            const roleArn = _.get(config, "roleArn")
             const s3ForcePathStyle = _.get(config, "s3ForcePathStyle")
             const configuration: any = { region, credentials: { accessKeyId, secretAccessKey } }
             if (endpoint) {
@@ -26,12 +28,12 @@ export class AWSStorageService implements ICloudService {
                 configuration.forcePathStyle = s3ForcePathStyle;
             }
             try {
-                if (_.isEmpty(secretAccessKey) && _.isEmpty(accessKeyId)) {
+                if (_.isEmpty(secretAccessKey) && _.isEmpty(accessKeyId) &&  !_.isEmpty(webIdentityTokenFile) && !_.isEmpty(roleArn)) {
                     console.log("Using Instance Metadata")
                     this.client = new S3Client({
                         credentials: fromTokenFile({
-                            webIdentityTokenFile: process.env.AWS_WEB_IDENTITY_TOKEN_FILE,
-                            roleArn: process.env.AWS_ROLE_ARN
+                            webIdentityTokenFile: webIdentityTokenFile,
+                            roleArn: roleArn
                         }),
                         region: region
                     });
