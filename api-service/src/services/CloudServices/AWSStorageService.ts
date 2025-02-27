@@ -67,9 +67,6 @@ export class AWSStorageService implements ICloudService {
                     try {
                         const command = AWSCommand(container, fileNameWithPrefix);
                         const fileName = fileNameWithPrefix.split("/").pop();
-                        if (!this.client) {
-                            throw new Error("AWS Client not initialized")
-                        }
                         const presignedURL = await getSignedUrl(this.client, command, { expiresIn: containerURLExpiry });
                         resolve({ [fileName]: presignedURL });
                     }
