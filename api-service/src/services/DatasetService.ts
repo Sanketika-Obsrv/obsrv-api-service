@@ -20,6 +20,7 @@ import { tableGenerator } from "./TableGenerator";
 import { deleteAlertByDataset, deleteMetricAliasByDataset } from "./managers";
 import { config } from "../configs/Config";
 import { Op } from "sequelize";
+import TableDraft from "../models/Table";
 
 class DatasetService {
 
@@ -73,6 +74,21 @@ class DatasetService {
         } else {
             return true;
         }
+    }
+
+    checkDatasourceExist = async (id: string): Promise<boolean> => {
+        const datasourceRef = await this.getDatasourceWithKey(id, ["id"], true);
+        if (_.isEmpty(datasourceRef)) {
+            const tables = TableDraft.findOne({ where: { id }, attributes: ["id"], raw: true }).catch((err: any) => {
+                if (err?.original?.code === '42P01') {
+                    logger.warn("Table 'table_draft' does not exist, returning empty array.");
+                    return null
+                }
+                throw obsrvError("", "FAILED_TO_FETCH_TABLES", err.message, "SERVER_ERROR", 500, err);
+            })
+            return !_.isEmpty(tables)
+        }
+        return true;
     }
 
     getDraftDataset = async (dataset_id: string, attributes?: string[]) => {
@@ -188,6 +204,7 @@ class DatasetService {
                 mode: _.get(config, ["mode"])
             }
         })
+        draftDataset["connectors_config"] = [];
         draftDataset["validation_config"] = _.omit(_.get(dataset, "validation_config"), ["validation_mode"])
         draftDataset["sample_data"] = dataset_config?.mergedEvent
         draftDataset["status"] = DatasetStatus.Draft
@@ -233,6 +250,7 @@ class DatasetService {
                     mode: _.get(config, "mode")
                 }
             })
+            draftDataset["connectors_config"] = [];
             draftDataset["api_version"] = "v2"
             draftDataset["sample_data"] = dataset_config?.mergedEvent
             draftDataset["validation_config"] = _.omit(_.get(dataset, "validation_config"), ["validation_mode"])
@@ -315,6 +333,16 @@ class DatasetService {
 
     findDatasources = async (where?: Record<string, any>, attributes?: string[], order?: any): Promise<any> => {
         return Datasource.findAll({ where, attributes, order, raw: true })
+    }
+
+    findDraftDatasources = async (where?: Record<string, any>, attributes?: string[], order?: any): Promise<any> => {
+        return TableDraft.findAll({ where, attributes, order, raw: true }).catch((err: any) => {
+            if (err?.original?.code === '42P01') {
+                logger.warn("Table 'table_draft' does not exist, returning empty array.");
+                return [];
+            }
+            throw obsrvError("", "FAILED_TO_FETCH_TABLES", err.message, "SERVER_ERROR", 500, err);
+        });
     }
 
     private deleteDruidSupervisors = async (dataset: Record<string, any>) => {

@@ -2,6 +2,21 @@
 
 const env = process.env.system_env || "local"
 
+const getCloudConfigs = () => {
+  const cloudConfig = process.env.cloud_storage_config;
+  const cloudProvider = process.env.cloud_storage_provider || "aws";
+  if (cloudConfig) {
+    const parsedCloudConfig = JSON.parse(cloudConfig);
+    if (cloudProvider === "aws") {
+      const updatedCloudConfig = { ...parsedCloudConfig, "webIdentityTokenFile": process.env.AWS_WEB_IDENTITY_TOKEN_FILE, "roleArn": process.env.AWS_ROLE_ARN };
+      return updatedCloudConfig;
+    }
+    return parsedCloudConfig;
+  }
+  return {};
+} 
+
+
 export const config = {
   "env": env,
   "api_port": process.env.api_port || 3000,
@@ -78,7 +93,7 @@ export const config = {
   "cloud_config": {
     "cloud_storage_provider": process.env.cloud_storage_provider || "aws", // Supported providers - AWS, GCP, Azure
     "cloud_storage_region": process.env.cloud_storage_region || "", // Region for the cloud provider storage
-    "cloud_storage_config": process.env.cloud_storage_config ? JSON.parse(process.env.cloud_storage_config) : {}, // Respective credentials object for cloud provider. Optional if service account provided
+    "cloud_storage_config": process.env.cloud_storage_config ? getCloudConfigs() : {}, // Respective credentials object for cloud provider. Optional if service account provided
     "container": process.env.container || "container", // Storage container/bucket name
     "container_prefix": process.env.container_prefix || "", // Path to the folder inside container/bucket. Empty if data at root level
     "storage_url_expiry": process.env.storage_url_expiry ? parseInt(process.env.storage_url_expiry) : 3600, // in seconds, Default 1hr of expiry for Signed URLs.

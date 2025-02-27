@@ -22,6 +22,10 @@ const validateRequest = async (req: Request) => {
     if (isDataSetExists) {
         throw obsrvError(datasetId, "DATASET_EXISTS", `Dataset Already exists with id:${datasetId}`, "CONFLICT", 409)
     }
+    const isDatasourceExists = await datasetService.checkDatasourceExist(datasetId);
+    if (isDatasourceExists) {
+        throw obsrvError(datasetId, "DATASOURCE_EXISTS", `Datasource Already exists with id:${datasetId}`, "CONFLICT", 409)
+    }
 
     const duplicateDenormKeys = datasetService.getDuplicateDenormKey(_.get(req, ["body", "request", "denorm_config"]))
     if (!_.isEmpty(duplicateDenormKeys)) {
