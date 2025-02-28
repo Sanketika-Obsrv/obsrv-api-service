@@ -16,8 +16,9 @@ const alerts = () => {
     return grafanaHttpClient.get("/api/prometheus/grafana/api/v1/rules");
 };
 
-const deleteAlertRule = (alertCategory: string) => {
-    return grafanaHttpClient.delete(`/api/ruler/grafana/api/v1/rules/${alertCategory}/${alertCategory}`);
+const deleteAlertRule = async (alertCategory: string) => {
+    const folderUid = await getFolderUid(alertCategory)
+    return grafanaHttpClient.delete(`/api/ruler/grafana/api/v1/rules/${folderUid}/${alertCategory}`);
 };
 
 const getFilteredAlerts = () => {
@@ -33,7 +34,7 @@ const deleteAlertFolder = async (folderName: string) => {
 const checkIfGroupNameExists = async (category: string) => {
     const response = await getRules();
     const rules = _.get(response, "data");
-    if(!_.has(rules, category)) return undefined;
+    if (!_.has(rules, category)) return undefined;
     return _.find(_.flatMap(_.values(rules)), {
         name: category,
     });
@@ -69,8 +70,9 @@ const updateMetadata = (metadata: any, dataSource: string, expression: string) =
     return metadata;
 };
 
-const addGrafanaRule = (payload: Record<string, any>) => {
-    return grafanaHttpClient.post(`/api/ruler/grafana/api/v1/rules/${payload.name}`, payload);
+const addGrafanaRule = async (payload: Record<string, any>) => {
+    const folderUid = await getFolderUid(payload.name)
+    return grafanaHttpClient.post(`/api/ruler/grafana/api/v1/rules/${folderUid}`, payload);
 };
 
 const getFolders = () => {
@@ -281,7 +283,7 @@ const groupRulesByCategory = (payload: Record<string, any>[]) => {
         const existing = _.get(accumulator, category) || [];
         accumulator[category] = [...existing, name];
         return accumulator
-      }, {});
+    }, {});
 }
 
 export {
