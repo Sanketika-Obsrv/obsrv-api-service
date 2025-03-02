@@ -1,14 +1,11 @@
 import dayjs from "dayjs";
 
-export const processingTimeQuery = (intervals: string, dataset_id: string) => ({
+export const processingTimeQuery = (intervals: string, dataset_id: string, time_period: any) => ({
   query: {
     queryType: "groupBy",
     dataSource: "system-events",
     intervals: intervals,
-    granularity: {
-      type: "all",
-      timeZone: "UTC"
-    },
+    granularity: time_period === 1 ? "hour" : "day",
     filter: {
       type: "and",
       fields: [
@@ -32,7 +29,7 @@ export const processingTimeQuery = (intervals: string, dataset_id: string) => ({
   }
 });
 
-export const totalEventsQuery = (intervals: string, dataset_id: string) => ({
+export const totalEventsQuery = (intervals: string, dataset_id: string, time_period: any) => ({
   queryType: "timeseries",
   dataSource: {
     type: "table",
@@ -48,10 +45,7 @@ export const totalEventsQuery = (intervals: string, dataset_id: string) => ({
     matchValueType: "STRING",
     matchValue: dataset_id
   },
-  granularity: {
-    type: "all",
-    timeZone: "UTC"
-  },
+  granularity: time_period === 1 ? "hour" : "day",
   aggregations: [
     {
       type: "longSum",
@@ -61,7 +55,7 @@ export const totalEventsQuery = (intervals: string, dataset_id: string) => ({
   ]
 });
 
-export const totalFailedEventsQuery = (intervals: string, dataset_id: string) => ({
+export const totalFailedEventsQuery = (intervals: string, dataset_id: string, time_period: any) => ({
   queryType: "timeseries",
   dataSource: {
     type: "table",
@@ -77,10 +71,7 @@ export const totalFailedEventsQuery = (intervals: string, dataset_id: string) =>
     matchValueType: "STRING",
     matchValue: dataset_id
   },
-  granularity: {
-    type: "all",
-    timeZone: "UTC"
-  },
+  granularity: time_period === 1? "hour" : "day",
   aggregations: [
     {
       type: "filtered",
@@ -111,7 +102,26 @@ export const totalFailedEventsQuery = (intervals: string, dataset_id: string) =>
   ]
 });
 
-export const generateTimeseriesQuery = (intervals: string, dataset_id: string) => ({
+export const generateTimeseriesQuery = (intervals: string, dataset_id: string, time_period: number) => ({
+  queryType: "timeseries",
+  dataSource: "system-events",
+  intervals: intervals,
+  granularity: time_period === 1 ? "hour" : "day",
+  filter: {
+    type: "and",
+    fields: [
+      { type: "selector", dimension: "ctx_module", value: "processing" },
+      { type: "selector", dimension: "ctx_dataset", value: dataset_id },
+      { type: "selector", dimension: "ctx_pdata_pid", value: "router" },
+      { type: "selector", dimension: "error_code", value: null }
+    ]
+  },
+  aggregations: [
+    { type: "longSum", name: "count", fieldName: "count" }
+  ]
+});
+
+export const timeseriesQueryForVolumePercentage = (intervals: string, dataset_id: string) => ({
   queryType: "timeseries",
   dataSource: "system-events",
   intervals: intervals,
@@ -245,56 +255,6 @@ export const generateTransformationFailedQuery = (intervals: string, dataset_id:
   ]
 });
 
-export const generateDedupFailedQuery = (intervals: string, dataset_id: string) => ({
-  queryType: "timeseries",
-  dataSource: {
-    type: "table",
-    name: "system-events"
-  },
-  intervals: {
-    type: "intervals",
-    intervals: [intervals]
-  },
-  filter: {
-    type: "equals",
-    column: "ctx_dataset",
-    matchValueType: "STRING",
-    matchValue: dataset_id
-  },
-  granularity: {
-    type: "all",
-    timeZone: "UTC"
-  },
-  aggregations: [
-    {
-      type: "filtered",
-      aggregator: {
-        type: "longSum",
-        name: "count",
-        fieldName: "count"
-      },
-      filter: {
-        type: "and",
-        fields: [
-          {
-            type: "equals",
-            column: "ctx_pdata_pid",
-            matchValueType: "STRING",
-            matchValue: "dedup"
-          },
-          {
-            type: "equals",
-            column: "error_type",
-            matchValueType: "STRING",
-            matchValue: "DedupFailed"
-          }
-        ]
-      },
-      name: "count"
-    }
-  ]
-});
-
 export const generateDenormFailedQuery = (intervals: string, dataset_id: string) => ({
   queryType: "timeseries",
   dataSource: {
@@ -388,15 +348,22 @@ export const generateConnectorQuery = (intervals: string, dataset_id: string) =>
 });
 
 export const generateTotalQueryCallsQuery = (time_period: string) => ({
-    end: dayjs().unix(),
-    query: `sum(sum_over_time(node_total_api_calls{entity="data-out"}[${time_period}]))`,
-    step: `${time_period}`,
-    start: dayjs().subtract(1, 'day').unix()
+  end: dayjs().unix(),
+  query: `sum(sum_over_time(node_total_api_calls{entity="data-out"}[${time_period}]))`,
+  step: `${time_period}`,
+  start: dayjs().subtract(1, 'day').unix()
 });
 
 export const generateDatasetQueryCallsQuery = (dataset: string, time_period: string) => ({
   end: dayjs().unix(),
   step: `${time_period}`,
   query: `sum(sum_over_time(node_total_api_calls{dataset_id="${dataset}",entity="data-out"}[${time_period}]))`,
+  start: dayjs().subtract(1, 'day').unix(),
+});
+
+export const generateDedupFailedQuery = (dataset: string, time_period: string) => ({
+  end: dayjs().unix(),
+  step: `1d`,
+  query: `sum(sum_over_time(flink_taskmanager_job_task_operator_PipelinePreprocessorJob_${dataset}_dedup_failed_count[${time_period}]))`,
   start: dayjs().subtract(1, 'day').unix(),
 });
