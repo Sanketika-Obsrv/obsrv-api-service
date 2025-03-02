@@ -7,7 +7,7 @@ import { schemaValidation } from "../../services/ValidationService";
 import validationSchema from "./DatasetMetrics.json";
 import { config } from "../../configs/Config";
 import { datasetService } from "../../services/DatasetService";
-import { getConnectors, getDataFreshness, getDataLineage, getDataObservability, getDataQuality, getDataVolume } from "../../services/DatasetMetricsService";
+import { getConnectors, getDataFreshness, getDataLineage, getDataObservability, getDataVolume } from "../../services/DatasetMetricsService";
 
 const apiId = "api.dataset.metrics";
 const datasetMetrics = async (req: Request, res: Response) => {
@@ -15,13 +15,44 @@ const datasetMetrics = async (req: Request, res: Response) => {
     const requestBody = req.body;
     const dataset_id = _.get(req, "body.request.dataset_id");
     const timePeriod = _.get(req, "body.request.query_time_period") || config?.data_observability?.default_query_time_period;
+    const input_start_date = _.get(req, "body.request.start_date");
+    const input_end_date = _.get(req, "body.request.end_date");
+    const formattedStartDate = dayjs(input_start_date, 'YYYY/M/D')
+        .startOf('day')
+        .format('YYYY-MM-DDTHH:mm:ss');
+
+    const formattedEndDate = dayjs(input_end_date, 'YYYY/M/D')
+        .endOf('day')
+        .format('YYYY-MM-DDTHH:mm:ss');
+
+    if (input_start_date && input_end_date) {
+        if (dayjs(formattedStartDate).isAfter(dayjs(formattedEndDate))) {
+            logger.error({ apiId, datasetId: dataset_id, msgid, message: "Start date cannot be greater than end date", code: "INVALID_DATE_RANGE" });
+            return ResponseHandler.errorResponse({
+                message: "Invalid date range",
+                statusCode: 400,
+                errCode: "BAD_REQUEST",
+                code: "INVALID_DATE_RANGE"
+            }, req, res);
+        }
+    }
+
+    if (dayjs(formattedEndDate).isAfter(dayjs())) {
+        logger.error({ apiId, datasetId: dataset_id, msgid, message: "End date cannot be greater than the current date", code: "INVALID_DATE_RANGE" });
+        return ResponseHandler.errorResponse({
+            message: "Invalid date range: End date cannot be in the future",
+            statusCode: 400,
+            errCode: "BAD_REQUEST",
+            code: "INVALID_DATE_RANGE"
+        }, req, res);
+    }
 
     const { category }: any = req.body.request;
     const defaultThreshold = (typeof config?.data_observability?.default_freshness_threshold === 'number' ? config?.data_observability?.default_freshness_threshold : 5) * 60 * 1000; // 5 minutes in milliseconds
     const dateFormat = 'YYYY-MM-DDTHH:mm:ss';
-    const endDate = dayjs().add(1, 'day').format(dateFormat);
+    const endDate = dayjs().format(dateFormat);
     const startDate = dayjs(endDate).subtract(timePeriod, 'day').format(dateFormat);
-    const intervals = `${startDate}/${endDate}`;
+    const intervals = _.get(req, "body.request.query_time_period") ? `${formattedStartDate}/${formattedEndDate}` : `${startDate}/${endDate}`;
     const isValidSchema = schemaValidation(requestBody, validationSchema);
     const results = [];
 
@@ -38,32 +69,27 @@ const datasetMetrics = async (req: Request, res: Response) => {
 
     try {
         if (!category || category.includes("data_freshness")) {
-            const dataFreshnessResult = await getDataFreshness(dataset_id, intervals, defaultThreshold);
+            const dataFreshnessResult = await getDataFreshness(dataset_id, intervals, defaultThreshold, timePeriod);
             results.push(dataFreshnessResult);
         }
 
         if (!category || category.includes("data_observability")) {
-            const dataObservabilityResult = await getDataObservability(dataset_id, intervals);
+            const dataObservabilityResult = await getDataObservability(dataset_id, intervals, timePeriod);
             results.push(dataObservabilityResult);
         }
 
         if (!category || category.includes("data_volume")) {
-            const dataVolumeResult = await getDataVolume(dataset_id, timePeriod, dateFormat);
+            const dataVolumeResult = await getDataVolume(dataset_id, intervals, dateFormat, timePeriod);
             results.push(dataVolumeResult);
         }
 
         if (!category || category.includes("data_lineage")) {
-            const dataLineageResult = await getDataLineage(dataset_id, intervals);
+            const dataLineageResult = await getDataLineage(dataset_id, intervals, timePeriod);
             results.push(dataLineageResult);
         }
 
         if (!category || category.includes("connectors")) {
             const connectorsResult = await getConnectors(dataset_id, intervals);
-            results.push(connectorsResult);
-        }
-
-        if (!category || category.includes("data_quality")) {
-            const connectorsResult = await getDataQuality(dataset_id, intervals);
             results.push(connectorsResult);
         }
 
