@@ -37,7 +37,7 @@ const datasetMetrics = async (req: Request, res: Response) => {
         }
     }
 
-    if (dayjs(formattedEndDate).isAfter(dayjs())) {
+    if (input_end_date && input_start_date && dayjs(formattedEndDate).isAfter(dayjs())) {
         logger.error({ apiId, datasetId: dataset_id, msgid, message: "End date cannot be greater than the current date", code: "INVALID_DATE_RANGE" });
         return ResponseHandler.errorResponse({
             message: "Invalid date range: End date cannot be in the future",
@@ -52,7 +52,7 @@ const datasetMetrics = async (req: Request, res: Response) => {
     const dateFormat = 'YYYY-MM-DDTHH:mm:ss';
     const endDate = dayjs().format(dateFormat);
     const startDate = dayjs(endDate).subtract(timePeriod, 'day').format(dateFormat);
-    const intervals = _.get(req, "body.request.query_time_period") ? `${formattedStartDate}/${formattedEndDate}` : `${startDate}/${endDate}`;
+    const intervals = (input_start_date && input_end_date) ? `${formattedStartDate}/${formattedEndDate}` : `${startDate}/${endDate}`;
     const isValidSchema = schemaValidation(requestBody, validationSchema);
     const results = [];
 
