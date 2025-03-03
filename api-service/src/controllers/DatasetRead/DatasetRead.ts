@@ -8,6 +8,7 @@ import { obsrvError } from "../../types/ObsrvError";
 import { cipherService } from "../../services/CipherService";
 import { Dataset } from "../../models/Dataset";
 import { Datasource } from "../../models/Datasource";
+import { userService } from "../../services/UserService";
 
 export const apiId = "api.datasets.read";
 export const errorCode = "DATASET_READ_FAILURE"
@@ -56,6 +57,14 @@ const readDraftDataset = async (datasetId: string, attributes: string[], userID:
 
     const liveDataset = await datasetService.getDataset(datasetId, undefined, true);
     if (liveDataset) {
+        const userCondition = { id: userID };
+        const userDetails = ["roles", "user_name"];
+        const user = await userService.getUser(userCondition, userDetails);
+        const userRoles = _.get(user, "roles");
+        const hasValidRole = userRoles.some((role: string) => ['dataset_manager', 'admin'].includes(role));
+        if (!hasValidRole) {
+            throw obsrvError(datasetId, "UNAUTHORIZED_ACCESS", "Access denied. User does not have permission to perform this action", "FORBIDDEN", 403);
+        }
         const dataset = await datasetService.createDraftDatasetFromLive(liveDataset, userID)
         return _.pick(dataset, attributes);
     }
