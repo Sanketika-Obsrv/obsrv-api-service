@@ -317,7 +317,6 @@
             }
           },
           "required": [
-            "data_key",
             "timestamp_key"
           ],
           "additionalProperties": false
@@ -338,9 +337,42 @@
           },
           "required": [
             "redis_db_host",
-            "redis_db_port"
+            "redis_db_port",
+            "redis_db"
           ],
           "additionalProperties": false
+        }
+      },
+      "if": {
+        "properties": {
+          "indexing_config": {
+            "type": "object",
+            "anyOf": [
+              {
+                "properties": {
+                  "lakehouse_enabled": {
+                    "const": true
+                  }
+                }
+              },
+              {
+                "properties": {
+                  "cache_enabled": {
+                    "const": true
+                  }
+                }
+              }
+            ]
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "keys_config": {
+            "required": [
+              "data_key"
+            ]
+          }
         }
       },
       "required": [

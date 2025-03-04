@@ -20,6 +20,7 @@ import { tableGenerator } from "./TableGenerator";
 import { deleteAlertByDataset, deleteMetricAliasByDataset } from "./managers";
 import { config } from "../configs/Config";
 import { Op } from "sequelize";
+import TableDraft from "../models/Table";
 
 class DatasetService {
 
@@ -27,14 +28,27 @@ class DatasetService {
         return Dataset.findOne({ where: { id: datasetId }, attributes, raw: raw });
     }
 
+    getDatasourceWithKey = async (datasourceKey: string, attributes?: string[], raw = false, is_primary?: boolean): Promise<any> => {
+        const whereCondition: any = {
+            [Op.or]: [{ datasource: datasourceKey }, { id: datasourceKey }]
+        };
+
+        if (is_primary) {
+            whereCondition.is_primary = true;
+        }
+
+        return Datasource.findOne({
+            where: whereCondition,
+            attributes,
+            raw: raw
+        });
+    }
+
     getDatasetWithDatasetkey = async (datasetKey: string, attributes?: string[], raw = false): Promise<any> => {
+        const datasource = await this.getDatasourceWithKey(datasetKey, ["datasource_ref", "dataset_id"], true, true)
+        const dataset_id = !_.isEmpty(datasource) ? _.get(datasource, "dataset_id") : datasetKey
         return Dataset.findOne({
-            where: {
-                [Op.and]: [
-                    { [Op.or]: [{ dataset_id: datasetKey }, { alias: datasetKey }] },
-                    { status: DatasetStatus.Live }
-                ]
-            }, attributes, raw: raw
+            where: { dataset_id }, attributes, raw: raw
         });
     }
 
@@ -62,6 +76,21 @@ class DatasetService {
         }
     }
 
+    checkDatasourceExist = async (id: string): Promise<boolean> => {
+        const datasourceRef = await this.getDatasourceWithKey(id, ["id"], true);
+        if (_.isEmpty(datasourceRef)) {
+            const tables = TableDraft.findOne({ where: { id }, attributes: ["id"], raw: true }).catch((err: any) => {
+                if (err?.original?.code === '42P01') {
+                    logger.warn("Table 'table_draft' does not exist, returning empty array.");
+                    return null
+                }
+                throw obsrvError("", "FAILED_TO_FETCH_TABLES", err.message, "SERVER_ERROR", 500, err);
+            })
+            return !_.isEmpty(tables)
+        }
+        return true;
+    }
+
     getDraftDataset = async (dataset_id: string, attributes?: string[]) => {
         return DatasetDraft.findOne({ where: { dataset_id }, attributes, raw: true });
     }
@@ -86,8 +115,32 @@ class DatasetService {
         return ConnectorInstances.findAll({ where: { dataset_id }, attributes, raw: true });
     }
 
+    getDatasource = async (datasource_id: string, attributes?: string[]) => {
+        return Datasource.findOne({ where: { id: datasource_id }, attributes, raw: true });
+    }
+
+    updateDatasource = async (payload: Record<string, any>, where: Record<string, any>): Promise<Record<string, any>> => {
+        return Datasource.update(payload, { where });
+    }
+
     getTransformations = async (dataset_id: string, attributes?: string[]) => {
         return DatasetTransformations.findAll({ where: { dataset_id }, attributes, raw: true });
+    }
+
+    getLiveDatasets = async (filters: Record<string, any>, attributes?: string[]): Promise<Record<string, any>> => {
+        Dataset.hasMany(Datasource, { foreignKey: 'dataset_id' });
+        const datasets = await Dataset.findAll({
+            include: [
+                {
+                    model: Datasource,
+                    attributes: ['datasource'],
+                    where: { is_primary: true },
+                    required: false
+                },
+            ], raw: true, where: filters, attributes, order: [["updated_date", "DESC"]]
+        });
+        const updatedDatasets = _.map(datasets, (dataset) => ({ ...dataset, alias: _.get(dataset, "datasources.datasource") }))
+        return updatedDatasets;
     }
 
     updateDraftDataset = async (draftDataset: Record<string, any>): Promise<Record<string, any>> => {
@@ -151,16 +204,7 @@ class DatasetService {
                 mode: _.get(config, ["mode"])
             }
         })
-        const connectorsFields = ["id", "connector_type", "connector_config"]
-        const connectors = _.includes([DatasetStatus.Live], status) ? await this.getConnectorsV1(dataset_id, connectorsFields) : await this.getDraftConnectors(dataset_id, connectorsFields);
-        draftDataset["connectors_config"] = _.map(connectors, (config) => {
-            return {
-                id: _.get(config, ["id"]),
-                connector_id: _.get(config, ["connector_type"]),
-                connector_config: _.get(config, ["connector_config"]),
-                version: "v1"
-            }
-        })
+        draftDataset["connectors_config"] = [];
         draftDataset["validation_config"] = _.omit(_.get(dataset, "validation_config"), ["validation_mode"])
         draftDataset["sample_data"] = dataset_config?.mergedEvent
         draftDataset["status"] = DatasetStatus.Draft
@@ -192,15 +236,6 @@ class DatasetService {
                 keys_config: { data_key: dataset_config.data_key, timestamp_key: dataset_config.timestamp_key },
                 cache_config: { redis_db_host: dataset_config.redis_db_host, redis_db_port: dataset_config.redis_db_port, redis_db: dataset_config.redis_db }
             }
-            const connectors = await this.getConnectorsV1(draftDataset.dataset_id, ["id", "connector_type", "connector_config"]);
-            draftDataset["connectors_config"] = _.map(connectors, (config) => {
-                return {
-                    id: _.get(config, "id"),
-                    connector_id: _.get(config, "connector_type"),
-                    connector_config: _.get(config, "connector_config"),
-                    version: "v1"
-                }
-            })
             const transformations = await this.getTransformations(draftDataset.dataset_id, ["field_key", "transformation_function", "mode", "metadata"]);
             draftDataset["transformations_config"] = _.map(transformations, (config) => {
                 const section: any = _.get(config, "metadata.section");
@@ -215,13 +250,14 @@ class DatasetService {
                     mode: _.get(config, "mode")
                 }
             })
+            draftDataset["connectors_config"] = [];
             draftDataset["api_version"] = "v2"
             draftDataset["sample_data"] = dataset_config?.mergedEvent
             draftDataset["validation_config"] = _.omit(_.get(dataset, "validation_config"), ["validation_mode"])
         } else {
-            const v1connectors = await getV1Connectors(draftDataset.dataset_id);
             const v2connectors = await this.getConnectors(draftDataset.dataset_id, ["id", "connector_id", "connector_config", "operations_config"]);
-            draftDataset["connectors_config"] = _.concat(v1connectors, v2connectors)
+            const updatedConnectorsPayload = getUpdatedV2ConnectorsPayload(v2connectors)
+            draftDataset["connectors_config"] = updatedConnectorsPayload;
             const transformations = await this.getTransformations(draftDataset.dataset_id, ["field_key", "transformation_function", "mode"]);
             draftDataset["transformations_config"] = transformations
         }
@@ -299,6 +335,16 @@ class DatasetService {
         return Datasource.findAll({ where, attributes, order, raw: true })
     }
 
+    findDraftDatasources = async (where?: Record<string, any>, attributes?: string[], order?: any): Promise<any> => {
+        return TableDraft.findAll({ where, attributes, order, raw: true }).catch((err: any) => {
+            if (err?.original?.code === '42P01') {
+                logger.warn("Table 'table_draft' does not exist, returning empty array.");
+                return [];
+            }
+            throw obsrvError("", "FAILED_TO_FETCH_TABLES", err.message, "SERVER_ERROR", 500, err);
+        });
+    }
+
     private deleteDruidSupervisors = async (dataset: Record<string, any>) => {
 
         try {
@@ -322,11 +368,17 @@ class DatasetService {
         try {
             await DatasetDraft.update(draftDataset, { where: { id: draftDataset.id }, transaction })
             if (indexingConfig.olap_store_enabled) {
-                await this.createDruidDataSource(draftDataset, transaction);
+                const existingDatasource = await Datasource.findAll({ where: { dataset_id: draftDataset.dataset_id }, raw: true }) as unknown as Record<string, any>
+                const getDatasetDatasource = _.find(existingDatasource, datasource => !_.get(datasource, "metadata.aggregated") && _.get(datasource, "metadata.granularity") === "day")
+                if (!_.isEmpty(getDatasetDatasource)) {
+                    await this.updateDruidDataSource(draftDataset, transaction, getDatasetDatasource);
+                }
+                else {
+                    await this.createDruidDataSource(draftDataset, transaction);
+                }
             }
             if (indexingConfig.lakehouse_enabled) {
                 const liveDataset = await this.getDataset(draftDataset.dataset_id, ["id", "api_version"], true);
-
                 if (liveDataset && liveDataset.api_version === "v2") {
                     await this.updateHudiDataSource(draftDataset, transaction)
                 } else {
@@ -351,6 +403,19 @@ class DatasetService {
         _.set(draftDatasource, "ingestion_spec", ingestionSpec)
         _.set(draftDatasource, "created_by", created_by);
         _.set(draftDatasource, "updated_by", updated_by);
+        await DatasourceDraft.upsert(draftDatasource, { transaction })
+    }
+
+    private updateDruidDataSource = async (draftDataset: Record<string, any>, transaction: Transaction, existingDatasource: Record<string, any>) => {
+
+        const { created_by, updated_by } = draftDataset;
+        const allFields = await tableGenerator.getAllFields(draftDataset, "druid");
+        const ingestionSpec = tableGenerator.getDruidIngestionSpec(draftDataset, allFields, existingDatasource.datasource_ref);
+        let draftDatasource = existingDatasource
+        _.set(draftDatasource, "ingestion_spec", ingestionSpec)
+        _.set(draftDatasource, "created_by", created_by);
+        _.set(draftDatasource, "updated_by", updated_by);
+        _.set(draftDatasource, "type", "druid");
         await DatasourceDraft.upsert(draftDatasource, { transaction })
     }
 
@@ -385,7 +450,7 @@ class DatasetService {
         const datasource = _.join([draftDataset.dataset_id, "events"], "_")
         return {
             id: _.join([datasource, type], "_"),
-            datasource: draftDataset.dataset_id,
+            datasource: _.join([draftDataset.dataset_id, type], "_"),
             dataset_id: draftDataset.id,
             datasource_ref: datasource,
             type
@@ -398,30 +463,20 @@ export const getLiveDatasetConfigs = async (dataset_id: string) => {
 
     const datasetRecord = await datasetService.getDataset(dataset_id, undefined, true)
     const transformations = await datasetService.getTransformations(dataset_id, ["field_key", "transformation_function", "mode"])
-    const connectorsV2 = await datasetService.getConnectors(dataset_id, ["id", "connector_id", "connector_config", "operations_config"])
-    const connectorsV1 = await getV1Connectors(dataset_id)
-    const connectors = _.concat(connectorsV1, connectorsV2)
+    const connectors = await datasetService.getConnectors(dataset_id, ["id", "connector_id", "connector_config", "operations_config"])
+    const updatedConnectorsPayload = getUpdatedV2ConnectorsPayload(connectors)
 
     if (!_.isEmpty(transformations)) {
         datasetRecord["transformations_config"] = transformations
     }
     if (!_.isEmpty(connectors)) {
-        datasetRecord["connectors_config"] = connectors
+        datasetRecord["connectors_config"] = updatedConnectorsPayload
     }
     return datasetRecord;
 }
 
-export const getV1Connectors = async (datasetId: string) => {
-    const v1connectors = await datasetService.getConnectorsV1(datasetId, ["id", "connector_type", "connector_config"]);
-    const modifiedV1Connectors = _.map(v1connectors, (config) => {
-        return {
-            id: _.get(config, "id"),
-            connector_id: _.get(config, "connector_type"),
-            connector_config: _.get(config, "connector_config"),
-            version: "v1"
-        }
-    })
-    return modifiedV1Connectors;
+export const getUpdatedV2ConnectorsPayload = (connectors: Record<string, any>) => {
+    return _.map(connectors, connector => ({ ...connector, "version": "v2" }))
 }
 
 const storageTypes = JSON.parse(config.storage_types)
