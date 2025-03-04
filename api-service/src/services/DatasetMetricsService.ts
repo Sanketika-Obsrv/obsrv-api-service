@@ -2,7 +2,7 @@ import axios from "axios";
 import dayjs from "dayjs";
 import _ from "lodash";
 import { config } from "../configs/Config";
-import { dataLineageSuccessQuery, generateConnectorQuery, generateDatasetQueryCallsQuery, generateDedupFailedQuery, generateDenormFailedQuery, generateTimeseriesQuery, generateTimeseriesQueryEventsPerHour, generateTotalQueryCallsQuery, generateTransformationFailedQuery, processingTimeQuery, timeseriesQueryForVolumePercentage, totalEventsQuery, totalFailedEventsQuery } from "../controllers/DatasetMetrics/queries";
+import { dataLineageSuccessQuery, extractorBatchDuplicateCountQuery, extractorSuccessCountQuery, generateConnectorQuery, generateDatasetQueryCallsQuery, generateDedupFailedQuery, generateDenormFailedQuery, generateTimeseriesQuery, generateTotalQueryCallsQuery, generateTransformationFailedQuery, processingTimeQuery, totalEventsQuery, totalFailedEventsQuery } from "../controllers/DatasetMetrics/queries";
 const druidPort = _.get(config, "query_api.druid.port");
 const druidHost = _.get(config, "query_api.druid.host");
 const nativeQueryEndpoint = `${druidHost}:${druidPort}${config.query_api.druid.native_query_path}`;
@@ -66,7 +66,7 @@ export const getDataFreshness = async (dataset_id: string, intervals: string, de
         );
 
         // Fill in all days
-        while (currentDate.isBefore(lastDate) || currentDate.isSame(lastDate, 'day')) {
+        while (currentDate.isBefore(lastDate)) {
             const dateStr = currentDate.format('YYYY-MM-DD');
             const processingTime: any = dataMap.get(dateStr) || 0;
 
@@ -222,7 +222,7 @@ export const getDataObservability = async (dataset_id: string, intervals: string
     );
 
     // Fill in all days
-    while (currentDate.isBefore(lastDate) || currentDate.isSame(lastDate, 'day')) {
+    while (currentDate.isBefore(lastDate)) {
         const dateStr = currentDate.format('YYYY-MM-DD');
         const totalEvents: any = eventsMap.get(dateStr) || 0;
         const failedEvents: any = failedEventsMap.get(dateStr) || 0;
@@ -233,7 +233,7 @@ export const getDataObservability = async (dataset_id: string, intervals: string
         if (totalEvents > 0) {
             const failurePercentage = (failedEvents / totalEvents) * 100;
             status = failurePercentage > 5 ? "Unhealthy" : "Healthy";
-            reason = status === "Unhealthy" ? "High events failure rate detected is higher than threshold" : "No issues reported";
+            reason = status === "Unhealthy" ? "Events failure rate is higher than threshold" : "No issues reported";
         }
 
         statusArray.push({
@@ -398,8 +398,7 @@ export const getDataVolume = async (dataset_id: string, interval: string, dateFo
     };
 };
 
-export const getDataLineage = async (dataset_id: any, intervals: string,time_period:any) => {
-    console.log(intervals)
+export const getDataLineage = async (dataset_id: any, intervals: string, time_period: any) => {
     const datasetId = dataset_id.replaceAll("-", "_"); // for promql
     const transformationSuccessPayload = dataLineageSuccessQuery(intervals, dataset_id, "transformer_status", "success");
     const dedupSuccessPayload = dataLineageSuccessQuery(intervals, dataset_id, "dedup_status", "success");
@@ -409,10 +408,14 @@ export const getDataLineage = async (dataset_id: any, intervals: string,time_per
     const transformationFailedPayload = generateTransformationFailedQuery(intervals, dataset_id);
     const dedupFailedPayload = generateDedupFailedQuery(datasetId, `${time_period}d`);
     const denormFailedPayload = generateDenormFailedQuery(intervals, dataset_id);
+    const extractorSuccessCountPayload = extractorSuccessCountQuery(datasetId, `${time_period}d`);
+    const extractorBatchDuplicatePayload = extractorBatchDuplicateCountQuery(datasetId, `${time_period}d`);
 
     const [
         transformationSuccessResponse, dedupSuccessResponse, denormSuccessResponse,
-        totalValidationResponse, totalValidationFailedResponse, transformationFailedResponse, dedupFailedResponse, denormFailedResponse
+        totalValidationResponse, totalValidationFailedResponse, transformationFailedResponse,
+        dedupFailedResponse, denormFailedResponse, extractorSuccessCountResponse,
+        extractorBatchDuplicateResponse
     ] = await Promise.all([
         axios.post(nativeQueryEndpoint, transformationSuccessPayload),
         axios.post(nativeQueryEndpoint, dedupSuccessPayload),
@@ -421,7 +424,9 @@ export const getDataLineage = async (dataset_id: any, intervals: string,time_per
         axios.post(nativeQueryEndpoint, totalValidationFailedPayload),
         axios.post(nativeQueryEndpoint, transformationFailedPayload),
         axios.request({ url: prometheusEndpoint, method: "GET", params: dedupFailedPayload }),
-        axios.post(nativeQueryEndpoint, denormFailedPayload)
+        axios.post(nativeQueryEndpoint, denormFailedPayload),
+        axios.request({ url: prometheusEndpoint, method: "GET", params: extractorSuccessCountPayload }),
+        axios.request({ url: prometheusEndpoint, method: "GET", params: extractorBatchDuplicatePayload }),
     ]);
 
     // success at each level
@@ -437,18 +442,27 @@ export const getDataLineage = async (dataset_id: any, intervals: string,time_per
     const dedupFailedCount = _.map(_.get(dedupFailedResponse, 'data.data.result'), payload => {
         return _.floor(_.get(payload, 'values[0][1]')) || 0
     })
+    const extractorSuccessCount = _.map(_.get(extractorSuccessCountResponse, 'data.data.result'), payload => {
+        return _.floor(_.get(payload, 'values[0][1]')) || 0
+    })
+    const extractorBatchDuplicateCount = _.map(_.get(extractorBatchDuplicateResponse, 'data.data.result'), payload => {
+        return _.floor(_.get(payload, 'values[0][1]')) || 0
+    })
     const denormFailedCount = _.get(denormFailedResponse, "data[0].result.count") || 0;
     return {
         category: "data_lineage",
         components: [
+            { type: "extractor_batch_success", value: extractorSuccessCount[0] },
             { type: "total_success", value: storageSuccessCount },
             { type: "dedup_success", value: dedupSuccessCount },
             { type: "denormalization_success", value: denormSuccessCount },
             { type: "transformation_success", value: transformationSuccessCount },
+            { type: "extraction_failed", value: 0 },
             { type: "total_failed", value: totalValidationFailedCount + dedupFailedCount[0] },
             { type: "dedup_failed", value: dedupFailedCount[0] },
             { type: "denorm_failed", value: denormFailedCount },
-            { type: "transformation_failed", value: transformationFailedCount }
+            { type: "transformation_failed", value: transformationFailedCount },
+            { type: "extractor_batch_duplicate", value: extractorBatchDuplicateCount[0] }
         ]
     };
 };
