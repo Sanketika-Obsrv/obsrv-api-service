@@ -46,14 +46,37 @@
                     },
                     "minItems": 1
                 },
-                "query_time_period":{
+                "query_time_period": {
                     "type": "integer",
                     "minimum": 1
+                },
+                "start_date": {
+                    "type": "string"
+                },
+                "end_date": {
+                    "type": "string"
                 }
             },
             "required": [
                 "category",
                 "dataset_id"
+            ],
+            "oneOf": [
+                {
+                    "required": ["query_time_period"],
+                    "not": {
+                        "anyOf": [
+                            { "required": ["start_date"] },
+                            { "required": ["end_date"] }
+                        ]
+                    }
+                },
+                {
+                    "required": ["start_date", "end_date"],
+                    "not": {
+                        "required": ["query_time_period"]
+                    }
+                }
             ]
         }
     },
