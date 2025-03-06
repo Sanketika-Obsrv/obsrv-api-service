@@ -61,7 +61,7 @@ const readDraftDataset = async (datasetId: string, attributes: string[], userID:
         if (_.lowerCase(config.is_RBAC_enabled) !== "false") {
             const user = await userService.getUser({ id: userID }, ["roles", "user_name"]);
             const userRoles = _.get(user, "roles");
-            const hasValidRole = userRoles.some((role: string) => ['dataset_manager', 'admin'].includes(role));
+            const hasValidRole = _.some(userRoles, (role: string) => ['dataset_manager', 'admin'].includes(role));
             if (!hasValidRole) {
                 throw obsrvError(datasetId, "UNAUTHORIZED_ACCESS", "Access denied. User does not have permission to perform this action", "FORBIDDEN", 403);
             }
