@@ -41,8 +41,8 @@ const addMetadataToEvents = (datasetId: string, payload: any, extraction_config:
     const validData = _.get(payload, "data");
     const now = Date.now();
     const mid = _.get(payload, "params.msgid");
-    const source = { id: "api.data.in", version: config?.version, entry_source: "api" };
-    const obsrvMeta = { syncts: now, flags: {}, timespans: {}, error: {}, source: source };
+    const source = { connector: 'api', connectorInstance: 'api' };
+    const obsrvMeta = { syncts: now, flags: {}, timespans: {}, error: {}, source };
     if (Array.isArray(validData)) {
         const extraction_key: string = _.get(extraction_config, "extraction_key", 'events');
         const dedup_key: string = _.get(extraction_config, "dedup_config.dedup_key", 'id');
