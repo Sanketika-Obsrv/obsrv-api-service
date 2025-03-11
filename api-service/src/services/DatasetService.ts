@@ -21,6 +21,7 @@ import { deleteAlertByDataset, deleteMetricAliasByDataset } from "./managers";
 import { config } from "../configs/Config";
 import { Op } from "sequelize";
 import TableDraft from "../models/Table";
+import { alertService } from "./AlertManagerService";
 
 class DatasetService {
 
@@ -385,6 +386,7 @@ class DatasetService {
                     await this.createHudiDataSource(draftDataset, transaction)
                 }
             }
+            await alertService.createDatasetAlerts(draftDataset, transaction);
             await transaction.commit()
         } catch (err: any) {
             await transaction.rollback()
