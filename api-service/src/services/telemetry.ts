@@ -1,15 +1,17 @@
-import { Request, Response, NextFunction } from "express"
+import { Request, Response, NextFunction, response } from "express"
 import { v4 } from "uuid";
-import _ from "lodash";
+import _, { List } from "lodash";
 import { config as appConfig } from "../configs/Config";
 import {send} from "../connections/kafkaConnection"
 import { OTelService } from "./otel/OTelService";
-
+import { request } from "http";
+// import  userPermissions  from "../middlewares/userPermissions.json";
 const {env, version} = _.pick(appConfig, ["env","version"])
 const telemetryTopic = _.get(appConfig, "telemetry_dataset");
 
 export enum OperationType { CREATE = 1, UPDATE, PUBLISH, RETIRE, LIST, GET }
 
+// const AccessLogEvents = [...userPermissions.apiGroups.general_access, ...userPermissions.apiGroups.queryTemplate, ...userPermissions.apiGroups.sqlQuery]
 
 const getDefaults = (userID:any) => {
     return {
@@ -103,6 +105,25 @@ const setAuditEventType = (operationType: any, request: any) => {
     }
 }
 
+const setLogEventType = (operationType: any, request: any) => {
+    switch (operationType) {
+        case OperationType.CREATE: {
+            _.set(request, "logEvent.type", "create");
+            break;
+        }
+        case OperationType.LIST: {
+            _.set(request, "logEvent.type", "list");
+            break;
+        }
+        case OperationType.GET: {
+            _.set(request, "logEvent.type", "get");
+            break;
+        }
+        default:
+            break;
+    }
+}
+
 export const telemetryAuditStart = ({ operationType, action }: any) => {
     return async (request: any, response: Response, next: NextFunction) => {
         try {
@@ -119,9 +140,24 @@ export const telemetryAuditStart = ({ operationType, action }: any) => {
     }
 }
 
-export const processAuditEvents = (request: Request) => {
-    const auditEvent: any = _.get(request, "auditEvent");
-    if (auditEvent) {
+export const telemetryLogStart = ({ operationType, action }: any) =>{
+    return async ( request: any, response: Response, next: NextFunction) => {
+        try{
+            const body = request.body || {};
+            const user_id = (request as any)?.userID
+            request.logEvent = getDefaultLog(action, user_id);
+            // const props = transformProps(body);
+            // _.set(request, "logEvent.edata.props", props);
+            setLogEventType( operationType, request);
+        } catch (error) {
+            console.log(error)
+        } finally {
+            next();
+        }
+    }
+}
+
+export const processAuditEvents = (auditEvent: any, request: Request) => {
         const { startEts, object = {}, edata = {}, toState, fromState }: any = auditEvent;
         const endEts = Date.now();
         const duration = startEts ? (endEts - startEts) : 0;
@@ -134,15 +170,53 @@ export const processAuditEvents = (request: Request) => {
         _.set(telemetryEvent, "edata", edata);
         _.set(telemetryEvent, "object", { ...(object.id && object.type && { ...object, ver: "1.0.0" }) });
         sendTelemetryEvents(telemetryEvent);
+}
+
+export const setLogTransition = (telemetryLogEvent: any, request: Request, response: Response) => {
+    _.set(telemetryLogEvent, "timeTransition.duration", )
+    return telemetryLogEvent
+}
+
+export const setLogEdata = (logEvent: any,request: Request, response: Response) => {
+    const {edata = {}}: any = logEvent;
+    const userID = (request as any)?.userID || "SYSTEM";
+    const telemetryLogEvent = getDefaultLog(edata.action,userID);
+    _.set(telemetryLogEvent, "edata", edata);
+    _.set(telemetryLogEvent, "edata.id",request.body?.id || "")
+    _.set(telemetryLogEvent, "edata.level", response.statusCode != 200 ? "ERROR" : "INFO");
+    _.set(telemetryLogEvent,"edata.params.method", request?.method || "")
+    _.set(telemetryLogEvent, "edata.params.url", request?.originalUrl || "")
+    _.set(telemetryLogEvent, "edata.params.type", logEvent?.type || "")
+    _.set(telemetryLogEvent, "edata.params.statusCode", response?.statusCode || "")
+    _.set(telemetryLogEvent, "edata.query", request.body?.query || null)
+    _.set(telemetryLogEvent, "timeTransition.duration", Date.now() - telemetryLogEvent.ets)
+    // _.set(telemetryLogEvent, "edata.user-agent", request?.headers['user-agent'] || "")
+    return setLogTransition(telemetryLogEvent, request, response)
+}
+
+export const processLogEvents = (logEvent: any, request: Request, response: Response) => {
+    console.log("============response==============\n", response)
+    console.log("=========================================================")
+    const telemetryLogEvent: any = setLogEdata(logEvent, request, response);
+    sendTelemetryEvents(telemetryLogEvent);
+}
+
+export const processEvents = (request: Request, response: Response) => {
+    if (request?.auditEvent) {
+        processAuditEvents(_.get(request,"auditEvent"), request);
+    }
+    else {
+        processLogEvents(_.get(request,"logEvent"), request, response);
     }
 }
 
-export const interceptAuditEvents = () => {
+export const interceptEvents = () => {
     return (request: Request, response: Response, next: NextFunction) => {
         response.on("finish", () => {
             const statusCode = _.get(response, "statusCode");
             const isError = statusCode && statusCode >= 400;
-            !isError && processAuditEvents(request);
+            // !isError && processAuditEvents(request);
+            processEvents(request, response);
         })
         next();
     }
@@ -183,3 +257,46 @@ export const findAndSetExistingRecord = async ({ dbConnector, table, filters, re
         }
     }
 }
+
+export const getDefaultLog = (actionType: any, userID: any ) => {
+    return {
+        // actor :{
+        //     id: userID,
+        //     type: "User"
+        // },
+        // eid: "LOG",
+        // edata: {
+        //     action: actionType,
+        //     props: []
+        // },
+        // ver: "1.0.0",
+        // ets: Date.now(),
+        // context: {
+        //     env,
+        //     sid: v4(),
+        //     pdata: {
+        //         id: `${env}.api.service`,
+        //         ver: `${version}`
+        //     }
+        // },
+        // cdata: {},
+        // object: {}
+
+        eid: "LOG",
+        ets: Date.now(),
+        ver: "1.0.0",
+        mid: v4(),
+        actor: {
+            id: userID,
+            type: "User"
+        },
+        context:{
+            pdata:{
+                id: 'obsrv.api.service', 
+                ver: '1.6.0'
+            }
+        },
+        sid: v4(),
+        edata:{}
+    }
+} 

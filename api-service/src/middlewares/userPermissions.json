@@ -15,7 +15,8 @@
             "api.alert.notification.list",
             "api.alert.notification.get",
             "api.dataset.metrics",
-            "api.datasources.list"
+            "api.datasources.list",
+            "api.data.metrics"
         ],
         "restricted_dataset_api": [
             "api.datasets.reset",
