@@ -5,13 +5,10 @@ import { config as appConfig } from "../configs/Config";
 import {send} from "../connections/kafkaConnection"
 import { OTelService } from "./otel/OTelService";
 import { request } from "http";
-// import  userPermissions  from "../middlewares/userPermissions.json";
-const {env, version} = _.pick(appConfig, ["env","version"])
+const {env, version, id} = _.pick(appConfig, ["env","version", "id"])
 const telemetryTopic = _.get(appConfig, "telemetry_dataset");
 
 export enum OperationType { CREATE = 1, UPDATE, PUBLISH, RETIRE, LIST, GET }
-
-// const AccessLogEvents = [...userPermissions.apiGroups.general_access, ...userPermissions.apiGroups.queryTemplate, ...userPermissions.apiGroups.sqlQuery]
 
 const getDefaults = (userID:any) => {
     return {
@@ -143,11 +140,8 @@ export const telemetryAuditStart = ({ operationType, action }: any) => {
 export const telemetryLogStart = ({ operationType, action }: any) =>{
     return async ( request: any, response: Response, next: NextFunction) => {
         try{
-            const body = request.body || {};
             const user_id = (request as any)?.userID
             request.logEvent = getDefaultLog(action, user_id);
-            // const props = transformProps(body);
-            // _.set(request, "logEvent.edata.props", props);
             setLogEventType( operationType, request);
         } catch (error) {
             console.log(error)
@@ -172,11 +166,6 @@ export const processAuditEvents = (auditEvent: any, request: Request) => {
         sendTelemetryEvents(telemetryEvent);
 }
 
-export const setLogTransition = (telemetryLogEvent: any, request: Request, response: Response) => {
-    _.set(telemetryLogEvent, "timeTransition.duration", )
-    return telemetryLogEvent
-}
-
 export const setLogEdata = (logEvent: any,request: Request, response: Response) => {
     const {edata = {}}: any = logEvent;
     const userID = (request as any)?.userID || "SYSTEM";
@@ -188,34 +177,35 @@ export const setLogEdata = (logEvent: any,request: Request, response: Response) 
     _.set(telemetryLogEvent, "edata.params.url", request?.originalUrl || "")
     _.set(telemetryLogEvent, "edata.params.type", logEvent?.type || "")
     _.set(telemetryLogEvent, "edata.params.statusCode", response?.statusCode || "")
-    _.set(telemetryLogEvent, "edata.query", request.body?.query || null)
-    _.set(telemetryLogEvent, "timeTransition.duration", Date.now() - telemetryLogEvent.ets)
-    // _.set(telemetryLogEvent, "edata.user-agent", request?.headers['user-agent'] || "")
-    return setLogTransition(telemetryLogEvent, request, response)
+    _.set(telemetryLogEvent, "edata.params.query", request.body?.query || request.body.querySql?.query || null)
+    _.set(telemetryLogEvent, "edata.params.duration", Date.now() - logEvent.ets)
+    return telemetryLogEvent
 }
 
 export const processLogEvents = (logEvent: any, request: Request, response: Response) => {
-    console.log("============response==============\n", response)
-    console.log("=========================================================")
     const telemetryLogEvent: any = setLogEdata(logEvent, request, response);
     sendTelemetryEvents(telemetryLogEvent);
 }
 
 export const processEvents = (request: Request, response: Response) => {
-    if (request?.auditEvent) {
-        processAuditEvents(_.get(request,"auditEvent"), request);
+    try{
+        if (request?.auditEvent) {
+            const statusCode = _.get(response, "statusCode");
+            const isError = statusCode && statusCode >= 400;
+            !isError && processAuditEvents(_.get(request,"auditEvent"), request)
+        }
+        else  {
+            processLogEvents(_.get(request,"logEvent"), request, response);
+        }
     }
-    else {
-        processLogEvents(_.get(request,"logEvent"), request, response);
+    catch (error) {
+        console.log(error)
     }
 }
 
 export const interceptEvents = () => {
     return (request: Request, response: Response, next: NextFunction) => {
         response.on("finish", () => {
-            const statusCode = _.get(response, "statusCode");
-            const isError = statusCode && statusCode >= 400;
-            // !isError && processAuditEvents(request);
             processEvents(request, response);
         })
         next();
@@ -260,28 +250,6 @@ export const findAndSetExistingRecord = async ({ dbConnector, table, filters, re
 
 export const getDefaultLog = (actionType: any, userID: any ) => {
     return {
-        // actor :{
-        //     id: userID,
-        //     type: "User"
-        // },
-        // eid: "LOG",
-        // edata: {
-        //     action: actionType,
-        //     props: []
-        // },
-        // ver: "1.0.0",
-        // ets: Date.now(),
-        // context: {
-        //     env,
-        //     sid: v4(),
-        //     pdata: {
-        //         id: `${env}.api.service`,
-        //         ver: `${version}`
-        //     }
-        // },
-        // cdata: {},
-        // object: {}
-
         eid: "LOG",
         ets: Date.now(),
         ver: "1.0.0",
@@ -292,8 +260,8 @@ export const getDefaultLog = (actionType: any, userID: any ) => {
         },
         context:{
             pdata:{
-                id: 'obsrv.api.service', 
-                ver: '1.6.0'
+                id : `${id}`,
+                ver: `${version}`
             }
         },
         sid: v4(),

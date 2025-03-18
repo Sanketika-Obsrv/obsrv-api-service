@@ -38,15 +38,13 @@ import datasetAlias from "../controllers/DatasetAlias/DatasetAlias";
 import getDatasourceList from "../controllers/DatasourceList/DatasourceList";
 
 export const router = express.Router();
-console.log("==========start-2==========")
-
 
 router.post("/data/in/:dataset_id", setDataToRequestObject("api.data.in"), onRequest({ entity: Entity.Data_in }), telemetryAuditStart({action: telemetryActions.ingestEvents, operationType: OperationType.CREATE}), checkRBAC.handler(), dataIn);
 router.post("/data/query/:dataset_id", setDataToRequestObject("api.data.out"), onRequest({ entity: Entity.Data_out }), checkRBAC.handler(), telemetryLogStart({action: telemetryActions.sqlQuery, operationType: OperationType.CREATE}), checkRBAC.handler(), dataOut);
 router.post("/datasets/create", setDataToRequestObject("api.datasets.create"), onRequest({ entity: Entity.Management }),telemetryAuditStart({action: telemetryActions.createDataset, operationType: OperationType.CREATE}), checkRBAC.handler(),DatasetCreate)
 router.patch("/datasets/update", setDataToRequestObject("api.datasets.update"), onRequest({ entity: Entity.Management }),telemetryAuditStart({action: telemetryActions.updateDataset, operationType: OperationType.UPDATE}), checkRBAC.handler(), DatasetUpdate)
 router.get("/datasets/read/:dataset_id", setDataToRequestObject("api.datasets.read"), onRequest({ entity: Entity.Management }), telemetryAuditStart({action: telemetryActions.readDataset, operationType: OperationType.GET}), checkRBAC.handler(), DatasetRead)
-router.post("/datasets/list", setDataToRequestObject("api.datasets.list"), onRequest({ entity: Entity.Management }), telemetryLogStart({action: telemetryActions.listDatasets, operationType: OperationType.LIST}), checkRBAC.handler(), DatasetList)
+router.post("/datasets/list", setDataToRequestObject("api.datasets.list"), onRequest({ entity: Entity.Management }), telemetryAuditStart({action: telemetryActions.listDatasets, operationType: OperationType.LIST}), checkRBAC.handler(), DatasetList)
 router.get("/data/exhaust/:dataset_id", setDataToRequestObject("api.data.exhaust"), onRequest({ entity: Entity.Management }), telemetryAuditStart({action: telemetryActions.datasetExhaust, operationType: OperationType.GET}), checkRBAC.handler(), dataExhaust);
 router.post("/template/create", setDataToRequestObject("api.query.template.create"), checkRBAC.handler(), createQueryTemplate);
 router.get("/template/read/:templateId", setDataToRequestObject("api.query.template.read"), checkRBAC.handler(), readQueryTemplate);
@@ -70,6 +68,6 @@ router.post("/datasets/alias", setDataToRequestObject("api.datasets.alias"), onR
 router.post("/datasources/list", setDataToRequestObject("api.datasources.list"), onRequest({ entity: Entity.Management }),  telemetryAuditStart({action: telemetryActions.listDatasource, operationType: OperationType.CREATE}), checkRBAC.handler(), getDatasourceList);
 router.post("/data/analyze/pii", setDataToRequestObject("api.data.analyze.pii"), onRequest({ entity: Entity.Management }), telemetryAuditStart({action: telemetryActions.dataAnalyzePii, operationType: OperationType.CREATE}), checkRBAC.handler(), dataAnalyzePII);
 //Wrapper Service
-router.post("/obsrv/data/sql-query", setDataToRequestObject("api.obsrv.data.sql-query"), onRequest({ entity: Entity.Data_out }), telemetryAuditStart({action: telemetryActions.dataQuery, operationType: OperationType.CREATE}), checkRBAC.handler(), sqlQuery);
+router.post("/obsrv/data/sql-query", setDataToRequestObject("api.obsrv.data.sql-query"), onRequest({ entity: Entity.Data_out }), telemetryLogStart({action: telemetryActions.dataQuery, operationType: OperationType.CREATE}), checkRBAC.handler(), sqlQuery);
 router.post("/data/metrics", setDataToRequestObject("api.data.metrics"), onRequest({ entity: Entity.Data_out }), telemetryAuditStart({action: telemetryActions.dataAnalyzePii, operationType: OperationType.CREATE}), checkRBAC.handler(), dataMetrics)
 router.post("/dataset/metrics", setDataToRequestObject("api.dataset.metrics"), onRequest({ entity: Entity.Management }), telemetryAuditStart({action: telemetryActions.datasetMetrix, operationType: OperationType.CREATE}), checkRBAC.handler(), datasetMetrics);
