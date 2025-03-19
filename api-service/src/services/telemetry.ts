@@ -171,7 +171,7 @@ export const setLogEdata = (logEvent: any,request: Request, response: Response) 
     const userID = (request as any)?.userID || "SYSTEM";
     const telemetryLogEvent = getDefaultLog(edata.action,userID);
     _.set(telemetryLogEvent, "edata", edata);
-    _.set(telemetryLogEvent, "edata.id",request.body?.id || "")
+    _.set(telemetryLogEvent, "edata.id",request.body?.id || _.get(request, "id") || "")
     _.set(telemetryLogEvent, "edata.level", response.statusCode != 200 ? "ERROR" : "INFO");
     _.set(telemetryLogEvent,"edata.params.method", request?.method || "")
     _.set(telemetryLogEvent, "edata.params.url", request?.originalUrl || "")
