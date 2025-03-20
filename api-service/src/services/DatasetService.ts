@@ -386,14 +386,13 @@ class DatasetService {
                     await this.createHudiDataSource(draftDataset, transaction)
                 }
             }
-            await alertService.createDatasetAlerts(draftDataset, transaction);
             await transaction.commit()
         } catch (err: any) {
             await transaction.rollback()
             throw obsrvError(draftDataset.id, "FAILED_TO_PUBLISH_DATASET", err.message, "SERVER_ERROR", 500, err);
         }
         await executeCommand(draftDataset.dataset_id, "PUBLISH_DATASET", userToken);
-
+        await alertService.createDatasetAlerts(draftDataset);
     }
 
     private createDruidDataSource = async (draftDataset: Record<string, any>, transaction: Transaction) => {

@@ -1,17 +1,17 @@
-import { alertManagerConfig } from '../configs/AlertManagerConfig';
 import _ from 'lodash';
 import { obsrvError } from '../types/ObsrvError';
 import { Metrics } from '../models/Metric';
 import { deleteAlertRule, getAlertPayload, getAlertRule, publishAlert } from './managers';
 import { Alert } from '../models/Alert';
 import Transaction from 'sequelize/types/transaction';
+import { Config } from './ConfigSevice';
 
 
 class AlertManagerService {
     private config: any;
 
     constructor() {
-        this.config = alertManagerConfig;
+        this.config = Config.getInstance().find('configs.alerts');
     }
 
     private getModifiedMetric(service: string, metric: any, datasetId: string): any {
@@ -25,8 +25,8 @@ class AlertManagerService {
         return metricData;
     }
 
-    private async createAlertMetric(params: { datasetId: string; service: string; metric: any; datasetName: string; transaction: Transaction }): Promise<void> {
-        const { datasetId, service, metric, datasetName, transaction } = params;
+    private async createAlerts(params: { datasetId: string; service: string; metric: any; datasetName: string }): Promise<void> {
+        const { datasetId, service, metric, datasetName } = params;
         const metricData = this.getModifiedMetric(service, metric, datasetId);
         const promMetric = metricData.metric;
         const metricAlias = `${metricData.alias} (${datasetId})`;
@@ -41,20 +41,20 @@ class AlertManagerService {
             },
         };
 
-        await this.createMetric(metricPayload, transaction);
-        await this.createAlertRule({ datasetName, metricData, transaction });
+        await this.createMetric(metricPayload);
+        await this.createAlertRule({ datasetId, metricData });
     }
 
     private async createAlertRule(params: {
-        datasetName: string;
+        datasetId: string;
         metricData: any;
-        transaction: Transaction;
     }): Promise<void> {
-        const { datasetName, metricData, transaction } = params;
+        const { datasetId, metricData } = params;
+        const datasetName = datasetId.replace(/[-.]/g, ' ').replace(/\b\w/g, c => c.toUpperCase())
         const alertPayload = {
-            name: `${datasetName}_${metricData.alias}`,
+            name: `${metricData.alias} (${datasetName})`,
             manager: 'grafana',
-            description: metricData.description || `Automated alert set up for dataset ${datasetName}`,
+            description: metricData.description,
             category: 'datasets',
             frequency: metricData.frequency,
             interval: metricData.interval,
@@ -74,7 +74,7 @@ class AlertManagerService {
         };
 
         const alertData = getAlertPayload(alertPayload);
-        const response = await this.createAlert(alertData, transaction);
+        const response = await this.createAlert(alertData);
         if (response.dataValues.id) {
             await this.publishAlertRule(response.dataValues.id);
         } else {
@@ -94,22 +94,21 @@ class AlertManagerService {
         await publishAlert(rulePayload);
     }
 
-    private createMetric = async (payload: Record<string, any>, transaction: Transaction) => {
+    private createMetric = async (payload: Record<string, any>) => {
         return Metrics.create(payload);
     }
 
-    private createAlert = async (alertData: Record<string, any>, transaction: Transaction) => {
+    private createAlert = async (alertData: Record<string, any>) => {
         return Alert.create(alertData);
     }
 
-    public createDatasetAlerts = async (dataset: any, transaction: Transaction): Promise<void> => {
+    public createDatasetAlerts = async (dataset: any): Promise<void> => {
         for (const metric of this.config.dataset_metrics) {
-            await this.createAlertMetric({
+            await this.createAlerts({
                 datasetId: dataset.dataset_id,
                 service: "flink",
                 metric: metric,
-                datasetName: dataset.name,
-                transaction
+                datasetName: dataset.name
             });
         }
 
