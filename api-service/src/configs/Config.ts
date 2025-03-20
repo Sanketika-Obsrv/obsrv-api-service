@@ -128,7 +128,7 @@ export const config = {
     "url": process.env.grafana_url || "http://localhost:8000",
     "access_token": process.env.grafana_token || ""
   },
-"user_token_public_key": process.env.user_token_public_key || "",
+  "user_token_public_key": process.env.user_token_public_key || "",
   "is_RBAC_enabled": process.env.is_rbac_enabled || "false",
   "otel": {
     "enable": process.env.otel_enable || "false",

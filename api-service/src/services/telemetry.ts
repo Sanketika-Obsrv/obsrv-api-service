@@ -1,6 +1,6 @@
-import { Request, Response, NextFunction, response } from "express"
+import { Request, Response, NextFunction } from "express"
 import { v4 } from "uuid";
-import _, { List } from "lodash";
+import _ from "lodash";
 import { config as appConfig } from "../configs/Config";
 import {send} from "../connections/kafkaConnection"
 import { OTelService } from "./otel/OTelService";
