@@ -26,6 +26,10 @@ spec:
             app.kubernetes.io/connector: {{ .Values.connector_id }}
             app.kubernetes.io/connector_instance: {{ .Values.instance_id }}
         spec:
+          {{- with .Values.nodeSelector }}
+          nodeSelector:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
           serviceAccountName: {{ .Values.serviceAccount.name }}
           restartPolicy: {{ .Values.restartPolicy }}
           securityContext:

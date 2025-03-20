@@ -204,3 +204,22 @@ prometheus:
 dataset_api:
   host: "http://localhost:3000"
   pre_signed_url: "v2/files/generate-url"
+
+node_selector:
+  envprod: obsrv
+  system: processing
+
+container_security_context:
+  runAsUser: 1000751000
+  runAsGroup: 1000751000
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop:
+      - ALL
+  seccompProfile:
+    type: "RuntimeDefault"
+
+pod_security_context:
+  runAsUser: 1000751000
+  runAsGroup: 1000751000
+  fsGroup: 1000752000
