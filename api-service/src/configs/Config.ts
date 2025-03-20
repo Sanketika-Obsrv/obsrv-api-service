@@ -1,7 +1,6 @@
 // These configurations provide settings and values for various aspects of dataset management, data ingestion, and table configurations in a system.
 
-const env = process.env.system_env || "local"
-const id = "obsrv.api.service"
+const env = process.env.system_env || "obsrv"
 
 const getCloudConfigs = () => {
   const cloudConfig = process.env.cloud_storage_config;
@@ -20,7 +19,6 @@ const getCloudConfigs = () => {
 
 export const config = {
   "env": env,
-  "id": id,
   "api_port": process.env.api_port || 3000,
   "body_parser_limit": process.env.body_parser_limit || "100mb",
   "version": "1.6.0",
@@ -130,7 +128,7 @@ export const config = {
     "url": process.env.grafana_url || "http://localhost:8000",
     "access_token": process.env.grafana_token || ""
   },
-  "user_token_public_key": process.env.user_token_public_key || "",
+"user_token_public_key": process.env.user_token_public_key || "",
   "is_RBAC_enabled": process.env.is_rbac_enabled || "false",
   "otel": {
     "enable": process.env.otel_enable || "false",
