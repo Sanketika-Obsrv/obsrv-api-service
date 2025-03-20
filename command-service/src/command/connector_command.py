@@ -198,6 +198,9 @@ class ConnectorCommand(ICommand):
                     }
 
                     set_json_value = json.dumps(flink_jobs)
+                    nodeSelector = self.config.find("node_selector")
+                    security_contexts = self.config.find("container_security_context")
+                    pod_security_context = self.config.find("pod_security_context")
                     helm_install_cmd = [
                         "helm",
                         "upgrade",
@@ -210,7 +213,13 @@ class ConnectorCommand(ICommand):
                         "--set", "namespace={}".format(namespace),
                         "--set", "connector_id={}".format(connector_instance.connector_id),
                         "--set-json",
-                        f"""flink_jobs={set_json_value.replace(" ", "")}"""
+                        f"""flink_jobs={set_json_value.replace(" ", "")}""",
+                        "--set-json",
+                        f"""nodeSelector={json.dumps(nodeSelector)}""",
+                        "--set-json",
+                        f"""securityContext={json.dumps(security_contexts)}""",
+                        "--set-json",
+                        f"""podSecurityContext={json.dumps(pod_security_context)}"""
                     ]
 
                     print("flink connector installation:  ", " ".join(helm_install_cmd))
@@ -264,6 +273,9 @@ class ConnectorCommand(ICommand):
         }
 
         namespace = self.connector_job_config["spark"]["namespace"]
+        nodeSelector = self.config.find("node_selector")
+        container_security_context = self.config.find("container_security_context")
+        pod_security_context = self.config.find("pod_security_context")
 
         helm_install_cmd = [
             "helm",
@@ -289,7 +301,13 @@ class ConnectorCommand(ICommand):
             "--set",
             "main_file={}".format(connector_source["main_program"]),
             "--set",
-            "cronSchedule={}".format(schedule_configs[schedule])
+            "cronSchedule={}".format(schedule_configs[schedule]),
+            "--set-json",
+            f"""nodeSelector={json.dumps(nodeSelector)}""",
+            "--set-json",
+            f"""securityContext={json.dumps(container_security_context)}""",
+            "--set-json",
+            f"""podSecurityContext={json.dumps(pod_security_context)}"""
         ]
 
         print("spark connector installation:", " ".join(helm_install_cmd))
