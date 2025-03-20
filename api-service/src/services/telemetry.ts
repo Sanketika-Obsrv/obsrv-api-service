@@ -4,11 +4,12 @@ import _, { List } from "lodash";
 import { config as appConfig } from "../configs/Config";
 import {send} from "../connections/kafkaConnection"
 import { OTelService } from "./otel/OTelService";
-import { request } from "http";
-const {env, version, id} = _.pick(appConfig, ["env","version", "id"])
+
+const {env, version} = _.pick(appConfig, ["env","version"])
 const telemetryTopic = _.get(appConfig, "telemetry_dataset");
 
 export enum OperationType { CREATE = 1, UPDATE, PUBLISH, RETIRE, LIST, GET }
+
 
 const getDefaults = (userID:any) => {
     return {
@@ -102,25 +103,6 @@ const setAuditEventType = (operationType: any, request: any) => {
     }
 }
 
-const setLogEventType = (operationType: any, request: any) => {
-    switch (operationType) {
-        case OperationType.CREATE: {
-            _.set(request, "logEvent.type", "create");
-            break;
-        }
-        case OperationType.LIST: {
-            _.set(request, "logEvent.type", "list");
-            break;
-        }
-        case OperationType.GET: {
-            _.set(request, "logEvent.type", "get");
-            break;
-        }
-        default:
-            break;
-    }
-}
-
 export const telemetryAuditStart = ({ operationType, action }: any) => {
     return async (request: any, response: Response, next: NextFunction) => {
         try {
@@ -137,21 +119,9 @@ export const telemetryAuditStart = ({ operationType, action }: any) => {
     }
 }
 
-export const telemetryLogStart = ({ operationType, action }: any) =>{
-    return async ( request: any, response: Response, next: NextFunction) => {
-        try{
-            const user_id = (request as any)?.userID
-            request.logEvent = getDefaultLog(action, user_id);
-            setLogEventType( operationType, request);
-        } catch (error) {
-            console.log(error)
-        } finally {
-            next();
-        }
-    }
-}
-
-export const processAuditEvents = (auditEvent: any, request: Request) => {
+export const processAuditEvents = (request: Request) => {
+    const auditEvent: any = _.get(request, "auditEvent");
+    if (auditEvent) {
         const { startEts, object = {}, edata = {}, toState, fromState }: any = auditEvent;
         const endEts = Date.now();
         const duration = startEts ? (endEts - startEts) : 0;
@@ -164,49 +134,15 @@ export const processAuditEvents = (auditEvent: any, request: Request) => {
         _.set(telemetryEvent, "edata", edata);
         _.set(telemetryEvent, "object", { ...(object.id && object.type && { ...object, ver: "1.0.0" }) });
         sendTelemetryEvents(telemetryEvent);
-}
-
-export const setLogEdata = (logEvent: any,request: Request, response: Response) => {
-    const {edata = {}}: any = logEvent;
-    const userID = (request as any)?.userID || "SYSTEM";
-    const telemetryLogEvent = getDefaultLog(edata.action,userID);
-    _.set(telemetryLogEvent, "edata", edata);
-    _.set(telemetryLogEvent, "edata.id",request.body?.id || _.get(request, "id") || "")
-    _.set(telemetryLogEvent, "edata.level", response.statusCode != 200 ? "ERROR" : "INFO");
-    _.set(telemetryLogEvent,"edata.params.method", request?.method || "")
-    _.set(telemetryLogEvent, "edata.params.url", request?.originalUrl || "")
-    _.set(telemetryLogEvent, "edata.params.type", logEvent?.type || "")
-    _.set(telemetryLogEvent, "edata.params.statusCode", response?.statusCode || "")
-    _.set(telemetryLogEvent, "edata.params.query", request.body?.query || request.body.querySql?.query || null)
-    _.set(telemetryLogEvent, "edata.params.duration", Date.now() - logEvent.ets)
-    return telemetryLogEvent
-}
-
-export const processLogEvents = (logEvent: any, request: Request, response: Response) => {
-    const telemetryLogEvent: any = setLogEdata(logEvent, request, response);
-    sendTelemetryEvents(telemetryLogEvent);
-}
-
-export const processEvents = (request: Request, response: Response) => {
-    try{
-        if (request?.auditEvent) {
-            const statusCode = _.get(response, "statusCode");
-            const isError = statusCode && statusCode >= 400;
-            !isError && processAuditEvents(_.get(request,"auditEvent"), request)
-        }
-        else  {
-            processLogEvents(_.get(request,"logEvent"), request, response);
-        }
-    }
-    catch (error) {
-        console.log(error)
     }
 }
 
-export const interceptEvents = () => {
+export const interceptAuditEvents = () => {
     return (request: Request, response: Response, next: NextFunction) => {
         response.on("finish", () => {
-            processEvents(request, response);
+            const statusCode = _.get(response, "statusCode");
+            const isError = statusCode && statusCode >= 400;
+            !isError && processAuditEvents(request);
         })
         next();
     }
@@ -260,7 +196,7 @@ export const getDefaultLog = (actionType: any, userID: any ) => {
         },
         context:{
             pdata:{
-                id : `${id}`,
+                id : `${env}.api.service`,
                 ver: `${version}`
             }
         },
@@ -268,3 +204,67 @@ export const getDefaultLog = (actionType: any, userID: any ) => {
         edata:{}
     }
 } 
+
+const setLogEventType = (operationType: any, request: any) => {
+    switch (operationType) {
+        case OperationType.CREATE: {
+            _.set(request, "logEvent.type", "create");
+            break;
+        }
+        case OperationType.LIST: {
+            _.set(request, "logEvent.type", "list");
+            break;
+        }
+        case OperationType.GET: {
+            _.set(request, "logEvent.type", "get");
+            break;
+        }
+        default:
+            break;
+    }
+}
+
+export const telemetryLogStart = ({ operationType, action }: any) =>{
+    return async ( request: any, response: Response, next: NextFunction) => {
+        try{
+            const user_id = (request as any)?.userID
+            request.logEvent = getDefaultLog(action, user_id);
+            setLogEventType( operationType, request);
+        } catch (error) {
+            console.log(error)
+        } finally {
+            next();
+        }
+    }
+}
+
+export const setLogEdata = (logEvent: any,request: Request, response: Response) => {
+    const {edata = {}}: any = logEvent;
+    const userID = (request as any)?.userID || "SYSTEM";
+    const telemetryLogEvent = getDefaultLog(edata.action,userID);
+    _.set(telemetryLogEvent, "edata", edata);
+    _.set(telemetryLogEvent, "edata.id",request.body?.id || _.get(request, "id") || "")
+    _.set(telemetryLogEvent, "edata.level", response.statusCode != 200 ? "ERROR" : "INFO");
+    _.set(telemetryLogEvent,"edata.params.method", request?.method || "")
+    _.set(telemetryLogEvent, "edata.params.url", request?.originalUrl || "")
+    _.set(telemetryLogEvent, "edata.params.type", logEvent?.type || "")
+    _.set(telemetryLogEvent, "edata.params.statusCode", response?.statusCode || "")
+    _.set(telemetryLogEvent, "edata.params.query", request.body?.query || request.body.querySql?.query || null)
+    _.set(telemetryLogEvent, "edata.params.duration", Date.now() - logEvent.ets)
+    return telemetryLogEvent
+}
+
+export const processLogEvents = (request: Request, response: Response) => {
+    const logEvent = _.get(request, "logEvent") || {};
+    const telemetryLogEvent: any = setLogEdata(logEvent, request, response);
+    sendTelemetryEvents(telemetryLogEvent);
+}
+
+export const interceptLogEvents = () => {
+    return (request: Request, response: Response, next: NextFunction) => {
+        response.on("finish", () => {
+                _.get(request, "logEvent") && processLogEvents(request, response);
+        })
+        next();
+    }
+}
