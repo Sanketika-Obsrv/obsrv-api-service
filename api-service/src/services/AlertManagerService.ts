@@ -1,19 +1,20 @@
 import _ from 'lodash';
 import { obsrvError } from '../types/ObsrvError';
 import { Metrics } from '../models/Metric';
-import { deleteAlertRule, getAlertPayload, getAlertRule, publishAlert } from './managers';
+import { getAlertByDataset, getAlertPayload, getAlertRule, publishAlert } from './managers';
 import { Alert } from '../models/Alert';
-import { Config } from './ConfigSevice';
+import { alertConfig } from './AlertsConfigSevice';
+import Transaction from "sequelize/types/transaction";
 
 
 class AlertManagerService {
     private config: any;
 
     constructor() {
-        this.config = Config.getInstance().find('configs.alerts');
+        this.config = alertConfig.find('configs.alerts');
     }
 
-    private getModifiedMetric(service: string, metric: any, datasetId: string): any {
+    private getModifiedMetric = (service: string, metric: any, datasetId: string): any => {
         const metricData = _.cloneDeep(metric);
         if (service === 'flink') {
             const modifiedSubstring = datasetId.replace(/-/g, '_');
@@ -24,32 +25,31 @@ class AlertManagerService {
         return metricData;
     }
 
-    private async createAlerts(params: { datasetId: string; service: string; metric: any; datasetName: string }): Promise<void> {
-        const { datasetId, service, metric, datasetName } = params;
+    private createAlerts = async (params: { datasetId: string; service: string; metric: any; transaction: Transaction }): Promise<void> => {
+        const { datasetId, service, metric, transaction } = params;
         const metricData = this.getModifiedMetric(service, metric, datasetId);
-        const promMetric = metricData.metric;
-        const metricAlias = `${metricData.alias} (${datasetId})`;
 
         const metricPayload = {
-            alias: metricAlias,
+            alias: `${metricData.alias} (${datasetId})`,
             component: 'datasets',
-            subComponent: datasetName,
-            metric: promMetric,
+            subComponent: datasetId,
+            metric: metricData.metric,
             context: {
                 datasetId: datasetId,
             },
         };
 
-        await this.createMetric(metricPayload);
-        await this.createAlertRule({ datasetId, metricData });
+        await this.createMetric(metricPayload, transaction);
+        await this.createAlertRule({ datasetId, metricData, transaction });
     }
 
-    private async createAlertRule(params: {
+    private createAlertRule = async (params: {
         datasetId: string;
         metricData: any;
-    }): Promise<void> {
-        const { datasetId, metricData } = params;
-        const datasetName = datasetId.replace(/[-.]/g, ' ').replace(/\b\w/g, c => c.toUpperCase())
+        transaction: Transaction
+    }): Promise<void> => {
+        const { datasetId, metricData, transaction } = params;
+        const datasetName = datasetId.replace(/[-.]/g, ' ').replace(/\b\w/g, c => _.toUpper(c));
         const alertPayload = {
             name: `${metricData.alias} (${datasetName})`,
             manager: 'grafana',
@@ -62,7 +62,7 @@ class AlertManagerService {
             metadata: {
                 queryBuilderContext: {
                     category: 'datasets',
-                    subComponent: datasetName,
+                    subComponent: datasetId,
                     metric: metricData.metric,
                     operator: metricData.operator,
                     threshold: [+metricData.threshold],
@@ -73,55 +73,39 @@ class AlertManagerService {
         };
 
         const alertData = getAlertPayload(alertPayload);
-        const response = await this.createAlert(alertData);
-        if (response.dataValues.id) {
-            await this.publishAlertRule(response.dataValues.id);
-        } else {
-            throw obsrvError('', 'ALER_RULE_CREATION_FAILURE', 'Failed to create alert rule', 'SERVER_ERROR', 500);
+        await this.createAlert(alertData, transaction);
+    }
+
+    public publishAlertRule = async (dataset_id: string): Promise<void> => {
+        const datasetAlerts: any[] = await getAlertByDataset(dataset_id)
+        for (const alert of datasetAlerts) {
+            const { id } = alert;
+            const ruleModel: Record<string, any> | null = await getAlertRule(id);
+            if (!ruleModel) {
+                throw obsrvError(id, 'ALERT_RULE_NOT_FOUND', `Alert rule with id ${id} not found`, 'NOT_FOUND', 404);
+            }
+            const rulePayload = ruleModel.toJSON();
+            await publishAlert(rulePayload);
         }
     }
 
-    private async publishAlertRule(alertId: string): Promise<void> {
-        const ruleModel: Record<string, any> | null = await getAlertRule(alertId);
-        if (!ruleModel) {
-            throw obsrvError(alertId, 'ALERT_RULE_NOT_FOUND', `Alert rule with id ${alertId} not found`, 'NOT_FOUND', 404);
-        }
-        const rulePayload = ruleModel.toJSON();
-        if (rulePayload.status == "live") {
-            await deleteAlertRule(rulePayload, false);
-        }
-        await publishAlert(rulePayload);
+    private createMetric = async (payload: Record<string, any>, transaction: Transaction) => {
+        return Metrics.create(payload, { transaction });
     }
 
-    private createMetric = async (payload: Record<string, any>) => {
-        return Metrics.create(payload);
+    private createAlert = async (alertData: Record<string, any>, transaction: Transaction) => {
+        return Alert.create(alertData, { transaction });
     }
 
-    private createAlert = async (alertData: Record<string, any>) => {
-        return Alert.create(alertData);
-    }
-
-    public createDatasetAlerts = async (dataset: any): Promise<void> => {
-        for (const metric of this.config.dataset_metrics) {
+    public createDatasetAlertsDraft = async (dataset: Record<string, any>, transaction: Transaction): Promise<void> => {
+        for (const metric of this.config.dataset_metrics_flink) {
             await this.createAlerts({
                 datasetId: dataset.dataset_id,
                 service: "flink",
                 metric: metric,
-                datasetName: dataset.name
+                transaction
             });
         }
-
-        // if (dataset.type === 'master') {
-        //     for (const metric of this.config.masterdata_metrics) {
-        //         await this.createAlertMetric({
-        //             datasetId: dataset.dataset_id,
-        //             service: 'master',
-        //             metric,
-        //             datasetName: dataset.name,
-        //             transaction
-        //         });
-        //     }
-        // }
     }
 }
 

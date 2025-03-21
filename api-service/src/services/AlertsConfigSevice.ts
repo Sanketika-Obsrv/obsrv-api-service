@@ -1,27 +1,23 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import _ from 'lodash';
+import logger from '../logger';
 
-export class Config {
-    private static instance: Config;
+class AlertsConfig {
     private config: Record<string, any>;
     private readonly ALERTS_CONFIG_FILE = 'alertsConfig.json';
 
-    private constructor() {
+    constructor() {
         const configDir = process.env.alerts_config_path || path.resolve(process.cwd(), 'src/configs');
         const configPath = path.join(configDir, this.ALERTS_CONFIG_FILE);
         const configContent = fs.readFileSync(configPath, 'utf8');
         this.config = JSON.parse(configContent);
+        logger.info(`Alerts config loaded from: ${configPath}`);
     }
 
-    public static getInstance(): Config {
-        if (!Config.instance) {
-            Config.instance = new Config();
-        }
-        return Config.instance;
-    }
-
-    public find(path: string): any {
+    find(path: string): any {
         return _.get(this.config, path.split('.'));
     }
 }
+
+export const alertConfig = new AlertsConfig();

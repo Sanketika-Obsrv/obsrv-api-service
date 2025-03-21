@@ -1,7 +1,7 @@
 {
   "configs": {
     "alerts": {
-      "dataset_metrics": [
+      "dataset_metrics_flink": [
         {
           "metric": "sum(sum_over_time(flink_taskmanager_job_task_operator_ExtractorJob_dataset_id_extractor_failed_count[5m]))",
           "alias": "Number of Failed Extraction Events",
@@ -51,17 +51,6 @@
           "metric": "sum(sum_over_time(flink_taskmanager_job_task_operator_TransformerJob_dataset_id_transform_failed_count[5m])) + sum(sum_over_time(flink_taskmanager_job_task_operator_TransformerJob_dataset_id_transform_partial_count[5m]))",
           "alias": "Number of Failed Transformer Events",
           "description": "This alert tracks how many events failed the transformation stage",
-          "frequency": "5m",
-          "interval": "5m",
-          "operator": "gt",
-          "threshold": 0
-        }
-      ],
-      "masterdata_metrics": [
-        {
-          "metric": "flink_taskmanager_job_task_operator_CacheIndexerJob_dataset_id_failed_event_count",
-          "alias": "Master Dataset failed to index",
-          "description": "This alert tracks whether the given master dataset failed to index data",
           "frequency": "5m",
           "interval": "5m",
           "operator": "gt",
