@@ -3,7 +3,6 @@ import { obsrvError } from '../types/ObsrvError';
 import { Metrics } from '../models/Metric';
 import { deleteAlertRule, getAlertPayload, getAlertRule, publishAlert } from './managers';
 import { Alert } from '../models/Alert';
-import Transaction from 'sequelize/types/transaction';
 import { Config } from './ConfigSevice';
 
 

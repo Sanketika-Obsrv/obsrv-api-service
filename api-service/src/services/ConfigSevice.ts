@@ -7,7 +7,7 @@ export class Config {
     private config: Record<string, any>;
 
     private constructor() {
-        const configPath = process.env.CONFIG_PATH || path.resolve(process.cwd(), 'src/configs/AlertConfig.json');
+        const configPath = process.env.CONFIG_PATH || path.resolve(process.cwd(), 'src/configs/alertsConfig.json');
         const configContent = fs.readFileSync(configPath, 'utf8');
         this.config = JSON.parse(configContent);
     }
