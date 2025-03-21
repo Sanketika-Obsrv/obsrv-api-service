@@ -122,8 +122,8 @@ export const deleteSilence = async (payload: Record<string, any>) => {
 
 export const deleteAlertByDataset = async (payload: Record<string, any>) => {
   try {
-    const { dataset_id } = payload;
-    const alertRulePayload = await Alert.findAll({ where: { category: "datasets", "metadata.queryBuilderContext.subComponent": dataset_id }, raw: true })
+    const { id } = payload;
+    const alertRulePayload = await Alert.findAll({ where: { category: "datasets", "metadata.queryBuilderContext.subComponent": id }, raw: true })
     if (!alertRulePayload) throw new Error(constants.ALERTS_NOT_FOUND)
     for (const payload of alertRulePayload) {
       await deleteAlertRule(payload, true)
@@ -137,8 +137,8 @@ export const deleteAlertByDataset = async (payload: Record<string, any>) => {
 
 export const deleteMetricAliasByDataset = async (payload: Record<string, any>) => {
   try {
-    const { dataset_id } = payload;
-    await Metrics.destroy({ where: { component: "datasets", subComponent: dataset_id } })
+    const { id } = payload;
+    await Metrics.destroy({ where: { component: "datasets", subComponent: id } })
     return constants.METRIC_ALIAS_DELETED_SUCCESSFULLY;
   } catch (error: any) {
     throw new Error(constants.METRIC_ALIAS_NOT_DELETED);
@@ -157,8 +157,8 @@ export const getAlertByDataset = async (dataset_id: string) => {
 
 export const getAlertMetricsByDataset = async (payload: Record<string, any>) => {
   try {
-    const { dataset_id } = payload;
-    const metricAliasPayload = await Metrics.findAll({ where: { component: "datasets", subComponent: dataset_id }, raw: true })
+    const { id } = payload;
+    const metricAliasPayload = await Metrics.findAll({ where: { component: "datasets", subComponent: id }, raw: true })
     if (!metricAliasPayload) throw new Error(constants.METRIC_ALIAS_NOT_FOUND)
     return metricAliasPayload;
   } catch (error: any) {
