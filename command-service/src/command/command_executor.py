@@ -3,7 +3,6 @@ import logging
 import psycopg2
 from urllib3.exceptions import MaxRetryError, NewConnectionError
 
-from command.alert_manager_command import AlertManagerService
 from command.connector_command import ConnectorCommand
 from command.dataset_command import DatasetCommand
 from command.db_command import DBCommand
@@ -36,11 +35,6 @@ class CommandExecutor:
             db_service=self.db_service,
             http_service=self.http_service,
         )
-        self.alert_manager_command = AlertManagerService(
-            config=self.config_obj,
-            db_service=self.db_service,
-            http_service=self.http_service,
-        )
         self.dataset_command = DatasetCommand(
             db_service=self.db_service,
             telemetry_service=self.telemetry_service,
@@ -63,9 +57,6 @@ class CommandExecutor:
         self.action_commands[Action.CREATE_KAFKA_TOPIC.name] = self.create_kafka_topic
         self.action_commands[Action.SUBMIT_INGESTION_TASKS.name] = self.druid_command
         self.action_commands[Action.DEPLOY_CONNECTORS.name] = self.connector_command
-        self.action_commands[Action.CREATE_ALERT_METRIC.name] = (
-            self.alert_manager_command
-        )
         self.action_commands[Action.CREATE_AUDIT_EVENT.name] = self.audit_event_command
         self.logger = logging.getLogger()
 
