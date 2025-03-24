@@ -139,5 +139,8 @@ export const config = {
     "default_freshness_threshold": process.env.default_freshness_threshold ? parseInt(process.env.default_freshness_threshold) : 5, // in minutes
     "data_out_query_time_period": process.env.data_out_query_time_period || "1d",
     "default_query_time_period": process.env.default_query_time_period ? parseInt(process.env.default_query_time_period) : 7, // in days
+  },
+  "alerts_rules": {
+    "config_path": process.env.alerts_config_path
   }
 }
