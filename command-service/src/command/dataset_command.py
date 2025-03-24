@@ -58,14 +58,36 @@ class DatasetCommand(ICommand):
             return live_dataset, data_version
         return None, None
 
+    def _get_live_dataset_for_audit(self, dataset):
+        result = {}
+        if dataset is not None:
+            dataset_dict = dataset.__dict__
+            result["dataset"] = dataset_dict
+            connector_instances = self.db_service.execute_select_all(
+                sql="SELECT * FROM connector_instances WHERE dataset_id = %s", 
+                params=(dataset.dataset_id,)
+            )
+            if connector_instances is not None:
+                result["dataset"]["connectors_config"] = connector_instances
+
+            transformations = self.db_service.execute_select_all(
+                sql="SELECT * FROM dataset_transformations WHERE dataset_id = %s", 
+                params=(dataset.dataset_id,)
+            )
+            if transformations is not None:
+                result["dataset"]["transformations_config"] = transformations
+        return result
+    
     def audit_live_dataset(self, command_payload: CommandPayload, ts: int):
         dataset_id = command_payload.dataset_id
         dataset_record, data_version = self._check_for_live_record(dataset_id)
-        if dataset_record is not None:
+        live_dataset_result = self._get_live_dataset_for_audit(dataset_record)
+        live_dataset = live_dataset_result["dataset"]
+        if live_dataset is not None:
             object_ = Object(
                 dataset_id, dataset_record.type, dataset_record.data_version
             )
-            live_dataset_property = Property("dataset:export", dataset_record, "")
+            live_dataset_property = Property("dataset:export", live_dataset, "")
             draft_property = Property(
                 "draft-dataset:status",
                 DatasetStatusType.ReadyToPublish.name,
