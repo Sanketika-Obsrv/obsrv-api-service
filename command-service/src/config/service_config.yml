@@ -111,3 +111,9 @@ prometheus:
   host: http://localhost:9090
   endpoint: /api/v1/admin/tsdb/snapshot
   backup_prefix: prometheus_backups
+
+node_selector:
+
+container_security_context:
+
+pod_security_context:
