@@ -21,12 +21,7 @@ class DatasetCommand(ICommand):
     ):
         self.db_service = db_service
         self.telemetry_service = telemetry_service
-        self.http_service = http_service
         self.config = config
-        self.http_service = http_service
-        self.config_service_host = self.config.find("config_service.host")
-        self.config_service_port = self.config.find("config_service.port")
-        self.base_url = f"http://{self.config_service_host}:{self.config_service_port}/v2/datasets/export"
 
     def _get_draft_dataset_record(self, dataset_id):
         query = f"""
@@ -66,16 +61,11 @@ class DatasetCommand(ICommand):
     def audit_live_dataset(self, command_payload: CommandPayload, ts: int):
         dataset_id = command_payload.dataset_id
         dataset_record, data_version = self._check_for_live_record(dataset_id)
-        url=self.base_url + '/{}'.format(dataset_id)
-        export_dataset = self.http_service.get(
-            url=url
-        )
-        if export_dataset.status == 200:
-            result = json.loads(export_dataset.body)
+        if dataset_record is not None:
             object_ = Object(
                 dataset_id, dataset_record.type, dataset_record.data_version
             )
-            live_dataset_property = Property("dataset:export", result["result"], "")
+            live_dataset_property = Property("dataset:export", dataset_record, "")
             draft_property = Property(
                 "draft-dataset:status",
                 DatasetStatusType.ReadyToPublish.name,
