@@ -204,3 +204,9 @@ prometheus:
 dataset_api:
   host: "http://localhost:3000"
   pre_signed_url: "v2/files/generate-url"
+
+node_selector:
+
+container_security_context:
+
+pod_security_context:

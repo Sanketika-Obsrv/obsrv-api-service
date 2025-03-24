@@ -34,6 +34,10 @@ spec:
         checksum/config: {{ .Files.Glob "configs/*" | toYaml | sha256sum }}
         checksum/job-config: {{ $jobData | toYaml | sha256sum }}
     spec:
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       {{- if .Values.serviceAccount.create}}
       serviceAccountName: {{ include "base.serviceaccountname" . }}
       {{- end }}
@@ -112,6 +116,10 @@ spec:
         checksum/config: {{ .Files.Glob "configs/*" | toYaml | sha256sum }}
         checksum/job-config: {{ $jobData | toYaml | sha256sum }}
     spec:
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       serviceAccountName: {{ include "base.serviceaccountname" . }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
@@ -140,6 +148,8 @@ spec:
                 metrics.reporter.prom.factory.class: org.apache.flink.metrics.prometheus.PrometheusReporterFactory
                 metrics.reporter.prom.host: {{ $jobName }}-jobmanager
                 metrics.reporter.prom.port: 9250
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
           volumeMounts:
           - name: connector-config-volume
             mountPath: /data/flink/conf/connectors-scala-config.conf
