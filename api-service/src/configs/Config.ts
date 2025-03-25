@@ -21,7 +21,7 @@ export const config = {
   "env": env,
   "api_port": process.env.api_port || 3000,
   "body_parser_limit": process.env.body_parser_limit || "100mb",
-  "version": "1.6.0",
+  "version": process.env.obsrv_version || "1.6.0",
   "query_api": {
     "druid": {
       "host": process.env.druid_host || "http://localhost",
