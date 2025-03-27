@@ -130,7 +130,7 @@ export const config = {
     "access_token": process.env.grafana_token || ""
   },
   "user_token_public_key": process.env.user_token_public_key || "",
-  "is_RBAC_enabled": process.env.is_rbac_enabled || "true",
+  "is_RBAC_enabled": process.env.is_rbac_enabled,
   "otel": {
     "enable": process.env.otel_enable || "false",
     "collector_endpoint": process.env.otel_collector_endpoint || "http://localhost:4318"
