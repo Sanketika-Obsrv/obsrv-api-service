@@ -9,7 +9,7 @@ import { ResponseHandler } from "./helpers/ResponseHandler";
 import { errorHandler, obsrvErrorHandler } from "./middlewares/errors";
 import { OTelService } from "./services/otel/OTelService";
 import { alertsRouter } from "./routes/AlertsRouter";
-import { interceptAuditEvents } from "./services/telemetry";
+import { interceptAuditEvents, interceptLogEvents } from "./services/telemetry";
 import _ from "lodash";
 
 
@@ -24,6 +24,7 @@ app.use(express.json());
 app.use(errorHandler)
 
 app.use(interceptAuditEvents());
+app.use(interceptLogEvents());
 app.use("/v2/", v2Router);
 app.use("/", druidProxyRouter);
 app.use("/alerts/v1", alertsRouter);
