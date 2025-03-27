@@ -42,49 +42,18 @@ class ConnectorRegistry:
         self.dataset_api_url = self.config.find("dataset_api.host").strip("/")
         self.pre_signed_url = self.config.find("dataset_api.pre_signed_url").strip("/")
 
-    def register(self, rel_path: str) -> RegistryResponse:
+    def register(self, download_url: str, rel_path: str) -> RegistryResponse:
         try:
             download_file_path = os.path.join(self.download_path, rel_path)
             file_extension = rel_path.split(".")[-1]
 
             # if not os.path.exists(download_file_path):
-            http_service = HttpService()
-            print(
-                f"Connector Registry | Received request to register connector: {rel_path} | {self.dataset_api_url}/{self.pre_signed_url}"
-            )
-            dataset_api_request = {"request": {"files": [rel_path], "access": "read", "type": "connector"}}
-            dataset_api_response = http_service.post(
-                url=f"{self.dataset_api_url}/{self.pre_signed_url}",
-                    body=json.dumps(dataset_api_request),
-                    headers={"Content-Type": "application/json"}
-                )
-            print(
-                f"Connector Registry | Dataset API Response: {dataset_api_response.body}"
-            )
-
-            if dataset_api_response.status != 200:
-                return RegistryResponse(
-                    status="failure",
-                    message="dataset api failed to generate read url.",
-                    statusCode=status.HTTP_400_BAD_REQUEST,
-                )
-
-            dataset_api_response_data = json.loads(dataset_api_response.body)
-            url = dataset_api_response_data.get("result", [{}])[0].get(
-                "preSignedUrl", None
-            )
-            if not url:
-                return RegistryResponse(
-                    status="failure",
-                    message="dataset api failed to generate read url.",
-                    statusCode=status.HTTP_400_BAD_REQUEST,
-                )
 
             self.cleanup_download_path()
             os.makedirs(self.download_path, exist_ok=True)
 
             # download the file
-            download_status = self.download_file(url, download_file_path)
+            download_status = self.download_file(download_url, download_file_path)
             print(f"Connector Registry | Download status: {download_status}")
             if not download_status:
                 return RegistryResponse(
