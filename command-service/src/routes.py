@@ -174,7 +174,7 @@ async def register_connector(req: FastAPIRequest):
         file_name: str = data.get("file_name", None)
 
         print(
-            f"Connector Registry | Received request to register connector: {rel_path}"
+            f"Connector Registry | Received request to register connector: {file_name}"
         )
 
         if not download_url:
