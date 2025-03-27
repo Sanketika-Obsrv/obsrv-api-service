@@ -183,3 +183,88 @@ export const findAndSetExistingRecord = async ({ dbConnector, table, filters, re
         }
     }
 }
+
+export const getDefaultLog = (actionType: any, userID: any ) => {
+    return {
+        eid: "LOG",
+        ets: Date.now(),
+        ver: "1.0.0",
+        mid: v4(),
+        actor: {
+            id: userID,
+            type: "User"
+        },
+        context:{
+            pdata:{
+                id : `${env}.api.service`,
+                ver: `${version}`
+            }
+        },
+        sid: v4(),
+        edata:{}
+    }
+} 
+
+const setLogEventType = (operationType: any, request: any) => {
+    switch (operationType) {
+        case OperationType.CREATE: {
+            _.set(request, "logEvent.type", "create");
+            break;
+        }
+        case OperationType.LIST: {
+            _.set(request, "logEvent.type", "list");
+            break;
+        }
+        case OperationType.GET: {
+            _.set(request, "logEvent.type", "get");
+            break;
+        }
+        default:
+            break;
+    }
+}
+
+export const telemetryLogStart = ({ operationType, action }: any) =>{
+    return async ( request: any, response: Response, next: NextFunction) => {
+        try{
+            const user_id = (request as any)?.userID
+            request.logEvent = getDefaultLog(action, user_id);
+            setLogEventType( operationType, request);
+        } catch (error) {
+            console.log(error)
+        } finally {
+            next();
+        }
+    }
+}
+
+export const setLogEdata = (logEvent: any,request: Request, response: Response) => {
+    const {edata = {}}: any = logEvent;
+    const userID = (request as any)?.userID || "SYSTEM";
+    const telemetryLogEvent = getDefaultLog(edata.action,userID);
+    _.set(telemetryLogEvent, "edata", edata);
+    _.set(telemetryLogEvent, "edata.id",request.body?.id || _.get(request, "id") || "")
+    _.set(telemetryLogEvent, "edata.level", response.statusCode != 200 ? "ERROR" : "INFO");
+    _.set(telemetryLogEvent,"edata.params.method", request?.method || "")
+    _.set(telemetryLogEvent, "edata.params.url", request?.originalUrl || "")
+    _.set(telemetryLogEvent, "edata.params.type", logEvent?.type || "")
+    _.set(telemetryLogEvent, "edata.params.statusCode", response?.statusCode || "")
+    _.set(telemetryLogEvent, "edata.params.query", request.body?.query || request.body.querySql?.query || null)
+    _.set(telemetryLogEvent, "edata.params.duration", Date.now() - logEvent.ets)
+    return telemetryLogEvent
+}
+
+export const processLogEvents = (request: Request, response: Response) => {
+    const logEvent = _.get(request, "logEvent") || {};
+    const telemetryLogEvent: any = setLogEdata(logEvent, request, response);
+    sendTelemetryEvents(telemetryLogEvent);
+}
+
+export const interceptLogEvents = () => {
+    return (request: Request, response: Response, next: NextFunction) => {
+        response.on("finish", () => {
+                _.get(request, "logEvent") && processLogEvents(request, response);
+        })
+        next();
+    }
+}
