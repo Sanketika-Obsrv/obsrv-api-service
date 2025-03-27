@@ -24,6 +24,10 @@ class DatasetsLive:
     updated_date: datetime | None = None
     denorm_config: dict | None = None
     published_date: datetime | None = None
+    api_version: str = "v2"
+    version: int
+    sample_data: dict | None = None
+    entry_topic: str = "ingest"
 
 
 @dataclass
