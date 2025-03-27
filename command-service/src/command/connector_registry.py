@@ -39,8 +39,6 @@ class ConnectorRegistry:
             "connector_registry.metadata_file_name"
         )
         self.ui_spec_file_name = self.config.find("connector_registry.ui_spec_file")
-        self.dataset_api_url = self.config.find("dataset_api.host").strip("/")
-        self.pre_signed_url = self.config.find("dataset_api.pre_signed_url").strip("/")
 
     def register(self, download_url: str, rel_path: str) -> RegistryResponse:
         try:

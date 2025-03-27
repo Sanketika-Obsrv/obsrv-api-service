@@ -25,10 +25,10 @@ const connectorRegisterController = async (req: Request, res: Response) => {
         logger.info({ apiId, resmsgid, message: `File uploaded to cloud provider successfully` })
         const downloadUrls = await generatePreSignedUrl("read", [payload.relative_path], "connector")
         const urlPayload = {
-            download_path : _.get(downloadUrls, [0, "preSignedUrl"]),
+            download_url : _.get(downloadUrls, [0, "preSignedUrl"]),
             file_name: _.get(downloadUrls, [0, "fileName"])
         }
-        if(!urlPayload.download_path){            
+        if(!urlPayload.download_url){            
             throw obsrvError("", "SIGNED_URL_NOT_FOUND",`Failed to generate signed url for path ${payload.relative_path}`,  "BAD_REQUEST", 400)
         }
         const userToken = req.get('authorization') as string;
