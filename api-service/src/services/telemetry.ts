@@ -1,12 +1,16 @@
-import { Request, Response, NextFunction } from "express"
+import { Request, Response, NextFunction, response } from "express"
 import { v4 } from "uuid";
 import _ from "lodash";
 import { config as appConfig } from "../configs/Config";
 import {send} from "../connections/kafkaConnection"
 import { OTelService } from "./otel/OTelService";
+import { Parser } from "node-sql-parser";
+import { datasetService } from "./DatasetService";
 
 const {env, version} = _.pick(appConfig, ["env","version"])
 const telemetryTopic = _.get(appConfig, "telemetry_dataset");
+const parser = new Parser();
+const dataset_id = new Map();
 
 export enum OperationType { CREATE = 1, UPDATE, PUBLISH, RETIRE, LIST, GET }
 
@@ -238,25 +242,99 @@ export const telemetryLogStart = ({ operationType, action }: any) =>{
     }
 }
 
-export const setLogEdata = (logEvent: any,request: Request, response: Response) => {
-    const {edata = {}}: any = logEvent;
-    const userID = (request as any)?.userID || "SYSTEM";
-    const telemetryLogEvent = getDefaultLog(edata.action,userID);
-    _.set(telemetryLogEvent, "edata", edata);
-    _.set(telemetryLogEvent, "edata.id",request.body?.id || _.get(request, "id") || "")
-    _.set(telemetryLogEvent, "edata.level", response.statusCode != 200 ? "ERROR" : "INFO");
-    _.set(telemetryLogEvent,"edata.params.method", request?.method || "")
-    _.set(telemetryLogEvent, "edata.params.url", request?.originalUrl || "")
-    _.set(telemetryLogEvent, "edata.params.type", logEvent?.type || "")
-    _.set(telemetryLogEvent, "edata.params.statusCode", response?.statusCode || "")
-    _.set(telemetryLogEvent, "edata.params.query", request.body?.query || request.body.querySql?.query || null)
-    _.set(telemetryLogEvent, "edata.params.duration", Date.now() - logEvent.ets)
-    return telemetryLogEvent
+export const getTable = (tables: any) => {
+    const table = _.map(tables , data=> data.table);
+    return table[0];
 }
 
-export const processLogEvents = (request: Request, response: Response) => {
+export const getColumn = (columns: any) => {
+    const column = _.map(columns, data => data.expr.column)
+    return column.filter(value => value !== undefined);
+}
+
+export const getFilters = (whereClause: any) => {
+    const conditions: any = [];
+    _.cloneDeepWith(whereClause, (obj) => {
+        if (obj && obj.type === 'binary_expr') {
+            const data = {
+                column: obj.left.column || obj.left.value,
+                value: getFilterValue(obj.right.value),
+                operator: obj.operator
+            }
+            if(obj.left.column || obj.left.value) {
+                conditions.push(data);
+            }
+        }
+    });
+    return conditions;
+}
+
+export const getFilterValue = (data: any) => {
+    let values = _.map(data, value => value.value);
+    if (values.filter(Boolean).length != 0) {
+        return values;
+    }
+    return data;
+
+}
+
+export const getMetrics = (columns: any) => {
+    const metrics: any = [];
+    _.map(columns, data => {
+        if(! data.expr.args?.expr) return;
+        metrics.push({
+            name: data.expr.name,
+            column: data.expr.args.expr.column || data.expr.args.expr.value
+        })
+    });
+    return metrics;
+}
+
+export const getDatasetId = async (data: any) => {
+    try{
+        if (_.get(dataset_id, "id") == data) {
+            return _.get(dataset_id, "id");
+        }
+        else {
+            const tableRecord: any = await datasetService.getDatasetIdWithDatasource(data, ["dataset_id"]);
+            _.set(dataset_id, "id", tableRecord.dataset_id);
+            return tableRecord.dataset_id;
+        }
+    }
+    catch (error) {
+        console.log(error);
+    }
+}
+
+export const setLogEdata =  async (logEvent: any,request: Request, response: Response) => {
+    try{
+        const {edata = {}}: any = logEvent;
+        const userID = (request as any)?.userID || "SYSTEM";
+        const telemetryLogEvent = getDefaultLog(edata.action,userID);
+        const query = request.body?.query || request.body.querySql?.query || null;
+        const ast = parser.astify(query);
+        const table = getTable(_.get(ast, "from"));
+        _.set(telemetryLogEvent, "edata", edata);
+        const dataset_id = await getDatasetId(table);
+        _.set(telemetryLogEvent, "edata.dataset_id", dataset_id);
+        _.set(telemetryLogEvent, "edata.query_metadata.table", table);
+        const columns: any = _.get(ast, "columns");
+        _.set(telemetryLogEvent, "edata.query_metadata.dimensions",getColumn(columns));
+        _.set(telemetryLogEvent, "edata.query_metadata.metrics", getMetrics(columns) || []);
+        _.set(telemetryLogEvent, "edata.query_metadata.filters", getFilters(_.get(ast, "where")));
+        _.set(telemetryLogEvent, "edata.query_metadata.response.size", (response.getHeaders()["content-length"]))
+        _.set(telemetryLogEvent, "edata.query_metadata.response.duration", Date.now() - logEvent.ets)
+
+        return telemetryLogEvent
+    }
+    catch (error) {
+        console.log(error);
+    }
+}
+
+export const processLogEvents = async (request: Request, response: Response) => {
     const logEvent = _.get(request, "logEvent") || {};
-    const telemetryLogEvent: any = setLogEdata(logEvent, request, response);
+    const telemetryLogEvent: any = await setLogEdata(logEvent, request, response);
     sendTelemetryEvents(telemetryLogEvent);
 }
 

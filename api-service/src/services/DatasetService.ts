@@ -119,6 +119,10 @@ class DatasetService {
         return Datasource.findOne({ where: { id: datasource_id }, attributes, raw: true });
     }
 
+    getDatasetIdWithDatasource = async (dataSource_ref: string, attributes?: string[]) => {
+        return Datasource.findOne({ where: { datasource_ref: dataSource_ref }, attributes, raw: true });
+    }
+
     updateDatasource = async (payload: Record<string, any>, where: Record<string, any>): Promise<Record<string, any>> => {
         return Datasource.update(payload, { where });
     }
