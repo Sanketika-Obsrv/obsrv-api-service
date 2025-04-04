@@ -98,7 +98,8 @@ export const config = {
     "container_prefix": process.env.container_prefix || "", // Path to the folder inside container/bucket. Empty if data at root level
     "storage_url_expiry": process.env.storage_url_expiry ? parseInt(process.env.storage_url_expiry) : 3600, // in seconds, Default 1hr of expiry for Signed URLs.
     "maxQueryDateRange": process.env.exhaust_query_range ? parseInt(process.env.exhaust_query_range) : 31, // in days. Defines the maximum no. of days the files can be fetched
-    "exclude_exhaust_types": process.env.exclude_exhaust_types ? process.env.exclude_exhaust_types.split(",") : ["system-stats", "masterdata-system-stats", "system-events",] // list of folder type names to skip exhaust service
+    "exclude_exhaust_types": process.env.exclude_exhaust_types ? process.env.exclude_exhaust_types.split(",") : ["system-stats", "masterdata-system-stats", "system-events",], // list of folder type names to skip exhaust service
+    "telemetry_data_path": process.env.telemetry_data_path || "telemetry-data",
   },
   "template_config": {
     "template_required_variables": process.env.template_required_vars ? process.env.template_required_vars.split(",") : ["DATASET", "STARTDATE", "ENDDATE"],
@@ -139,5 +140,8 @@ export const config = {
     "default_freshness_threshold": process.env.default_freshness_threshold ? parseInt(process.env.default_freshness_threshold) : 5, // in minutes
     "data_out_query_time_period": process.env.data_out_query_time_period || "1d",
     "default_query_time_period": process.env.default_query_time_period ? parseInt(process.env.default_query_time_period) : 7, // in days
+  },
+  "alerts_rules": {
+    "config_path": process.env.alerts_config_path
   }
 }

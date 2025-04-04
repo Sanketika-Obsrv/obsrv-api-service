@@ -170,13 +170,14 @@ async def register_connector(req: FastAPIRequest):
         response.params.msgid = data.get("params", {}).get("msgid", str(uuid.uuid4()))
 
         # Get the connector relative path in data
-        rel_path: str = data.get("relative_path", None)
+        download_url: str = data.get("download_url", None)
+        file_name: str = data.get("file_name", None)
 
         print(
-            f"Connector Registry | Received request to register connector: {rel_path}"
+            f"Connector Registry | Received request to register connector: {file_name}"
         )
 
-        if not rel_path:
+        if not download_url:
             response.params.status = "Failure"
             return JSONResponse(
                 {
@@ -185,13 +186,13 @@ async def register_connector(req: FastAPIRequest):
                     "ts": response.ts,
                     "params": response.params.to_dict(),
                     "responseCode": status.HTTP_400_BAD_REQUEST,
-                    "error": {"message": "connector relative path is missing."},
+                    "error": {"message": "connector download path is missing."},
                 },
                 status_code=status.HTTP_400_BAD_REQUEST,
             )
 
         executor = ConnectorRegistry()
-        result = executor.register(rel_path)
+        result = executor.register(download_url, file_name)
         response.params.status = result.status
 
         content = {

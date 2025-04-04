@@ -23,7 +23,7 @@ export const dataExhaust = async (req: Request, res: Response) => {
     const getFromStorage = async (type: string, dateRange: any, datasetId: string) => {
         const resData =
             cloudProvider.getFiles(
-                config.cloud_config.container, config.cloud_config.container_prefix, type, dateRange, datasetId,
+                config.cloud_config.container, config.cloud_config.telemetry_data_path, type, dateRange, datasetId,
             )
         return resData || {};
     }
