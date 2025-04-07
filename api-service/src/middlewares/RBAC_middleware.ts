@@ -119,7 +119,7 @@ const keycloakTokenVerify = async (token: string, req: Request, res: Response, n
 
 export default {
   name: "rbac:middleware",
-  handler: () => async (req: any, res: Response, next: NextFunction) => {
+  handler: () => async (req: Request, res: Response, next: NextFunction) => {
     try {
       if (_.lowerCase(config.is_RBAC_enabled) === "false") {
         (req as any).userID = "SYSTEM";

@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction, response } from "express"
+import { Request, Response, NextFunction } from "express"
 import { v4 } from "uuid";
 import _ from "lodash";
 import { config as appConfig } from "../configs/Config";
