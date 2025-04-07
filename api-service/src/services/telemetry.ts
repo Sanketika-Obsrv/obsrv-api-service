@@ -233,8 +233,6 @@ const setLogEventType = (operationType: any, request: any) => {
 export const telemetryLogStart = ({ operationType, action }: any) =>{
     return async ( request: any, response: Response, next: NextFunction) => {
         try{
-            console.log("Request Body: ", request);
-        console.log("Response Body: ", response);
             const user_id = (request as any)?.userID
             request.logEvent = getDefaultLog(action, user_id);
             setLogEventType( operationType, request);

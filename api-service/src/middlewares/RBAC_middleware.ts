@@ -119,7 +119,7 @@ const keycloakTokenVerify = async (token: string, req: Request, res: Response, n
 
 export default {
   name: "rbac:middleware",
-  handler: () => async (req: Request, res: Response, next: NextFunction) => {
+  handler: () => async (req: any, res: Response, next: NextFunction) => {
     try {
       if (_.lowerCase(config.is_RBAC_enabled) === "false") {
         (req as any).userID = "SYSTEM";
@@ -127,6 +127,7 @@ export default {
       }
       const authHeader = req.headers['authorization'];
       console.log("Header:", req.headers);
+      console.log("This is the session from request", req?.session);
       console.log("authHeader: ",authHeader);
       const token = authHeader && authHeader.split(' ')[1];
       if (!token) {
