@@ -126,9 +126,6 @@ export default {
         return next();
       }
       const authHeader = req.headers['authorization'];
-      console.log("Header:", req.headers);
-      console.log("This is the session from request", req?.session);
-      console.log("authHeader: ",authHeader);
       const token = authHeader && authHeader.split(' ')[1];
       if (!token) {
         return errorHandler(401, "No token provided", req, res);

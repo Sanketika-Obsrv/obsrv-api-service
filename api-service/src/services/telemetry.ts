@@ -134,8 +134,6 @@ export const processAuditEvents = (request: Request) => {
             _.set(auditEvent, "edata.transition.toState", toState);
             _.set(auditEvent, "edata.transition.fromState", fromState);
         }
-        console.log((request as any)?.userID)
-        console.log("request:",request);
         const telemetryEvent = getDefaults((request as any)?.userID);
         _.set(telemetryEvent, "edata", edata);
         _.set(telemetryEvent, "object", { ...(object.id && object.type && { ...object, ver: "1.0.0" }) });
