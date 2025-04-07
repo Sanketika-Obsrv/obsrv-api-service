@@ -134,6 +134,8 @@ export const processAuditEvents = (request: Request) => {
             _.set(auditEvent, "edata.transition.toState", toState);
             _.set(auditEvent, "edata.transition.fromState", fromState);
         }
+        console.log((request as any)?.userID)
+        console.log("request:",request);
         const telemetryEvent = getDefaults((request as any)?.userID);
         _.set(telemetryEvent, "edata", edata);
         _.set(telemetryEvent, "object", { ...(object.id && object.type && { ...object, ver: "1.0.0" }) });
@@ -231,6 +233,8 @@ const setLogEventType = (operationType: any, request: any) => {
 export const telemetryLogStart = ({ operationType, action }: any) =>{
     return async ( request: any, response: Response, next: NextFunction) => {
         try{
+            console.log("Request Body: ", request);
+        console.log("Response Body: ", response);
             const user_id = (request as any)?.userID
             request.logEvent = getDefaultLog(action, user_id);
             setLogEventType( operationType, request);
@@ -324,8 +328,7 @@ export const setLogEdata =  async (logEvent: any,request: Request, response: Res
         _.set(telemetryLogEvent, "edata.query_metadata.filters", getFilters(_.get(ast, "where")));
         _.set(telemetryLogEvent, "edata.query_metadata.response.size", (response.getHeaders()["content-length"]))
         _.set(telemetryLogEvent, "edata.query_metadata.response.duration", Date.now() - logEvent.ets)
-        console.log("Request Body: ", request);
-        console.log("Response Body: ", response);
+        
         return telemetryLogEvent
     }
     catch (error) {
