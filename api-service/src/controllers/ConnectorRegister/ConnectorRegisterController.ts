@@ -8,6 +8,7 @@ import busboy from "busboy";
 import { PassThrough } from "stream";
 import { registerConnector } from "../../connections/commandServiceConnection";
 import { generatePreSignedUrl } from "../GenerateSignedURL/helper";
+import { obsrvError } from "../../types/ObsrvError";
 
 export const apiId = "api.connector.register";
 export const code = "FAILED_TO_REGISTER_CONNECTOR";
@@ -22,8 +23,16 @@ const connectorRegisterController = async (req: Request, res: Response) => {
             relative_path: uploadStreamResponse[0]
         }
         logger.info({ apiId, resmsgid, message: `File uploaded to cloud provider successfully` })
+        const downloadUrls = await generatePreSignedUrl("read", [payload.relative_path], "connector")
+        const urlPayload = {
+            download_url : _.get(downloadUrls, [0, "preSignedUrl"]),
+            file_name: _.get(downloadUrls, [0, "fileName"])
+        }
+        if(!urlPayload.download_url){            
+            throw obsrvError("", "SIGNED_URL_NOT_FOUND",`Failed to generate signed url for path ${payload.relative_path}`,  "BAD_REQUEST", 400)
+        }
         const userToken = req.get('authorization') as string;
-        const registryResponse = await registerConnector(payload, userToken);
+        const registryResponse = await registerConnector(urlPayload, userToken);
         logger.info({ apiId, resmsgid, message: `Connector registered successfully` })
         ResponseHandler.successResponse(req, res, { status: httpStatus.OK, data: { message: registryResponse?.data?.message } })
     } catch (error: any) {

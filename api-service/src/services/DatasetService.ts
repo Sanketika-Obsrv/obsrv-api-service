@@ -21,6 +21,7 @@ import { deleteAlertByDataset, deleteMetricAliasByDataset } from "./managers";
 import { config } from "../configs/Config";
 import { Op } from "sequelize";
 import TableDraft from "../models/Table";
+import { alertService } from "./AlertManagerService";
 
 class DatasetService {
 
@@ -365,6 +366,7 @@ class DatasetService {
 
         const indexingConfig = draftDataset.dataset_config.indexing_config;
         const transaction = await sequelize.transaction()
+        const liveDataset = await this.getDataset(draftDataset.dataset_id)
         try {
             await DatasetDraft.update(draftDataset, { where: { id: draftDataset.id }, transaction })
             if (indexingConfig.olap_store_enabled) {
@@ -385,13 +387,18 @@ class DatasetService {
                     await this.createHudiDataSource(draftDataset, transaction)
                 }
             }
+            if (_.isEmpty(liveDataset)) {
+                await alertService.createDatasetAlertsDraft(draftDataset, transaction);
+            }
             await transaction.commit()
         } catch (err: any) {
             await transaction.rollback()
             throw obsrvError(draftDataset.id, "FAILED_TO_PUBLISH_DATASET", err.message, "SERVER_ERROR", 500, err);
         }
         await executeCommand(draftDataset.dataset_id, "PUBLISH_DATASET", userToken);
-
+        if (_.isEmpty(liveDataset)) {
+            await alertService.publishAlertRule(draftDataset.dataset_id)
+        }
     }
 
     private createDruidDataSource = async (draftDataset: Record<string, any>, transaction: Transaction) => {

@@ -1,6 +1,6 @@
 // These configurations provide settings and values for various aspects of dataset management, data ingestion, and table configurations in a system.
 
-const env = process.env.system_env || "local"
+const env = process.env.system_env || "obsrv"
 
 const getCloudConfigs = () => {
   const cloudConfig = process.env.cloud_storage_config;
@@ -21,7 +21,7 @@ export const config = {
   "env": env,
   "api_port": process.env.api_port || 3000,
   "body_parser_limit": process.env.body_parser_limit || "100mb",
-  "version": "1.0",
+  "version": process.env.obsrv_version || "1.6.0",
   "query_api": {
     "druid": {
       "host": process.env.druid_host || "http://localhost",
@@ -98,7 +98,8 @@ export const config = {
     "container_prefix": process.env.container_prefix || "", // Path to the folder inside container/bucket. Empty if data at root level
     "storage_url_expiry": process.env.storage_url_expiry ? parseInt(process.env.storage_url_expiry) : 3600, // in seconds, Default 1hr of expiry for Signed URLs.
     "maxQueryDateRange": process.env.exhaust_query_range ? parseInt(process.env.exhaust_query_range) : 31, // in days. Defines the maximum no. of days the files can be fetched
-    "exclude_exhaust_types": process.env.exclude_exhaust_types ? process.env.exclude_exhaust_types.split(",") : ["system-stats", "masterdata-system-stats", "system-events",] // list of folder type names to skip exhaust service
+    "exclude_exhaust_types": process.env.exclude_exhaust_types ? process.env.exclude_exhaust_types.split(",") : ["system-stats", "masterdata-system-stats", "system-events",], // list of folder type names to skip exhaust service
+    "telemetry_data_path": process.env.telemetry_data_path || "telemetry-data",
   },
   "template_config": {
     "template_required_variables": process.env.template_required_vars ? process.env.template_required_vars.split(",") : ["DATASET", "STARTDATE", "ENDDATE"],
@@ -129,7 +130,7 @@ export const config = {
     "access_token": process.env.grafana_token || ""
   },
   "user_token_public_key": process.env.user_token_public_key || "",
-  "is_RBAC_enabled": process.env.is_rbac_enabled || "false",
+  "is_RBAC_enabled": process.env.is_rbac_enabled || "true",
   "otel": {
     "enable": process.env.otel_enable || "false",
     "collector_endpoint": process.env.otel_collector_endpoint || "http://localhost:4318"
@@ -139,5 +140,8 @@ export const config = {
     "default_freshness_threshold": process.env.default_freshness_threshold ? parseInt(process.env.default_freshness_threshold) : 5, // in minutes
     "data_out_query_time_period": process.env.data_out_query_time_period || "1d",
     "default_query_time_period": process.env.default_query_time_period ? parseInt(process.env.default_query_time_period) : 7, // in days
+  },
+  "alerts_rules": {
+    "config_path": process.env.alerts_config_path
   }
 }

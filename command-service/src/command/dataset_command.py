@@ -21,12 +21,7 @@ class DatasetCommand(ICommand):
     ):
         self.db_service = db_service
         self.telemetry_service = telemetry_service
-        self.http_service = http_service
         self.config = config
-        self.http_service = http_service
-        self.config_service_host = self.config.find("config_service.host")
-        self.config_service_port = self.config.find("config_service.port")
-        self.base_url = f"http://{self.config_service_host}:{self.config_service_port}/v2/datasets/export"
 
     def _get_draft_dataset_record(self, dataset_id):
         query = f"""
@@ -63,19 +58,36 @@ class DatasetCommand(ICommand):
             return live_dataset, data_version
         return None, None
 
+    def _get_live_dataset_for_audit(self, dataset):
+        result = {}
+        if dataset is not None:
+            dataset_dict = dataset.__dict__
+            result["dataset"] = dataset_dict
+            connector_instances = self.db_service.execute_select_all(
+                sql="SELECT * FROM connector_instances WHERE dataset_id = %s", 
+                params=(dataset.dataset_id,)
+            )
+            if connector_instances is not None:
+                result["dataset"]["connectors_config"] = connector_instances
+
+            transformations = self.db_service.execute_select_all(
+                sql="SELECT * FROM dataset_transformations WHERE dataset_id = %s", 
+                params=(dataset.dataset_id,)
+            )
+            if transformations is not None:
+                result["dataset"]["transformations_config"] = transformations
+        return result
+    
     def audit_live_dataset(self, command_payload: CommandPayload, ts: int):
         dataset_id = command_payload.dataset_id
         dataset_record, data_version = self._check_for_live_record(dataset_id)
-        url=self.base_url + '/{}'.format(dataset_id)
-        export_dataset = self.http_service.get(
-            url=url
-        )
-        if export_dataset.status == 200:
-            result = json.loads(export_dataset.body)
+        live_dataset_result = self._get_live_dataset_for_audit(dataset_record)
+        live_dataset = live_dataset_result["dataset"]
+        if live_dataset is not None:
             object_ = Object(
                 dataset_id, dataset_record.type, dataset_record.data_version
             )
-            live_dataset_property = Property("dataset:export", result["result"], "")
+            live_dataset_property = Property("dataset:export", live_dataset, "")
             draft_property = Property(
                 "draft-dataset:status",
                 DatasetStatusType.ReadyToPublish.name,
