@@ -126,6 +126,7 @@ export default {
         return next();
       }
       const authHeader = req.headers['authorization'];
+      console.log("Header: ",authHeader);
       const token = authHeader && authHeader.split(' ')[1];
       if (!token) {
         return errorHandler(401, "No token provided", req, res);

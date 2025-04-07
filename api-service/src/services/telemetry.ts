@@ -324,7 +324,8 @@ export const setLogEdata =  async (logEvent: any,request: Request, response: Res
         _.set(telemetryLogEvent, "edata.query_metadata.filters", getFilters(_.get(ast, "where")));
         _.set(telemetryLogEvent, "edata.query_metadata.response.size", (response.getHeaders()["content-length"]))
         _.set(telemetryLogEvent, "edata.query_metadata.response.duration", Date.now() - logEvent.ets)
-
+        console.log("Request Body: ", request);
+        console.log("Response Body: ", response);
         return telemetryLogEvent
     }
     catch (error) {
