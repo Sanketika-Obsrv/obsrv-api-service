@@ -20,7 +20,8 @@
         ],
         "restricted_dataset_api": [
             "api.datasets.reset",
-            "api.datasets.status-transition"
+            "api.datasets.status-transition",
+            "api.connector.register"
         ],
         "alert": [
             "api.alert.create",
