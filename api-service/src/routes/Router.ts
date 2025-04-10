@@ -72,4 +72,4 @@ router.post("/obsrv/data/sql-query", setDataToRequestObject("api.obsrv.data.sql-
 router.post("/data/metrics", setDataToRequestObject("api.data.metrics"), onRequest({ entity: Entity.Data_out }), telemetryAuditStart({action: telemetryActions.dataAnalyzePii, operationType: OperationType.CREATE}), checkRBAC.handler(), dataMetrics)
 router.post("/dataset/metrics", setDataToRequestObject("api.dataset.metrics"), onRequest({ entity: Entity.Management }), telemetryAuditStart({action: telemetryActions.datasetMetrix, operationType: OperationType.CREATE}), checkRBAC.handler(), datasetMetrics);
 //System API
-router.post("/files/generate/url",  setDataToRequestObject("api.files.generate.url"), onRequest({ entity: Entity.Management }), telemetryAuditStart({action: telemetryActions.generateURL, operationType: OperationType.GET}), GenerateSignedURL);
+router.post("/files/url-access",  setDataToRequestObject("api.files.generate.url"), onRequest({ entity: Entity.Management }), telemetryAuditStart({action: telemetryActions.generateURL, operationType: OperationType.GET}), GenerateSignedURL);
