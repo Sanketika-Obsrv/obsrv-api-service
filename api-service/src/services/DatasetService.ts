@@ -120,8 +120,13 @@ class DatasetService {
         return Datasource.findOne({ where: { id: datasource_id }, attributes, raw: true });
     }
 
-    getDatasetIdWithDatasource = async (dataSource_ref: string, attributes?: string[]) => {
-        return Datasource.findOne({ where: { datasource_ref: dataSource_ref }, attributes, raw: true });
+    getDatasetIdWithDatasource = async (dataSource_ref: string, attributes?: string[]): Promise<Record<string, any> | any>  => {
+        try {
+            return Datasource.findOne({ where: { datasource_ref: dataSource_ref }, attributes, raw: true }); 
+        } catch (error) {
+             console.error("Error fetching dataset ID:", error); 
+             return null; 
+        }
     }
 
     updateDatasource = async (payload: Record<string, any>, where: Record<string, any>): Promise<Record<string, any>> => {

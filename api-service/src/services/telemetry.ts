@@ -291,19 +291,7 @@ export const getMetrics = (columns: any) => {
 }
 
 export const getDatasetId = async (data: any) => {
-    try{
-        if (_.get(dataset_id, "id") == data) {
-            return _.get(dataset_id, "id");
-        }
-        else {
-            const tableRecord: any = await datasetService.getDatasetIdWithDatasource(data, ["dataset_id"]);
-            _.set(dataset_id, "id", tableRecord.dataset_id);
-            return tableRecord.dataset_id;
-        }
-    }
-    catch (error) {
-        console.log(error);
-    }
+    return await datasetService.getDatasetIdWithDatasource(data, ["dataset_id"]);
 }
 
 export const setLogEdata =  async (logEvent: any,request: Request, response: Response) => {
@@ -312,6 +300,9 @@ export const setLogEdata =  async (logEvent: any,request: Request, response: Res
         const userID = (request as any)?.userID || "SYSTEM";
         const telemetryLogEvent = getDefaultLog(edata.action,userID);
         const query = request.body?.query || request.body.querySql?.query || null;
+        if (!query || typeof query !== "string") { 
+            throw new Error("Invalid or missing SQL query");
+        }
         const ast = parser.astify(query);
         const table = getTable(_.get(ast, "from"));
         _.set(telemetryLogEvent, "edata", edata);
