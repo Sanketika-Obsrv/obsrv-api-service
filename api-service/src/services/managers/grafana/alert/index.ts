@@ -65,7 +65,7 @@ const deleteAlert = async (payload: Record<string, any>) => {
   if (_.get(alertCategory, "rules.length") > 1) {
     const filteredRule = _.filter(alertCategory.rules, (rule) => _.get(rule, "grafana_alert.title") !== name) || [];
     const filteredGroup = { ...alertCategory, rules: filteredRule };
-    return addGrafanaRule(filteredGroup, alertCategory);
+    return addGrafanaRule(filteredGroup, _.get(alertCategory, "name"));
   }
 
   await deleteAlertRule(category);
