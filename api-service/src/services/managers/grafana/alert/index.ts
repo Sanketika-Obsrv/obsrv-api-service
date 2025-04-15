@@ -22,7 +22,7 @@ const publishAlert = async (payload: Record<string, any>) => {
     alertRulePayload = await transformRule({ ...transformPayload, isGroup: true });
   }
 
-  return addGrafanaRule(alertRulePayload);
+  return addGrafanaRule(alertRulePayload, payload.category);
 };
 
 const getAlerts = async (payload: Record<string, any>) => {
@@ -65,7 +65,7 @@ const deleteAlert = async (payload: Record<string, any>) => {
   if (_.get(alertCategory, "rules.length") > 1) {
     const filteredRule = _.filter(alertCategory.rules, (rule) => _.get(rule, "grafana_alert.title") !== name) || [];
     const filteredGroup = { ...alertCategory, rules: filteredRule };
-    return addGrafanaRule(filteredGroup);
+    return addGrafanaRule(filteredGroup, alertCategory);
   }
 
   await deleteAlertRule(category);
@@ -103,7 +103,7 @@ const deleteSystemRules = async () => {
         await deleteAlertFolder(category);
       } else {
         const filteredGroup = { ...evaluationGroup, rules: filteredRules };
-        await addGrafanaRule(filteredGroup);
+        await addGrafanaRule(filteredGroup, category);
       }
     } catch (err) {
       console.log(err)

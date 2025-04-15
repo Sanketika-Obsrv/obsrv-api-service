@@ -41,7 +41,9 @@ const createAndPublishRule = async (payload) => {
     try {
         const ruleName = _.get(payload, 'rule.name')
         console.log("[CREATE-ALIAS]", ruleName);
-        await createMetricAlias(payload).catch(logError);
+        const metricResponse = await createMetricAlias(payload).catch(logError);
+        const metricId = _.get(metricResponse, 'data.result.id');
+        _.set(payload, 'rule.metadata.queryBuilderContext.id', metricId);
         console.log("[CREATE-RULE]", ruleName);
         const response = await createRule(payload)
         console.log("[PUBLISH-RULE]", ruleName);

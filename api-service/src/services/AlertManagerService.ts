@@ -18,8 +18,9 @@ class AlertManagerService {
         const metricData = _.cloneDeep(metric);
         if (service === 'flink') {
             const modifiedSubstring = datasetId.replace(/-/g, '_');
-            metricData.metric = metricData.metric.replace('dataset_id', modifiedSubstring);
-        } else {
+            metricData.metric = metricData.metric.replaceAll('dataset_id', modifiedSubstring);
+        }
+        else {
             metricData.metric = metricData.metric.replace('dataset_id', datasetId);
         }
         return metricData;
@@ -54,11 +55,12 @@ class AlertManagerService {
             name: `${metricData.alias} (${datasetName})`,
             manager: 'grafana',
             description: metricData.description,
-            category: 'datasets',
+            category: metricData.category,
             frequency: metricData.frequency,
             interval: metricData.interval,
             context: { alertType: 'SYSTEM' },
-            labels: { component: 'obsrv' },
+            labels: { alert_code: metricData.code, component: 'obsrv', dataset: datasetId },
+            severity: metricData.severity,
             metadata: {
                 queryBuilderContext: {
                     category: 'datasets',
