@@ -32,7 +32,7 @@ class AlertManagerService {
 
         const metricPayload = {
             alias: `${metricData.alias} (${datasetId})`,
-            component: 'datasets',
+            component: metricData.category,
             subComponent: datasetId,
             metric: metricData.metric,
             context: {
@@ -40,16 +40,17 @@ class AlertManagerService {
             },
         };
 
-        await this.createMetric(metricPayload, transaction);
-        await this.createAlertRule({ datasetId, metricData, transaction });
+        const response = await this.createMetric(metricPayload, transaction);
+        await this.createAlertRule({ datasetId, metricData, transaction, metricId: response.dataValues.id });
     }
 
     private createAlertRule = async (params: {
         datasetId: string;
         metricData: any;
-        transaction: Transaction
+        transaction: Transaction;
+        metricId: string;
     }): Promise<void> => {
-        const { datasetId, metricData, transaction } = params;
+        const { datasetId, metricData, transaction, metricId } = params;
         const datasetName = datasetId.replace(/[-.]/g, ' ').replace(/\b\w/g, c => _.toUpper(c));
         const alertPayload = {
             name: `${metricData.alias} (${datasetName})`,
@@ -63,7 +64,8 @@ class AlertManagerService {
             severity: metricData.severity,
             metadata: {
                 queryBuilderContext: {
-                    category: 'datasets',
+                    category: metricData.category,
+                    id: metricId,
                     subComponent: datasetId,
                     metric: metricData.metric,
                     operator: metricData.operator,
