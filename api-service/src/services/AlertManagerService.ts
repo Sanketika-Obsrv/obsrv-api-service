@@ -53,7 +53,7 @@ class AlertManagerService {
         const { datasetId, metricData, transaction, metricId } = params;
         const datasetName = datasetId.replace(/[-.]/g, ' ').replace(/\b\w/g, c => _.toUpper(c));
         const alertPayload = {
-            name: `${metricData.alias} (${datasetName})`,
+            name: metricData.alias.replace('[DATASET]', `[DATASET][${datasetName}]`),
             manager: 'grafana',
             description: metricData.description,
             category: metricData.category,
