@@ -21,7 +21,13 @@ class AlertManagerService {
             metricData.metric = metricData.metric.replaceAll('dataset_id', modifiedSubstring);
         }
         else if (service === 'druid') {
-            const modifiedSubstring = (datasource_ref || '').replace(/-/g, '_');
+            const flattenDatasetId = metricData.flattened || false
+            let modifiedSubstring: any;
+            if (flattenDatasetId) {
+                modifiedSubstring = (datasource_ref || '').replace(/-/g, '_');
+            } else {
+                modifiedSubstring = datasource_ref
+            }
             metricData.metric = metricData.metric.replaceAll('dataset_id', modifiedSubstring);
         }
         else if (service === 'api') {

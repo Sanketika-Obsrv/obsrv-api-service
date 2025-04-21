@@ -53,7 +53,7 @@
       ],
       "dataset_metrics_druid": [
         {
-          "metric": "druid_supervisors{healthy=\"true\", supervisor_name=\"dataset_id\", state=\"PENDING\"}",
+          "metric": "druid_supervisors{healthy=\"true\", supervisor_name=\"dataset_id\", state=~\"CREATING_TASKS|SUSPENDED|PENDING|FAILED\"}",
           "alias": "[DATASET]: Druid supervisor is in an unhealthy state",
           "category": "Querying",
           "severity": "critical",
@@ -67,6 +67,7 @@
         {
           "metric": "druid_ingest_events_unparseable_total{dataSource=\"dataset_id\"}",
           "alias": "[DATASET]: Detected higher amount of unparseable data.",
+          "flattened": true,
           "category": "Querying",
           "severity": "critical",
           "code": "QUERY_DRUID_INDEXER_008",
@@ -80,6 +81,7 @@
           "metric": "druid_ingest_kafka_lag{dataSource=\"dataset_id\"}",
           "alias": "[DATASET]: Detected higher amount of query lag than expected.",
           "category": "Querying",
+          "flattened": true,
           "severity": "critical",
           "code": "QUERY_DRUID_INDEXER_007",
           "description": "Increased query lag in Druid Indexers can affect real-time insights, causing delayed analytics and slower data-driven responses.",
