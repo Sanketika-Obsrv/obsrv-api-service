@@ -21,7 +21,8 @@ class AlertManagerService {
             metricData.metric = metricData.metric.replaceAll('dataset_id', modifiedSubstring);
         }
         else if (service === 'druid') {
-            metricData.metric = metricData.metric.replaceAll('dataset_id', datasource_ref);
+            const modifiedSubstring = (datasource_ref || '').replace(/-/g, '_');
+            metricData.metric = metricData.metric.replaceAll('dataset_id', modifiedSubstring);
         }
         else if (service === 'api') {
             metricData.metric = metricData.metric.replaceAll('<dataset_id>', datasetId);
@@ -120,9 +121,6 @@ class AlertManagerService {
             });
         }
         for (const metric of this.config.dataset_metrics_druid) {
-            // const datasources = await Datasource.findAll({ where: { dataset_id: dataset.dataset_id }, raw: true });
-            // for (const datasource of datasources) {
-            // const datasource_ref = _.get(datasource, "datasource_ref");
             await this.createAlerts({
                 datasetId: dataset.dataset_id,
                 service: "druid",
@@ -130,7 +128,6 @@ class AlertManagerService {
                 transaction,
                 datasource_ref
             });
-            // }
         }
         for (const metric of this.config.query_metric) {
             await this.createAlerts({
