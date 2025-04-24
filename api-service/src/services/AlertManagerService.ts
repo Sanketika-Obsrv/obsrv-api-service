@@ -78,6 +78,9 @@ class AlertManagerService {
             context: { alertType: 'SYSTEM' },
             labels: { alert_code: metricData.code, component: 'obsrv', dataset: datasetId, table: datasource_ref },
             severity: metricData.severity,
+            annotations: {
+                summary: _.get(metricData, 'summary', ''),
+            },
             metadata: {
                 queryBuilderContext: {
                     category: metricData.category,

@@ -49,20 +49,35 @@
           "interval": "5m",
           "operator": "gt",
           "threshold": 0
+        },
+        {
+          "metric": "sum(sum_over_time(flink_taskmanager_job_task_operator_PipelinePreprocessorJob_dataset_id_validator_total_count[$__range]))",
+          "alias": "[DATASET]: No data has been received for the past hour.",
+          "category": "Processing",
+          "flattened": true,
+          "severity": "warning",
+          "code": "PROCESS_UNIFIED_PIPELINE_010",
+          "description": "The dataset hasn’t received any new data for the past hour, which may affect the querying of the new data.",
+          "summary": "The dataset has not received any new data, which will impact real-time data processing",
+          "frequency": "5m",
+          "interval": "1h",
+          "operator": "lt",
+          "threshold": 1
         }
       ],
       "dataset_metrics_druid": [
         {
-          "metric": "druid_supervisors{healthy=\"true\", supervisor_name=\"dataset_id\", state=~\"CREATING_TASKS|SUSPENDED|PENDING|FAILED\"}",
+          "metric": "max(druid_supervisors{supervisor_name=\"dataset_id\", state=\"RUNNING\"} or (0 * absent(druid_supervisors{supervisor_name=\"dataset_id\", state=\"RUNNING\"})))",
           "alias": "[DATASET]: Druid supervisor is in an unhealthy state",
           "category": "Querying",
           "severity": "critical",
           "code": "QUERY_DRUID_INDEXER_009",
-          "description": "An unhealthy Druid Supervisor can halt real-time ingestion, delay data availability and querying.",
+          "description": "The dataset is unhealthy, and no new data has been available for querying since the system encountered the issue.",
+          "summary": "The associated Druid Supervisor is in an unhealthy state, preventing druid ingestion tasks from running. As a result, real-time data cannot be queried.",
           "frequency": "5m",
           "interval": "5m",
-          "operator": "gt",
-          "threshold": 0
+          "operator": "lt",
+          "threshold": 1
         },
         {
           "metric": "druid_ingest_events_unparseable_total{dataSource=\"dataset_id\"}",
@@ -71,7 +86,8 @@
           "category": "Querying",
           "severity": "critical",
           "code": "QUERY_DRUID_INDEXER_008",
-          "description": "High volume of unparseable data can lead to incomplete ingestion, data loss, and gaps in downstream analytics",
+          "description": "The dataset is unhealthy, and the query results may be incorrect",
+          "summary": "Unparseable data has been detected in the system, preventing it from being processed. Henceforth, queries on this dataset may not return accurate data until the issue is resolved.",
           "frequency": "5m",
           "interval": "5m",
           "operator": "gt",
@@ -84,39 +100,29 @@
           "flattened": true,
           "severity": "critical",
           "code": "QUERY_DRUID_INDEXER_007",
-          "description": "Increased query lag in Druid Indexers can affect real-time insights, causing delayed analytics and slower data-driven responses.",
+          "description": "A large amount of data is still waiting to be processed. This may cause delays in querying the most recent data",
+          "summary": "High indexer lag in the dataset indicates processing of new data is delayed. Because of this delay, new data isn’t available when querying the dataset.",
           "frequency": "5m",
-          "interval": "5m",
+          "interval": "1h",
           "operator": "gt",
-          "threshold": 1000
-        }
-      ],
-      "query_metric":[
-        {
-          "metric": "sum(sum_over_time(node_failed_api_calls{dataset_id='<dataset_id>', id='api.data.out'}[$__range]))",
-          "alias": "[DATASET]: The Data Query API is encountering more failures to retrieve the data",
-          "category": "Querying",
-          "severity": "critical",
-          "code": "QUERY_API_005",
-          "description": "Failure to query data disrupts access to real-time data, affecting downstream analytics that rely on timely insights.",
-          "frequency": "5m",
-          "interval": "5m",
-          "operator": "gt",
-          "threshold": 0
+          "threshold": 5000000
         },
         {
-          "metric": "avg(avg_over_time(node_query_response_time{dataset_id='<dataset_id>', id='api.data.out'}[$__range]))",
-          "alias": "[DATASET]: The Data Query API is facing delays in retrieving data",
+          "metric": "druid_ingest_kafka_lag{dataSource=\"dataset_id\"}",
+          "alias": "[DATASET]: Druid Supervisor Ingestion Failure Due to Offsets.",
           "category": "Querying",
+          "flattened": true,
           "severity": "critical",
-          "code": "QUERY_API_006",
-          "description": "Slow queries can delay data retrieval for data analytics.",
+          "code": "QUERY_DRUID_INDEXER_012",
+          "description": "The dataset is unhealthy, and no new data has been available for querying since the issue occurred",
+          "summary": "The supervisor is experiencing a negative offset, preventing it from ingesting new data. As a result, real-time data is unavailable for querying.",
           "frequency": "5m",
           "interval": "5m",
-          "operator": "gt",
-          "threshold": 100
+          "operator": "lt",
+          "threshold": 0
         }
-      ]
+      ],
+      "query_metric": []
     }
   }
 }
