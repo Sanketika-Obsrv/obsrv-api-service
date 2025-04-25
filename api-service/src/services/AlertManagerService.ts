@@ -138,7 +138,7 @@ class AlertManagerService {
                 datasource_ref
             });
         }
-        for (const metric of this.config.query_metric) {
+        for (const metric of this.config.api_metric) {
             await this.createAlerts({
                 datasetId: dataset.dataset_id,
                 service: "api",

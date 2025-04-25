@@ -3,10 +3,61 @@
     "alerts": {
       "dataset_metrics_flink": [
         {
+          "metric": "sum(sum_over_time(flink_taskmanager_job_task_operator_ExtractorJob_dataset_id_extractor_failed_count[5m])) + sum(sum_over_time(flink_taskmanager_job_task_operator_ExtractorJob_dataset_id_extractor_duplicate_count[5m])) + sum(sum_over_time(flink_taskmanager_job_task_operator_PipelinePreprocessorJob_dataset_id_validator_failed_count[5m]))",
+          "alias": "[DATASET]: Detected high rate of invalid data than expected",
+          "category": "Processing",
+          "severity": "critical",
+          "code": "PROCESS_DATASET_002",
+          "description": "The dataset is unhealthy, and the query results may be incorrect",
+          "summary": "Invalid data has been ingested in the system, preventing it from being processed. Henceforth, queries on this dataset may not return accurate data.",
+          "frequency": "5m",
+          "interval": "5m",
+          "operator": "gt",
+          "threshold": 0
+        },
+        {
+          "metric": "sum(sum_over_time(flink_taskmanager_job_task_operator_PipelinePreprocessorJob_dataset_id_dedup_failed_count[5m]))",
+          "alias": "[DATASET]: Detected higher rate of duplicate data than expected",
+          "category": "Processing",
+          "severity": "warning",
+          "code": "PROCESS_DATASET_003",
+          "description": "The dataset is unhealthy, and the query results may be incorrect",
+          "summary": "Duplicate data has been ingested in the system, preventing it from being processed. Henceforth, queries on this dataset may not return accurate data.",
+          "frequency": "5m",
+          "interval": "5m",
+          "operator": "gt",
+          "threshold": 0
+        },
+        {
+          "metric": "sum(sum_over_time(flink_taskmanager_job_task_operator_DenormalizerJob_dataset_id_denorm_failed[5m])) + sum(sum_over_time(flink_taskmanager_job_task_operator_DenormalizerJob_dataset_id_denorm_partial_success[5m]))",
+          "alias": "[DATASET]: Detected higher incidence of failures during data enrichment.",
+          "category": "Processing",
+          "severity": "warning",
+          "code": "PROCESS_DATASET_004",
+          "description": "The dataset is unhealthy, and the query results may be incorrect",
+          "summary": "The data ingested into the system is failing the enrichment process, which may cause queries on this dataset to return inaccurate data.",
+          "frequency": "5m",
+          "interval": "5m",
+          "operator": "gt",
+          "threshold": 0
+        },
+        {
+          "metric": "sum(sum_over_time(flink_taskmanager_job_task_operator_TransformerJob_dataset_id_transform_failed_count[5m])) + sum(sum_over_time(flink_taskmanager_job_task_operator_TransformerJob_dataset_id_transform_partial_count[5m]))",
+          "alias": "[DATASET]: Detected higher incidence of failures during data transformations.",
+          "category": "Processing",
+          "severity": "warning",
+          "code": "PROCESS_DATASET_005",
+          "description": "The dataset is unhealthy, and the query results may be incorrect",
+          "summary": "The data ingested into the system is failing the data transformation process, which may cause queries on this dataset to return inaccurate data.",
+          "frequency": "5m",
+          "interval": "5m",
+          "operator": "gt",
+          "threshold": 0
+        },
+        {
           "metric": "sum(sum_over_time(flink_taskmanager_job_task_operator_PipelinePreprocessorJob_dataset_id_validator_total_count[$__range]))",
           "alias": "[DATASET]: No data has been received for the past hour.",
           "category": "Processing",
-          "flattened": true,
           "severity": "warning",
           "code": "PROCESS_UNIFIED_PIPELINE_010",
           "description": "The dataset hasn’t received any new data for the past hour, which may affect the querying of the new data.",
@@ -74,7 +125,47 @@
           "threshold": 0
         }
       ],
-      "query_metric": []
+      "api_metric": [
+        {
+          "metric": "sum(sum_over_time(node_failed_api_calls{dataset_id='<dataset_id>', id='api.data.out'}[$__range]))",
+          "alias": "[DATASET]: The Data Query API is encountering more failures to retrieve the data",
+          "category": "Querying",
+          "severity": "warning",
+          "code": "QUERY_API_005",
+          "description": "The dataset has been unavailable for querying data for an extented period",
+          "summary": "Query failures are preventing access to the dataset, resulting in an inability to retrieve data as expected.",
+          "frequency": "5m",
+          "interval": "5m",
+          "operator": "gt",
+          "threshold": 0
+        },
+        {
+          "metric": "avg(avg_over_time(node_query_response_time{dataset_id='<dataset_id>', id='api.data.out'}[$__range]))",
+          "alias": "[DATASET]: The Data Query API is facing delays in retrieving data",
+          "category": "Querying",
+          "severity": "warning",
+          "code": "QUERY_API_006",
+          "description": "There is a delay in querying the dataset for an extended period.",
+          "summary": "Delays in queries are affecting access to the dataset, leading to delayed data retrieval.",
+          "frequency": "5m",
+          "interval": "5m",
+          "operator": "gt",
+          "threshold": 100
+        },
+        {
+          "metric": "sum(sum_over_time(node_failed_api_calls{dataset_id='<dataset_id>', id='api.data.in'}[$__range]))",
+          "alias": "[DATASET]: Failed to ingest data into the system",
+          "category": "Ingestion",
+          "severity": "warning",
+          "code": "INGEST_API_001",
+          "description": "Detected failures while adding new data to the dataset.",
+          "summary": "Failed to add new data to the dataset, impacting real-time data availability.",
+          "frequency": "5m",
+          "interval": "5m",
+          "operator": "gt",
+          "threshold": 0
+        }
+      ]
     }
   }
 }
