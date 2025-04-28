@@ -123,6 +123,20 @@
           "interval": "5m",
           "operator": "lt",
           "threshold": 0
+        },
+        {
+          "metric": "count(druid_tasks_duration{task_status='FAILED', datasource='dataset_id'}) OR on() vector(0)",
+          "alias": "[DATASET]: Druid tasks are in an unhealthy state",
+          "category": "Querying",
+          "flattened": true,
+          "severity": "critical",
+          "code": "QUERY_DRUID_INDEXER_010",
+          "description": "The dataset is unhealthy, and no new data has been available for querying since the system encountered the issue.",
+          "summary": "The Druid ingestion tasks are in an unhealthy state, causing data ingestion delays and failures. As a result, real-time data may not be available for querying.",
+          "frequency": "5m",
+          "interval": "5m",
+          "operator": "gt",
+          "threshold": 0
         }
       ],
       "api_metric": [
