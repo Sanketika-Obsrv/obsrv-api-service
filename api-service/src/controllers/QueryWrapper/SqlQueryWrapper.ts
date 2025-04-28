@@ -10,6 +10,7 @@ import { AxiosResponse } from "axios";
 
 const apiId = "api.obsrv.data.sql-query";
 const errorCode = "SQL_QUERY_FAILURE"
+export const result_data = {"data": {}};
 
 export const sqlQuery = async (req: Request, res: Response) => {
     const resmsgid = _.get(res, "resmsgid");
@@ -26,7 +27,6 @@ export const sqlQuery = async (req: Request, res: Response) => {
                 errCode: "BAD_REQUEST"
             } as ErrorObject, req, res);
         }
-
         const query = req.body.query as string;
         let result: AxiosResponse;
         if (isTableSchemaQuery(query)) {
@@ -37,6 +37,7 @@ export const sqlQuery = async (req: Request, res: Response) => {
                 headers: { Authorization: authorization },
             });
         }
+        _.set(result_data, "data", result.data);
         logger.info({ messsge: "Successfully fetched data using sql query", apiId, resmsgid })
         ResponseHandler.flatResponse(req, res, result)
     } catch (error: any) {

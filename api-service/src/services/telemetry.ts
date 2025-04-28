@@ -6,14 +6,13 @@ import {send} from "../connections/kafkaConnection"
 import { OTelService } from "./otel/OTelService";
 import { Parser } from "node-sql-parser";
 import { datasetService } from "./DatasetService";
+import { result_data } from "../controllers/QueryWrapper/SqlQueryWrapper";
 
 const {env, version} = _.pick(appConfig, ["env","version"])
 const telemetryTopic = _.get(appConfig, "telemetry_dataset");
 const parser = new Parser();
-const dataset_id = new Map();
 
 export enum OperationType { CREATE = 1, UPDATE, PUBLISH, RETIRE, LIST, GET }
-
 
 const getDefaults = (userID:any) => {
     return {
@@ -166,6 +165,20 @@ export const updateTelemetryAuditEvent = ({ currentRecord, request, object = {} 
     }
 }
 
+export const getAlias = (response: Response, ast: any) => {
+    const aliasMap: Record<string, string> = {};
+    
+    _.map(_.get(ast, "columns"), data => {
+        const columnName = data.expr.column || data.expr.value || data.expr.args?.expr.column || data.expr.args?.expr.value;
+        const alias = _.get(data, "as");
+        
+        if (alias && columnName) {
+            aliasMap[alias] = columnName;
+        }
+    });
+    return aliasMap;
+}
+
 export const findAndSetExistingRecord = async ({ dbConnector, table, filters, request, object = {} }: Record<string, any>) => {
     const auditEvent = request?.auditEvent;
     if (dbConnector && table && filters && _.get(auditEvent, "type") === "update") {
@@ -231,7 +244,7 @@ const setLogEventType = (operationType: any, request: any) => {
 export const telemetryLogStart = ({ operationType, action }: any) =>{
     return async ( request: any, response: Response, next: NextFunction) => {
         try{
-            const user_id = (request as any)?.userID
+            const user_id = (request as any)?.userID;
             request.logEvent = getDefaultLog(action, user_id);
             setLogEventType( operationType, request);
         } catch (error) {
@@ -242,13 +255,13 @@ export const telemetryLogStart = ({ operationType, action }: any) =>{
     }
 }
 
-export const getTable = (tables: any) => {
-    const table = _.map(tables , data=> data.table);
+export const getTable = (ast: any) => {
+    const table = _.map(_.get(ast, "from") , data=> data.table);
     return table[0];
 }
 
 export const getColumn = (columns: any) => {
-    const column = _.map(columns, data => data.expr.column)
+    const column = _.map(columns, data => data.expr.column);
     return column.filter(value => value !== undefined);
 }
 
@@ -260,7 +273,7 @@ export const getFilters = (whereClause: any) => {
                 column: obj.left.column || obj.left.value,
                 value: getFilterValue(obj.right.value),
                 operator: obj.operator
-            }
+            };
             if(obj.left.column || obj.left.value) {
                 conditions.push(data);
             }
@@ -275,7 +288,15 @@ export const getFilterValue = (data: any) => {
         return values;
     }
     return data;
+}
 
+export const setLogResponse = (telemetryLogEvent: any, request: Request, response: Response, ast: any) => {
+    const logEvent: any = _.get(request, "logEvent") || {};
+    const size = response.getHeaders()["content-length"];
+    const result : any = _.get(result_data, "data"); 
+    _.set(telemetryLogEvent, "edata.query_metadata.response.size", !isNaN(Number(size)) ? Number(size) : size);
+    _.set(telemetryLogEvent, "edata.query_metadata.response.duration", Date.now() - logEvent.ets);
+    _.set(telemetryLogEvent, "edata.query_metadata.response.data", getResponseData(result, ast, response));
 }
 
 export const getMetrics = (columns: any) => {
@@ -285,37 +306,57 @@ export const getMetrics = (columns: any) => {
         metrics.push({
             name: data.expr.name,
             column: data.expr.args.expr.column || data.expr.args.expr.value
-        })
+        });
     });
     return metrics;
 }
 
-export const getDatasetId = async (data: any) => {
-    return await datasetService.getDatasetIdWithDatasource(data, ["dataset_id"]);
+export const getSelectedColumns = (ast: any) => {
+    const columns = (_.get(ast, "columns"))?.map((col: { expr: { value: string; column: string; args: any } }) => {
+        return col.expr.column || col.expr.value || col.expr.args?.expr.column || col.expr.args?.expr.value;
+    });
+    return columns.filter((value: any) => value !== undefined);
 }
 
-export const setLogEdata =  async (logEvent: any,request: Request, response: Response) => {
+export const getMetricData = ( ast: any, data: any) => {
+    const metrics = getMetrics(_.get(ast, "columns"));
+    const keys = Object.keys(data);
+    const alias = getAlias(data, ast);
+    const metricData = keys.reduce((acc, key, index) => {
+        if (alias && key in alias) {
+            key = alias[key];
+        }
+        acc[key] = metrics[index];
+        return acc;
+      }, {} as Record<string, { name: string; column: string }>);
+    return metricData;
+}
+
+export const getDatasetId = async (data: any) => {
+    const data_response = await datasetService.getDatasetIdWithDatasource(data, ["dataset_id"]);
+    return data_response.dataset_id;
+}
+
+export const setLogEdata =  async ( request: Request, response: Response ) => {
     try{
-        const {edata = {}}: any = logEvent;
+        const {edata = {}}: any = _.get(request, "logEvent") || {};
         const userID = (request as any)?.userID || "SYSTEM";
-        const telemetryLogEvent = getDefaultLog(edata.action,userID);
+        const telemetryLogEvent: any = getDefaultLog(edata.action,userID);
         const query = request.body?.query || request.body.querySql?.query || null;
         if (!query || typeof query !== "string") { 
             throw new Error("Invalid or missing SQL query");
         }
-        const ast = parser.astify(query);
-        const table = getTable(_.get(ast, "from"));
+        const ast: any = parser.astify(query);
+        const table = getTable(ast);
         _.set(telemetryLogEvent, "edata", edata);
         const dataset_id = await getDatasetId(table);
         _.set(telemetryLogEvent, "edata.dataset_id", dataset_id);
         _.set(telemetryLogEvent, "edata.query_metadata.table", table);
         const columns: any = _.get(ast, "columns");
-        _.set(telemetryLogEvent, "edata.query_metadata.dimensions",getColumn(columns));
+        _.set(telemetryLogEvent, "edata.query_metadata.dimensions", getColumn(columns));
         _.set(telemetryLogEvent, "edata.query_metadata.metrics", getMetrics(columns) || []);
         _.set(telemetryLogEvent, "edata.query_metadata.filters", getFilters(_.get(ast, "where")));
-        _.set(telemetryLogEvent, "edata.query_metadata.response.size", (response.getHeaders()["content-length"]))
-        _.set(telemetryLogEvent, "edata.query_metadata.response.duration", Date.now() - logEvent.ets)
-        
+        setLogResponse(telemetryLogEvent, request, response, ast);
         return telemetryLogEvent
     }
     catch (error) {
@@ -324,16 +365,47 @@ export const setLogEdata =  async (logEvent: any,request: Request, response: Res
 }
 
 export const processLogEvents = async (request: Request, response: Response) => {
-    const logEvent = _.get(request, "logEvent") || {};
-    const telemetryLogEvent: any = await setLogEdata(logEvent, request, response);
+    const telemetryLogEvent: any = await setLogEdata(request, response);
     sendTelemetryEvents(telemetryLogEvent);
 }
 
 export const interceptLogEvents = () => {
     return (request: Request, response: Response, next: NextFunction) => {
         response.on("finish", () => {
-                _.get(request, "logEvent") && processLogEvents(request, response);
-        })
+            _.get(request, "logEvent") && processLogEvents(request, response);
+        });
         next();
     }
+}
+
+export const getResponseData = (data: any, ast: any, response: Response) => {
+    const result: any = { aggregates: {}, values: {} };
+    const alias = getAlias(response, ast);
+    const metricData = getMetricData(ast, data[0]);
+    _.forEach(data, (item: any) => {
+        Object.entries(item).forEach(([key, value]: any) => {
+            let finalKey = key;
+            if (finalKey.startsWith("EXPR")) {
+                finalKey = _.get(metricData, `${finalKey}.column`) || finalKey;
+            }
+            finalKey = alias?.[key] || key;
+            
+            const metric = metricData[finalKey];
+
+            if (metric && metric.name) {
+                const column = metric.column || finalKey;
+                if (!_.has(result.aggregates, column)) {
+                    result.aggregates[column] = [];
+                }
+                result.aggregates[column].push(value);
+            } else {
+                if (!_.has(result.values, finalKey)) {
+                    result.values[finalKey] = [];
+                }
+                result.values[finalKey].push(value);
+            }
+        });
+    });
+
+    return result;
 }
