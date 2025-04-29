@@ -163,7 +163,7 @@
           "frequency": "5m",
           "interval": "5m",
           "operator": "gt",
-          "threshold": 100
+          "threshold": 1000
         },
         {
           "metric": "sum(sum_over_time(node_failed_api_calls{dataset_id='<dataset_id>', id='api.data.in'}[$__range]))",
