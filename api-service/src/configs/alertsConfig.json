@@ -63,7 +63,7 @@
           "description": "The dataset hasn’t received any new data for the past hour, which may affect the querying of the new data.",
           "summary": "The dataset has not received any new data, which will impact real-time data processing",
           "frequency": "5m",
-          "interval": "1h",
+          "interval": "60m",
           "operator": "lt",
           "threshold": 1
         }
@@ -106,7 +106,7 @@
           "description": "A large amount of data is still waiting to be processed. This may cause delays in querying the most recent data",
           "summary": "High indexer lag in the dataset indicates processing of new data is delayed. Because of this delay, new data isn’t available when querying the dataset.",
           "frequency": "5m",
-          "interval": "1h",
+          "interval": "60m",
           "operator": "gt",
           "threshold": 5000000
         },
