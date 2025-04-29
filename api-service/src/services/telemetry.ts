@@ -296,7 +296,7 @@ export const setLogResponse = (telemetryLogEvent: any, request: Request, respons
     const result : any = _.get(result_data, "data"); 
     _.set(telemetryLogEvent, "edata.query_metadata.response.size", !isNaN(Number(size)) ? Number(size) : size);
     _.set(telemetryLogEvent, "edata.query_metadata.response.duration", Date.now() - logEvent.ets);
-    _.set(telemetryLogEvent, "edata.query_metadata.response.data", getResponseData(result, ast, response));
+    JSON.parse(appConfig.telemetry_log).response_data && _.set(telemetryLogEvent, "edata.query_metadata.response.data", getResponseData(result, ast, response));
 }
 
 export const getMetrics = (columns: any) => {
@@ -372,7 +372,7 @@ export const processLogEvents = async (request: Request, response: Response) => 
 export const interceptLogEvents = () => {
     return (request: Request, response: Response, next: NextFunction) => {
         response.on("finish", () => {
-            _.get(request, "logEvent") && processLogEvents(request, response);
+            JSON.parse(appConfig.telemetry_log).enable && _.get(request, "logEvent") && processLogEvents(request, response);
         });
         next();
     }
