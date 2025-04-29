@@ -70,8 +70,8 @@ const updateMetadata = (metadata: any, dataSource: string, expression: string) =
     return metadata;
 };
 
-const addGrafanaRule = async (payload: Record<string, any>) => {
-    const folderUid = await getFolderUid(payload.name)
+const addGrafanaRule = async (payload: Record<string, any>, category: string) => {
+    const folderUid = await getFolderUid(category)
     return grafanaHttpClient.post(`/api/ruler/grafana/api/v1/rules/${folderUid}`, payload);
 };
 
