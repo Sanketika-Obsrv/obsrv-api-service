@@ -387,7 +387,6 @@ export const getResponseData = (data: any, ast: any, response: Response) => {
     const result: any = { aggregates: {}, values: {} };
     const alias = getAlias(response, ast);
     const metricData = getMetricData(ast, data[0]);
-    console.log("metric", metricData);
     _.forEach(data, (item: any) => {
         Object.entries(item).forEach(([key, value]: any) => {
             let finalKey = key;
