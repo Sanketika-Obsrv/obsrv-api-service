@@ -1,5 +1,5 @@
 const templates = {
-    "email": "{{ define \"email\" }}\n{{ range .Alerts.Firing }}\n[{{.Labels.severity | toUpper }}] {{ .Annotations.description }}\n{{ end }}\n{{ end }}",
+    "email": "{{ define \"email\" }}\n{{ range .Alerts.Firing }}\n  {{- $severity := .Labels.severity }}\n  {{- if eq $severity \"critical\" }}\n    🚨 [{{ $severity | toUpper }}] {{ .Annotations.description }}\n  {{- else if eq $severity \"warning\" }}\n    ⚠️ [{{ $severity | toUpper }}] {{ .Annotations.description }}\n  {{- else }}\n    🟢 [{{ $severity | toUpper }}] {{ .Annotations.description }}\n  {{- end }}\n{{ end }}\n{{ end }}",
     "slack_title": "{{ define \"slack_title\" }}\n[{{ .Status | toUpper }}: {{ if eq .Status \"firing\" }}{{ .Alerts.Firing | len }}{{ else if eq .Status \"resolved\" }}{{.Alerts.Resolved | len }}{{ end }}] {{ .GroupLabels.SortedPairs.Values | join \" \" }}\n{{ end }}",
     "slack_body": "{{ define \"slack_body\" -}}\n{{- $status := \"resolved\" -}}\n{{ range $index, $alert := .Alerts }}\n{{ if eq $index  0 }}\n Severity: {{ .Labels.severity }}\n Description: {{ .Annotations.description }}\n Status: {{ .Status }}\n{{ end }}\n{{ end }}\n{{ end }}",
     "teams.alerts.title": "{{ define \"teams.alerts.title\" }}\n{{ .CommonLabels.alertname }}\n{{ end }}",
