@@ -320,9 +320,14 @@ export const getSelectedColumns = (ast: any) => {
 
 export const getMetricData = ( ast: any, data: any) => {
     const metrics = getMetrics(_.get(ast, "columns"));
-    const keys = Object.keys(data);
     const alias = getAlias(data, ast);
-    const metricData = keys.reduce((acc, key, index) => {
+    const keys = Object.keys(data);
+    const metric_key: any = _.map(keys, key => {
+        if (key.startsWith("EXPR") || (key in alias)) {
+            return key;
+        }
+    }).filter(value => value !== undefined)
+    const metricData = metric_key.reduce((acc: any, key: any, index: any) => {
         if (alias && key in alias) {
             key = alias[key];
         }
@@ -382,6 +387,7 @@ export const getResponseData = (data: any, ast: any, response: Response) => {
     const result: any = { aggregates: {}, values: {} };
     const alias = getAlias(response, ast);
     const metricData = getMetricData(ast, data[0]);
+    console.log("metric", metricData);
     _.forEach(data, (item: any) => {
         Object.entries(item).forEach(([key, value]: any) => {
             let finalKey = key;
