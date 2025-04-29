@@ -6,6 +6,20 @@ import { Alert } from '../models/Alert';
 import { alertConfig } from './AlertsConfigSevice';
 import Transaction from "sequelize/types/transaction";
 
+interface MetricConfig {
+    metric: string;
+    alias: string;
+    category: string;
+    description: string;
+    frequency: string;
+    interval: string;
+    code: string;
+    severity: string;
+    summary?: string;
+    operator: string;
+    threshold: number;
+    flattened?: boolean;
+}
 
 class AlertManagerService {
     private config: any;
@@ -21,14 +35,9 @@ class AlertManagerService {
             metricData.metric = metricData.metric.replaceAll('dataset_id', modifiedSubstring);
         }
         else if (service === 'druid') {
-            const flattenDatasetId = metricData.flattened || false
-            let modifiedSubstring: any;
-            if (flattenDatasetId) {
-                modifiedSubstring = (datasource_ref || '').replace(/-/g, '_');
-            } else {
-                modifiedSubstring = datasource_ref
-            }
-            metricData.metric = metricData.metric.replaceAll('dataset_id', modifiedSubstring);
+            metricData.metric = metricData.metric.replaceAll('dataset_id', 
+                metricData.flattened ? (datasource_ref || '').replace(/-/g, '_') : datasource_ref
+            );
         }
         else if (service === 'api') {
             metricData.metric = metricData.metric.replaceAll('<dataset_id>', datasetId);
@@ -121,29 +130,19 @@ class AlertManagerService {
     }
 
     public createDatasetAlertsDraft = async (dataset: Record<string, any>, transaction: Transaction, datasource_ref: string): Promise<void> => {
-        for (const metric of this.config.dataset_metrics_flink) {
+        const allMetrics = [
+            ...this.config.dataset_metrics_flink.map((metric: MetricConfig) => ({ service: 'flink', metric })),
+            ...this.config.dataset_metrics_druid.map((metric: MetricConfig) => ({ service: 'druid', metric })),
+            ...this.config.api_metric.map((metric: MetricConfig) => ({ service: 'api', metric }))
+        ];
+
+        for (const { service, metric } of allMetrics) {
             await this.createAlerts({
                 datasetId: dataset.dataset_id,
-                service: "flink",
-                metric: metric,
-                transaction
-            });
-        }
-        for (const metric of this.config.dataset_metrics_druid) {
-            await this.createAlerts({
-                datasetId: dataset.dataset_id,
-                service: "druid",
-                metric: metric,
+                service,
+                metric,
                 transaction,
-                datasource_ref
-            });
-        }
-        for (const metric of this.config.api_metric) {
-            await this.createAlerts({
-                datasetId: dataset.dataset_id,
-                service: "api",
-                metric: metric,
-                transaction
+                ...(service === 'druid' ? { datasource_ref } : {})
             });
         }
     }
