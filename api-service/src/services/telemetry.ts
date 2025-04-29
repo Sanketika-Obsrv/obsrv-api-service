@@ -7,6 +7,7 @@ import { OTelService } from "./otel/OTelService";
 import { Parser } from "node-sql-parser";
 import { datasetService } from "./DatasetService";
 import { result_data } from "../controllers/QueryWrapper/SqlQueryWrapper";
+import { query_data } from "../controllers/DataOut/DataOutController";
 
 const {env, version} = _.pick(appConfig, ["env","version"])
 const telemetryTopic = _.get(appConfig, "telemetry_dataset");
@@ -293,10 +294,10 @@ export const getFilterValue = (data: any) => {
 export const setLogResponse = (telemetryLogEvent: any, request: Request, response: Response, ast: any) => {
     const logEvent: any = _.get(request, "logEvent") || {};
     const size = response.getHeaders()["content-length"];
-    const result : any = _.get(result_data, "data"); 
+    const result : any =  _.get(result_data, "data") || _.get(query_data, "data"); 
     _.set(telemetryLogEvent, "edata.query_metadata.response.size", !isNaN(Number(size)) ? Number(size) : size);
     _.set(telemetryLogEvent, "edata.query_metadata.response.duration", Date.now() - logEvent.ets);
-    JSON.parse(appConfig.telemetry_log).response_data && _.set(telemetryLogEvent, "edata.query_metadata.response.data", getResponseData(result, ast, response));
+    JSON.parse(appConfig.telemetry_log).response_data && _.set(telemetryLogEvent, "edata.query_metadata.response.data", !_.isEmpty(result) ? getResponseData(result, ast, response) : []);
 }
 
 export const getMetrics = (columns: any) => {
