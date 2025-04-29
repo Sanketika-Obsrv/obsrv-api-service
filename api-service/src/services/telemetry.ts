@@ -403,12 +403,12 @@ export const getResponseData = (data: any, ast: any, response: Response) => {
                 if (!_.has(result.aggregates, column)) {
                     result.aggregates[column] = [];
                 }
-                result.aggregates[column].push(value);
+                result.aggregates[column].push(!isNaN(Number(value)) ? Number(value) : value);
             } else {
                 if (!_.has(result.values, finalKey)) {
                     result.values[finalKey] = [];
                 }
-                result.values[finalKey].push(value);
+                result.values[finalKey].push(!isNaN(Number(value)) ? Number(value) : value);
             }
         });
     });
