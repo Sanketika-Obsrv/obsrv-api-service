@@ -29,8 +29,8 @@ const createMetricAlias = (payload) => {
 }
 
 const transformRule = (metadata) => {
-    const { name, description, query, severity = "warning", operator, threshold, category, frequency, interval, labels = {}, annotations = {} } = metadata
-    const defaultLabels = { component: 'obsrv', type: category, alertSource: alertSource }
+    const { name, description, query, severity = "warning", operator, threshold, category, frequency, interval, labels = {}, annotations = {}, alertName } = metadata
+    const defaultLabels = { component: 'obsrv', type: category, alertSource: alertSource, dataset: "all" }
 
     const rulePayload = {
         name, "manager": "grafana", description, category, interval, frequency, labels: { ...defaultLabels, ...labels }, annotations, severity,
