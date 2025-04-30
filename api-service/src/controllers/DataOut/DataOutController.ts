@@ -10,6 +10,7 @@ import { datasetService } from "../../services/DatasetService";
 import { obsrvError } from "../../types/ObsrvError";
 
 export const apiId = "api.data.out";
+export const query_data = {"data": {}};
 
 const requestValidation = async (req: Request) => {
     const datasourceKey = req.params?.dataset_id;
@@ -34,6 +35,7 @@ const dataOut = async (req: Request, res: Response) => {
 
     if (isValidQuery === true && _.isObject(query)) {
         const result = await executeNativeQuery(query);
+        _.set(query_data, "data", result.data);
         logger.info({ apiId, msgid, requestBody, datasetId, message: "Native query executed successfully" })
         return ResponseHandler.successResponse(req, res, {
             status: 200, data: result?.data
@@ -42,6 +44,7 @@ const dataOut = async (req: Request, res: Response) => {
 
     if (isValidQuery === true && _.isString(query)) {
         const result = await executeSqlQuery({ query })
+        _.set(query_data, "data", result.data);
         logger.info({ apiId, msgid, requestBody, datasetId, message: "SQL query executed successfully" })
         return ResponseHandler.successResponse(req, res, {
             status: 200, data: result?.data
