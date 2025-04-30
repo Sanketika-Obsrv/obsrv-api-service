@@ -299,7 +299,6 @@ export const setLogResponse = (telemetryLogEvent: any, request: Request, respons
     const result: any = (!_.isEmpty(result_value) ? result_value : (!_.isEmpty(query_value) ? query_value : undefined));
     _.set(telemetryLogEvent, "edata.query_metadata.response.size", !isNaN(Number(size)) ? Number(size) : size);
     _.set(telemetryLogEvent, "edata.query_metadata.response.duration", Date.now() - logEvent.ets);
-    // JSON.parse(appConfig.telemetry_log).response_data && _.set(telemetryLogEvent, "edata.query_metadata.response.data", !_.isEmpty(result) ? getResponseData(result, ast, response) : []);
     const telemetryLog = JSON.parse(appConfig.telemetry_log);
     if (telemetryLog.response_data) {
         const responseData = !_.isEmpty(result) ? getResponseData(result, ast, response) : [];
