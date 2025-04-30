@@ -8,6 +8,7 @@ import { Parser } from "node-sql-parser";
 import { datasetService } from "./DatasetService";
 import { result_data } from "../controllers/QueryWrapper/SqlQueryWrapper";
 import { query_data } from "../controllers/DataOut/DataOutController";
+import logger from "../logger";
 
 const {env, version} = _.pick(appConfig, ["env","version"])
 const telemetryTopic = _.get(appConfig, "telemetry_dataset");
@@ -358,7 +359,13 @@ export const setLogEdata =  async ( request: Request, response: Response ) => {
         if (!query || typeof query !== "string") { 
             throw new Error("Invalid or missing SQL query");
         }
-        const ast: any = parser.astify(query);
+        let ast: any;
+        try {
+            ast = parser.astify(query);
+        } catch (error) {
+            logger.error("SQL parsing failed", { query, error });
+            throw new Error("Invalid SQL query");
+        }
         const table = getTable(ast);
         _.set(telemetryLogEvent, "edata", edata);
         const dataset_id = await getDatasetId(table);
