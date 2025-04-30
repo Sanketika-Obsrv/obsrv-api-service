@@ -140,7 +140,7 @@
       ],
       "api_metric": [
         {
-          "metric": "sum(sum_over_time(node_failed_api_calls{dataset_id='<dataset_id>', id='api.data.out'}[$__range]))",
+          "metric": "sum(sum_over_time(node_failed_api_calls{dataset_id='<dataset_id>', id='api.data.out'}[$__range])) or vector(0)",
           "alias": "[DATASET]: The Data Query API is encountering more failures to retrieve the data",
           "category": "Querying",
           "severity": "warning",
@@ -153,7 +153,7 @@
           "threshold": 0
         },
         {
-          "metric": "avg(avg_over_time(node_query_response_time{dataset_id='<dataset_id>', id='api.data.out'}[$__range]))",
+          "metric": "avg(avg_over_time(node_query_response_time{dataset_id='<dataset_id>', id='api.data.out'}[$__range])) or vector(0)",
           "alias": "[DATASET]: The Data Query API is facing delays in retrieving data",
           "category": "Querying",
           "severity": "warning",
@@ -166,7 +166,7 @@
           "threshold": 1000
         },
         {
-          "metric": "sum(sum_over_time(node_failed_api_calls{dataset_id='<dataset_id>', id='api.data.in'}[$__range]))",
+          "metric": "sum(sum_over_time(node_failed_api_calls{dataset_id='<dataset_id>', id='api.data.in'}[$__range])) or vector(0)",
           "alias": "[DATASET]: Failed to ingest data into the system",
           "category": "Ingestion",
           "severity": "warning",
