@@ -294,10 +294,17 @@ export const getFilterValue = (data: any) => {
 export const setLogResponse = (telemetryLogEvent: any, request: Request, response: Response, ast: any) => {
     const logEvent: any = _.get(request, "logEvent") || {};
     const size = response.getHeaders()["content-length"];
-    const result : any =  _.get(result_data, "data") || _.get(query_data, "data"); 
+    const result_value = _.get(result_data, "data");
+    const query_value = _.get(query_data, "data"); 
+    const result: any = (!_.isEmpty(result_value) ? result_value : (!_.isEmpty(query_value) ? query_value : undefined));
     _.set(telemetryLogEvent, "edata.query_metadata.response.size", !isNaN(Number(size)) ? Number(size) : size);
     _.set(telemetryLogEvent, "edata.query_metadata.response.duration", Date.now() - logEvent.ets);
-    JSON.parse(appConfig.telemetry_log).response_data && _.set(telemetryLogEvent, "edata.query_metadata.response.data", !_.isEmpty(result) ? getResponseData(result, ast, response) : []);
+    // JSON.parse(appConfig.telemetry_log).response_data && _.set(telemetryLogEvent, "edata.query_metadata.response.data", !_.isEmpty(result) ? getResponseData(result, ast, response) : []);
+    const telemetryLog = JSON.parse(appConfig.telemetry_log);
+    if (telemetryLog.response_data) {
+        const responseData = !_.isEmpty(result) ? getResponseData(result, ast, response) : [];
+        _.set(telemetryLogEvent, "edata.query_metadata.response.data", responseData);
+    }
 }
 
 export const getMetrics = (columns: any) => {
@@ -386,6 +393,9 @@ export const interceptLogEvents = () => {
 
 export const getResponseData = (data: any, ast: any, response: Response) => {
     const result: any = { aggregates: {}, values: {} };
+    if(!data) {
+        return result;
+    }
     const alias = getAlias(response, ast);
     const metricData = getMetricData(ast, data[0]);
     _.forEach(data, (item: any) => {
