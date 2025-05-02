@@ -21,6 +21,7 @@ const requestValidation = async (req: Request) => {
     if (_.isEmpty(dataset)) {
         throw obsrvError(datasetKey, "DATASET_NOT_FOUND", `Dataset with id/alias name '${datasetKey}' not found`, "NOT_FOUND", 404)
     }
+    _.set(req, "body.request.dataset_id", dataset.dataset_id);
     return dataset
 }
 
