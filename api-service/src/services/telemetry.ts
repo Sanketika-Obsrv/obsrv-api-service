@@ -4,12 +4,17 @@ import _ from "lodash";
 import { config as appConfig } from "../configs/Config";
 import {send} from "../connections/kafkaConnection"
 import { OTelService } from "./otel/OTelService";
+import { Parser } from "node-sql-parser";
+import { datasetService } from "./DatasetService";
+import { result_data } from "../controllers/QueryWrapper/SqlQueryWrapper";
+import { query_data } from "../controllers/DataOut/DataOutController";
+import logger from "../logger";
 
 const {env, version} = _.pick(appConfig, ["env","version"])
 const telemetryTopic = _.get(appConfig, "telemetry_dataset");
+const parser = new Parser();
 
 export enum OperationType { CREATE = 1, UPDATE, PUBLISH, RETIRE, LIST, GET }
-
 
 const getDefaults = (userID:any) => {
     return {
@@ -162,6 +167,20 @@ export const updateTelemetryAuditEvent = ({ currentRecord, request, object = {} 
     }
 }
 
+export const getAlias = (response: Response, ast: any) => {
+    const aliasMap: Record<string, string> = {};
+    
+    _.map(_.get(ast, "columns"), data => {
+        const columnName = data.expr.column || data.expr.value || data.expr.args?.expr.column || data.expr.args?.expr.value;
+        const alias = _.get(data, "as");
+        
+        if (alias && columnName) {
+            aliasMap[alias] = columnName;
+        }
+    });
+    return aliasMap;
+}
+
 export const findAndSetExistingRecord = async ({ dbConnector, table, filters, request, object = {} }: Record<string, any>) => {
     const auditEvent = request?.auditEvent;
     if (dbConnector && table && filters && _.get(auditEvent, "type") === "update") {
@@ -227,7 +246,7 @@ const setLogEventType = (operationType: any, request: any) => {
 export const telemetryLogStart = ({ operationType, action }: any) =>{
     return async ( request: any, response: Response, next: NextFunction) => {
         try{
-            const user_id = (request as any)?.userID
+            const user_id = (request as any)?.userID;
             request.logEvent = getDefaultLog(action, user_id);
             setLogEventType( operationType, request);
         } catch (error) {
@@ -238,33 +257,177 @@ export const telemetryLogStart = ({ operationType, action }: any) =>{
     }
 }
 
-export const setLogEdata = (logEvent: any,request: Request, response: Response) => {
-    const {edata = {}}: any = logEvent;
-    const userID = (request as any)?.userID || "SYSTEM";
-    const telemetryLogEvent = getDefaultLog(edata.action,userID);
-    _.set(telemetryLogEvent, "edata", edata);
-    _.set(telemetryLogEvent, "edata.id",request.body?.id || _.get(request, "id") || "")
-    _.set(telemetryLogEvent, "edata.level", response.statusCode != 200 ? "ERROR" : "INFO");
-    _.set(telemetryLogEvent,"edata.params.method", request?.method || "")
-    _.set(telemetryLogEvent, "edata.params.url", request?.originalUrl || "")
-    _.set(telemetryLogEvent, "edata.params.type", logEvent?.type || "")
-    _.set(telemetryLogEvent, "edata.params.statusCode", response?.statusCode || "")
-    _.set(telemetryLogEvent, "edata.params.query", request.body?.query || request.body.querySql?.query || null)
-    _.set(telemetryLogEvent, "edata.params.duration", Date.now() - logEvent.ets)
-    return telemetryLogEvent
+export const getTable = (ast: any) => {
+    const table = _.map(_.get(ast, "from") , data=> data.table);
+    return table[0];
 }
 
-export const processLogEvents = (request: Request, response: Response) => {
-    const logEvent = _.get(request, "logEvent") || {};
-    const telemetryLogEvent: any = setLogEdata(logEvent, request, response);
+export const getColumn = (columns: any) => {
+    const column = _.map(columns, data => data.expr.column);
+    return column.filter(value => value !== undefined);
+}
+
+export const getFilters = (whereClause: any) => {
+    const conditions: any = [];
+    _.cloneDeepWith(whereClause, (obj) => {
+        if (obj && obj.type === 'binary_expr') {
+            const data = {
+                column: obj.left.column || obj.left.value,
+                value: getFilterValue(obj.right.value),
+                operator: obj.operator
+            };
+            if(obj.left.column || obj.left.value) {
+                conditions.push(data);
+            }
+        }
+    });
+    return conditions;
+}
+
+export const getFilterValue = (data: any) => {
+    let values = _.map(data, value => value.value);
+    if (values.filter(Boolean).length != 0) {
+        return values;
+    }
+    return data;
+}
+
+export const setLogResponse = (telemetryLogEvent: any, request: Request, response: Response, ast: any) => {
+    const logEvent: any = _.get(request, "logEvent") || {};
+    const size = response.getHeaders()["content-length"];
+    const result_value = _.get(result_data, "data");
+    const query_value = _.get(query_data, "data"); 
+    const result: any = (!_.isEmpty(result_value) ? result_value : (!_.isEmpty(query_value) ? query_value : undefined));
+    _.set(telemetryLogEvent, "edata.query_metadata.response.size", !isNaN(Number(size)) ? Number(size) : size);
+    _.set(telemetryLogEvent, "edata.query_metadata.response.duration", Date.now() - logEvent.ets);
+    const telemetryLog = JSON.parse(appConfig.telemetry_log);
+    if (telemetryLog.response_data) {
+        const responseData = !_.isEmpty(result) ? getResponseData(result, ast, response) : [];
+        _.set(telemetryLogEvent, "edata.query_metadata.response.data", responseData);
+    }
+}
+
+export const getMetrics = (columns: any) => {
+    const metrics: any = [];
+    _.map(columns, data => {
+        if(! data.expr.args?.expr) return;
+        metrics.push({
+            name: data.expr.name,
+            column: data.expr.args.expr.column || data.expr.args.expr.value
+        });
+    });
+    return metrics;
+}
+
+export const getSelectedColumns = (ast: any) => {
+    const columns = (_.get(ast, "columns"))?.map((col: { expr: { value: string; column: string; args: any } }) => {
+        return col.expr.column || col.expr.value || col.expr.args?.expr.column || col.expr.args?.expr.value;
+    });
+    return columns.filter((value: any) => value !== undefined);
+}
+
+export const getMetricData = ( ast: any, data: any) => {
+    const metrics = getMetrics(_.get(ast, "columns"));
+    const alias = getAlias(data, ast);
+    const keys = Object.keys(data);
+    const metric_key: any = _.map(keys, key => {
+        if (key.startsWith("EXPR") || (key in alias)) {
+            return key;
+        }
+    }).filter(value => value !== undefined)
+    const metricData = metric_key.reduce((acc: any, key: any, index: any) => {
+        if (alias && key in alias) {
+            key = alias[key];
+        }
+        acc[key] = metrics[index];
+        return acc;
+      }, {} as Record<string, { name: string; column: string }>);
+    return metricData;
+}
+
+export const getDatasetId = async (data: any) => {
+    const data_response = await datasetService.getDatasetIdWithDatasource(data, ["dataset_id"]);
+    return data_response.dataset_id;
+}
+
+export const setLogEdata =  async ( request: Request, response: Response ) => {
+    try{
+        const {edata = {}}: any = _.get(request, "logEvent") || {};
+        const userID = (request as any)?.userID || "SYSTEM";
+        const telemetryLogEvent: any = getDefaultLog(edata.action,userID);
+        const query = request.body?.query || request.body.querySql?.query || null;
+        if (!query || typeof query !== "string") { 
+            throw new Error("Invalid or missing SQL query");
+        }
+        let ast: any;
+        try {
+            ast = parser.astify(query);
+        } catch (error) {
+            logger.error("SQL parsing failed", { query, error });
+            throw new Error("Invalid SQL query");
+        }
+        const table = getTable(ast);
+        _.set(telemetryLogEvent, "edata", edata);
+        const dataset_id = await getDatasetId(table);
+        _.set(telemetryLogEvent, "edata.dataset_id", dataset_id);
+        _.set(telemetryLogEvent, "edata.query_metadata.table", table);
+        const columns: any = _.get(ast, "columns");
+        _.set(telemetryLogEvent, "edata.query_metadata.dimensions", getColumn(columns));
+        _.set(telemetryLogEvent, "edata.query_metadata.metrics", getMetrics(columns) || []);
+        _.set(telemetryLogEvent, "edata.query_metadata.filters", getFilters(_.get(ast, "where")));
+        setLogResponse(telemetryLogEvent, request, response, ast);
+        return telemetryLogEvent
+    }
+    catch (error) {
+        console.log(error);
+    }
+}
+
+export const processLogEvents = async (request: Request, response: Response) => {
+    const telemetryLogEvent: any = await setLogEdata(request, response);
     sendTelemetryEvents(telemetryLogEvent);
 }
 
 export const interceptLogEvents = () => {
     return (request: Request, response: Response, next: NextFunction) => {
         response.on("finish", () => {
-                _.get(request, "logEvent") && processLogEvents(request, response);
-        })
+            JSON.parse(appConfig.telemetry_log).enable && _.get(request, "logEvent") && processLogEvents(request, response);
+        });
         next();
     }
+}
+
+export const getResponseData = (data: any, ast: any, response: Response) => {
+    const result: any = { aggregates: {}, values: {} };
+    if(!data) {
+        return result;
+    }
+    const alias = getAlias(response, ast);
+    const metricData = getMetricData(ast, data[0]);
+    _.forEach(data, (item: any) => {
+        Object.entries(item).forEach(([key, value]: any) => {
+            let finalKey = key;
+            if (finalKey.startsWith("EXPR")) {
+                finalKey = _.get(metricData, `${finalKey}.column`) || finalKey;
+            }
+            finalKey = alias?.[key] || key;
+            
+            const metric = metricData[finalKey];
+
+            if (metric && metric.name) {
+                const column = metric.column || finalKey;
+                if (!_.has(result.aggregates, column)) {
+                    result.aggregates[column] = [];
+                }
+                result.aggregates[column].push(!isNaN(Number(value)) ? Number(value) : value);
+            } else {
+                if (!_.has(result.values, finalKey)) {
+                    result.values[finalKey] = [];
+                }
+                result.values[finalKey].push(!isNaN(Number(value)) ? Number(value) : value);
+            }
+        });
+    });
+
+    return result;
 }

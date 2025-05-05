@@ -11,8 +11,7 @@ const telemetryObject = { type: "metric", ver: "1.0.0" };
 const createMetricHandler = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { component } = req.body;
-        const transformComponent = _.toLower(component);
-        const metricsBody = await Metrics.create({ ...(req.body), component: transformComponent });
+        const metricsBody = await Metrics.create({ ...(req.body), component: component });
         updateTelemetryAuditEvent({ request: req, object: { id: metricsBody?.dataValues?.id, ...telemetryObject } });
         ResponseHandler.successResponse(req, res, { status: httpStatus.OK, data: { id: metricsBody.dataValues.id } });
     } catch (error: any) {

@@ -6,6 +6,20 @@ import { Alert } from '../models/Alert';
 import { alertConfig } from './AlertsConfigSevice';
 import Transaction from "sequelize/types/transaction";
 
+interface MetricConfig {
+    metric: string;
+    alias: string;
+    category: string;
+    description: string;
+    frequency: string;
+    interval: string;
+    code: string;
+    severity: string;
+    summary?: string;
+    operator: string;
+    threshold: number;
+    flattened?: boolean;
+}
 
 class AlertManagerService {
     private config: any;
@@ -14,24 +28,34 @@ class AlertManagerService {
         this.config = alertConfig.find('configs.alerts');
     }
 
-    private getModifiedMetric = (service: string, metric: any, datasetId: string): any => {
+    private getModifiedMetric = (service: string, metric: any, datasetId: string, datasource_ref?: string): any => {
         const metricData = _.cloneDeep(metric);
         if (service === 'flink') {
             const modifiedSubstring = datasetId.replace(/-/g, '_');
-            metricData.metric = metricData.metric.replace('dataset_id', modifiedSubstring);
-        } else {
+            metricData.metric = metricData.metric.replaceAll('dataset_id', modifiedSubstring);
+        }
+        else if (service === 'druid') {
+            metricData.metric = metricData.metric.replaceAll('dataset_id', 
+                metricData.flattened ? (datasource_ref || '').replace(/-/g, '_') : datasource_ref
+            );
+        }
+        else if (service === 'api') {
+            metricData.metric = metricData.metric.replaceAll('<dataset_id>', datasetId);
+        }
+        else {
             metricData.metric = metricData.metric.replace('dataset_id', datasetId);
         }
         return metricData;
     }
 
-    private createAlerts = async (params: { datasetId: string; service: string; metric: any; transaction: Transaction }): Promise<void> => {
-        const { datasetId, service, metric, transaction } = params;
-        const metricData = this.getModifiedMetric(service, metric, datasetId);
+    private createAlerts = async (params: { datasetId: string; service: string; metric: any; transaction: Transaction, datasource_ref?: string }): Promise<void> => {
+        const { datasetId, service, metric, transaction, datasource_ref } = params;
+        const metricData = this.getModifiedMetric(service, metric, datasetId, datasource_ref);
 
+        const dataset_id = datasource_ref ? datasource_ref : datasetId
         const metricPayload = {
-            alias: `${metricData.alias} (${datasetId})`,
-            component: 'datasets',
+            alias: `${metricData.alias} (${dataset_id})`,
+            component: metricData.category,
             subComponent: datasetId,
             metric: metricData.metric,
             context: {
@@ -39,29 +63,37 @@ class AlertManagerService {
             },
         };
 
-        await this.createMetric(metricPayload, transaction);
-        await this.createAlertRule({ datasetId, metricData, transaction });
+        const response = await this.createMetric(metricPayload, transaction);
+        await this.createAlertRule({ datasetId, datasource_ref, metricData, transaction, metricId: response.dataValues.id });
     }
 
     private createAlertRule = async (params: {
         datasetId: string;
         metricData: any;
-        transaction: Transaction
+        transaction: Transaction;
+        metricId: string;
+        datasource_ref?: string | null;
     }): Promise<void> => {
-        const { datasetId, metricData, transaction } = params;
-        const datasetName = datasetId.replace(/[-.]/g, ' ').replace(/\b\w/g, c => _.toUpper(c));
+        const { datasetId, metricData, transaction, metricId, datasource_ref = null } = params;
+        const dataset = datasource_ref ? datasource_ref : datasetId
+        const datasetName = dataset.replace(/[-.]/g, ' ').replace(/\b\w/g, c => _.toUpper(c));
         const alertPayload = {
-            name: `${metricData.alias} (${datasetName})`,
+            name: metricData.alias.replace('[DATASET]', `[DATASET][${datasetName}]`),
             manager: 'grafana',
             description: metricData.description,
-            category: 'datasets',
+            category: metricData.category,
             frequency: metricData.frequency,
             interval: metricData.interval,
             context: { alertType: 'SYSTEM' },
-            labels: { component: 'obsrv' },
+            labels: { alert_code: metricData.code, component: 'obsrv', dataset: datasetId, table: datasource_ref },
+            severity: metricData.severity,
+            annotations: {
+                summary: _.get(metricData, 'summary', ''),
+            },
             metadata: {
                 queryBuilderContext: {
-                    category: 'datasets',
+                    category: metricData.category,
+                    id: metricId,
                     subComponent: datasetId,
                     metric: metricData.metric,
                     operator: metricData.operator,
@@ -97,13 +129,20 @@ class AlertManagerService {
         return Alert.create(alertData, { transaction });
     }
 
-    public createDatasetAlertsDraft = async (dataset: Record<string, any>, transaction: Transaction): Promise<void> => {
-        for (const metric of this.config.dataset_metrics_flink) {
+    public createDatasetAlertsDraft = async (dataset: Record<string, any>, transaction: Transaction, datasource_ref: string): Promise<void> => {
+        const allMetrics = [
+            ...this.config.dataset_metrics_flink.map((metric: MetricConfig) => ({ service: 'flink', metric })),
+            ...this.config.dataset_metrics_druid.map((metric: MetricConfig) => ({ service: 'druid', metric })),
+            ...this.config.api_metric.map((metric: MetricConfig) => ({ service: 'api', metric }))
+        ];
+
+        for (const { service, metric } of allMetrics) {
             await this.createAlerts({
                 datasetId: dataset.dataset_id,
-                service: "flink",
-                metric: metric,
-                transaction
+                service,
+                metric,
+                transaction,
+                ...(service === 'druid' ? { datasource_ref } : {})
             });
         }
     }

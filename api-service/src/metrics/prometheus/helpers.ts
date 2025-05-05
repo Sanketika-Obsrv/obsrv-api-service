@@ -44,8 +44,7 @@ export const onGone = (req: any, res: Response) => {
 }
 
 export const onObsrvFailure = (req: any, res: Response,error: ObsrvError) => {
-    const { duration = 0, metricLabels }: Metric = getMetricLabels(req, res)
-    metricLabels.dataset_id = error.datasetId
+    const { duration = 0, metricLabels }: Metric = getMetricLabels(req, res, error)
     const { statusCode = 404 } = res
     const labels = { ...metricLabels, status: statusCode }
     duration && setQueryResponseTime({ duration, labels })
@@ -53,12 +52,12 @@ export const onObsrvFailure = (req: any, res: Response,error: ObsrvError) => {
     incrementFailedApiCalls({ labels });
 }
 
-const getMetricLabels = (req: any, res: Response) => {
+const getMetricLabels = (req: any, res: Response, errorBody?: ObsrvError) => {
     const { id, entity, originalUrl, startTime } = req;
     const { statusCode = 200 } = res
     const request_size = req.socket.bytesRead
     const response_size = res.getHeader("content-length");
-    const dataset_id = _.get(req, ["body", "request", "dataset_id"]) || _.get(req, ["params", "dataset_id"]) || null    
+    const dataset_id = _.get(req, ["body", "request", "dataset_id"]) || _.get(req, ["params", "dataset_id"]) || _.get(errorBody, "datasetId") || null    
     const duration = getDuration(startTime);
     const metricLabels = { entity, id, endpoint: originalUrl, dataset_id, status: statusCode, request_size, response_size }
     return { duration, metricLabels }

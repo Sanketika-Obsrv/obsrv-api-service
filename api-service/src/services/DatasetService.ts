@@ -120,6 +120,15 @@ class DatasetService {
         return Datasource.findOne({ where: { id: datasource_id }, attributes, raw: true });
     }
 
+    getDatasetIdWithDatasource = async (dataSource_ref: string, attributes?: string[]): Promise<Record<string, any> | any>  => {
+        try {
+            return Datasource.findOne({ where: { datasource_ref: dataSource_ref }, attributes, raw: true }); 
+        } catch (error) {
+             console.error("Error fetching dataset ID:", error); 
+             return null; 
+        }
+    }
+
     updateDatasource = async (payload: Record<string, any>, where: Record<string, any>): Promise<Record<string, any>> => {
         return Datasource.update(payload, { where });
     }
@@ -369,14 +378,15 @@ class DatasetService {
         const liveDataset = await this.getDataset(draftDataset.dataset_id)
         try {
             await DatasetDraft.update(draftDataset, { where: { id: draftDataset.id }, transaction })
+            let datasource_ref: any
             if (indexingConfig.olap_store_enabled) {
                 const existingDatasource = await Datasource.findAll({ where: { dataset_id: draftDataset.dataset_id }, raw: true }) as unknown as Record<string, any>
                 const getDatasetDatasource = _.find(existingDatasource, datasource => !_.get(datasource, "metadata.aggregated") && _.get(datasource, "metadata.granularity") === "day")
                 if (!_.isEmpty(getDatasetDatasource)) {
-                    await this.updateDruidDataSource(draftDataset, transaction, getDatasetDatasource);
+                    datasource_ref = await this.updateDruidDataSource(draftDataset, transaction, getDatasetDatasource);
                 }
                 else {
-                    await this.createDruidDataSource(draftDataset, transaction);
+                    datasource_ref = await this.createDruidDataSource(draftDataset, transaction);
                 }
             }
             if (indexingConfig.lakehouse_enabled) {
@@ -388,7 +398,7 @@ class DatasetService {
                 }
             }
             if (_.isEmpty(liveDataset)) {
-                await alertService.createDatasetAlertsDraft(draftDataset, transaction);
+                await alertService.createDatasetAlertsDraft(draftDataset, transaction, datasource_ref);
             }
             await transaction.commit()
         } catch (err: any) {
@@ -411,6 +421,7 @@ class DatasetService {
         _.set(draftDatasource, "created_by", created_by);
         _.set(draftDatasource, "updated_by", updated_by);
         await DatasourceDraft.upsert(draftDatasource, { transaction })
+        return draftDatasource.datasource_ref
     }
 
     private updateDruidDataSource = async (draftDataset: Record<string, any>, transaction: Transaction, existingDatasource: Record<string, any>) => {
@@ -424,6 +435,7 @@ class DatasetService {
         _.set(draftDatasource, "updated_by", updated_by);
         _.set(draftDatasource, "type", "druid");
         await DatasourceDraft.upsert(draftDatasource, { transaction })
+        return existingDatasource.datasource_ref
     }
 
     private createHudiDataSource = async (draftDataset: Record<string, any>, transaction: Transaction) => {
