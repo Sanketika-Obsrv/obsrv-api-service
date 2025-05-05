@@ -22,6 +22,7 @@ const requestValidation = async (req: Request) => {
     if (_.isEmpty(datasource)) {
         throw obsrvError(datasourceKey, "DATASET_NOT_FOUND", `Dataset with id/alias name '${datasourceKey}' not found`, "NOT_FOUND", 404)
     }
+    _.set(req, "body.request.dataset_id", datasource.dataset_id);
     return datasource
 }
 

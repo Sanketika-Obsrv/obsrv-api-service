@@ -18,7 +18,7 @@ const getReceiverObject = ({ name, recipientAddresses, message, multipleAddresse
                 secureSettings: {},
                 type: type,
                 name,
-                disableResolveMessage: false
+                disableResolveMessage: true
             }
         ]
     }
