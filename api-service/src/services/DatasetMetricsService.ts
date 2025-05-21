@@ -3,10 +3,13 @@ import dayjs from "dayjs";
 import _ from "lodash";
 import { config } from "../configs/Config";
 import { dataLineageSuccessQuery, extractorBatchDuplicateCountQuery, extractorSuccessCountQuery, generateConnectorQuery, generateDatasetQueryCallsQuery, generateDedupFailedQuery, generateDenormFailedQuery, generateTimeseriesQuery, generateTotalQueryCallsQuery, generateTransformationFailedQuery, processingTimeQuery, totalEventsQuery, totalFailedEventsQuery } from "../controllers/DatasetMetrics/queries";
+import { getDownTimeContainers } from "../configs/DataObsrvDefaults";
+import { datasetService } from "../services/DatasetService";
 const druidPort = _.get(config, "query_api.druid.port");
 const druidHost = _.get(config, "query_api.druid.host");
 const nativeQueryEndpoint = `${druidHost}:${druidPort}${config.query_api.druid.native_query_path}`;
 const prometheusEndpoint = `${config.query_api.prometheus.url}/api/v1/query_range`;
+const prometheusQueryEndpoint = `${config.query_api.prometheus.url}/api/v1/query`;
 
 export const getDataFreshness = async (dataset_id: string, intervals: string, defaultThreshold: number, timePeriod: any) => {
     const queryPayload = processingTimeQuery(intervals, dataset_id, timePeriod);
@@ -468,7 +471,7 @@ export const getDataLineage = async (dataset_id: any, intervals: string, time_pe
 };
 
 
-export const getConnectors = async (dataset_id: string, intervals: string) => {
+export const getConnectorsData = async (dataset_id: string, intervals: string) => {
     const connectorQueryPayload = generateConnectorQuery(intervals, dataset_id);
     const connectorResponse = await axios.post(nativeQueryEndpoint, connectorQueryPayload);
     const connectorsData = _.get(connectorResponse, "data[0].result", []);
@@ -483,3 +486,186 @@ export const getConnectors = async (dataset_id: string, intervals: string) => {
 
     return result;
 };
+
+export const getDownTime = async (dataset_id: string, time_period: string, max_period: number) => {
+    const now = Date.now();
+    const time_period_str = String(time_period);
+
+    const intervals = (() => {
+        const result = [];
+        const unit = time_period_str === '1' ? 60 * 60 * 1000 : 24 * 60 * 60 * 1000;
+        const count = parseInt(time_period_str, 10);
+
+        for (let i = 0; i < count; i++) {
+            result.push({ end: now - i * unit });
+        }
+        return result;
+    })();
+
+    const duration = time_period_str === "1" ? "1h" : "1d";
+    const downtimeMetrics: any[] = [];
+
+    const connectorsPayload: Record<string, any> = await datasetService.getConnectors(dataset_id, ["connector_id"]);
+    if (connectorsPayload.length > 0) {
+        connectorsPayload.forEach((containerPayload: { connector_id: string }) => {
+            const transformedId = containerPayload.connector_id.replace(/\./g, '-');
+            getDownTimeContainers.components.ingestion.push(
+                { namespace: "connectors", container: `${transformedId}-jobmanager` },
+                { namespace: "connectors", container: `${transformedId}-taskmanager` }
+            );
+        });
+    }
+
+    for (const [type, componentData] of Object.entries(getDownTimeContainers)) {
+        for (const [componentType, pods] of Object.entries(componentData)) {
+            for (const pod of pods) {
+                if (!('container' in pod)) continue;
+
+                const podQuery = `max(last_over_time(kube_pod_container_status_restarts_total{container="${pod.container}"}[${duration}])) by (pod)`;
+                const podResponse = await prometheusQuery({ "query": podQuery });
+                const podResult = podResponse.data.result.map((item: any) => item.metric.pod);
+
+                for (const interval of intervals) {
+                    let totalDowntime = 0;
+
+                    for (const podName of podResult) {
+                        const baseParams = {
+                            container: pod.container,
+                            pod: podName,
+                            time: (interval.end / 1000).toString(),
+                        };
+
+                        const startQuery = `kube_pod_container_state_started{container="${baseParams.container}", pod="${baseParams.pod}"}[${duration}]`;
+                        const terminatedQuery = `kube_pod_container_status_last_terminated_timestamp{container="${baseParams.container}", pod="${baseParams.pod}"}[${duration}]`;
+
+                        const [startResponse, terminatedResponse] = await Promise.all([
+                            prometheusQuery({ query: startQuery, time: baseParams.time }),
+                            prometheusQuery({ query: terminatedQuery, time: baseParams.time }),
+                        ]);
+
+                        const [startData, terminatedData] = await Promise.all([
+                            startResponse.json(),
+                            terminatedResponse.json(),
+                        ]);
+
+                        const startTimestamps = processTimestamps(startData);
+                        const terminatedTimestamps = processTimestamps(terminatedData);
+                        const length = Math.min(startTimestamps.length - 1, terminatedTimestamps.length);
+
+                        for (let i = 0; i < length; i++) {
+                            const downtime = startTimestamps[i + 1] - terminatedTimestamps[i];
+                            if (downtime > 0) totalDowntime += downtime;
+                        }
+                    }
+
+                    downtimeMetrics.push({
+                        container: pod.container,
+                        componentType,
+                        totalDowntime,
+                        intervalStart: interval.end,
+                        status: totalDowntime > max_period ? "Unhealthy" : "Healthy"
+                    });
+                }
+            }
+        }
+    }
+
+    const getStatusMap = (key: string) => {
+        const statusMap: Record<string, string> = {};
+        for (const metric of downtimeMetrics) {
+            const val = metric[key];
+            if (!statusMap[val] || metric.status === "Unhealthy") {
+                statusMap[val] = metric.status;
+            }
+        }
+        return statusMap;
+    };
+
+    return {
+        category: "down_time",
+        components: [
+            {
+                item: "total_downtime",
+                value: downtimeMetrics.reduce((sum, m) => sum + m.totalDowntime, 0),
+                status: downtimeMetrics.some(m => m.status === "Unhealthy") ? "Unhealthy" : "Healthy",
+            },
+            {
+                item: "total_downtime_per_component",
+                value: downtimeMetrics.reduce((acc, m) => {
+                    acc[m.componentType] = (acc[m.componentType] || 0) + m.totalDowntime;
+                    return acc;
+                }, {} as Record<string, number>),
+                status: getStatusMap("componentType"),
+            },
+            {
+                item: "downtime_per_interval_with_component_and_container",
+                value: downtimeMetrics.reduce((acc: any, metric: any) => {
+                    const date = metric.intervalStart;
+                    const component = metric.componentType;
+                    const container = metric.container;
+
+                    if (!acc[date]) acc[date] = {};
+                    if (!acc[date][component]) acc[date][component] = {};
+                    if (!acc[date][component][container])
+                        acc[date][component][container] = 0;
+
+                    acc[date][component][container] += metric.totalDowntime;
+                    return acc;
+                }, {})
+            },
+            {
+                item: "total_downtime_per_interval",
+                value: downtimeMetrics.reduce((acc, m) => {
+                    acc[m.intervalStart] = (acc[m.intervalStart] || 0) + m.totalDowntime;
+                    return acc;
+                }, {} as Record<string, number>),
+                status: getStatusMap("intervalStart"),
+            },
+            {
+                item: "container status per interval",
+                value: (() => {
+                    const resultMap: Record<string, Record<string, Set<string>>> = {};
+                    for (const metric of downtimeMetrics) {
+                        if (metric.status === "Unhealthy") {
+                            const { intervalStart, componentType, container } = metric;
+                            if (!resultMap[intervalStart]) resultMap[intervalStart] = {};
+                            if (!resultMap[intervalStart][componentType]) resultMap[intervalStart][componentType] = new Set();
+                            resultMap[intervalStart][componentType].add(container);
+                        }
+                    }
+                    const finalOutput: Record<string, Record<string, string[]>> = {};
+                    for (const [interval, components] of Object.entries(resultMap)) {
+                        finalOutput[interval] = {};
+                        for (const [component, containersSet] of Object.entries(components)) {
+                            finalOutput[interval][component] = Array.from(containersSet);
+                        }
+                    }
+                    return finalOutput;
+                })(),
+            }
+        ],
+    };
+};
+
+const prometheusQuery = async (query: Record<string, any>) => {
+    const params = new URLSearchParams(query);
+
+    const response = await fetch(`${prometheusQueryEndpoint}?${params}`);
+    if (!response.ok) {
+        throw new Error(`Prometheus query failed: ${response.statusText}`);
+    }
+    return await response.json();
+}
+
+
+const processTimestamps = (response: any): number[] => {
+    const timestampSet = new Set<number>();
+    response.data.result.forEach((metricResult: any) => {
+        metricResult.values.forEach(([, value]: [number, string]) => {
+            timestampSet.add(Number(value));
+        });
+    });
+    const timestamps = Array.from(timestampSet);
+    timestamps.sort((a, b) => a - b);
+    return timestamps;
+}

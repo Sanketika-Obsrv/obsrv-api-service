@@ -7,7 +7,7 @@ import { schemaValidation } from "../../services/ValidationService";
 import validationSchema from "./DatasetMetrics.json";
 import { config } from "../../configs/Config";
 import { datasetService } from "../../services/DatasetService";
-import { getConnectors, getDataFreshness, getDataLineage, getDataObservability, getDataVolume } from "../../services/DatasetMetricsService";
+import { getConnectorsData, getDataFreshness, getDataLineage, getDataObservability, getDataVolume, getDownTime } from "../../services/DatasetMetricsService";
 
 const apiId = "api.dataset.metrics";
 const datasetMetrics = async (req: Request, res: Response) => {
@@ -17,6 +17,7 @@ const datasetMetrics = async (req: Request, res: Response) => {
     const timePeriod = _.get(req, "body.request.query_time_period") || config?.data_observability?.default_query_time_period;
     const input_start_date = _.get(req, "body.request.start_date");
     const input_end_date = _.get(req, "body.request.end_date");
+    const max_down_time_period = _.get(req, "body.request.max_down_time_period") || config?.data_observability?.default_down_time_period;
     const formattedStartDate = dayjs(input_start_date, 'YYYY/M/D')
         .startOf('day')
         .format('YYYY-MM-DDTHH:mm:ss');
@@ -89,8 +90,13 @@ const datasetMetrics = async (req: Request, res: Response) => {
         }
 
         if (!category || category.includes("connectors")) {
-            const connectorsResult = await getConnectors(dataset_id, intervals);
+            const connectorsResult = await getConnectorsData(dataset_id, intervals);
             results.push(connectorsResult);
+        }
+
+        if (!category || category.includes("down_time")) {
+            const downTimeResults = await getDownTime(dataset_id, timePeriod, max_down_time_period);
+            results.push(downTimeResults);
         }
 
         logger.info({ apiId, msgid, requestBody, datasetId: dataset_id, message: "Metrics fetched successfully" })
