@@ -57,8 +57,8 @@ export const getDataFreshness = async (dataset_id: string, intervals: string, de
     } else {
         // Handle day-level data
         const [startDate, endDate] = intervals.split('/');
-        let currentDate = dayjs(startDate).startOf('day');
-        const lastDate = dayjs(endDate).startOf('day');
+        let currentDate = dayjs(startDate).add(1, 'day').startOf('day');
+        const lastDate = dayjs(endDate).add(1, 'day').startOf('day');
 
         // Create a map of existing data for daily
         const dataMap = new Map(
@@ -206,8 +206,8 @@ export const getDataObservability = async (dataset_id: string, intervals: string
     // Handle day-level data
     const statusArray = [];
     const [startDate, endDate] = intervals.split('/');
-    let currentDate = dayjs(startDate).startOf('day');
-    const lastDate = dayjs(endDate).startOf('day');
+    let currentDate = dayjs(startDate).add(1, 'day').startOf('day');
+    const lastDate = dayjs(endDate).add(1, 'day').startOf('day');
 
     // Create maps for daily events and failed events
     const eventsMap = new Map(
@@ -493,11 +493,21 @@ export const getDownTime = async (dataset_id: string, time_period: string, max_p
 
     const intervals = (() => {
         const result = [];
-        const unit = time_period_str === '1' ? 60 * 60 * 1000 : 24 * 60 * 60 * 1000;
+        const isHourly = time_period_str === '1';
+        const unit = isHourly ? 60 * 60 * 1000 : 24 * 60 * 60 * 1000;
         const count = parseInt(time_period_str, 10);
 
-        for (let i = 0; i < count; i++) {
-            result.push({ end: now - i * unit });
+        for (let i = count - 1; i >= 0; i--) {  // Reverse the loop
+            if (isHourly) {
+                result.push({ end: now - i * unit });
+            } else {
+                const dayEnd = dayjs(now).subtract(i, 'day').endOf('day').valueOf();
+                const dayStart = dayjs(dayEnd).startOf('day').valueOf();
+                result.push({
+                    start: dayStart,
+                    end: dayEnd
+                });
+            }
         }
         return result;
     })();
@@ -557,7 +567,7 @@ export const getDownTime = async (dataset_id: string, time_period: string, max_p
                         container: pod.container,
                         componentType,
                         totalDowntime,
-                        intervalStart: interval.end,
+                        intervalStart: interval.start,
                         status: totalDowntime > max_period ? "Unhealthy" : "Healthy"
                     });
                 }
