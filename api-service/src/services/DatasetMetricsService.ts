@@ -538,19 +538,14 @@ export const getDownTime = async (dataset_id: string, time_period: string, max_p
                         const startQuery = `kube_pod_container_state_started{container="${baseParams.container}", pod="${baseParams.pod}"}[${duration}]`;
                         const terminatedQuery = `kube_pod_container_status_last_terminated_timestamp{container="${baseParams.container}", pod="${baseParams.pod}"}[${duration}]`;
 
-                        const [startResponse, terminatedResponse] = await Promise.all([
+                        const [startData, terminatedData] = await Promise.all([
                             prometheusQuery({ query: startQuery, time: baseParams.time }),
                             prometheusQuery({ query: terminatedQuery, time: baseParams.time }),
                         ]);
 
-                        const [startData, terminatedData] = await Promise.all([
-                            startResponse.json(),
-                            terminatedResponse.json(),
-                        ]);
-
                         const startTimestamps = processTimestamps(startData);
                         const terminatedTimestamps = processTimestamps(terminatedData);
-                        const length = Math.min(startTimestamps.length - 1, terminatedTimestamps.length);
+                        const length = Math.min(startTimestamps.length, terminatedTimestamps.length);
 
                         for (let i = 0; i < length; i++) {
                             const downtime = startTimestamps[i + 1] - terminatedTimestamps[i];
