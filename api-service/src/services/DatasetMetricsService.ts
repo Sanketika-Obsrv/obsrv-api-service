@@ -494,19 +494,19 @@ export const getDownTime = async (dataset_id: string, time_period: string, max_p
     const intervals = (() => {
         const result = [];
         const isHourly = time_period_str === '1';
-        const unit = isHourly ? 60 * 60 * 1000 : 24 * 60 * 60 * 1000;
-        const count = parseInt(time_period_str, 10);
+        const now = Date.now();
 
-        for (let i = count - 1; i >= 0; i--) {  // Reverse the loop
-            if (isHourly) {
-                result.push({ end: now - i * unit });
-            } else {
-                const dayEnd = dayjs(now).subtract(i, 'day').endOf('day').valueOf();
-                const dayStart = dayjs(dayEnd).startOf('day').valueOf();
-                result.push({
-                    start: dayStart,
-                    end: dayEnd
-                });
+        if (isHourly) {
+            for (let i = 23; i >= 0; i--) {
+                const end = now - i * 60 * 60 * 1000;
+                result.push({ start: end, end });
+            }
+        } else {
+            const count = parseInt(time_period_str, 10);
+            for (let i = count - 1; i >= 0; i--) {
+                const end = dayjs(now).subtract(i, 'day').endOf('day').valueOf();
+                const start = dayjs(end).startOf('day').valueOf();
+                result.push({ start, end });
             }
         }
         return result;
