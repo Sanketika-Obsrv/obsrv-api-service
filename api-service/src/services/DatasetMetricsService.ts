@@ -595,30 +595,6 @@ export const getDownTime = async (dataset_id: string, time_period: string, max_p
                 status: downtimeMetrics.some(m => m.status === "Unhealthy") ? "Unhealthy" : "Healthy",
             },
             {
-                item: "total_downtime_per_component",
-                value: downtimeMetrics.reduce((acc, m) => {
-                    acc[m.componentType] = (acc[m.componentType] || 0) + m.totalDowntime;
-                    return acc;
-                }, {} as Record<string, number>),
-                status: getStatusMap("componentType"),
-            },
-            {
-                item: "downtime_per_interval_with_component_and_container",
-                value: downtimeMetrics.reduce((acc: any, metric: any) => {
-                    const date = metric.intervalStart;
-                    const component = metric.componentType;
-                    const container = metric.container;
-
-                    if (!acc[date]) acc[date] = {};
-                    if (!acc[date][component]) acc[date][component] = {};
-                    if (!acc[date][component][container])
-                        acc[date][component][container] = 0;
-
-                    acc[date][component][container] += metric.totalDowntime;
-                    return acc;
-                }, {})
-            },
-            {
                 item: "total_downtime_per_interval",
                 value: downtimeMetrics.reduce((acc, m) => {
                     acc[m.intervalStart] = (acc[m.intervalStart] || 0) + m.totalDowntime;
@@ -627,7 +603,7 @@ export const getDownTime = async (dataset_id: string, time_period: string, max_p
                 status: getStatusMap("intervalStart"),
             },
             {
-                item: "container status per interval",
+                item: "components_per_interval",
                 value: (() => {
                     const resultMap: Record<string, Record<string, Set<string>>> = {};
                     for (const metric of downtimeMetrics) {
@@ -647,7 +623,26 @@ export const getDownTime = async (dataset_id: string, time_period: string, max_p
                     }
                     return finalOutput;
                 })(),
+            },
+            {
+                item: "component_downtime_per_interval",
+                value: (() => {
+                    const result: Record<string, Record<string, number>> = {};
+                    for (const metric of downtimeMetrics) {
+                        const { intervalStart, componentType, totalDowntime } = metric;
+                        if (!intervalStart || !componentType) continue;
+                        if (!result[intervalStart]) {
+                            result[intervalStart] = {};
+                        }
+                        if (!result[intervalStart][componentType]) {
+                            result[intervalStart][componentType] = 0;
+                        }
+                        result[intervalStart][componentType] += totalDowntime;
+                    }
+                    return result;
+                })()
             }
+
         ],
     };
 };
