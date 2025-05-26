@@ -1,4 +1,5 @@
 import _ from "lodash";
+import moment from "moment";
 import { rawIngestionSpecDefaults } from "../configs/IngestionConfig";
 import { datasetService } from "./DatasetService";
 
@@ -125,7 +126,7 @@ class TableGenerator extends BaseTableGenerator {
                 "dataSchema": {
                     "dataSource": datasourceRef,
                     "dimensionsSpec": { "dimensions": this.getDruidDimensions(allFields, this.getTimestampKey(dataset, "druid"), dataset_config.keys_config.partition_key) },
-                    "timestampSpec": { "column": this.getTimestampKey(dataset, "druid"), "format": "auto" },
+                    "timestampSpec": { "column": this.getTimestampKey(dataset, "druid"), "format": this.getTimestampFormat(dataset, dataset.sample_data) },
                     "metricsSpec": [],
                     "granularitySpec": ingestionSpecDefaults.granularitySpec
                 },
@@ -332,6 +333,49 @@ class TableGenerator extends BaseTableGenerator {
         }
         return _.replace(timestamp, /\./g, "_");
     }
+   
+    private getTimestampFormat = (dataset: Record<string, any>, sampleData: Record<string, any>): string => {
+        const timestampKey = this.getTimestampKey(dataset, "druid");
+        const timestampValue = sampleData?.mergedEvent?.[timestampKey];
+        if (!timestampValue  || timestampValue === "obsrv_meta.syncts") {
+            return "auto";
+        }
+        return detectTimestampFormat(timestampValue);
+    }
+
 }
+
+const POSSIBLE_FORMATS = [
+ 
+  "YYYY-MM-DD",
+  "DD-MM-YYYY",
+  "MM-dd-yyyy",
+];
+
+export function detectTimestampFormat(timestampValue: string | number): string {
+
+  const value = String(timestampValue);
+
+  if (/^\d+$/.test(value)) {
+    const length = value.length;
+
+    if (length === 10) {
+      return "posix";
+    }  else if (length === 16) {
+      return "micro";
+    } else if (length === 19) {
+      return "nano"; 
+    }
+  }
+
+  for (const format of POSSIBLE_FORMATS) {
+    if (moment(value, format, true).isValid()) {
+      return format;
+    }
+  }
+  return "auto";
+}
+
+
 
 export const tableGenerator = new TableGenerator();
