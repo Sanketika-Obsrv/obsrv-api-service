@@ -5,7 +5,7 @@ import logger from "../../logger";
 import { schemaValidation } from "../../services/ValidationService";
 import DatasetCreate from "./DatasetListValidationSchema.json";
 import { ResponseHandler } from "../../helpers/ResponseHandler";
-import { datasetService } from "../../services/DatasetService";
+import { attachDraftConnectors, attachLiveConnectors, datasetService } from "../../services/DatasetService";
 import { obsrvError } from "../../types/ObsrvError";
 import { Dataset } from "../../models/Dataset";
 import { Datasource } from "../../models/Datasource";
@@ -35,11 +35,16 @@ const listDatasets = async (request: Record<string, any>): Promise<Record<string
 
     const { filters = {} } = request || {};
     const datasetStatus = _.get(filters, "status");
+    const connectorFilter = _.get(filters, "connectors");
     const status = _.isArray(datasetStatus) ? datasetStatus : _.compact([datasetStatus])
-    const draftFilters = _.set(_.cloneDeep(filters), "status", _.isEmpty(status) ? draftDatasetStatus : _.intersection(status, draftDatasetStatus));
-    const liveFilters = _.set(_.cloneDeep(filters), "status", _.isEmpty(status) ? liveDatasetStatus : _.intersection(status, liveDatasetStatus));
-    const liveDatasetList = await datasetService.getLiveDatasets(liveFilters, defaultFields)
-    const draftDatasetList = await datasetService.findDraftDatasets(draftFilters, [...defaultFields, "data_schema", "validation_config", "dedup_config", "denorm_config", "connectors_config", "version_key"], [["updated_date", "DESC"]]);
+    const draftFilters = _.omit(_.set(_.cloneDeep(filters), "status", _.isEmpty(status) ? draftDatasetStatus : _.intersection(status, draftDatasetStatus)), "connectors");
+    const liveFilters = _.omit(_.set(_.cloneDeep(filters), "status", _.isEmpty(status) ? liveDatasetStatus : _.intersection(status, liveDatasetStatus)), "connectors");
+    let liveDatasetList = await datasetService.getLiveDatasets(liveFilters, defaultFields)
+    let draftDatasetList = await datasetService.findDraftDatasets(draftFilters, [...defaultFields, "data_schema", "validation_config", "dedup_config", "denorm_config", "connectors_config", "version_key"], [["updated_date", "DESC"]]);
+    if(connectorFilter && !_.isEmpty(connectorFilter)) {
+        liveDatasetList = await attachLiveConnectors(liveDatasetList, connectorFilter);
+        draftDatasetList = await attachDraftConnectors(draftDatasetList, connectorFilter);
+    }
     return _.compact(_.concat(liveDatasetList, draftDatasetList));
 }
 

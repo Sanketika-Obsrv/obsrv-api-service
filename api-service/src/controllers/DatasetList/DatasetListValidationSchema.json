@@ -45,6 +45,20 @@
             "type": {
               "type": "string",
               "enum": ["event", "transaction", "master"]
+            },
+            "connectors": {
+              "anyOf": [
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                {
+                  "type": "string",
+                  "default": "all"
+                }
+              ]
             }
           },
           "additionalProperties": false

@@ -12,10 +12,6 @@ export const ConnectorInstances = sequelize.define("connector_instances", {
     connector_id: {
         type: DataTypes.STRING
     },
-    data_format: {
-        type: DataTypes.STRING,
-        defaultValue: "json"
-    },
     connector_config: {
         type: DataTypes.STRING
     },

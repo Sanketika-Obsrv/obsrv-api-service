@@ -22,6 +22,7 @@ import { config } from "../configs/Config";
 import { Op } from "sequelize";
 import TableDraft from "../models/Table";
 import { alertService } from "./AlertManagerService";
+import { ConnectorRegistry } from "../models/ConnectorRegistry";
 
 class DatasetService {
 
@@ -144,7 +145,7 @@ class DatasetService {
                 {
                     model: Datasource,
                     attributes: ['datasource'],
-                    where: { is_primary: true },
+                    where: { is_primary: true, type: "druid" },
                     required: false
                 },
             ], raw: true, where: filters, attributes, order: [["updated_date", "DESC"]]
@@ -509,5 +510,108 @@ export const validateStorageSupport = (dataset: Record<string, any>) => {
         throw obsrvError("", "DATASET_UNSUPPORTED_STORAGE_TYPE", `The storage type "lake_house" is not available. Please use one of the available storage types: ${validStorageType}`, "BAD_REQUEST", 400)
     }
 }
+
+export const attachDraftConnectors = async (
+    draftDatasetList: Record<string, any>[],
+    connectorFilter: string | string[]
+): Promise<Record<string, any>[]> => {
+    if (_.isEmpty(draftDatasetList)) {
+        return [];
+    }
+
+    const connectorIds = _.uniq(
+        _.flatMap(draftDatasetList, dataset =>
+            _.map(dataset.connectors_config, 'connector_id')
+        )
+    );
+
+    if (_.isEmpty(connectorIds)) {
+        return draftDatasetList.map(dataset => ({
+            ...dataset,
+            connectors_config: []
+        }));
+    }
+
+    const connectorRegistry: any = await ConnectorRegistry.findAll({
+        where: { id: connectorIds },
+        raw: true,
+        attributes: ['id', 'name', 'category', 'type']
+    });
+
+    return draftDatasetList.map(dataset => {
+        let filteredConnectors = dataset.connectors_config;
+        if (connectorFilter !== 'all') {
+            const filterArray = _.castArray(connectorFilter); // Ensure it's an array
+            filteredConnectors = _.filter(filteredConnectors, connector =>
+                filterArray.includes(String(connector.connector_id))
+            );
+        }
+
+        const enrichedConnectors = filteredConnectors.map((connector: any) => {
+            const registryDetails = _.find(connectorRegistry, {
+                id: connector.connector_id
+            });
+            return {
+                ...connector,
+                name: registryDetails?.name || null,
+                category: registryDetails?.category || null,
+                source: registryDetails?.type || null
+            };
+        });
+
+        return {
+            ...dataset,
+            connectors_config: enrichedConnectors
+        };
+    });
+};
+
+export const attachLiveConnectors = async (
+    liveDatasetList: Record<string, any>,
+    connectorFilter: string | string[]
+): Promise<Record<string, any>[]> => {
+    if (_.isEmpty(liveDatasetList)) {
+        return [];
+    }
+
+    ConnectorRegistry.hasMany(ConnectorInstances, { foreignKey: 'connector_id' });
+    const connectorRegistry: any = await ConnectorRegistry.findAll({
+        include: [
+            {
+                model: ConnectorInstances,
+                attributes: ['dataset_id', 'connector_id'],
+                required: true
+            },
+        ],
+        raw: true,
+        attributes: ['id', 'name', 'category', 'type']
+    });
+
+    return liveDatasetList.map((dataset: Record<string, any>) => {
+        const datasetId = dataset.dataset_id;
+        let matchedConnectors = connectorRegistry.filter((connector: any) =>
+            connector['connector_instances.dataset_id'] === datasetId
+        );
+
+        if (connectorFilter !== 'all') {
+            const filterArray = _.castArray(connectorFilter); // Normalize to array
+            matchedConnectors = matchedConnectors.filter((connector: any) =>
+                filterArray.includes(String(connector.id))
+            );
+        }
+
+        const enrichedConnectors = matchedConnectors.map((connector: any) => ({
+            connector_id: connector.id,
+            name: connector.name,
+            category: connector.category,
+            type: connector.type
+        }));
+
+        return {
+            ...dataset,
+            connectors_config: enrichedConnectors
+        };
+    });
+};
 
 export const datasetService = new DatasetService();
