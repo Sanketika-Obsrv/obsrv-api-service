@@ -575,32 +575,27 @@ export const attachLiveConnectors = async (
     }
 
     ConnectorRegistry.hasMany(ConnectorInstances, { foreignKey: 'connector_id' });
-    const connectorRegistry: any = await ConnectorRegistry.findAll({
-        include: [
-            {
-                model: ConnectorInstances,
-                attributes: ['dataset_id', 'connector_id'],
-                required: true
-            },
-        ],
+    const connectorRegistry = await ConnectorRegistry.findAll({
+        include: [{
+            model: ConnectorInstances,
+            attributes: ['dataset_id', 'connector_id'],
+            required: true
+        }],
         raw: true,
         attributes: ['id', 'name', 'category', 'type']
     });
 
+    const filterArray = connectorFilter === 'all' ? null : _.castArray(connectorFilter);
+
     return liveDatasetList.map((dataset: Record<string, any>) => {
         const datasetId = dataset.dataset_id;
-        let matchedConnectors = connectorRegistry.filter((connector: any) =>
-            connector['connector_instances.dataset_id'] === datasetId
+
+        const filteredConnectors = connectorRegistry.filter((connector: any) =>
+            connector['connector_instances.dataset_id'] === datasetId &&
+            (!filterArray || filterArray.includes(String(connector.id)))
         );
 
-        if (connectorFilter !== 'all') {
-            const filterArray = _.castArray(connectorFilter); // Normalize to array
-            matchedConnectors = matchedConnectors.filter((connector: any) =>
-                filterArray.includes(String(connector.id))
-            );
-        }
-
-        const enrichedConnectors = matchedConnectors.map((connector: any) => ({
+        const enrichedConnectors = filteredConnectors.map((connector: any) => ({
             connector_id: connector.id,
             name: connector.name,
             category: connector.category,
