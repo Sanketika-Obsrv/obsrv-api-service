@@ -5,16 +5,16 @@ import logger from "../../logger";
 import { schemaValidation } from "../../services/ValidationService";
 import DatasetCreate from "./DatasetListValidationSchema.json";
 import { ResponseHandler } from "../../helpers/ResponseHandler";
-import { datasetService } from "../../services/DatasetService";
+import { attachDraftConnectors, attachLiveConnectors, datasetService } from "../../services/DatasetService";
 import { obsrvError } from "../../types/ObsrvError";
-import { Dataset } from "../../models/Dataset";
-import { Datasource } from "../../models/Datasource";
+import { config } from "../../configs/Config";
 
 export const apiId = "api.datasets.list"
 export const errorCode = "DATASET_LIST_FAILURE"
 const liveDatasetStatus = ["Live", "Retired", "Purged"]
 const draftDatasetStatus = ["Draft", "ReadyToPublish"]
 const defaultFields = ["dataset_id", "name", "type", "status", "tags", "version", "api_version", "dataset_config", "created_date", "updated_date"]
+const MAX_STATUS_ARRAY_SIZE = config.dataset_filter_config.status_filter_limit || 10;
 
 const datasetList = async (req: Request, res: Response) => {
 
@@ -35,11 +35,19 @@ const listDatasets = async (request: Record<string, any>): Promise<Record<string
 
     const { filters = {} } = request || {};
     const datasetStatus = _.get(filters, "status");
+    const connectorFilter = _.get(filters, "connectors");
     const status = _.isArray(datasetStatus) ? datasetStatus : _.compact([datasetStatus])
-    const draftFilters = _.set(_.cloneDeep(filters), "status", _.isEmpty(status) ? draftDatasetStatus : _.intersection(status, draftDatasetStatus));
-    const liveFilters = _.set(_.cloneDeep(filters), "status", _.isEmpty(status) ? liveDatasetStatus : _.intersection(status, liveDatasetStatus));
-    const liveDatasetList = await datasetService.getLiveDatasets(liveFilters, defaultFields)
-    const draftDatasetList = await datasetService.findDraftDatasets(draftFilters, [...defaultFields, "data_schema", "validation_config", "dedup_config", "denorm_config", "connectors_config", "version_key"], [["updated_date", "DESC"]]);
+    if (status.length > MAX_STATUS_ARRAY_SIZE) {
+        throw obsrvError("", "DATASET_LIST_INPUT_INVALID", "Status filter array length exceeds the allowed limit", "BAD_REQUEST", 400);
+    }
+    const draftFilters = _.omit(_.set(_.cloneDeep(filters), "status", _.isEmpty(status) ? draftDatasetStatus : _.intersection(status, draftDatasetStatus)), "connectors");
+    const liveFilters = _.omit(_.set(_.cloneDeep(filters), "status", _.isEmpty(status) ? liveDatasetStatus : _.intersection(status, liveDatasetStatus)), "connectors");
+    let liveDatasetList = await datasetService.getLiveDatasets(liveFilters, defaultFields)
+    let draftDatasetList = await datasetService.findDraftDatasets(draftFilters, [...defaultFields, "data_schema", "validation_config", "dedup_config", "denorm_config", "connectors_config", "version_key"], [["updated_date", "DESC"]]);
+    if(connectorFilter && !_.isEmpty(connectorFilter)) {
+        liveDatasetList = await attachLiveConnectors(liveDatasetList, connectorFilter);
+        draftDatasetList = await attachDraftConnectors(draftDatasetList, connectorFilter);
+    }
     return _.compact(_.concat(liveDatasetList, draftDatasetList));
 }
 

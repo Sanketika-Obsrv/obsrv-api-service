@@ -144,5 +144,8 @@ export const config = {
   },
   "alerts_rules": {
     "config_path": process.env.alerts_config_path
-  }
+  },
+  "dataset_filter_config": {
+    "status_filter_limit": process.env.status_filter_limit ? parseInt(process.env.status_filter_limit) : 10 // Maximum number of filters allowed in a dataset
+  } 
 }
