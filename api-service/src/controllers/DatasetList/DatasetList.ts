@@ -14,7 +14,7 @@ export const errorCode = "DATASET_LIST_FAILURE"
 const liveDatasetStatus = ["Live", "Retired", "Purged"]
 const draftDatasetStatus = ["Draft", "ReadyToPublish"]
 const defaultFields = ["dataset_id", "name", "type", "status", "tags", "version", "api_version", "dataset_config", "created_date", "updated_date"]
-const MAX_STATUS_ARRAY_SIZE = config.dataset_filter_config.filter_limit || 10;
+const MAX_STATUS_ARRAY_SIZE = config.dataset_filter_config.status_filter_limit || 10;
 
 const datasetList = async (req: Request, res: Response) => {
 
