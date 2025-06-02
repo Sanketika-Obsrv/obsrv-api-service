@@ -144,7 +144,7 @@ class DatasetService {
                 {
                     model: Datasource,
                     attributes: ['datasource'],
-                    where: { is_primary: true },
+                    where: { is_primary: true, type: "druid" },
                     required: false
                 },
             ], raw: true, where: filters, attributes, order: [["updated_date", "DESC"]]
