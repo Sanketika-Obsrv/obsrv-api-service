@@ -244,11 +244,27 @@ const getMatchingLabels = async (channels: string[]) => {
     }
 }
 
+const getNotificationChannel = async (channels: string[]) => {
+    const fetchChannel = (id: string) => {
+        return Notification.findOne({ where: { id } })
+            .then(response => response?.toJSON())
+            .then(channelMetadata => {
+                const { name, type } = channelMetadata;
+                return name;
+            })
+            .catch(() => null);
+    }
+
+    const [name] = await Promise.all(channels.map(fetchChannel));
+    return name;
+}
+
 const transformRule = async ({ value, condition, metadata, isGroup }: any) => {
     const { name, id, interval, category, frequency, labels = {}, annotations = {}, severity, description, notification = {} } = value;
     const annotationObj = { ...annotations, description: description };
     const channels = _.get(notification, "channels") || [];
     const matchingLabelsForNotification = await getMatchingLabels(channels);
+    const channel = await getNotificationChannel(channels);
 
     const payload = {
         grafana_alert: {
@@ -258,6 +274,7 @@ const transformRule = async ({ value, condition, metadata, isGroup }: any) => {
             exec_err_state: _.get(metadata, "exec_err_state", "Error"),
             data: metadata,
             is_paused: false,
+            ...(channel && { notification_settings: { receiver: channel } })
         },
         for: interval,
         annotations: annotationObj,
