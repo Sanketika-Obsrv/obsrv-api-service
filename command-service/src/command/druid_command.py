@@ -5,6 +5,7 @@ from config import Config
 from model.data_models import Action, ActionResponse, CommandPayload
 from service.db_service import DatabaseService
 from service.http_service import HttpService
+import base64
 
 
 class DruidCommand(ICommand):
@@ -19,6 +20,16 @@ class DruidCommand(ICommand):
         router_post = self.config.find("druid.router_port")
         self.supervisor_endpoint = self.config.find("druid.supervisor_endpoint")
         self.router_url = f"{router_host}:{router_post}/druid"
+        self._auth = None
+        
+    @property
+    def auth(self):
+        """Lazy initialization of auth header."""
+        if self._auth is None:
+            username = self.config.find("druid.username")
+            password = self.config.find("druid.password")
+            self._auth = base64.b64encode(f"{username}:{password}".encode()).decode()
+        return self._auth
 
     def execute(self, command_payload: CommandPayload, action: Action):
         if action == Action.SUBMIT_INGESTION_TASKS.name:
@@ -42,7 +53,10 @@ class DruidCommand(ICommand):
                     response = self.http_service.post(
                         url=f"{self.router_url}/{self.supervisor_endpoint}",
                         body=ingestion_spec,
-                        headers={"Content-Type": "application/json"}
+                        headers={
+                            "Content-Type": "application/json",
+                            "Authorization": f"Basic {self.auth}"
+                        }
                     )
                     if response.status != 200:
                         task_submitted = 0
