@@ -458,7 +458,13 @@ class DatasetService {
         const draftDatasource = this.createDraftDatasource(draftDataset, "datalake");
         const dsId = _.join([draftDataset.dataset_id, "events", "datalake"], "_")
         const liveDatasource = await Datasource.findOne({ where: { id: dsId }, attributes: ["ingestion_spec"], raw: true }) as unknown as Record<string, any>
-        const ingestionSpec = tableGenerator.getHudiIngestionSpecForUpdate(draftDataset, liveDatasource?.ingestion_spec, allFields, draftDatasource?.datasource_ref);
+        let ingestionSpec = _.get(liveDatasource, "ingestion_spec");
+        if (_.isEmpty(ingestionSpec)) {
+            ingestionSpec = tableGenerator.getHudiIngestionSpecForCreate(draftDataset, allFields, draftDatasource.datasource_ref);
+        }
+        else {
+            ingestionSpec = tableGenerator.getHudiIngestionSpecForUpdate(draftDataset, liveDatasource?.ingestion_spec, allFields, draftDatasource?.datasource_ref);
+        }
         _.set(draftDatasource, "ingestion_spec", ingestionSpec)
         _.set(draftDatasource, "created_by", created_by);
         _.set(draftDatasource, "updated_by", updated_by);
