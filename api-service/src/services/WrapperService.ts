@@ -3,6 +3,7 @@ import { NextFunction, Request, Response } from "express";
 import { config } from "../configs/Config";
 import { ResponseHandler } from "../helpers/ResponseHandler";
 import { ErrorResponseHandler } from "../helpers/ErrorResponseHandler";
+import { druidHttpService } from "../connections/druidConnection";
 
 class WrapperService {
 
@@ -19,7 +20,7 @@ class WrapperService {
         try {
             // console.log("SQL Request to druid - \n" + JSON.stringify({"ts": Date.now(), body: req.body, headers: req.headers}));
             const authorization = req?.headers?.authorization;
-            const result = await axios.post(
+            const result = await druidHttpService.post(
                 `${config.query_api.druid.host}:${config.query_api.druid.port}${config.query_api.druid.sql_query_path}`,
                 req.body, {
                 headers: { Authorization: authorization },
@@ -38,7 +39,7 @@ class WrapperService {
             // console.log("Native POST Request to druid - \n" + JSON.stringify({"ts": Date.now(), body: req.body, headers: req.headers, url: req.url}));
             const headers = req?.headers;
             const url = req?.url;
-            const result = await axios.post(
+            const result = await druidHttpService.post(
                 `${config.query_api.druid.host}:${config.query_api.druid.port}${url}`,
                 req.body, { headers, }
             );
@@ -55,7 +56,7 @@ class WrapperService {
             // console.log("Native DEL Request to druid - \n" + JSON.stringify({"ts": Date.now(), body: req.body, headers: req.headers, url: req.url}));
             const headers = req?.headers;
             const url = req?.url;
-            const result = await axios.delete(
+            const result = await druidHttpService.delete(
                 `${config.query_api.druid.host}:${config.query_api.druid.port}${url}`,
                 {
                     headers,
@@ -74,7 +75,7 @@ class WrapperService {
             // console.log("Native GET Request to druid - \n" + JSON.stringify({"ts": Date.now(), body: req.body, headers: req.headers, url: req.url}));
             const headers = req?.headers;
             const url = req?.url;
-            const result = await axios.get(
+            const result = await druidHttpService.get(
                 `${config.query_api.druid.host}:${config.query_api.druid.port}${url}`,
                 {
                     headers,
@@ -93,7 +94,7 @@ class WrapperService {
         try {
             const headers = req?.headers;
             const url = req?.url;
-            const result = await axios.get(
+            const result = await druidHttpService.get(
                 `${config.query_api.druid.host}:${config.query_api.druid.port}${url}`,
                 { headers }
             );
@@ -108,7 +109,7 @@ class WrapperService {
     ) => {
         try {
             // console.log("Native STATUS Request to druid - \n" + JSON.stringify({"ts": Date.now(), body: req.body, headers: req.headers, url: req.url}));
-            const result = await axios.get(
+            const result = await druidHttpService.get(
                 `${config.query_api.druid.host}:${config.query_api.druid.port}/status`
             );
             ResponseHandler.flatResponse(req, res, result);
@@ -116,7 +117,7 @@ class WrapperService {
     };
 
     public submitIngestion = async (ingestionSpec: object) => {
-        return await axios.post(`${config.query_api.druid.host}:${config.query_api.druid.port}/${config.query_api.druid.submit_ingestion}`, ingestionSpec)
+        return await druidHttpService.post(`${config.query_api.druid.host}:${config.query_api.druid.port}/${config.query_api.druid.submit_ingestion}`, ingestionSpec)
     }
 
 }
