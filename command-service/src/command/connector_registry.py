@@ -420,13 +420,14 @@ class ConnectorRegistry:
 
     def copy_connector_to_spark(self, connector_source: str):
         print(f"Connector Registry | copying {connector_source} to spark")
+        spark_namespace = self.config.find("connector_jobs")["spark"]["namespace"]
         ## get name of the spark pod using kubectl
         spark_pod_cmd = [
             "kubectl",
             "get",
             "pods",
             "-n",
-            "spark",
+            spark_namespace,
             "-l",
             "app.kubernetes.io/name=spark,app.kubernetes.io/component=master",
             "-o",
@@ -447,13 +448,31 @@ class ConnectorRegistry:
         spark_pod = spark_pod_result.stdout.decode("utf-8").replace("'", "")
         print(f"Connector Registry | spark_pod:  {spark_pod}")
 
+        ## remove the connector from spark if it already exists
+        remove_cmd = [
+            "kubectl",
+            "exec",
+            f"pod/{spark_pod}",
+            "-n",
+            spark_namespace,
+            "--",
+            "rm",
+            "-rf",
+            f"/data/connectors/{connector_source}",
+        ]
+
+        remove_result = subprocess.run(remove_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        print(f"Connector Registry | remove_result:  {remove_result}")
+        if remove_result.returncode != 0:
+            print("Connector Registry | failed to remove the connector from spark")
+
         ## copy the connector to the spark pod under /data/connectors/{source}
         source_path = os.path.join(self.extraction_path, connector_source)
         copy_cmd = [
             "kubectl",
             "cp",
             f"{source_path}",
-            f"spark/{spark_pod}:/data/connectors/{connector_source}",
+            f"{spark_namespace}/{spark_pod}:/data/connectors/{connector_source}",
         ]
 
         copy_result = subprocess.run(copy_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -471,7 +490,7 @@ class ConnectorRegistry:
                 "exec",
                 f"pod/{spark_pod}",
                 "-n",
-                "spark",
+                spark_namespace,
                 "--",
                 "bash",
                 "-c",

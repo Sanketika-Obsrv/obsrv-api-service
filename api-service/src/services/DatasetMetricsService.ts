@@ -5,6 +5,7 @@ import { config } from "../configs/Config";
 import { dataLineageSuccessQuery, extractorBatchDuplicateCountQuery, extractorSuccessCountQuery, generateConnectorQuery, generateDatasetQueryCallsQuery, generateDedupFailedQuery, generateDenormFailedQuery, generateTimeseriesQuery, generateTotalQueryCallsQuery, generateTransformationFailedQuery, processingTimeQuery, totalEventsQuery, totalFailedEventsQuery } from "../controllers/DatasetMetrics/queries";
 import { getDownTimeContainers } from "../configs/DataObsrvDefaults";
 import { datasetService } from "../services/DatasetService";
+import { druidHttpService } from "../connections/druidConnection";
 const druidPort = _.get(config, "query_api.druid.port");
 const druidHost = _.get(config, "query_api.druid.host");
 const nativeQueryEndpoint = `${druidHost}:${druidPort}${config.query_api.druid.native_query_path}`;
@@ -13,7 +14,7 @@ const prometheusQueryEndpoint = `${config.query_api.prometheus.url}/api/v1/query
 
 export const getDataFreshness = async (dataset_id: string, intervals: string, defaultThreshold: number, timePeriod: any) => {
     const queryPayload = processingTimeQuery(intervals, dataset_id, timePeriod);
-    const druidResponse = await axios.post(nativeQueryEndpoint, queryPayload?.query);
+    const druidResponse = await druidHttpService.post(nativeQueryEndpoint, queryPayload?.query);
     const dates = [];
     const statusArray = [];
 
@@ -110,8 +111,8 @@ export const getDataObservability = async (dataset_id: string, intervals: string
     const totalQueryCallsAtDatasetLevel = generateDatasetQueryCallsQuery(dataset_id, time_period ? `${time_period}d` : config?.data_observability?.data_out_query_time_period);
 
     const [totalEventsResponse, totalFailedEventsResponse, totalApiCallsResponse, totalCallsAtDatasetLevelResponse] = await Promise.all([
-        axios.post(nativeQueryEndpoint, totalEventsPayload),
-        axios.post(nativeQueryEndpoint, totalFailedEventsPayload),
+        druidHttpService.post(nativeQueryEndpoint, totalEventsPayload),
+        druidHttpService.post(nativeQueryEndpoint, totalFailedEventsPayload),
         axios.request({ url: prometheusEndpoint, method: "GET", params: totalQueryCalls }),
         axios.request({ url: prometheusEndpoint, method: "GET", params: totalQueryCallsAtDatasetLevel })
     ]);
@@ -285,7 +286,7 @@ export const getDataObservability = async (dataset_id: string, intervals: string
 export const getDataVolume = async (dataset_id: string, interval: string, dateFormat: string, timePeriod: any) => {
     const payload = generateTimeseriesQuery(interval, dataset_id, timePeriod);
     const [dataResponse] = await Promise.all([
-        axios.post(nativeQueryEndpoint, payload),
+        druidHttpService.post(nativeQueryEndpoint, payload),
     ]);
     // Handle hourly data when timePeriod is 1 (24hrs)
     if (timePeriod === 1) {
@@ -305,7 +306,7 @@ export const getDataVolume = async (dataset_id: string, interval: string, dateFo
 
         // Fetch previous period data
         const previousPayload = generateTimeseriesQuery(previousInterval, dataset_id, timePeriod);
-        const previousResponse = await axios.post(nativeQueryEndpoint, previousPayload);
+        const previousResponse = await druidHttpService.post(nativeQueryEndpoint, previousPayload);
 
         // Calculate total count for previous 24 hours
         const previousPeriodTotal = previousResponse.data.reduce((sum: number, item: any) => {
@@ -362,7 +363,7 @@ export const getDataVolume = async (dataset_id: string, interval: string, dateFo
 
     // Fetch previous period data
     const previousPayload = generateTimeseriesQuery(previousInterval, dataset_id, timePeriod);
-    const previousResponse = await axios.post(nativeQueryEndpoint, previousPayload);
+    const previousResponse = await druidHttpService.post(nativeQueryEndpoint, previousPayload);
 
     // Calculate total count for previous period
     const previousPeriodTotal = previousResponse.data.reduce((sum: number, item: any) => {
@@ -420,14 +421,14 @@ export const getDataLineage = async (dataset_id: any, intervals: string, time_pe
         dedupFailedResponse, denormFailedResponse, extractorSuccessCountResponse,
         extractorBatchDuplicateResponse
     ] = await Promise.all([
-        axios.post(nativeQueryEndpoint, transformationSuccessPayload),
-        axios.post(nativeQueryEndpoint, dedupSuccessPayload),
-        axios.post(nativeQueryEndpoint, denormSuccessPayload),
-        axios.post(nativeQueryEndpoint, totalValidationPayload),
-        axios.post(nativeQueryEndpoint, totalValidationFailedPayload),
-        axios.post(nativeQueryEndpoint, transformationFailedPayload),
+        druidHttpService.post(nativeQueryEndpoint, transformationSuccessPayload),
+        druidHttpService.post(nativeQueryEndpoint, dedupSuccessPayload),
+        druidHttpService.post(nativeQueryEndpoint, denormSuccessPayload),
+        druidHttpService.post(nativeQueryEndpoint, totalValidationPayload),
+        druidHttpService.post(nativeQueryEndpoint, totalValidationFailedPayload),
+        druidHttpService.post(nativeQueryEndpoint, transformationFailedPayload),
         axios.request({ url: prometheusEndpoint, method: "GET", params: dedupFailedPayload }),
-        axios.post(nativeQueryEndpoint, denormFailedPayload),
+        druidHttpService.post(nativeQueryEndpoint, denormFailedPayload),
         axios.request({ url: prometheusEndpoint, method: "GET", params: extractorSuccessCountPayload }),
         axios.request({ url: prometheusEndpoint, method: "GET", params: extractorBatchDuplicatePayload }),
     ]);
@@ -473,7 +474,7 @@ export const getDataLineage = async (dataset_id: any, intervals: string, time_pe
 
 export const getConnectorsData = async (dataset_id: string, intervals: string) => {
     const connectorQueryPayload = generateConnectorQuery(intervals, dataset_id);
-    const connectorResponse = await axios.post(nativeQueryEndpoint, connectorQueryPayload);
+    const connectorResponse = await druidHttpService.post(nativeQueryEndpoint, connectorQueryPayload);
     const connectorsData = _.get(connectorResponse, "data[0].result", []);
     const result = {
         category: "connectors",

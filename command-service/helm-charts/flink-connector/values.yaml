@@ -242,11 +242,37 @@ serviceMonitor:
     jobLabel: "app.kubernetes.io/name"
     port: prom
 
-
 # override flink_jobs
 # flink_jobs:
 
 connector_id: ""
+connector_instance_ids: []
 
 commonAnnotations:
   reloader.stakater.com/auto: "true"
+
+# flink_conf:
+#   state.savepoints.dir: file:///tmp
+#   taskmanager.bind-host: 0.0.0.0
+#   taskmanager.memory.flink.size: 1024m
+#   taskmanager.memory.network.fraction: 0.1
+#   taskmanager.numberOfTaskSlots: 1
+#   taskmanager.rpc.port: 6122
+#   rest.address: 0.0.0.0
+#   rest.bind-address: 0.0.0.0
+
+flink_conf:
+  heartbeat.timeout: 8000
+  heartbeat.interval: 5000
+  jobmanager.bind-host: 0.0.0.0
+  jobmanager.memory.flink.size: 1024m
+  jobmanager.numberOfTaskSlots: 1
+  jobmanager.execution.failover-strategy: region
+  parallelism.default: 1
+  taskmanager.memory.flink.size: 1024m
+  taskmanager.numberOfTaskSlots: 1
+  taskmanager.memory.network.fraction: 0.1
+  state.savepoints.dir: file:///tmp
+  state.checkpoint.interval: 60000
+  state.checkpoint.pause.between.seconds: 5000
+  query.server.port: 6125

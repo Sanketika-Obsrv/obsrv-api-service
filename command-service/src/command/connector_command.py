@@ -146,7 +146,6 @@ class ConnectorCommand(ICommand):
         err = None
         result = None
         release_name = connector_instance.connector_id
-        runtime = connector_instance.connector_runtime
         namespace = self.connector_job_config["flink"]["namespace"]
         job_name = release_name.replace(".", "-")
         helm_ls_cmd = ["helm", "ls", "--namespace", namespace]
@@ -155,98 +154,88 @@ class ConnectorCommand(ICommand):
             helm_ls_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE
         )
 
-        if helm_ls_result.returncode == 0:
-            jobs = helm_ls_result.stdout.decode()
+        if helm_ls_result.returncode == 0 and self._get_live_instances(runtime="flink", connector_instance=connector_instance):
+            connector_source = connector_instance.connector_source
+            # Get all live instances for this connector
+            query = """
+                SELECT id FROM connector_instances
+                WHERE status = 'Live' AND connector_id = %s
+            """
+            params = (connector_instance.connector_id,)
+            instances = self.db_service.execute_select_all(sql=query, params=params)
 
-            deployment_exists = any(job_name in line for line in jobs.splitlines()[1:])
-            if deployment_exists:
-                restart_cmd = f"kubectl delete pods --selector app.kubernetes.io/name=flink,app.kubernetes.io/component={job_name}-jobmanager --namespace {namespace} && kubectl delete pods --selector app.kubernetes.io/name=flink,app.kubernetes.io/component={job_name}-taskmanager --namespace {namespace}".format(
-                    namespace=namespace, job_name=job_name
+            if not instances:
+                print(f"No live instances found for connector {connector_instance.connector_id}")
+                return ActionResponse(
+                    status="ERROR",
+                    status_code=400,
+                    error_message="NO_LIVE_INSTANCES_FOUND"
                 )
-                print("Restart command: ", restart_cmd)
-                # Run the helm command
-                restart_cmd_result = subprocess.run(
-                    restart_cmd,
-                    stdout=subprocess.PIPE,
-                    stderr=subprocess.PIPE,
-                    shell=True,
-                )
-                if restart_cmd_result.returncode == 0:
-                    print(f"Job {job_name} restart succeeded...")
-                else:
-                    err = True
-                    print(f"Error restarting pod: {helm_ls_result.stderr.decode()}")
-                    return ActionResponse(
-                        status="ERROR",
-                        status_code=500,
-                        error_message="FLINK_HELM_LIST_EXCEPTION",
-                    )
 
-                if err is None:
-                    result = ActionResponse(status="OK", status_code=200)
+            # Get instance IDs
+            instance_ids = [str(inst["id"]) for inst in instances]
 
-                return result
+            flink_jobs = dict()
+            flink_jobs[job_name] = {
+                "enabled": "true",
+                "connector_id": connector_instance.connector_id,
+                "connector_instance_ids": instance_ids,
+                "source": connector_source.get("source"),
+                "main_program": connector_source.get("main_program")
+            }
+
+            flink_jobs_json = json.dumps(flink_jobs)
+            nodeSelector = self.config.find("node_selector")
+            security_contexts = self.config.find("flink_connector_container_security_context")
+            pod_security_context = self.config.find("flink_connector_pod_security_context")
+            task_manager_limits = {
+                "cpu": len(instance_ids),
+                "memory": "{}Mi".format(len(instance_ids)*1024)
+            }
+            helm_install_cmd = [
+                "helm",
+                "upgrade",
+                "--install",
+                job_name,
+                f"""{self.config.find("helm_charts_base_dir")}/{self.connector_job_config["flink"]["base_helm_chart"]}""",
+                "--namespace",
+                namespace,
+                "--create-namespace",
+                "--set", "namespace={}".format(namespace),
+                "--set", "connector_id={}".format(connector_instance.connector_id),
+                "--set", "flink_conf.taskmanager\\.numberOfTaskSlots={}".format(len(instance_ids)),
+                "--set-json", f"""flink_jobs={flink_jobs_json.replace(" ", "")}""",
+                "--set-json", f"""nodeSelector={json.dumps(nodeSelector)}""",
+                "--set-json", f"""securityContext={json.dumps(security_contexts)}""",
+                "--set-json", f"""podSecurityContext={json.dumps(pod_security_context)}""",
+                "--set-json", f"""flink_resources.taskmanager.resources.limits={json.dumps(task_manager_limits)}"""
+            ]
+
+            print("flink connector installation:  ", " ".join(helm_install_cmd))
+
+            helm_install_result = subprocess.run(
+                helm_install_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE
+            )
+
+            print(helm_install_result)
+
+            if helm_install_result.returncode == 0:
+                print(f"Job '{job_name}' deployment succeeded...")
             else:
-                if self._get_live_instances(runtime="flink", connector_instance=connector_instance):
-                    connector_source = connector_instance.connector_source
-                    flink_jobs = dict()
-                    flink_jobs[job_name] = {
-                        "enabled": "true",
-                        "connector_id": connector_instance.connector_id,
-                        "source": connector_source.get("source"),
-                        "main_program": connector_source.get("main_program")
-                    }
+                err = True
+                result = ActionResponse(
+                    status="ERROR",
+                    status_code=500,
+                    error_message="FLINK_CONNECTOR_HELM_INSTALLATION_EXCEPTION",
+                )
+                print(
+                    f"Error installing job '{job_name}': {helm_install_result.stderr.decode()}"
+                )
 
-                    set_json_value = json.dumps(flink_jobs)
-                    nodeSelector = self.config.find("node_selector")
-                    security_contexts = self.config.find("container_security_context")
-                    pod_security_context = self.config.find("pod_security_context")
-                    helm_install_cmd = [
-                        "helm",
-                        "upgrade",
-                        "--install",
-                        job_name,
-                        f"""{self.config.find("helm_charts_base_dir")}/{self.connector_job_config["flink"]["base_helm_chart"]}""",
-                        "--namespace",
-                        namespace,
-                        "--create-namespace",
-                        "--set", "namespace={}".format(namespace),
-                        "--set", "connector_id={}".format(connector_instance.connector_id),
-                        "--set-json",
-                        f"""flink_jobs={set_json_value.replace(" ", "")}""",
-                        "--set-json",
-                        f"""nodeSelector={json.dumps(nodeSelector)}""",
-                        "--set-json",
-                        f"""securityContext={json.dumps(security_contexts)}""",
-                        "--set-json",
-                        f"""podSecurityContext={json.dumps(pod_security_context)}"""
-                    ]
+            if err is None:
+                result = ActionResponse(status="OK", status_code=200)
 
-                    print("flink connector installation:  ", " ".join(helm_install_cmd))
-
-                    helm_install_result = subprocess.run(
-                        helm_install_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE
-                    )
-
-                    print(helm_install_result)
-
-                    if helm_install_result.returncode == 0:
-                        print(f"Job '{job_name}' deployment succeeded...")
-                    else:
-                        err = True
-                        result = ActionResponse(
-                            status="ERROR",
-                            status_code=500,
-                            error_message="FLINK_CONNECTOR_HELM_INSTALLATION_EXCEPTION",
-                        )
-                        print(
-                            f"Error installing job '{job_name}': {helm_install_result.stderr.decode()}"
-                        )
-
-                    if err is None:
-                        result = ActionResponse(status="OK", status_code=200)
-
-                    return result
+            return result
         else:
             print(f"Error checking Flink deployments: {helm_ls_result.stderr.decode()}")
             return ActionResponse(
@@ -274,8 +263,8 @@ class ConnectorCommand(ICommand):
 
         namespace = self.connector_job_config["spark"]["namespace"]
         nodeSelector = self.config.find("node_selector")
-        container_security_context = self.config.find("container_security_context")
-        pod_security_context = self.config.find("pod_security_context")
+        container_security_context = self.config.find("spark_connector_container_security_context")
+        pod_security_context = self.config.find("spark_connector_pod_security_context")
 
         helm_install_cmd = [
             "helm",
@@ -286,6 +275,8 @@ class ConnectorCommand(ICommand):
             "--namespace",
             namespace,
             "--create-namespace",
+            "--set",
+            "namespace={}".format(namespace),
             "--set",
             "technology={}".format(connector_instance.technology),
             "--set",

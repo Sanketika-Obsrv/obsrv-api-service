@@ -171,6 +171,7 @@ class TableGenerator extends BaseTableGenerator {
             case "boolean": return "string";
             case "array": return "json";
             case "string": return "string";
+            case "double": return "double";
             default: return "auto";
         }
     }
@@ -224,7 +225,7 @@ class TableGenerator extends BaseTableGenerator {
                 oldColumnSpec.push({
                     "type": col.type,
                     "name": col.name,
-                    "index": currIndex++
+                    "index": ++currIndex
                 })
             })
         }

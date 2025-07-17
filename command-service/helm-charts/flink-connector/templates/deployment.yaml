@@ -61,16 +61,21 @@ spec:
           env:
             - name: FLINK_PROPERTIES
               value: |+
-                jobmanager.rpc.address: {{ $jobName }}-jobmanager
-                taskmanager.rpc.port=6122
-                taskmanager.numberOfTaskSlots: 2
+                web.submit.enable: false
                 metrics.reporters: prom
                 metrics.reporter.prom.factory.class: org.apache.flink.metrics.prometheus.PrometheusReporterFactory
                 metrics.reporter.prom.host: {{ $jobName }}-taskmanager
-                metrics.reporter.prom.port: 9251
+                metrics.reporter.prom.port: {{ .Values.taskmanager.prom_port }}
+                jobmanager.rpc.address: {{ $jobName }}-jobmanager
+                taskmanager.rpc.port: {{ .Values.taskmanager.rpc_port }}
+                {{- with .Values.flink_conf }}
+                {{- toYaml . | nindent 16 }}
+                {{- end }}
           ports:
           - containerPort: {{ .Values.taskmanager.rpc_port }}
             name: rpc
+          - containerPort: {{ .Values.taskmanager.prom_port }}
+            name: prom
           {{- toYaml (index .Values.flink_resources $component )| nindent 10 }}
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
@@ -142,12 +147,28 @@ spec:
           env:
             - name: FLINK_PROPERTIES
               value: |+
-                jobmanager.rpc.address: {{ $jobName }}-jobmanager
-                jobmanager.rpc.port=6123
+                web.submit.enable: false
                 metrics.reporters: prom
                 metrics.reporter.prom.factory.class: org.apache.flink.metrics.prometheus.PrometheusReporterFactory
                 metrics.reporter.prom.host: {{ $jobName }}-jobmanager
-                metrics.reporter.prom.port: 9250
+                metrics.reporter.prom.port: {{ .Values.jobmanager.prom_port }}
+                jobmanager.rpc.address: {{ $jobName }}-jobmanager
+                blob.server.port: {{ .Values.jobmanager.blob_port }}
+                queryable-state.server.ports: {{ .Values.jobmanager.query_port }}
+                {{- with .Values.flink_conf }}
+                {{- toYaml . | nindent 16 }}
+                {{- end }}
+          ports:
+            {{- range .Values.service.ports }}
+            - name: {{ .name }}
+              containerPort: {{ .targetPort }}
+            {{- end }}
+            - name: prom
+              containerPort: {{ .Values.jobmanager.prom_port }}
+            - name: blob
+              containerPort: {{ .Values.jobmanager.blob_port }}
+            - name: query
+              containerPort: {{ .Values.jobmanager.query_port }}
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
           volumeMounts:
@@ -178,26 +199,31 @@ spec:
           - /bin/bash
           - -c
           - |
+            export PYTHONPATH=/opt/flink/.local/lib/python3.10/site-packages:$PYTHONPATH;
+            rm -rf /data/connectors/*;
             /usr/bin/python3 /data/connectors-init/connector.py;
             sleep 30s;
+            {{- range $jobData.connector_instance_ids }}
             /opt/flink/bin/flink run -d -m \
-              {{ $jobName }}-jobmanager.{{ include "base.namespace" . }}.svc.cluster.local:8081 \
+              {{ $jobName }}-jobmanager.{{ include "base.namespace" $ }}.svc.cluster.local:8081 \
               /data/connectors/{{ index $jobData "source" }}/{{ index $jobData "main_program" }} \
               --config.file.path /data/flink/conf/connectors-scala-config.conf \
-              --metadata.id {{ index $jobData "connector_id" }} \
-          {{- if eq .Values.checkpoint_store_type "azure" }}
-              "-Dfs.azure.account.key.{{ .Values.global.azure_storage_account_name }}.blob.core.windows.net={{ .Values.global.azure_storage_account_key }}" \
-          {{- end }}
-          {{- if and (eq .Values.checkpoint_store_type "s3") (ne .Values.s3_auth_type "serviceAccount") }}
-              "-Ds3.access-key={{ .Values.s3_access_key }}" \
-              "-Ds3.secret-key={{ .Values.s3_secret_key }}" \
-              "-Ds3.endpoint={{ .Values.s3_endpoint }}" \
-              "-Ds3.path.style.access={{ .Values.s3_path_style_access }}" \
-          {{- end }}
-          {{- if eq .Values.checkpoint_store_type "gcs" }}
+              --connector.instance.id {{ . }} \
+              {{- if eq $.Values.checkpoint_store_type "azure" }}
+              "-Dfs.azure.account.key.{{ $.Values.global.azure_storage_account_name }}.blob.core.windows.net={{ $.Values.global.azure_storage_account_key }}" \
+              {{- end }}
+              {{- if and (eq $.Values.checkpoint_store_type "s3") (ne $.Values.s3_auth_type "serviceAccount") }}
+              "-Ds3.access-key={{ $.Values.s3_access_key }}" \
+              "-Ds3.secret-key={{ $.Values.s3_secret_key }}" \
+              "-Ds3.endpoint={{ $.Values.s3_endpoint }}" \
+              "-Ds3.path.style.access={{ $.Values.s3_path_style_access }}" \
+              {{- end }}
+              {{- if eq $.Values.checkpoint_store_type "gcs" }}
               "-Dgoogle.cloud.auth.service.account.enable=true" \
-          {{- end }}
-            ; sleep 10s; echo "Job submitted"; tail -f /dev/null;
+              {{- end }}
+              ;
+            {{- end }}
+            sleep 10s; echo "Jobs submitted"; tail -f /dev/null
           ports:
             {{- range .Values.service.ports }}
             - name: {{ .name }}

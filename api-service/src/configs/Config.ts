@@ -29,7 +29,9 @@ export const config = {
       "sql_query_path": "/druid/v2/sql/",
       "native_query_path": "/druid/v2",
       "list_datasources_path": "/druid/v2/datasources",
-      "submit_ingestion": "druid/indexer/v1/supervisor"
+      "submit_ingestion": "druid/indexer/v1/supervisor",
+      "username": process.env.druid_username || "admin",  
+      "password": process.env.druid_password || "admin123" 
     },
     "prometheus": {
       "url": process.env.prometheus_url || "http://localhost:9090"
