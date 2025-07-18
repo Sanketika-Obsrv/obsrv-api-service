@@ -13,13 +13,13 @@ export const defaultDatasetConfig = {
         "dedup_config": {
             "drop_duplicates": true,
             "dedup_key": "id",
-            "dedup_period": 604800, // 7 days
+            "dedup_period": config.redis_config.dedup_period // 7 days
         }
     },
     "dedup_config": {
         "drop_duplicates": false,
         "dedup_key": "id",
-        "dedup_period": 604800, // 7 days
+        "dedup_period": config.redis_config.dedup_period // 7 days
     },
     "denorm_config": {
         "redis_db_host": config.redis_config.denorm_redis_host,
