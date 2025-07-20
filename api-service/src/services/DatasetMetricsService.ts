@@ -642,6 +642,24 @@ export const getDownTime = async (dataset_id: string, time_period: string, max_p
                     }
                     return result;
                 })()
+            },
+            {
+                item: "downtime_health",
+                value: (() => {
+                    const totalDowntimeInSeconds = downtimeMetrics.reduce(
+                        (sum, m) => sum + m.totalDowntime,
+                        0
+                    );
+
+                    const totalPossibleUptimeInSeconds = Number(time_period) * 24 * 60 * 60;
+
+                    const downtimePercentage = (totalDowntimeInSeconds / totalPossibleUptimeInSeconds) * 100;
+                    const healthyPercentage = 100 - downtimePercentage;
+
+                    const rounded = Math.ceil(healthyPercentage * 1000) / 1000;
+
+                    return rounded.toFixed(3);
+                })()
             }
 
         ],
