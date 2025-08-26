@@ -371,7 +371,7 @@ export const generateDedupFailedQuery = (dataset: string, time_period: string) =
 export const extractorSuccessCountQuery = (dataset: string, time_period: string) => ({
   end: dayjs().unix(),
   step: `1d`,
-  query: `sum(sum_over_time(flink_taskmanager_job_task_operator_ExtractorJob_${dataset}_extractor_success_count[${time_period}]))`,
+  query: `sum(sum_over_time(flink_taskmanager_job_task_operator_ExtractorJob_${dataset}_extractor_event_count[${time_period}]))`,
   start: dayjs().subtract(1, 'day').unix(),
 });
 

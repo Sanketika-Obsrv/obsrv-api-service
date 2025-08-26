@@ -90,7 +90,7 @@ const datasetMetrics = async (req: Request, res: Response) => {
         }
 
         if (!category || category.includes("connectors")) {
-            const connectorsResult = await getConnectorsData(dataset_id, intervals);
+            const connectorsResult = await getConnectorsData(dataset_id, intervals, timePeriod);
             results.push(connectorsResult);
         }
 

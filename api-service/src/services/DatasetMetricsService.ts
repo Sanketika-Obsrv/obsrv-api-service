@@ -462,7 +462,7 @@ export const getDataLineage = async (dataset_id: any, intervals: string, time_pe
             { type: "denormalization_success", value: denormSuccessCount },
             { type: "transformation_success", value: transformationSuccessCount },
             { type: "extraction_failed", value: 0 },
-            { type: "total_failed", value: totalValidationFailedCount + dedupFailedCount[0] },
+            { type: "total_failed", value: totalValidationFailedCount + dedupFailedCount[0] - denormFailedCount },
             { type: "dedup_failed", value: dedupFailedCount[0] },
             { type: "denorm_failed", value: denormFailedCount },
             { type: "transformation_failed", value: transformationFailedCount },
@@ -472,20 +472,179 @@ export const getDataLineage = async (dataset_id: any, intervals: string, time_pe
 };
 
 
-export const getConnectorsData = async (dataset_id: string, intervals: string) => {
+export const getConnectorsData = async (dataset_id: string, intervals: string, time_period: any) => {
+    // Get all connectors for this dataset
     const connectorQueryPayload = generateConnectorQuery(intervals, dataset_id);
     const connectorResponse = await druidHttpService.post(nativeQueryEndpoint, connectorQueryPayload);
     const connectorsData = _.get(connectorResponse, "data[0].result", []);
-    const result = {
+    
+    // Get detailed metrics for each connector
+    const connectorMetrics = await Promise.all(
+        connectorsData.map(async (connector: any) => {
+            const connectorName = connector.name;
+            if (!connectorName) return null;
+            
+            // Success queries for each stage
+            const transformationSuccessPayload = {
+                ...dataLineageSuccessQuery(intervals, dataset_id, "transformer_status", "success"),
+                filter: {
+                    type: "and",
+                    fields: [
+                        ...dataLineageSuccessQuery(intervals, dataset_id, "transformer_status", "success").filter.fields,
+                        { type: "equals", column: "ctx_source_connector", matchValueType: "STRING", matchValue: connectorName }
+                    ]
+                }
+            };
+            
+            const dedupSuccessPayload = {
+                ...dataLineageSuccessQuery(intervals, dataset_id, "dedup_status", "success"),
+                filter: {
+                    type: "and",
+                    fields: [
+                        ...dataLineageSuccessQuery(intervals, dataset_id, "dedup_status", "success").filter.fields,
+                        { type: "equals", column: "ctx_source_connector", matchValueType: "STRING", matchValue: connectorName }
+                    ]
+                }
+            };
+            
+            const denormSuccessPayload = {
+                ...dataLineageSuccessQuery(intervals, dataset_id, "denorm_status", "success"),
+                filter: {
+                    type: "and",
+                    fields: [
+                        ...dataLineageSuccessQuery(intervals, dataset_id, "denorm_status", "success").filter.fields,
+                        { type: "equals", column: "ctx_source_connector", matchValueType: "STRING", matchValue: connectorName }
+                    ]
+                }
+            };
+            
+            const totalValidationPayload = {
+                ...dataLineageSuccessQuery(intervals, dataset_id, "ctx_dataset", dataset_id),
+                filter: {
+                    type: "and",
+                    fields: [
+                        ...dataLineageSuccessQuery(intervals, dataset_id, "ctx_dataset", dataset_id).filter.fields,
+                        { type: "equals", column: "ctx_source_connector", matchValueType: "STRING", matchValue: connectorName }
+                    ]
+                }
+            };
+            
+            const totalValidationFailedPayload = {
+                ...dataLineageSuccessQuery(intervals, dataset_id, "error_pdata_status", "failed"),
+                filter: {
+                    type: "and",
+                    fields: [
+                        ...dataLineageSuccessQuery(intervals, dataset_id, "error_pdata_status", "failed").filter.fields,
+                        { type: "equals", column: "ctx_source_connector", matchValueType: "STRING", matchValue: connectorName }
+                    ]
+                }
+            };
+            
+            // Failed queries for each stage
+            const transformationFailedQuery = generateTransformationFailedQuery(intervals, dataset_id);
+            const transformationFailedPayload = {
+                ...transformationFailedQuery,
+                filter: {
+                    type: "and",
+                    fields: [
+                        { type: "equals", column: "ctx_dataset", matchValueType: "STRING", matchValue: dataset_id },
+                        { type: "equals", column: "ctx_source_connector", matchValueType: "STRING", matchValue: connectorName }
+                    ]
+                },
+                aggregations: [
+                    {
+                        type: "filtered",
+                        aggregator: {
+                            type: "longSum",
+                            name: "count",
+                            fieldName: "count"
+                        },
+                        filter: {
+                            type: "and",
+                            fields: [
+                                { type: "equals", column: "ctx_pdata_id", matchValueType: "STRING", matchValue: "TransformerJob" },
+                                { type: "equals", column: "error_pdata_status", matchValueType: "STRING", matchValue: "failed" }
+                            ]
+                        },
+                        name: "count"
+                    }
+                ]
+            };
+            
+            const denormFailedQuery = generateDenormFailedQuery(intervals, dataset_id);
+            const denormFailedPayload = {
+                ...denormFailedQuery,
+                filter: {
+                    type: "and",
+                    fields: [
+                        { type: "equals", column: "ctx_dataset", matchValueType: "STRING", matchValue: dataset_id },
+                        { type: "equals", column: "ctx_source_connector", matchValueType: "STRING", matchValue: connectorName }
+                    ]
+                },
+                aggregations: [
+                    {
+                        type: "filtered",
+                        aggregator: {
+                            type: "longSum",
+                            name: "count",
+                            fieldName: "count"
+                        },
+                        filter: {
+                            type: "and",
+                            fields: [
+                                { type: "equals", column: "ctx_pdata_pid", matchValueType: "STRING", matchValue: "denorm" },
+                                { type: "equals", column: "error_type", matchValueType: "STRING", matchValue: "DenormDataNotFound" }
+                            ]
+                        },
+                        name: "count"
+                    }
+                ]
+            };
+            
+            const [
+                transformationSuccessResponse, dedupSuccessResponse, denormSuccessResponse,
+                totalValidationResponse, totalValidationFailedResponse, transformationFailedResponse,
+                denormFailedResponse
+            ] = await Promise.all([
+                druidHttpService.post(nativeQueryEndpoint, transformationSuccessPayload),
+                druidHttpService.post(nativeQueryEndpoint, dedupSuccessPayload),
+                druidHttpService.post(nativeQueryEndpoint, denormSuccessPayload),
+                druidHttpService.post(nativeQueryEndpoint, totalValidationPayload),
+                druidHttpService.post(nativeQueryEndpoint, totalValidationFailedPayload),
+                druidHttpService.post(nativeQueryEndpoint, transformationFailedPayload),
+                druidHttpService.post(nativeQueryEndpoint, denormFailedPayload)
+            ]);
+            
+            // Extract counts
+            const transformationSuccessCount = _.get(transformationSuccessResponse, "data[0].result.count") || 0;
+            const dedupSuccessCount = _.get(dedupSuccessResponse, "data[0].result.count") || 0;
+            const denormSuccessCount = _.get(denormSuccessResponse, "data[0].result.count") || 0;
+            const totalValidationCount = _.get(totalValidationResponse, "data[0].result.count") || 0;
+            const totalValidationFailedCount = _.get(totalValidationFailedResponse, "data[0].result.count") || 0;
+            const storageSuccessCount = totalValidationCount - totalValidationFailedCount;
+            const transformationFailedCount = _.get(transformationFailedResponse, "data[0].result.count") || 0;
+            const denormFailedCount = _.get(denormFailedResponse, "data[0].result.count") || 0;
+            
+            return {
+                id: connectorName,
+                total_events: connector.count - denormFailedCount,
+                components: [
+                    { type: "total_success", value: storageSuccessCount },
+                    { type: "dedup_success", value: dedupSuccessCount },
+                    { type: "denormalization_success", value: denormSuccessCount },
+                    { type: "transformation_success", value: transformationSuccessCount },
+                    { type: "total_failed", value: totalValidationFailedCount - denormFailedCount },
+                    { type: "transformation_failed", value: transformationFailedCount },
+                    { type: "denorm_failed", value: denormFailedCount }
+                ]
+            };
+        })
+    );
+    
+    return {
         category: "connectors",
-        components: connectorsData.map((item: any) => ({
-            id: item.name,
-            type: item.name === null ? "failed" : "success",
-            value: item.count
-        }))
+        components: connectorMetrics.filter(metric => metric !== null)
     };
-
-    return result;
 };
 
 export const getDownTime = async (dataset_id: string, time_period: string, max_period: number) => {
