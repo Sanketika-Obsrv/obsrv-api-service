@@ -655,7 +655,8 @@ export const getConnectorsData = async (dataset_id: string, intervals: string, t
                 total_events: totalEvents,
                 components: [
                     { type: "total_success", value: totalSuccess },
-                    { type: "dedup_success", value: dedupSuccessCount - dedupSuccessCount },
+                    // TODO: Replace 0 with actual dedupSuccessCount when available
+                    { type: "dedup_success", value: 0 },
                     { type: "denormalization_success", value: denormSuccessCount },
                     { type: "transformation_success", value: transformationSuccessCount },
                     { type: "total_failed", value: totalValidationFailedCount - denormFailedCount - transformationFailedCount },
