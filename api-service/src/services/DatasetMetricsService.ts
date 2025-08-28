@@ -473,7 +473,8 @@ export const getDataLineage = async (dataset_id: any, intervals: string, time_pe
         components: [
             { type: "extractor_batch_success", value: extractorSuccessCount[0] },
             { type: "total_success", value: totalSuccess },
-            { type: "dedup_success", value: dedupSuccessCount-dedupSuccessCount },//temporary fix, update later to show the real dedupSuccessCount, by it will be alwasy zero for now.
+            // TODO: Replace 0 with the real dedupSuccessCount when available.
+            { type: "dedup_success", value: 0 },
             { type: "denormalization_success", value: denormSuccessCount },
             { type: "transformation_success", value: transformationSuccessCount },
             { type: "extraction_failed", value: 0 },
