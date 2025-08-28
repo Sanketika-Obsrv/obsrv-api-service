@@ -463,9 +463,6 @@ export const getDataLineage = async (dataset_id: any, intervals: string, time_pe
     })
     const denormFailedCount = _.get(denormFailedResponse, "data[0].result.count") || 0;
     
-    // const totalFailed = datasetMode === "Lenient"
-    //     ? totalValidationFailedCount - denormFailedCount - transformationFailedCount
-    //     : totalValidationFailedCount - denormFailedCount - transformationFailedCount;
     const totalSuccess = datasetMode === "Strict"
         ? storageSuccessCount + transformationFailedCount
         : storageSuccessCount;
