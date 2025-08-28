@@ -479,7 +479,7 @@ export const getDataLineage = async (dataset_id: any, intervals: string, time_pe
             { type: "transformation_success", value: transformationSuccessCount },
             { type: "extraction_failed", value: 0 },
             { type: "total_failed", value: totalValidationFailedCount - denormFailedCount - transformationFailedCount },
-            { type: "dedup_failed", value: dedupFailedCount[0] - dedupFailedCount[0]  },
+            { type: "dedup_failed", value: 0 }, // TODO: update later to show the real dedupFailedCount, currently always zero
             { type: "denorm_failed", value: denormFailedCount },
             { type: "transformation_failed", value: transformationFailedCount },
             { type: "extractor_batch_duplicate", value: extractorBatchDuplicateCount[0] }
