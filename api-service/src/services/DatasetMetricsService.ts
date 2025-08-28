@@ -161,7 +161,7 @@ export const getDataObservability = async (dataset_id: string, intervals: string
             if (totalEvents > 0) {
                 const failurePercentage = (failedEvents / totalEvents) * 100;
                 status = failurePercentage > 5 ? "Unhealthy" : "Healthy";
-                reason = status === "Unhealthy" ? "High events failure rate detected is higher than threshold" : "No issues reported";
+                reason = status === "Unhealthy" ? "High events failure rate detected" : "No issues reported";
             }
 
             statusArray.push({
