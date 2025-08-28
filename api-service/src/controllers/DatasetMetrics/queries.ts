@@ -381,3 +381,8 @@ export const extractorBatchDuplicateCountQuery = (dataset: string, time_period: 
   query: `sum(sum_over_time(flink_taskmanager_job_task_operator_ExtractorJob_${dataset}_extractor_duplicate_count[${time_period}]))`,
   start: dayjs().subtract(1, 'day').unix(),
 });
+
+export const getDatasetModeQuery = (dataset_id: string) => ({
+  query: 'SELECT DISTINCT mode FROM dataset_transformations WHERE dataset_id = :dataset_id',
+  params: { dataset_id }
+});

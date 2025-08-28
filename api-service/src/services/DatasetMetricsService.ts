@@ -2,7 +2,7 @@ import axios from "axios";
 import dayjs from "dayjs";
 import _ from "lodash";
 import { config } from "../configs/Config";
-import { dataLineageSuccessQuery, extractorBatchDuplicateCountQuery, extractorSuccessCountQuery, generateConnectorQuery, generateDatasetQueryCallsQuery, generateDedupFailedQuery, generateDenormFailedQuery, generateTimeseriesQuery, generateTotalQueryCallsQuery, generateTransformationFailedQuery, processingTimeQuery, totalEventsQuery, totalFailedEventsQuery } from "../controllers/DatasetMetrics/queries";
+import { dataLineageSuccessQuery, extractorBatchDuplicateCountQuery, extractorSuccessCountQuery, generateConnectorQuery, generateDatasetQueryCallsQuery, generateDedupFailedQuery, generateDenormFailedQuery, generateTimeseriesQuery, generateTotalQueryCallsQuery, generateTransformationFailedQuery, getDatasetModeQuery, processingTimeQuery, totalEventsQuery, totalFailedEventsQuery } from "../controllers/DatasetMetrics/queries";
 import { getDownTimeContainers } from "../configs/DataObsrvDefaults";
 import { datasetService } from "../services/DatasetService";
 import { druidHttpService } from "../connections/druidConnection";
@@ -402,6 +402,13 @@ export const getDataVolume = async (dataset_id: string, interval: string, dateFo
     };
 };
 
+const getDatasetMode = async (dataset_id: string) => {
+    const { sequelize } = await import('../connections/databaseConnection');
+    const queryConfig = getDatasetModeQuery(dataset_id);
+    const [results] = await sequelize.query(queryConfig.query, { replacements: queryConfig.params });
+    return results.length > 0 ? (results[0] as any).mode : null;
+};
+
 export const getDataLineage = async (dataset_id: any, intervals: string, time_period: any) => {
     const datasetId = dataset_id.replaceAll("-", "_"); // for promql
     const transformationSuccessPayload = dataLineageSuccessQuery(intervals, dataset_id, "transformer_status", "success");
@@ -414,6 +421,9 @@ export const getDataLineage = async (dataset_id: any, intervals: string, time_pe
     const denormFailedPayload = generateDenormFailedQuery(intervals, dataset_id);
     const extractorSuccessCountPayload = extractorSuccessCountQuery(datasetId, `${time_period}d`);
     const extractorBatchDuplicatePayload = extractorBatchDuplicateCountQuery(datasetId, `${time_period}d`);
+    
+    // Get dataset mode
+    const datasetMode = await getDatasetMode(dataset_id);
 
     const [
         transformationSuccessResponse, dedupSuccessResponse, denormSuccessResponse,
@@ -453,17 +463,26 @@ export const getDataLineage = async (dataset_id: any, intervals: string, time_pe
         return _.floor(_.get(payload, 'values[0][1]')) || 0
     })
     const denormFailedCount = _.get(denormFailedResponse, "data[0].result.count") || 0;
+    
+    // const totalFailed = datasetMode === "Lenient"
+    //     ? totalValidationFailedCount - denormFailedCount - transformationFailedCount
+    //     : totalValidationFailedCount - denormFailedCount - transformationFailedCount;
+    const totalSuccess = datasetMode === "Strict"
+        ? storageSuccessCount + transformationFailedCount
+        : storageSuccessCount;
+    
     return {
         category: "data_lineage",
+        mode: datasetMode,
         components: [
             { type: "extractor_batch_success", value: extractorSuccessCount[0] },
-            { type: "total_success", value: storageSuccessCount },
+            { type: "total_success", value: totalSuccess },
             { type: "dedup_success", value: dedupSuccessCount-dedupSuccessCount },//temporary fix, update later to show the real dedupSuccessCount, by it will be alwasy zero for now.
             { type: "denormalization_success", value: denormSuccessCount },
             { type: "transformation_success", value: transformationSuccessCount },
             { type: "extraction_failed", value: 0 },
-            { type: "total_failed", value: totalValidationFailedCount - denormFailedCount },
-            { type: "dedup_failed", value: dedupFailedCount[0] - dedupFailedCount[0] },
+            { type: "total_failed", value: totalValidationFailedCount - denormFailedCount - transformationFailedCount },
+            { type: "dedup_failed", value: dedupFailedCount[0] - dedupFailedCount[0]  },
             { type: "denorm_failed", value: denormFailedCount },
             { type: "transformation_failed", value: transformationFailedCount },
             { type: "extractor_batch_duplicate", value: extractorBatchDuplicateCount[0] }
@@ -477,6 +496,9 @@ export const getConnectorsData = async (dataset_id: string, intervals: string, t
     const connectorQueryPayload = generateConnectorQuery(intervals, dataset_id);
     const connectorResponse = await druidHttpService.post(nativeQueryEndpoint, connectorQueryPayload);
     const connectorsData = _.get(connectorResponse, "data[0].result", []);
+    
+    // Get dataset mode
+    const datasetMode = await getDatasetMode(dataset_id);
     
     // Get detailed metrics for each connector
     const connectorMetrics = await Promise.all(
@@ -625,15 +647,25 @@ export const getConnectorsData = async (dataset_id: string, intervals: string, t
             const transformationFailedCount = _.get(transformationFailedResponse, "data[0].result.count") || 0;
             const denormFailedCount = _.get(denormFailedResponse, "data[0].result.count") || 0;
             
+            const totalEvents = datasetMode === "Lenient" 
+                ? connector.count - denormFailedCount - transformationFailedCount
+                : connector.count - denormFailedCount;
+            // const totalFailed = datasetMode === "Lenient"
+            //     ? totalValidationFailedCount - denormFailedCount - transformationFailedCount
+            //     : totalValidationFailedCount - denormFailedCount - transformationFailedCount;
+            const totalSuccess = datasetMode === "Strict"
+        ? storageSuccessCount + transformationFailedCount
+        : storageSuccessCount;
+            
             return {
                 id: connectorName,
-                total_events: connector.count - denormFailedCount,
+                total_events: totalEvents,
                 components: [
-                    { type: "total_success", value: storageSuccessCount },
+                    { type: "total_success", value: totalSuccess },
                     { type: "dedup_success", value: dedupSuccessCount - dedupSuccessCount },
                     { type: "denormalization_success", value: denormSuccessCount },
                     { type: "transformation_success", value: transformationSuccessCount },
-                    { type: "total_failed", value: totalValidationFailedCount - denormFailedCount },
+                    { type: "total_failed", value: totalValidationFailedCount - denormFailedCount - transformationFailedCount },
                     { type: "transformation_failed", value: transformationFailedCount },
                     { type: "denorm_failed", value: denormFailedCount }
                 ]
@@ -643,6 +675,7 @@ export const getConnectorsData = async (dataset_id: string, intervals: string, t
     
     return {
         category: "connectors",
+        mode: datasetMode,
         components: connectorMetrics.filter(metric => metric !== null)
     };
 };
