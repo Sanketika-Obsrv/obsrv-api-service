@@ -422,7 +422,6 @@ export const getDataLineage = async (dataset_id: any, intervals: string, time_pe
     const extractorSuccessCountPayload = extractorSuccessCountQuery(datasetId, `${time_period}d`);
     const extractorBatchDuplicatePayload = extractorBatchDuplicateCountQuery(datasetId, `${time_period}d`);
     
-    // Get dataset mode
     const datasetMode = await getDatasetMode(dataset_id);
 
     const [
@@ -497,7 +496,6 @@ export const getConnectorsData = async (dataset_id: string, intervals: string, t
     const connectorResponse = await druidHttpService.post(nativeQueryEndpoint, connectorQueryPayload);
     const connectorsData = _.get(connectorResponse, "data[0].result", []);
     
-    // Get dataset mode
     const datasetMode = await getDatasetMode(dataset_id);
     
     // Get detailed metrics for each connector
@@ -650,12 +648,9 @@ export const getConnectorsData = async (dataset_id: string, intervals: string, t
             const totalEvents = datasetMode === "Lenient" 
                 ? connector.count - denormFailedCount - transformationFailedCount
                 : connector.count - denormFailedCount;
-            // const totalFailed = datasetMode === "Lenient"
-            //     ? totalValidationFailedCount - denormFailedCount - transformationFailedCount
-            //     : totalValidationFailedCount - denormFailedCount - transformationFailedCount;
             const totalSuccess = datasetMode === "Strict"
-        ? storageSuccessCount + transformationFailedCount
-        : storageSuccessCount;
+                ? storageSuccessCount + transformationFailedCount
+                : storageSuccessCount;
             
             return {
                 id: connectorName,
