@@ -410,7 +410,7 @@ const getDatasetMode = async (dataset_id: string) => {
 };
 
 export const getDataLineage = async (dataset_id: any, intervals: string, time_period: any) => {
-    const datasetId = dataset_id.replaceAll("-", "_"); // for promql
+    const datasetId = dataset_id.replace(/-/g, "_"); // for promql
     const transformationSuccessPayload = dataLineageSuccessQuery(intervals, dataset_id, "transformer_status", "success");
     const dedupSuccessPayload = dataLineageSuccessQuery(intervals, dataset_id, "dedup_status", "success");
     const denormSuccessPayload = dataLineageSuccessQuery(intervals, dataset_id, "denorm_status", "success");
@@ -466,7 +466,8 @@ export const getDataLineage = async (dataset_id: any, intervals: string, time_pe
     const totalSuccess = datasetMode === "Strict"
         ? storageSuccessCount + transformationFailedCount
         : storageSuccessCount;
-    
+        //In the strict mode validation count is showing wrong values so in order to adjust that this
+        // totalSuccess is adjusted by adding transformationFailedCount
     return {
         category: "data_lineage",
         mode: datasetMode,
@@ -744,7 +745,7 @@ export const getDownTime = async (dataset_id: string, time_period: string, max_p
                         const terminatedTimestamps = processTimestamps(terminatedData);
                         const length = Math.min(startTimestamps.length, terminatedTimestamps.length);
 
-                        for (let i = 0; i < length; i++) {
+                        for (let i = 0; i < length-1; i++) {
                             const downtime = startTimestamps[i + 1] - terminatedTimestamps[i];
                             if (downtime > 0) totalDowntime += downtime;
                         }
