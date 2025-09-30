@@ -47,7 +47,7 @@ class DruidCommand(ICommand):
             )
             task_submitted = 1
             for record in datasources_records:
-                if record["dataset_type"] == "event" and record["type"] == "druid":
+                if record["type"] == "druid":
                     print(f"Submitting ingestion task for datasource  ...")
                     ingestion_spec = json.dumps(record["ingestion_spec"])
                     response = self.http_service.post(
