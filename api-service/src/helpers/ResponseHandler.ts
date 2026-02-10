@@ -12,6 +12,7 @@ const ResponseHandler = {
     const { body, entity } = req as any;
     const msgid = _.get(body, ["params", "msgid"])
     const resmsgid = _.get(res, "resmsgid")
+    res.setHeader('STRICT-TRANSPORT-SECURITY', 'max-age=31536000; includeSubDomains');
     res.status(result.status || 200).json(ResponseHandler.refactorResponse({ id: (req as any).id, result: result.data, msgid, resmsgid }));
     entity && onSuccess(req, res)
   },
@@ -34,6 +35,7 @@ const ResponseHandler = {
     const resmsgid = _.get(res, "resmsgid")
     const response = ResponseHandler.refactorResponse({ id, msgid, params: { status: "FAILED" }, responseCode: errCode || httpStatus["500_NAME"], resmsgid })
     const modifiedErrorResponse = _.omit(response, ["result"]);
+    res.setHeader('STRICT-TRANSPORT-SECURITY', 'max-age=31536000; includeSubDomains');
     res.status(statusCode || httpStatus.INTERNAL_SERVER_ERROR).json({ ...modifiedErrorResponse, error: { code, message, trace } });
     entity && onFailure(req, res)
   },
@@ -46,6 +48,7 @@ const ResponseHandler = {
     const msgid = _.get(body, ["params", "msgid"])
     const resmsgid = _.get(res, "resmsgid")
     const response = ResponseHandler.refactorResponse({ id, msgid, params: { status: "FAILED" }, responseCode: errCode || httpStatus["500_NAME"], resmsgid, result: data })
+    res.setHeader('STRICT-TRANSPORT-SECURITY', 'max-age=31536000; includeSubDomains');
     res.status(statusCode || httpStatus.INTERNAL_SERVER_ERROR).json({ ...response, error: { code, message } });
     entity && onObsrvFailure(req, res, error)
   },
@@ -58,11 +61,13 @@ const ResponseHandler = {
   flatResponse: (req: Request, res: Response, result: Result) => {
     const { entity } = req as any;
     entity && onSuccess(req, res)
+    res.setHeader('STRICT-TRANSPORT-SECURITY', 'max-age=31536000; includeSubDomains');
     res.status(result.status).send(result.data);
   },
 
   goneResponse: (req: Request, res: Response) => {
     const { id } = req as any;
+    res.setHeader('STRICT-TRANSPORT-SECURITY', 'max-age=31536000; includeSubDomains');
     res.status(httpStatus.GONE).json({ id: id, ver: "v1", ts: Date.now(), params: { status: "FAILED", errmsg: "v1 APIs have been replace by /v2 APIs. Please refer to this link <addLink> for more information" }, responseCode: httpStatus["410_NAME"] })
   }
 }

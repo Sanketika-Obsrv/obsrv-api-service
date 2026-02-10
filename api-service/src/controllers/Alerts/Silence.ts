@@ -11,7 +11,7 @@ const telemetryObject = { type: "alert-silence", ver: "1.0.0" };
 
 const createHandler = async (request: Request, response: Response, next: NextFunction) => {
     try {
-        const payload = request.body;
+        const payload = _.get(request,'body');
         const { startDate, endDate, alertId } = payload;
         const existingSilence = await Silence.findOne({ where: { alert_id: alertId } });
         if (existingSilence) existingSilence.destroy();
@@ -59,7 +59,7 @@ const listHandler = async (request: Request, response: Response, next: NextFunct
 
 const fetchHandler = async (request: Request, response: Response, next: NextFunction) => {
     try {
-        const id = request.params.id;
+        const id = _.get(request,'params.id');
         const silenceModel = await Silence.findOne({ where: { id } });
         const transformedSilence = await transformSilences(silenceModel);
         if (!silenceModel) return next({ message: httpStatus[httpStatus.NOT_FOUND], statusCode: httpStatus.NOT_FOUND });
@@ -72,8 +72,8 @@ const fetchHandler = async (request: Request, response: Response, next: NextFunc
 
 const updateHandler = async (request: Request, response: Response, next: NextFunction) => {
     try {
-        const id = request.params.id;
-        const payload = request.body;
+        const id = _.get(request,'params.id');
+        const payload = _.get(request, 'body');
         const silenceModel = await Silence.findOne({ where: { id } });
         if (!silenceModel) return next({ message: httpStatus[httpStatus.NOT_FOUND], statusCode: httpStatus.NOT_FOUND });
         const silenceObject = silenceModel?.toJSON();
@@ -98,7 +98,7 @@ const updateHandler = async (request: Request, response: Response, next: NextFun
 
 const deleteHandler = async (request: Request, response: Response, next: NextFunction) => {
     try {
-        const id = request.params.id;
+        const id = _.get(request,'params.id');
         const silenceModel = await Silence.findOne({ where: { id } });
         if (!silenceModel) return next({ message: httpStatus[httpStatus.NOT_FOUND], statusCode: httpStatus.NOT_FOUND });
         const silenceObject = silenceModel?.toJSON();
