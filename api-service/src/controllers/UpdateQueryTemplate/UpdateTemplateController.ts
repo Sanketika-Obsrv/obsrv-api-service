@@ -12,7 +12,7 @@ const apiId = "api.query.template.update";
 const requiredVariables = _.get(config, "template_config.template_required_variables");
 
 export const updateQueryTemplate = async (req: Request, res: Response) => {
-    const requestBody = req.body;
+    const requestBody = _.get(req, 'body');
     const templateId = _.get(req, "params.templateId");
     try {
         const msgid = _.get(req, "body.params.msgid");
