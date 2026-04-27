@@ -1,0 +1,83 @@
+name: Dependency Submission
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+
+  submit-api-service-deps:
+    name: Submit api-service (npm)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '20'
+
+      - name: Generate package-lock.json
+        working-directory: api-service
+        run: npm install --package-lock-only
+
+      - name: Submit dependency snapshot
+        uses: advanced-security/component-detection-dependency-submission-action@v0.1.1
+        with:
+          filePath: api-service
+          detectorArgs: NpmLockfile3=EnableIfDefaultOff
+          correlator: api-service
+
+  submit-command-service-deps:
+    name: Submit command-service (pip)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+
+      - name: Submit dependency snapshot
+        uses: advanced-security/component-detection-dependency-submission-action@v0.1.1
+        with:
+          filePath: command-service
+          detectorArgs: Pip=EnableIfDefaultOff,SimplePip=EnableIfDefaultOff
+          correlator: command-service
+
+  submit-system-rules-ingestor-deps:
+    name: Submit system-rules-ingestor (npm)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '20'
+
+      - name: Generate package-lock.json
+        working-directory: system-rules-ingestor
+        run: npm install --package-lock-only
+
+      - name: Submit dependency snapshot
+        uses: advanced-security/component-detection-dependency-submission-action@v0.1.1
+        with:
+          filePath: system-rules-ingestor
+          detectorArgs: NpmLockfile3=EnableIfDefaultOff
+          correlator: system-rules-ingestor
