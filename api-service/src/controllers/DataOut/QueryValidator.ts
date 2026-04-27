@@ -223,7 +223,12 @@ const setDatasourceRef = async (datasetId: string, payload: any): Promise<any> =
         throw obsrvError("", errCode.notFound, `Dataset ${datasetId} with table ${granularity} is not available for querying`, "NOT_FOUND", 404);
     }
     if (_.isString(payload?.query)) {
-        payload.query = payload.query.replace(datasetId, datasourceRef)
+        // Skip replacement if the query already contains datasourceRef to prevent double-suffixing.
+        // e.g. if datasourceRef is "my_dataset_events" and datasetId is "my_dataset",
+        // a blind replace would turn "my_dataset_events" into "my_dataset_events_events".
+        if (!payload.query.includes(datasourceRef)) {
+            payload.query = payload.query.replace(datasetId, datasourceRef);
+        }
     }
     if (_.isObject(payload?.query)) {
         _.set(payload, "query.dataSource", datasourceRef);

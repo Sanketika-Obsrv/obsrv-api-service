@@ -130,6 +130,11 @@ class AlertManagerService {
     }
 
     public createDatasetAlertsDraft = async (dataset: Record<string, any>, transaction: Transaction, datasource_ref: string): Promise<void> => {
+        const existingAlerts = await Alert.findAll({ where: { "metadata.queryBuilderContext.subComponent": dataset.dataset_id }, transaction });
+        if (existingAlerts.length > 0) {
+            return;
+        }
+
         const allMetrics = [
             ...this.config.dataset_metrics_flink.map((metric: MetricConfig) => ({ service: 'flink', metric })),
             ...this.config.dataset_metrics_druid.map((metric: MetricConfig) => ({ service: 'druid', metric })),
