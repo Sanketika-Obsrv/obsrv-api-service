@@ -1,6 +1,6 @@
 import _ from "lodash";
 import dayjs from "dayjs";
-import { executeNativeQuery, getDatasourceListFromDruid } from "../../connections/druidConnection";
+import { executeNativeQuery, getDatasourceListWithSizeFromDruid } from "../../connections/druidConnection";
 import { getDatasetHealth } from "../../services/DatasetHealthService";
 import { HealthStatus } from "../../types/DatasetModels";
 import logger from "../../logger";
@@ -89,11 +89,12 @@ const executeBatchQuery = async (query: object, countField: string): Promise<Rec
  */
 const getDruidDatasourceSizes = async (): Promise<Record<string, number>> => {
     try {
-        const result = await getDatasourceListFromDruid();
-        const datasources: { name: string; size: number }[] = _.get(result, "data", []);
-        return _.reduce(datasources, (acc, ds) => {
-            if (_.isObject(ds) && ds.name) {
-                acc[ds.name] = ds.size || 0;
+        const result = await getDatasourceListWithSizeFromDruid();
+        const datasources: any[] = _.get(result, "data", []);
+        return _.reduce(datasources, (acc, ds: any) => {
+            if (ds && ds.name) {
+                const size = _.get(ds, "properties.segments.replicatedSize", 0);
+                acc[ds.name] = size;
             }
             return acc;
         }, {} as Record<string, number>);
@@ -109,7 +110,7 @@ const getDruidDatasourceSizes = async (): Promise<Record<string, number>> => {
  */
 const getDatasetHealthSummary = async (dataset: Record<string, any>): Promise<{ health: string; unhealthy_components: string[] }> => {
     try {
-        const result = await getDatasetHealth(["infra", "processing", "query"], dataset);
+        const result = await getDatasetHealth(["infra", "processing"], dataset);
         const unhealthy = _.compact(
             _.flatMap(_.get(result, "details", []), (detail: any) =>
                 _.map(
