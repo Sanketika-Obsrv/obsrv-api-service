@@ -4,7 +4,6 @@ import { executeNativeQuery, getDatasourceListWithSizeFromDruid } from "../../co
 import { getDatasetHealth } from "../../services/DatasetHealthService";
 import { HealthStatus } from "../../types/DatasetModels";
 import logger from "../../logger";
-
 const dateFormat = "YYYY-MM-DDT00:00:00+05:30";
 
 /**
@@ -84,8 +83,8 @@ const executeBatchQuery = async (query: object, countField: string): Promise<Rec
 };
 
 /**
- * Fetch Druid datasource sizes for all datasets.
- * Returns a map of datasource_id -> size_in_bytes.
+ * Fetch Druid datasource sizes keyed by datasource_ref (exact Druid name).
+ * Returns a map of datasource_ref -> size_in_bytes.
  */
 const getDruidDatasourceSizes = async (): Promise<Record<string, number>> => {
     try {
@@ -94,7 +93,7 @@ const getDruidDatasourceSizes = async (): Promise<Record<string, number>> => {
         return _.reduce(datasources, (acc, ds: any) => {
             if (ds && ds.name) {
                 const size = _.get(ds, "properties.segments.replicatedSize", 0);
-                acc[ds.name] = size;
+                acc[ds.name] = (acc[ds.name] || 0) + size;
             }
             return acc;
         }, {} as Record<string, number>);
@@ -161,7 +160,6 @@ export const enrichDatasetsWithMetrics = async (datasets: Record<string, any>[])
         Promise.all(liveDatasets.map((d) => getDatasetHealthSummary(d).then((h) => ({ dataset_id: d.dataset_id, ...h }))))
     ]);
 
-    // Build health map from results array
     const healthMap = _.keyBy(healthResults, "dataset_id");
 
     return datasets.map((dataset) => {
@@ -170,7 +168,7 @@ export const enrichDatasetsWithMetrics = async (datasets: Record<string, any>[])
         }
 
         const id = dataset.dataset_id;
-        const alias: string = dataset.alias || id;
+        const datasourceRef: string | undefined = dataset.datasource_ref;
         const healthInfo = healthMap[id] || { health: null, unhealthy_components: [] };
 
         return {
@@ -182,7 +180,7 @@ export const enrichDatasetsWithMetrics = async (datasets: Record<string, any>[])
                 events_today: eventsTodayMap[id] ?? 0,
                 events_yesterday: eventsYesterdayMap[id] ?? 0,
                 failed_today: failedTodayMap[id] ?? 0,
-                storage_size_bytes: druidSizes[alias] ?? 0
+                storage_size_bytes: datasourceRef ? (druidSizes[datasourceRef] ?? 0) : 0
             }
         };
     });
