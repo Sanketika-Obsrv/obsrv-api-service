@@ -9,6 +9,8 @@ import { apiId } from "../../../controllers/DatasetList/DatasetList";
 import { TestInputsForDatasetList } from "./Fixtures";
 import { Dataset } from "../../../models/Dataset";
 import { DatasetDraft } from "../../../models/DatasetDraft";
+import * as druidConnection from "../../../connections/druidConnection";
+import * as DatasetHealthService from "../../../services/DatasetHealthService";
 
 chai.use(spies);
 chai.should();
@@ -29,6 +31,9 @@ describe("DATASET LIST API", () => {
         chai.spy.on(DatasetDraft, "findAll", () => {
             return Promise.resolve([TestInputsForDatasetList.VALID_DRAFT_DATASET_SCHEMA])
         })
+        chai.spy.on(druidConnection, "executeNativeQuery", () => Promise.resolve({ data: [] }))
+        chai.spy.on(druidConnection, "getDatasourceListWithSizeFromDruid", () => Promise.resolve({ data: [] }))
+        chai.spy.on(DatasetHealthService, "getDatasetHealth", () => Promise.resolve({ status: "Healthy", details: [] }))
         chai
             .request(app)
             .post("/v2/datasets/list")
@@ -41,7 +46,7 @@ describe("DATASET LIST API", () => {
                 res.body.result.should.be.a("object")
                 res.body.result.count.should.be.eq(2)
                 res.body.params.msgid.should.be.eq(msgid)
-                const result = JSON.stringify(res.body.result.data)
+                const result = JSON.stringify(res.body.result.data.map((d: any) => _.omit(d, ["health", "unhealthy_components", "metrics"])))
                 const expectedResult = JSON.stringify(TestInputsForDatasetList.VALID_RESPONSE)
                 result.should.be.eq(expectedResult)
                 done();
@@ -67,7 +72,7 @@ describe("DATASET LIST API", () => {
                 res.body.result.should.be.a("object")
                 res.body.result.count.should.be.eq(1)
                 res.body.params.msgid.should.be.eq(msgid)
-                const result = JSON.stringify(res.body.result.data)
+                const result = JSON.stringify(res.body.result.data.map((d: any) => _.omit(d, ["health", "unhealthy_components", "metrics"])))
                 const expectedResult = JSON.stringify([{ ...TestInputsForDatasetList.VALID_DRAFT_DATASET_SCHEMA }])
                 result.should.be.eq(expectedResult)
                 done();
@@ -81,6 +86,9 @@ describe("DATASET LIST API", () => {
         chai.spy.on(DatasetDraft, "findAll", () => {
             return Promise.resolve([])
         })
+        chai.spy.on(druidConnection, "executeNativeQuery", () => Promise.resolve({ data: [] }))
+        chai.spy.on(druidConnection, "getDatasourceListWithSizeFromDruid", () => Promise.resolve({ data: [] }))
+        chai.spy.on(DatasetHealthService, "getDatasetHealth", () => Promise.resolve({ status: "Healthy", details: [] }))
         chai
             .request(app)
             .post("/v2/datasets/list")
@@ -93,7 +101,7 @@ describe("DATASET LIST API", () => {
                 res.body.result.should.be.a("object")
                 res.body.result.count.should.be.eq(1)
                 res.body.params.msgid.should.be.eq(msgid)
-                const result = JSON.stringify(res.body.result.data)
+                const result = JSON.stringify(res.body.result.data.map((d: any) => _.omit(d, ["health", "unhealthy_components", "metrics"])))
                 const expectedResult = JSON.stringify([{ ...TestInputsForDatasetList.VALID_LIVE_DATASET_SCHEMA}])
                 result.should.be.eq(expectedResult)
                 done();

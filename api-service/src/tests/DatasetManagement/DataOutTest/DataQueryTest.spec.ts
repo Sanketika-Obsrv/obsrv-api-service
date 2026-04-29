@@ -30,6 +30,9 @@ describe("QUERY API TESTS", () => {
     })
 
     it("Query api failure: Datasource not found in druid", (done) => {
+        chai.spy.on(Datasource, "findOne", () => {
+            return Promise.resolve({ datasource_ref: "test.1_rollup_week", dataset_id: "telemetry-events" })
+        })
         chai.spy.on(Datasource, "findAll", () => {
             return Promise.resolve(
                 response
@@ -59,6 +62,9 @@ describe("QUERY API TESTS", () => {
     });
 
     it("Query api failure: Datasource not found in live table", (done) => {
+        chai.spy.on(Datasource, "findOne", () => {
+            return Promise.resolve({ datasource_ref: "telemetry-events", dataset_id: "telemetry-events" })
+        })
         chai.spy.on(Datasource, "findAll", () => {
             return Promise.resolve([])
         })
@@ -71,8 +77,8 @@ describe("QUERY API TESTS", () => {
                 res.body.params.status.should.be.eq("FAILED");
                 res.body.responseCode.should.be.eq("NOT_FOUND");
                 res.body.params.msgid.should.be.eq(msgid);
-                res.body.error.message.should.be.eq("Datasource telemetry-events not available for querying");
-                res.body.error.code.should.be.eq("DATASOURCE_NOT_FOUND");
+                res.body.error.message.should.be.eq("Datasource not available for querying");
+                res.body.error.code.should.be.eq("DATASOURCE_NOT_AVAILABLE");
                 done();
             });
     });
@@ -355,6 +361,9 @@ describe("QUERY API TESTS", () => {
     });
 
     it("it should set threshold to number when it is NaN in sql query", (done) => {
+        chai.spy.on(Datasource, "findOne", () => {
+            return Promise.resolve({ datasource_ref: "test.1_rollup_week", dataset_id: "telemetry-events" })
+        })
         chai.spy.on(Datasource, "findAll", () => {
             return Promise.resolve(response)
         })

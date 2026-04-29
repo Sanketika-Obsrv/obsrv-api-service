@@ -69,6 +69,9 @@ describe("DATASET UPDATE API", () => {
             .patch("/v2/datasets/update")
             .send(TestInputsForDatasetUpdate.DATASET_UPDATE_REQUEST)
             .end((err, res) => {
+                if (res.status !== httpStatus.OK) {
+                    console.log("RESBODY DUMP:", JSON.stringify(res.body, null, 2));
+                }
                 res.should.have.status(httpStatus.OK);
                 res.body.should.be.a("object")
                 res.body.id.should.be.eq(apiId);

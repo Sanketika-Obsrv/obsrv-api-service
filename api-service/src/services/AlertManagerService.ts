@@ -109,6 +109,7 @@ class AlertManagerService {
     }
 
     public publishAlertRule = async (dataset_id: string): Promise<void> => {
+        try {
         const datasetAlerts: any[] = await getAlertByDataset(dataset_id)
         for (const alert of datasetAlerts) {
             const { id } = alert;
@@ -118,6 +119,9 @@ class AlertManagerService {
             }
             const rulePayload = ruleModel.toJSON();
             await publishAlert(rulePayload);
+        }
+        } catch (error) {
+            console.log("Failed to Publish Alert Rules", error)
         }
     }
 

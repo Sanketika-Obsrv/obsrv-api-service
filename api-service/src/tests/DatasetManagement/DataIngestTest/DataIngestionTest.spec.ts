@@ -5,6 +5,7 @@ import spies from "chai-spies";
 import { TestInputsForDataIngestion } from "./Fixtures";
 import { describe, it } from "mocha";
 import { Dataset } from "../../../models/Dataset";
+import { Datasource } from "../../../models/Datasource";
 import sinon from "sinon";
 import { Kafka } from "kafkajs";
 import { connectionConfig } from "../../../configs/ConnectionsConfig";
@@ -30,10 +31,13 @@ const kafkaModule = require("../../../connections/kafkaConnection");
 
 describe("DATA INGEST API", () => {
     afterEach(() => {
-        chai.spy.restore(Dataset, "findOne");
+        chai.spy.restore();
     });
 
     it("it should ingest data for individual event", (done) => {
+        chai.spy.on(Datasource, "findOne", () => {
+            return Promise.resolve(null)
+        })
         chai.spy.on(Dataset, "findOne", () => {
             return Promise.resolve({
                 dataset_config: {
@@ -67,6 +71,9 @@ describe("DATA INGEST API", () => {
     });
 
     it("it should ingest data successfully", (done) => {
+        chai.spy.on(Datasource, "findOne", () => {
+            return Promise.resolve(null)
+        })
         chai.spy.on(Dataset, "findOne", () => {
             return Promise.resolve({
                 dataset_config: {
@@ -94,6 +101,9 @@ describe("DATA INGEST API", () => {
     });
 
     it("it should ingest data successfully v2", (done) => {
+        chai.spy.on(Datasource, "findOne", () => {
+            return Promise.resolve(null)
+        })
         chai.spy.on(Dataset, "findOne", () => {
             return Promise.resolve({
                 api_version: "v2",
@@ -120,6 +130,9 @@ describe("DATA INGEST API", () => {
     });
 
     it("Failed to connect kafka.", (done) => {
+        chai.spy.on(Datasource, "findOne", () => {
+            return Promise.resolve(null)
+        })
         chai.spy.on(Dataset, "findOne", () => {
             return Promise.resolve({
                 dataset_config: {
@@ -143,6 +156,9 @@ describe("DATA INGEST API", () => {
     }).timeout(5000);
 
     it("Entry topic not found", (done) => {
+        chai.spy.on(Datasource, "findOne", () => {
+            return Promise.resolve(null)
+        })
         chai.spy.on(Dataset, "findOne", () => {
             return Promise.resolve({
                 dataset_config: {}
@@ -158,7 +174,7 @@ describe("DATA INGEST API", () => {
                 res.body.should.be.a("object");
                 res.body.id.should.be.eq("api.data.in");
                 res.body.params.status.should.be.eq("FAILED");
-                res.body.error.message.should.be.eq("Entry topic is not defined")
+                res.body.error.message.should.be.eq("Entry topic not found")
                 res.body.error.code.should.be.eq("TOPIC_NOT_FOUND");
                 done()
             })
@@ -181,6 +197,9 @@ describe("DATA INGEST API", () => {
     });
 
     it("Dataset not found", (done) => {
+        chai.spy.on(Datasource, "findOne", () => {
+            return Promise.resolve(null)
+        })
         chai.spy.on(Dataset, "findOne", () => {
             return Promise.resolve(null)
         })
@@ -194,7 +213,7 @@ describe("DATA INGEST API", () => {
                 res.body.should.be.a("object");
                 res.body.id.should.be.eq("api.data.in");
                 res.body.params.status.should.be.eq("FAILED");
-                res.body.error.message.should.be.eq("Dataset with id not found")
+                res.body.error.message.should.be.eq("Dataset with id/alias name ':datasetId' not found")
                 res.body.error.code.should.be.eq("DATASET_NOT_FOUND");
                 done()
             })

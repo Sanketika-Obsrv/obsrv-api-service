@@ -9,6 +9,7 @@ import { DatasetDraft } from "../../../models/DatasetDraft";
 import { sequelize } from "../../../connections/databaseConnection";
 import { apiId } from "../../../controllers/DatasetCreate/DatasetCreate"
 import { Dataset } from "../../../models/Dataset";
+import { Datasource } from "../../../models/Datasource";
 
 chai.use(spies);
 chai.should();
@@ -28,6 +29,9 @@ describe("DATASET CREATE API", () => {
                 return Promise.resolve(null)
             })
             chai.spy.on(Dataset, "findOne", () => {
+                return Promise.resolve(null)
+            })
+            chai.spy.on(Datasource, "findOne", () => {
                 return Promise.resolve(null)
             })
             chai.spy.on(DatasetDraft, "create", () => {
@@ -57,6 +61,9 @@ describe("DATASET CREATE API", () => {
                 return Promise.resolve(null)
             })
             chai.spy.on(Dataset, "findOne", () => {
+                return Promise.resolve(null)
+            })
+            chai.spy.on(Datasource, "findOne", () => {
                 return Promise.resolve(null)
             })
             

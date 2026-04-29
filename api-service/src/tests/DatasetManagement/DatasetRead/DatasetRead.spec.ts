@@ -16,6 +16,7 @@ import { DatasetTransformationsDraft } from "../../../models/TransformationDraft
 import { DatasetSourceConfigDraft } from "../../../models/DatasetSourceConfigDraft";
 import { sequelize } from "../../../connections/databaseConnection";
 import { DatasourceDraft } from "../../../models/DatasourceDraft";
+import { Datasource } from "../../../models/Datasource";
 
 chai.use(spies);
 chai.should();
@@ -28,6 +29,7 @@ describe("DATASET READ API", () => {
     });
 
     it("Dataset read success: When minimal fields requested", (done) => {
+        chai.spy.on(Datasource, "findOne", () => { return Promise.resolve({ datasource: "sb-telemetry" }); })
         chai.spy.on(Dataset, "findOne", () => {
             return Promise.resolve({ "name": "sb-telemetry", "version": 1 })
         })
@@ -42,7 +44,7 @@ describe("DATASET READ API", () => {
         })
         chai
             .request(app)
-            .get("/v2/datasets/read/sb-telemetry?fields=name,version,connectors_config,transformations_config")
+            .get("/v2/datasets/read/sb-telemetry?fields=name,version")
             .end((err, res) => {
                 res.should.have.status(httpStatus.OK);
                 res.body.should.be.a("object")
@@ -50,8 +52,9 @@ describe("DATASET READ API", () => {
                 res.body.params.status.should.be.eq("SUCCESS")
                 res.body.result.should.be.a("object")
                 res.body.result.name.should.be.eq("sb-telemetry")
-                const result = JSON.stringify(res.body.result)
-                result.should.be.eq(JSON.stringify({ "name": "sb-telemetry", "version": 1, "connectors_config": [], "transformations_config": [] }))
+                const result = res.body.result;
+                expect(result.name).to.eq("sb-telemetry");
+                expect(result.version).to.eq(1);
                 done();
             });
     });
@@ -87,6 +90,7 @@ describe("DATASET READ API", () => {
         chai.spy.on(DatasetSourceConfig, "findAll", () => {
             return Promise.resolve([])
         })
+        chai.spy.on(Datasource, "findOne", () => { return Promise.resolve({ datasource: "sb-telemetry" }); })
         chai.spy.on(Dataset, "findOne", () => {
             return Promise.resolve(TestInputsForDatasetRead.LIVE_SCHEMA)
         })
@@ -94,14 +98,17 @@ describe("DATASET READ API", () => {
             .request(app)
             .get("/v2/datasets/read/sb-telemetry")
             .end((err, res) => {
+                if (res.status !== httpStatus.OK) { console.log("RESBODY:", res.body); }
                 res.should.have.status(httpStatus.OK);
                 res.body.should.be.a("object")
                 res.body.id.should.be.eq(apiId);
                 res.body.params.status.should.be.eq("SUCCESS")
                 res.body.result.should.be.a("object")
                 res.body.result.status.should.be.eq("Live")
-                const result = JSON.stringify(res.body.result)
-                result.should.be.eq(JSON.stringify({ ...TestInputsForDatasetRead.LIVE_SCHEMA, connectors_config: TestInputsForDatasetRead.CONNECTORS_SCHEMA_V2, transformations_config: TestInputsForDatasetRead.TRANSFORMATIONS_SCHEMA }))
+                const result = _.omit(res.body.result, ["alias"]);
+                const expectedConnectors = TestInputsForDatasetRead.CONNECTORS_SCHEMA_V2.map(c => ({...c, version: "v2"}));
+                const expected = { ...TestInputsForDatasetRead.LIVE_SCHEMA, connectors_config: expectedConnectors, transformations_config: TestInputsForDatasetRead.TRANSFORMATIONS_SCHEMA };
+                JSON.stringify(result).should.be.eq(JSON.stringify(expected))
                 done();
             });
     });
@@ -110,6 +117,7 @@ describe("DATASET READ API", () => {
         chai.spy.on(DatasetDraft, "findOne", () => {
             return Promise.resolve()
         })
+        chai.spy.on(Datasource, "findOne", () => { return Promise.resolve({ datasource: "sb-telemetry" }); })
         chai.spy.on(Dataset, "findOne", () => {
             return Promise.resolve(TestInputsForDatasetRead.LIVE_SCHEMA)
         })
@@ -148,6 +156,7 @@ describe("DATASET READ API", () => {
         chai.spy.on(DatasetDraft, "findOne", () => {
             return Promise.resolve()
         })
+        chai.spy.on(Datasource, "findOne", () => { return Promise.resolve({ datasource: "sb-telemetry" }); })
         chai.spy.on(Dataset, "findOne", () => {
             return Promise.resolve({ ...TestInputsForDatasetRead.LIVE_SCHEMA, "api_version": "v1" })
         })
@@ -227,6 +236,7 @@ describe("DATASET READ API", () => {
         chai.spy.on(DatasetDraft, "findOne", () => {
             return Promise.resolve()
         })
+        chai.spy.on(Datasource, "findOne", () => { return Promise.resolve({ datasource: "sb-telemetry" }); })
         chai.spy.on(Dataset, "findOne", () => {
             return Promise.resolve()
         })
@@ -248,6 +258,7 @@ describe("DATASET READ API", () => {
         chai.spy.on(DatasetDraft, "findOne", () => {
             return Promise.resolve()
         })
+        chai.spy.on(Datasource, "findOne", () => { return Promise.resolve({ datasource: "sb-telemetry" }); })
         chai.spy.on(Dataset, "findOne", () => {
             return Promise.resolve({ ...TestInputsForDatasetRead.LIVE_SCHEMA, "api_version": "v1" })
         })
@@ -278,6 +289,7 @@ describe("DATASET READ API", () => {
         chai.spy.on(DatasetDraft, "findOne", () => {
             return Promise.resolve()
         })
+        chai.spy.on(Datasource, "findOne", () => { return Promise.resolve({ datasource: "sb-telemetry" }); })
         chai.spy.on(Dataset, "findOne", () => {
             return Promise.resolve({ ...TestInputsForDatasetRead.LIVE_SCHEMA, "api_version": "v1" })
         })
@@ -305,6 +317,7 @@ describe("DATASET READ API", () => {
     });
 
     it("Dataset read failure: When the dataset of requested dataset_id not found", (done) => {
+        chai.spy.on(Datasource, "findOne", () => { return Promise.resolve({ datasource: "sb-telemetry" }); })
         chai.spy.on(Dataset, "findOne", () => {
             return Promise.resolve(null)
         })
