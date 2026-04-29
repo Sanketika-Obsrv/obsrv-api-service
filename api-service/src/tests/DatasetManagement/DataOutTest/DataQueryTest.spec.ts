@@ -68,6 +68,13 @@ describe("QUERY API TESTS", () => {
         chai.spy.on(Datasource, "findAll", () => {
             return Promise.resolve([])
         })
+        chai.spy.on(druidHttpService, "get", () => {
+            return Promise.resolve({ data: {} })
+        })
+        nock(druidHost + ":" + druidPort)
+            .get(listDruidDatasources)
+            .reply(200, [])
+            
         chai
             .request(app)
             .post("/v2/data/query/telemetry-events")
@@ -94,6 +101,10 @@ describe("QUERY API TESTS", () => {
                 data: { "telemetry_events": 100 }
             })
         })
+        nock(druidHost + ":" + druidPort)
+            .get(listDruidDatasources)
+            .reply(200, [])
+            
         chai
             .request(app)
             .post("/v2/data/query/telemetry-events")
@@ -120,6 +131,10 @@ describe("QUERY API TESTS", () => {
                 data: { "test.1_rollup_week": 20 }
             })
         })
+        nock(druidHost + ":" + druidPort)
+            .get(listDruidDatasources)
+            .reply(200, ["test.1_rollup_week"])
+            
         chai
             .request(app)
             .post("/v2/data/query/telemetry-events")
@@ -160,10 +175,11 @@ describe("QUERY API TESTS", () => {
         chai.spy.on(Datasource, "findAll", () => {
             return Promise.resolve(response)
         })
-        chai.spy.on(druidHttpService, "get", () => {
-            return Promise.resolve({
-                data: { "test.1_rollup_week": 100 }
-            })
+        chai.spy.on(druidHttpService, "get", (url) => {
+            if (url.includes("loadstatus")) {
+                return Promise.resolve({ data: { "test.1_rollup_week": 100 } })
+            }
+            return Promise.reject(new Error("Druid down"))
         })
         nock(druidHost + ":" + druidPort)
             .get(listDruidDatasources)
@@ -171,6 +187,7 @@ describe("QUERY API TESTS", () => {
         nock(druidHost + ":" + druidPort)
             .post(nativeQueryEndpointDruid)
             .reply(500)
+            
         chai
             .request(app)
             .post("/v2/data/query/telemetry-events")
@@ -191,10 +208,11 @@ describe("QUERY API TESTS", () => {
         chai.spy.on(Datasource, "findAll", () => {
             return Promise.resolve(response)
         })
-        chai.spy.on(druidHttpService, "get", () => {
-            return Promise.resolve({
-                data: { "test.1_rollup_week": 100 }
-            })
+        chai.spy.on(druidHttpService, "get", (url) => {
+            if (url.includes("loadstatus")) {
+                return Promise.resolve({ data: { "test.1_rollup_week": 100 } })
+            }
+            return Promise.reject(new Error("Druid down"))
         })
         nock(druidHost + ":" + druidPort)
             .get(listDruidDatasources)
@@ -202,6 +220,7 @@ describe("QUERY API TESTS", () => {
         nock(druidHost + ":" + druidPort)
             .post(sqlQueryEndpoint)
             .reply(500)
+            
         chai
             .request(app)
             .post("/v2/data/query/telemetry-events")
@@ -222,10 +241,11 @@ describe("QUERY API TESTS", () => {
         chai.spy.on(Datasource, "findAll", () => {
             return Promise.resolve(response)
         })
-        chai.spy.on(druidHttpService, "get", () => {
-            return Promise.resolve({
-                data: { "test.1_rollup_week": 100 }
-            })
+        chai.spy.on(druidHttpService, "get", (url) => {
+            if (url.includes("loadstatus")) {
+                return Promise.resolve({ data: { "test.1_rollup_week": 100 } })
+            }
+            return Promise.resolve({ data: {} })
         })
         nock(druidHost + ":" + druidPort)
             .get(listDruidDatasources)
@@ -233,6 +253,7 @@ describe("QUERY API TESTS", () => {
         nock(druidHost + ":" + druidPort)
             .post(nativeQueryEndpointDruid)
             .reply(200, [{ events: [] }]);
+            
         chai
             .request(app)
             .post("/v2/data/query/telemetry-events")
@@ -254,10 +275,11 @@ describe("QUERY API TESTS", () => {
         chai.spy.on(Datasource, "findAll", () => {
             return Promise.resolve(response)
         })
-        chai.spy.on(druidHttpService, "get", () => {
-            return Promise.resolve({
-                data: { "test.1_rollup_week": 100 }
-            })
+        chai.spy.on(druidHttpService, "get", (url) => {
+            if (url.includes("loadstatus")) {
+                return Promise.resolve({ data: { "test.1_rollup_week": 100 } })
+            }
+            return Promise.resolve({ data: {} })
         })
         nock(druidHost + ":" + druidPort)
             .get(listDruidDatasources)
@@ -265,6 +287,7 @@ describe("QUERY API TESTS", () => {
         nock(druidHost + ":" + druidPort)
             .post(nativeQueryEndpointDruid)
             .reply(200, [{ events: [] }]);
+            
         chai
             .request(app)
             .post("/v2/data/query/telemetry-events")
@@ -286,10 +309,11 @@ describe("QUERY API TESTS", () => {
         chai.spy.on(Datasource, "findAll", () => {
             return Promise.resolve(response)
         })
-        chai.spy.on(druidHttpService, "get", () => {
-            return Promise.resolve({
-                data: { "test.1_rollup_week": 100 }
-            })
+        chai.spy.on(druidHttpService, "get", (url) => {
+            if (url.includes("loadstatus")) {
+                return Promise.resolve({ data: { "test.1_rollup_week": 100 } })
+            }
+            return Promise.resolve({ data: {} })
         })
         nock(druidHost + ":" + druidPort)
             .get(listDruidDatasources)
@@ -297,6 +321,7 @@ describe("QUERY API TESTS", () => {
         nock(druidHost + ":" + druidPort)
             .post(sqlQueryEndpoint)
             .reply(200, [{ events: [] }]);
+            
         chai
             .request(app)
             .post("/v2/data/query/telemetry-events")
@@ -334,10 +359,11 @@ describe("QUERY API TESTS", () => {
         chai.spy.on(Datasource, "findAll", () => {
             return Promise.resolve(response)
         })
-        chai.spy.on(druidHttpService, "get", () => {
-            return Promise.resolve({
-                data: { "test.1_rollup_week": 100 }
-            })
+        chai.spy.on(druidHttpService, "get", (url) => {
+            if (url.includes("loadstatus")) {
+                return Promise.resolve({ data: { "test.1_rollup_week": 100 } })
+            }
+            return Promise.resolve({ data: {} })
         })
         nock(druidHost + ":" + druidPort)
             .get(listDruidDatasources)
@@ -345,6 +371,7 @@ describe("QUERY API TESTS", () => {
         nock(druidHost + ":" + druidPort)
             .post(sqlQueryEndpoint)
             .reply(200);
+            
         chai
             .request(app)
             .post("/v2/data/query/telemetry-events")
@@ -367,12 +394,19 @@ describe("QUERY API TESTS", () => {
         chai.spy.on(Datasource, "findAll", () => {
             return Promise.resolve(response)
         })
+        chai.spy.on(druidHttpService, "get", (url) => {
+            if (url.includes("loadstatus")) {
+                return Promise.resolve({ data: { "test.1_rollup_week": 100 } })
+            }
+            return Promise.resolve({ data: {} })
+        })
         nock(druidHost + ":" + druidPort)
             .get(listDruidDatasources)
             .reply(200, ["telemetry-events.1_rollup_week"])
         nock(druidHost + ":" + druidPort)
             .post(nativeQueryEndpointDruid)
             .reply(200);
+            
         chai
             .request(app)
             .post("/v2/data/query/telemetry-events")
