@@ -115,13 +115,14 @@ class AlertManagerService {
                 const { id } = alert;
                 const ruleModel: Record<string, any> | null = await getAlertRule(id);
                 if (!ruleModel) {
-                    throw obsrvError(id, 'ALERT_RULE_NOT_FOUND', `Alert rule with id ${id} not found`, 'NOT_FOUND', 404);
+                    console.log(`Alert rule not found for id ${id} for dataset ${dataset_id}`);
+                    continue;
                 }
                 const rulePayload = ruleModel.toJSON();
                 await publishAlert(rulePayload);
             }
         } catch (error) {
-            console.log("Failed to Publish Alert Rules", error)
+            console.log(`Failed to Publish Alert Rules for dataset ${dataset_id}`, error)
         }
     }
 
@@ -134,8 +135,8 @@ class AlertManagerService {
     }
 
     public createDatasetAlertsDraft = async (dataset: Record<string, any>, transaction: Transaction, datasource_ref: string): Promise<void> => {
-        const existingAlerts = await Alert.findAll({ where: { "metadata.queryBuilderContext.subComponent": dataset.dataset_id }, transaction });
-        if (existingAlerts.length > 0) {
+        const existingDatasetAlerts = await Alert.findAll({ where: { "metadata.queryBuilderContext.subComponent": dataset.dataset_id }, transaction });
+        if (existingDatasetAlerts.length > 0) {
             console.log(`Alerts already exists for dataset ${dataset.dataset_id}`);
             return;
         }

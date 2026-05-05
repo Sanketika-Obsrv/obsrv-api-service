@@ -1,10 +1,12 @@
 import _ from "lodash";
 import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc";
 import { executeNativeQuery, getDatasourceListWithSizeFromDruid } from "../../connections/druidConnection";
 import { getDatasetHealth } from "../../services/DatasetHealthService";
 import { HealthStatus } from "../../types/DatasetModels";
 import logger from "../../logger";
-const dateFormat = "YYYY-MM-DDT00:00:00+05:30";
+
+dayjs.extend(utc);
 
 /**
  * Build a batch timeseries query that counts events for ALL dataset IDs in one Druid round-trip.
@@ -133,11 +135,11 @@ export const enrichDatasetsWithMetrics = async (datasets: Record<string, any>[])
     if (datasets.length === 0) return [];
 
     const datasetIds = datasets.map((d) => d.dataset_id);
-    const now = dayjs();
-    const startOfToday = now.format(dateFormat);
-    const startOfYesterday = now.subtract(1, "day").format(dateFormat);
-    const endOfToday = now.add(1, "day").format(dateFormat);
-    const allTimeStart = "2000-01-01T00:00:00+05:30";
+    const now = dayjs.utc().startOf("day");
+    const startOfToday = now.toISOString();
+    const startOfYesterday = now.subtract(1, "day").toISOString();
+    const endOfToday = now.add(1, "day").toISOString();
+    const allTimeStart = "2000-01-01T00:00:00Z";
 
     const [
         totalEventsMap,
