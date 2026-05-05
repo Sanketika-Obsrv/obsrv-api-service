@@ -143,8 +143,8 @@ const getMissingFieldsInNewSchema = (newSchema: any, oldSchema: any) => {
 
 
     const getRemovedPropertiesFields = (oldSchema: any, newSchema: any): string[] => {
-        const oldProperties = oldSchema.properties || {};
-        const newProperties = newSchema.properties || {};
+        const oldProperties = oldSchema?.properties || {};
+        const newProperties = newSchema?.properties || {};
         return getRemovedPropertiesFieldsNested(oldProperties, newProperties);
     }
 
