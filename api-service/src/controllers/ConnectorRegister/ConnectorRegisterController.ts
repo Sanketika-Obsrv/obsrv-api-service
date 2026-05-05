@@ -32,7 +32,7 @@ const connectorRegisterController = async (req: Request, res: Response) => {
         if (!urlPayload.download_url) {
             throw obsrvError("", "SIGNED_URL_NOT_FOUND", `Failed to generate signed url for path ${payload.relative_path}`, "BAD_REQUEST", 400)
         }
-        const userToken = req.get('authorization') as string;
+        const userToken = req.get("authorization") as string;
         const registryResponse = await registerConnector(urlPayload, userToken);
         logger.info({ apiId, resmsgid, message: `Connector registered successfully` })
         ResponseHandler.successResponse(req, res, { status: httpStatus.OK, data: { message: registryResponse?.data?.message } })

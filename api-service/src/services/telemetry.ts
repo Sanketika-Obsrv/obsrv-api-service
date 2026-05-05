@@ -56,7 +56,7 @@ const getDefaultEdata = ({ action }: any) => ({
 })
 
 const sendTelemetryEvents = async (event: Record<string, any>) => {
-    OTelService.generateOTelLog(event, 'INFO', 'audit-log');
+    OTelService.generateOTelLog(event, "INFO", "audit-log");
     send(event, telemetryTopic).catch(console.log);
 }
 
@@ -270,7 +270,7 @@ export const getColumn = (columns: any) => {
 export const getFilters = (whereClause: any) => {
     const conditions: any = [];
     _.cloneDeepWith(whereClause, (obj) => {
-        if (obj && obj.type === 'binary_expr') {
+        if (obj && obj.type === "binary_expr") {
             const data = {
                 column: obj.left.column || obj.left.value,
                 value: getFilterValue(obj.right.value),
@@ -285,7 +285,7 @@ export const getFilters = (whereClause: any) => {
 }
 
 export const getFilterValue = (data: any) => {
-    let values = _.map(data, value => value.value);
+    const values = _.map(data, value => value.value);
     if (values.filter(Boolean).length != 0) {
         return values;
     }

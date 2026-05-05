@@ -82,7 +82,7 @@ class DatasetService {
         const datasourceRef = await this.getDatasourceWithKey(id, ["id"], true);
         if (_.isEmpty(datasourceRef)) {
             const tables = TableDraft.findOne({ where: { id }, attributes: ["id"], raw: true }).catch((err: any) => {
-                if (err?.original?.code === '42P01') {
+                if (err?.original?.code === "42P01") {
                     logger.warn("Table 'table_draft' does not exist, returning empty array.");
                     return null
                 }
@@ -139,12 +139,12 @@ class DatasetService {
     }
 
     getLiveDatasets = async (filters: Record<string, any>, attributes?: string[]): Promise<Record<string, any>> => {
-        Dataset.hasMany(Datasource, { foreignKey: 'dataset_id' });
+        Dataset.hasMany(Datasource, { foreignKey: "dataset_id" });
         const datasets = await Dataset.findAll({
             include: [
                 {
                     model: Datasource,
-                    attributes: ['datasource', 'datasource_ref'],
+                    attributes: ["datasource", "datasource_ref"],
                     where: { is_primary: true, type: "druid" },
                     required: false
                 },
@@ -348,7 +348,7 @@ class DatasetService {
 
     findDraftDatasources = async (where?: Record<string, any>, attributes?: string[], order?: any): Promise<any> => {
         return TableDraft.findAll({ where, attributes, order, raw: true }).catch((err: any) => {
-            if (err?.original?.code === '42P01') {
+            if (err?.original?.code === "42P01") {
                 logger.warn("Table 'table_draft' does not exist, returning empty array.");
                 return [];
             }
@@ -430,7 +430,7 @@ class DatasetService {
         const { created_by, updated_by } = draftDataset;
         const allFields = await tableGenerator.getAllFields(draftDataset, "druid");
         const ingestionSpec = tableGenerator.getDruidIngestionSpec(draftDataset, allFields, existingDatasource.datasource_ref);
-        let draftDatasource = existingDatasource
+        const draftDatasource = existingDatasource
         _.set(draftDatasource, "ingestion_spec", ingestionSpec)
         _.set(draftDatasource, "created_by", created_by);
         _.set(draftDatasource, "updated_by", updated_by);
@@ -527,7 +527,7 @@ export const attachDraftConnectors = async (
 
     const connectorIds = _.uniq(
         _.flatMap(draftDatasetList, dataset =>
-            _.map(dataset.connectors_config, 'connector_id')
+            _.map(dataset.connectors_config, "connector_id")
         )
     );
 
@@ -541,12 +541,12 @@ export const attachDraftConnectors = async (
     const connectorRegistry: any = await ConnectorRegistry.findAll({
         where: { id: connectorIds },
         raw: true,
-        attributes: ['id', 'name', 'category', 'type']
+        attributes: ["id", "name", "category", "type"]
     });
 
     return draftDatasetList.map(dataset => {
         let filteredConnectors = dataset.connectors_config;
-        if (connectorFilter !== 'all') {
+        if (connectorFilter !== "all") {
             const filterArray = _.castArray(connectorFilter); // Ensure it's an array
             filteredConnectors = _.filter(filteredConnectors, connector =>
                 filterArray.includes(String(connector.connector_id))
@@ -580,24 +580,24 @@ export const attachLiveConnectors = async (
         return [];
     }
 
-    ConnectorRegistry.hasMany(ConnectorInstances, { foreignKey: 'connector_id' });
+    ConnectorRegistry.hasMany(ConnectorInstances, { foreignKey: "connector_id" });
     const connectorRegistry = await ConnectorRegistry.findAll({
         include: [{
             model: ConnectorInstances,
-            attributes: ['dataset_id', 'connector_id'],
+            attributes: ["dataset_id", "connector_id"],
             required: true
         }],
         raw: true,
-        attributes: ['id', 'name', 'category', 'type']
+        attributes: ["id", "name", "category", "type"]
     });
 
-    const filterArray = connectorFilter === 'all' ? null : _.castArray(connectorFilter);
+    const filterArray = connectorFilter === "all" ? null : _.castArray(connectorFilter);
 
     return liveDatasetList.map((dataset: Record<string, any>) => {
         const datasetId = dataset.dataset_id;
 
         const filteredConnectors = connectorRegistry.filter((connector: any) =>
-            connector['connector_instances.dataset_id'] === datasetId &&
+            connector["connector_instances.dataset_id"] === datasetId &&
             (!filterArray || filterArray.includes(String(connector.id)))
         );
 

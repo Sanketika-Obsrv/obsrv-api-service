@@ -5,10 +5,8 @@ import { schemaValidation } from "../../services/ValidationService";
 import { ResponseHandler } from "../../helpers/ResponseHandler";
 import { send } from "../../connections/kafkaConnection";
 import { datasetService } from "../../services/DatasetService";
-import { config } from "../../configs/Config";
 import { obsrvError } from "../../types/ObsrvError";
 
-const apiId = "api.data.in";
 
 const requestValidation = async (req: Request) => {
     const datasetKey = req.params.dataset_id.trim();
@@ -42,11 +40,11 @@ const addMetadataToEvents = (datasetId: string, payload: any, extraction_config:
     const validData = _.get(payload, "data");
     const now = Date.now();
     const mid = _.get(payload, "params.msgid");
-    const source = { connector: 'api', connectorInstance: 'api' };
+    const source = { connector: "api", connectorInstance: "api" };
     const obsrvMeta = { syncts: now, flags: {}, timespans: {}, error: {}, source };
     if (Array.isArray(validData)) {
-        const extraction_key: string = _.get(extraction_config, "extraction_key", 'events');
-        const dedup_key: string = _.get(extraction_config, "dedup_config.dedup_key", 'id');
+        const extraction_key: string = _.get(extraction_config, "extraction_key", "events");
+        const dedup_key: string = _.get(extraction_config, "dedup_config.dedup_key", "id");
         const payload: any = {
             "obsrv_meta": obsrvMeta,
             "dataset": datasetId,
