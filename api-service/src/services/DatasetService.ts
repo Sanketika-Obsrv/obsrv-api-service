@@ -138,19 +138,19 @@ class DatasetService {
         return DatasetTransformations.findAll({ where: { dataset_id }, attributes, raw: true });
     }
 
-    getLiveDatasets = async (filters: Record<string, any>, attributes?: string[]): Promise<Record<string, any>> => {
+    getLiveDatasets = async (filters: Record<string, any>, attributes?: string[]): Promise<Record<string, any>[]> => {
         Dataset.hasMany(Datasource, { foreignKey: 'dataset_id' });
         const datasets = await Dataset.findAll({
             include: [
                 {
                     model: Datasource,
-                    attributes: ['datasource'],
+                    attributes: ["datasource", "datasource_ref"],
                     where: { is_primary: true, type: "druid" },
                     required: false
                 },
             ], raw: true, where: filters, attributes, order: [["updated_date", "DESC"]]
         });
-        const updatedDatasets = _.map(datasets, (dataset) => ({ ...dataset, alias: _.get(dataset, "datasources.datasource") }))
+        const updatedDatasets = _.map(datasets, (dataset) => ({ ...dataset, alias: _.get(dataset, "datasources.datasource"), datasource_ref: _.get(dataset, "datasources.datasource_ref") }))
         return updatedDatasets;
     }
 

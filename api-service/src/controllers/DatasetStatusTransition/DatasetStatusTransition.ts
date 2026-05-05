@@ -93,6 +93,7 @@ const readyForPublish = async (dataset: Record<string, any>, updated_by: any) =>
     let defaultConfigs: any = _.cloneDeep(defaultDatasetConfig)
     defaultConfigs = _.omit(defaultConfigs, ["router_config"])
     defaultConfigs = _.omit(defaultConfigs, "dedup_config.dedup_key");
+    defaultConfigs = _.omit(defaultConfigs, ["validation_config"]);
     if (_.get(draftDataset, "dataset_config.keys_config")) {
         defaultConfigs = _.omit(defaultConfigs, "dataset_config.keys_config");
     }

@@ -8,6 +8,7 @@ import { ResponseHandler } from "../../helpers/ResponseHandler";
 import { attachDraftConnectors, attachLiveConnectors, datasetService } from "../../services/DatasetService";
 import { obsrvError } from "../../types/ObsrvError";
 import { config } from "../../configs/Config";
+import { enrichDatasetsWithMetrics } from "./DatasetListMetrics";
 
 export const apiId = "api.datasets.list"
 export const errorCode = "DATASET_LIST_FAILURE"
@@ -48,7 +49,8 @@ const listDatasets = async (request: Record<string, any>): Promise<Record<string
         liveDatasetList = await attachLiveConnectors(liveDatasetList, connectorFilter);
         draftDatasetList = await attachDraftConnectors(draftDatasetList, connectorFilter);
     }
-    return _.compact(_.concat(liveDatasetList, draftDatasetList));
+    const enrichedLive = await enrichDatasetsWithMetrics(liveDatasetList);
+    return _.compact(_.concat(enrichedLive, draftDatasetList));
 }
 
 export default datasetList;
