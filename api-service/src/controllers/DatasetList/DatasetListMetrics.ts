@@ -130,20 +130,15 @@ const getDatasetHealthSummary = async (dataset: Record<string, any>): Promise<{ 
  * Non-Live datasets receive null metrics.
  */
 export const enrichDatasetsWithMetrics = async (datasets: Record<string, any>[]): Promise<Record<string, any>[]> => {
-    const liveDatasets = datasets.filter((d) => d.status === "Live");
+    if (datasets.length === 0) return [];
 
-    if (liveDatasets.length === 0) {
-        return datasets.map((d) => ({ ...d, health: null, unhealthy_components: [], metrics: null }));
-    }
-
-    const liveIds = liveDatasets.map((d) => d.dataset_id);
+    const datasetIds = datasets.map((d) => d.dataset_id);
     const now = dayjs();
     const startOfToday = now.format(dateFormat);
     const startOfYesterday = now.subtract(1, "day").format(dateFormat);
     const endOfToday = now.add(1, "day").format(dateFormat);
     const allTimeStart = "2000-01-01T00:00:00+05:30";
 
-    // All queries fire in parallel
     const [
         totalEventsMap,
         eventsTodayMap,
@@ -152,21 +147,17 @@ export const enrichDatasetsWithMetrics = async (datasets: Record<string, any>[])
         druidSizes,
         healthResults
     ] = await Promise.all([
-        executeBatchQuery(batchTotalEventsQuery(`${allTimeStart}/${endOfToday}`, liveIds), "total_events_count"),
-        executeBatchQuery(batchTotalEventsQuery(`${startOfToday}/${endOfToday}`, liveIds), "total_events_count"),
-        executeBatchQuery(batchTotalEventsQuery(`${startOfYesterday}/${startOfToday}`, liveIds), "total_events_count"),
-        executeBatchQuery(batchFailedEventsQuery(`${startOfToday}/${endOfToday}`, liveIds), "failed_events_count"),
+        executeBatchQuery(batchTotalEventsQuery(`${allTimeStart}/${endOfToday}`, datasetIds), "total_events_count"),
+        executeBatchQuery(batchTotalEventsQuery(`${startOfToday}/${endOfToday}`, datasetIds), "total_events_count"),
+        executeBatchQuery(batchTotalEventsQuery(`${startOfYesterday}/${startOfToday}`, datasetIds), "total_events_count"),
+        executeBatchQuery(batchFailedEventsQuery(`${startOfToday}/${endOfToday}`, datasetIds), "failed_events_count"),
         getDruidDatasourceSizes(),
-        Promise.all(liveDatasets.map((d) => getDatasetHealthSummary(d).then((h) => ({ dataset_id: d.dataset_id, ...h }))))
+        Promise.all(datasets.map((d) => getDatasetHealthSummary(d).then((h) => ({ dataset_id: d.dataset_id, ...h }))))
     ]);
 
     const healthMap = _.keyBy(healthResults, "dataset_id");
 
     return datasets.map((dataset) => {
-        if (dataset.status !== "Live") {
-            return { ...dataset, health: null, unhealthy_components: [], metrics: null };
-        }
-
         const id = dataset.dataset_id;
         const datasourceRef: string | undefined = dataset.datasource_ref;
         const healthInfo = healthMap[id] || { health: null, unhealthy_components: [] };

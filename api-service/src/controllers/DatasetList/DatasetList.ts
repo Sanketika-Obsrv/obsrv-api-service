@@ -49,8 +49,8 @@ const listDatasets = async (request: Record<string, any>): Promise<Record<string
         liveDatasetList = await attachLiveConnectors(liveDatasetList, connectorFilter);
         draftDatasetList = await attachDraftConnectors(draftDatasetList, connectorFilter);
     }
-    const combined = _.compact(_.concat(liveDatasetList, draftDatasetList));
-    return enrichDatasetsWithMetrics(combined);
+    const enrichedLive = await enrichDatasetsWithMetrics(liveDatasetList);
+    return _.compact(_.concat(enrichedLive, draftDatasetList));
 }
 
 export default datasetList;

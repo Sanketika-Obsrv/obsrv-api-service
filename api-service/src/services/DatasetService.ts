@@ -138,7 +138,7 @@ class DatasetService {
         return DatasetTransformations.findAll({ where: { dataset_id }, attributes, raw: true });
     }
 
-    getLiveDatasets = async (filters: Record<string, any>, attributes?: string[]): Promise<Record<string, any>> => {
+    getLiveDatasets = async (filters: Record<string, any>, attributes?: string[]): Promise<Record<string, any>[]> => {
         Dataset.hasMany(Datasource, { foreignKey: 'dataset_id' });
         const datasets = await Dataset.findAll({
             include: [
