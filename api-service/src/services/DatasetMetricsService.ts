@@ -3,6 +3,7 @@ import dayjs from "dayjs";
 import _ from "lodash";
 import { config } from "../configs/Config";
 import { dataLineageSuccessQuery, generateConnectorQuery, generateDatasetQueryCallsQuery, generateDedupFailedQuery, generateDenormFailedQuery, generateTimeseriesQuery, generateTimeseriesQueryEventsPerHour, generateTotalQueryCallsQuery, generateTransformationFailedQuery, processingTimeQuery, totalEventsQuery, totalFailedEventsQuery } from "../controllers/DatasetMetrics/queries";
+import { druidHttpService } from "../connections/druidConnection";
 const druidPort = _.get(config, "query_api.druid.port");
 const druidHost = _.get(config, "query_api.druid.host");
 const nativeQueryEndpoint = `${druidHost}:${druidPort}${config.query_api.druid.native_query_path}`;
@@ -10,7 +11,7 @@ const prometheusEndpoint = `${config.query_api.prometheus.url}/api/v1/query_rang
 
 export const getDataFreshness = async (dataset_id: string, intervals: string, defaultThreshold: number) => {
     const queryPayload = processingTimeQuery(intervals, dataset_id);
-    const druidResponse = await axios.post(nativeQueryEndpoint, queryPayload?.query);
+    const druidResponse = await druidHttpService.post(nativeQueryEndpoint, queryPayload?.query);
     const avgProcessingTime = _.get(druidResponse, "data[0].average_processing_time", 0);
     const freshnessStatus = avgProcessingTime < defaultThreshold ? "Healthy" : "Unhealthy";
 
@@ -41,8 +42,8 @@ export const getDataObservability = async (dataset_id: string, intervals: string
     const totalQueryCallsAtDatasetLevel = generateDatasetQueryCallsQuery(dataset_id, config?.data_observability?.data_out_query_time_period);
 
     const [totalEventsResponse, totalFailedEventsResponse, totalApiCallsResponse, totalCallsAtDatasetLevelResponse] = await Promise.all([
-        axios.post(nativeQueryEndpoint, totalEventsPayload),
-        axios.post(nativeQueryEndpoint, totalFailedEventsPayload),
+        druidHttpService.post(nativeQueryEndpoint, totalEventsPayload),
+        druidHttpService.post(nativeQueryEndpoint, totalFailedEventsPayload),
         axios.request({ url: prometheusEndpoint, method: "GET", params: totalQueryCalls }),
         axios.request({ url: prometheusEndpoint, method: "GET", params: totalQueryCallsAtDatasetLevel })
     ]);
@@ -110,13 +111,13 @@ export const getDataVolume = async (dataset_id: string, volume_by_days: number, 
         previousHourResponse, previousDayResponse, previousWeekResponse,
         nDaysResponse
     ] = await Promise.all([
-        axios.post(nativeQueryEndpoint, currentHourPayload),
-        axios.post(nativeQueryEndpoint, currentDayPayload),
-        axios.post(nativeQueryEndpoint, currentWeekPayload),
-        axios.post(nativeQueryEndpoint, previousHourPayload),
-        axios.post(nativeQueryEndpoint, previousDayPayload),
-        axios.post(nativeQueryEndpoint, previousWeekPayload),
-        axios.post(nativeQueryEndpoint, nDaysPayload)
+        druidHttpService.post(nativeQueryEndpoint, currentHourPayload),
+        druidHttpService.post(nativeQueryEndpoint, currentDayPayload),
+        druidHttpService.post(nativeQueryEndpoint, currentWeekPayload),
+        druidHttpService.post(nativeQueryEndpoint, previousHourPayload),
+        druidHttpService.post(nativeQueryEndpoint, previousDayPayload),
+        druidHttpService.post(nativeQueryEndpoint, previousWeekPayload),
+        druidHttpService.post(nativeQueryEndpoint, nDaysPayload)
     ]);
     const currentHourCount = _.get(currentHourResponse, "data[0].result.count") || 0;
     const currentDayCount = _.get(currentDayResponse, "data[0].result.count") || 0;
@@ -158,14 +159,14 @@ export const getDataLineage = async (dataset_id: string, intervals: string) => {
         transformationSuccessResponse, dedupSuccessResponse, denormSuccessResponse,
         totalValidationResponse, totalValidationFailedResponse, transformationFailedResponse, dedupFailedResponse, denormFailedResponse
     ] = await Promise.all([
-        axios.post(nativeQueryEndpoint, transformationSuccessPayload),
-        axios.post(nativeQueryEndpoint, dedupSuccessPayload),
-        axios.post(nativeQueryEndpoint, denormSuccessPayload),
-        axios.post(nativeQueryEndpoint, totalValidationPayload),
-        axios.post(nativeQueryEndpoint, totalValidationFailedPayload),
-        axios.post(nativeQueryEndpoint, transformationFailedPayload),
-        axios.post(nativeQueryEndpoint, dedupFailedPayload),
-        axios.post(nativeQueryEndpoint, denormFailedPayload)
+        druidHttpService.post(nativeQueryEndpoint, transformationSuccessPayload),
+        druidHttpService.post(nativeQueryEndpoint, dedupSuccessPayload),
+        druidHttpService.post(nativeQueryEndpoint, denormSuccessPayload),
+        druidHttpService.post(nativeQueryEndpoint, totalValidationPayload),
+        druidHttpService.post(nativeQueryEndpoint, totalValidationFailedPayload),
+        druidHttpService.post(nativeQueryEndpoint, transformationFailedPayload),
+        druidHttpService.post(nativeQueryEndpoint, dedupFailedPayload),
+        druidHttpService.post(nativeQueryEndpoint, denormFailedPayload)
     ]);
 
     // success at each level
@@ -198,7 +199,7 @@ export const getDataLineage = async (dataset_id: string, intervals: string) => {
 
 export const getConnectors = async (dataset_id: string, intervals: string) => {
     const connectorQueryPayload = generateConnectorQuery(intervals, dataset_id);
-    const connectorResponse = await axios.post(nativeQueryEndpoint, connectorQueryPayload);
+    const connectorResponse = await druidHttpService.post(nativeQueryEndpoint, connectorQueryPayload);
     const connectorsData = _.get(connectorResponse, "data[0].result", []);
     const result = {
         category: "connectors",
@@ -217,8 +218,8 @@ export const getDataQuality = async (dataset_id: string, intervals: string) => {
     const totalValidationFailedPayload = dataLineageSuccessQuery(intervals, dataset_id, "error_pdata_status", "failed");
     const [totalValidationResponse, totalValidationFailedResponse,
     ] = await Promise.all([
-        axios.post(nativeQueryEndpoint, totalValidationPayload),
-        axios.post(nativeQueryEndpoint, totalValidationFailedPayload),
+        druidHttpService.post(nativeQueryEndpoint, totalValidationPayload),
+        druidHttpService.post(nativeQueryEndpoint, totalValidationFailedPayload),
     ]);
     const totalValidationCount = _.get(totalValidationResponse, "data[0].result.count") || 0;
     const totalValidationFailedCount = _.get(totalValidationFailedResponse, "data[0].result.count") || 0;

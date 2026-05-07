@@ -39,6 +39,8 @@ druid:
   router_host: http://localhost
   router_port: 8888
   supervisor_endpoint: indexer/v1/supervisor
+  username: admin
+  password: admin123
 
 helm_charts_base_dir: ../helm-charts
 

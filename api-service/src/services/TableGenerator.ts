@@ -225,7 +225,7 @@ class TableGenerator extends BaseTableGenerator {
                 oldColumnSpec.push({
                     "type": col.type,
                     "name": col.name,
-                    "index": currIndex++
+                    "index": ++currIndex
                 })
             })
         }
