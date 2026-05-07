@@ -144,13 +144,13 @@ class DatasetService {
             include: [
                 {
                     model: Datasource,
-                    attributes: ['datasource'],
+                    attributes: ["datasource", "datasource_ref"],
                     where: { is_primary: true, type: "druid" },
                     required: false
                 },
             ], raw: true, where: filters, attributes, order: [["updated_date", "DESC"]]
         });
-        const updatedDatasets = _.map(datasets, (dataset) => ({ ...dataset, alias: _.get(dataset, "datasources.datasource") }))
+        const updatedDatasets = _.map(datasets, (dataset) => ({ ...dataset, alias: _.get(dataset, "datasources.datasource"), datasource_ref: _.get(dataset, "datasources.datasource_ref") }))
         return updatedDatasets;
     }
 

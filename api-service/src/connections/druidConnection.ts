@@ -21,4 +21,8 @@ export const getDatasourceListFromDruid = async () => {
     return existingDatasources;
 }
 
+export const getDatasourceListWithSizeFromDruid = async () => {
+    return axios.get(`${druidHost}:${druidPort}${config.query_api.druid.list_datasources_with_size_path}`, {});
+}
+
 export const druidHttpService = axios.create({ baseURL: `${config.query_api.druid.host}:${config.query_api.druid.port}`, headers: { "Content-Type": "application/json" } });
