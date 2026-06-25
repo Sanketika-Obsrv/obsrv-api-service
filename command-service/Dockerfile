@@ -1,19 +1,26 @@
-FROM --platform=linux/amd64 python:3.12-slim
+# command-service shells out to kubectl/helm (subprocess with shell=True), so it
+# needs a shell + those CLIs at runtime → use the hardened DHI python -dev variant
+# (near-zero-CVE base, retains shell + package manager) rather than a distroless runtime.
+FROM dhi.io/python:3.12-debian13-dev
+USER root
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    build-essential \
-    git \
-    librdkafka-dev \
     curl \
     jq \
-    vim \
+    gzip \
     && rm -rf /var/lib/apt/lists/*
 
-RUN curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl" && \
+# kubectl + helm are invoked by the service at runtime
+RUN mkdir -p /usr/local/bin && \
+    curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl" && \
     chmod +x kubectl && \
     mv kubectl /usr/local/bin/
 
-RUN curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+RUN curl -fsSL -o /tmp/helm.tar.gz https://get.helm.sh/helm-v3.13.2-linux-amd64.tar.gz && \
+    tar -zxf /tmp/helm.tar.gz -C /tmp && \
+    mv /tmp/linux-amd64/helm /usr/local/bin/helm && \
+    rm -rf /tmp/helm.tar.gz /tmp/linux-amd64
+
 WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
