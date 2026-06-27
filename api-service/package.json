@@ -29,7 +29,7 @@
     "@opentelemetry/resources": "^1.28.0",
     "@opentelemetry/sdk-logs": "^0.53.0",
     "@opentelemetry/sdk-metrics": "^1.26.0",
-    "@opentelemetry/sdk-node": "^0.53.0",
+    "@opentelemetry/sdk-node": "^0.217.0",
     "@opentelemetry/sdk-trace-base": "^1.28.0",
     "@opentelemetry/sdk-trace-node": "^1.28.0",
     "@opentelemetry/semantic-conventions": "^1.28.0",
@@ -37,7 +37,7 @@
     "ajv": "^8.11.2",
     "ajv-formats": "^2.1.1",
     "aws-sdk": "^2.1348.0",
-    "axios": "^1.6.0",
+    "axios": "^1.16.0",
     "body-parser": "^1.20.2",
     "busboy": "^1.6.0",
     "compression": "^1.7.4",
@@ -55,7 +55,7 @@
     "lodash": "^4.17.21",
     "log4js": "^6.9.1",
     "moment": "^2.29.4",
-    "multiparty": "4.2.1",
+    "multiparty": "^4.3.0",
     "node-sql-parser": "^5.1.0",
     "pg": "^8.11.3",
     "pg-hstore": "^2.3.4",
@@ -64,13 +64,16 @@
     "sequelize": "^6.37.1",
     "slug": "^9.0.0",
     "trino-client": "^0.2.2",
-    "uuid": "3.1.0",
+    "uuid": "^11.1.1",
     "winston": "~2.4.3",
     "winston-daily-rotate-file": "~3.2.1"
   },
   "overrides": {
     "semver": "^7.5.3",
-    "@babel/traverse": "7.23.2"
+    "@babel/traverse": "7.23.2",
+    "ip-address": "10.1.1",
+    "axios": "^1.16.0",
+    "protobufjs": "^8.4.1"
   },
   "devDependencies": {
     "@types/busboy": "^1.5.4",
