@@ -36,7 +36,6 @@
     "@project-sunbird/logger": "^0.0.9",
     "ajv": "^8.11.2",
     "ajv-formats": "^2.1.1",
-    "aws-sdk": "^2.1348.0",
     "axios": "^1.16.0",
     "body-parser": "^1.20.2",
     "busboy": "^1.6.0",
