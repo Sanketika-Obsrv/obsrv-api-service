@@ -36,7 +36,22 @@ jobs:
         with:
           file: ./api-service/Dockerfile
           push: true
+          sbom: true
+          provenance: true
           tags: ${{ vars.DOCKERHUB_USERNAME }}/obsrv-api-service:${{ steps.meta.outputs.tag }}
+
+      # Report-only for now (continue-on-error): residual Critical/High are
+      # upstream-pending (helm-vendored / DHI base). Flip to a blocking gate
+      # (remove continue-on-error, set exit-code: true) once VEX exceptions are
+      # attached for the documented upstream CVEs.
+      - name: Docker Scout — CVE scan (report-only)
+        uses: docker/scout-action@v1
+        continue-on-error: true
+        with:
+          command: cves
+          image: ${{ vars.DOCKERHUB_USERNAME }}/obsrv-api-service:${{ steps.meta.outputs.tag }}
+          only-severities: critical,high
+          sarif-file: scout-api-service.sarif.json
 
   build-command-service-image:
     runs-on: ubuntu-latest
@@ -63,7 +78,18 @@ jobs:
           context: ./command-service
           platforms: linux/amd64
           push: true
+          sbom: true
+          provenance: true
           tags: ${{ vars.DOCKERHUB_USERNAME }}/obsrv-command-service:${{ steps.meta.outputs.tag }}
+
+      - name: Docker Scout — CVE scan (report-only)
+        uses: docker/scout-action@v1
+        continue-on-error: true
+        with:
+          command: cves
+          image: ${{ vars.DOCKERHUB_USERNAME }}/obsrv-command-service:${{ steps.meta.outputs.tag }}
+          only-severities: critical,high
+          sarif-file: scout-command-service.sarif.json
 
   aws-deploy:
     needs: [build-api-service-image, build-command-service-image]
