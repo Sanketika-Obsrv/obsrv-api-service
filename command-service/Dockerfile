@@ -1,6 +1,7 @@
 # command-service shells out to kubectl/helm (subprocess with shell=True), so it
 # needs a shell + those CLIs at runtime → use the hardened DHI python -dev variant
 # (near-zero-CVE base, retains shell + package manager) rather than a distroless runtime.
+# Build/install steps run as root; the service runs as the non-root `nonroot` user.
 FROM dhi.io/python:3.12-debian13-dev
 USER root
 
@@ -27,4 +28,9 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY src ./src
 COPY helm-charts ./helm-charts
 WORKDIR /app/src
+
+# Run as the image's built-in non-root user. HOME=/tmp keeps helm/kubectl caches
+# (~/.cache, ~/.kube) writable for the non-root user.
+ENV HOME=/tmp
+USER nonroot
 CMD [ "uvicorn", "routes:app", "--host", "0.0.0.0" ]

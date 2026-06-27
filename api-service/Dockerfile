@@ -10,4 +10,9 @@ RUN npm install
 COPY api-service/ ./
 RUN rm -rf postman-collection
 EXPOSE 3000
+# Run as the image's built-in non-root `node` user. HOME=/tmp keeps any npm/ts-node
+# scratch writes off the read-only, root-owned app dir. ts-node transpiles in-memory,
+# so the root-owned node_modules only needs read access (world-readable by default).
+ENV HOME=/tmp
+USER node
 CMD ["npm", "run", "start"]
