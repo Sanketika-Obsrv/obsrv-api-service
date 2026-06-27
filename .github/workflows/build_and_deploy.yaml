@@ -36,8 +36,6 @@ jobs:
         with:
           file: ./api-service/Dockerfile
           push: true
-          sbom: true
-          provenance: true
           tags: ${{ vars.DOCKERHUB_USERNAME }}/obsrv-api-service:${{ steps.meta.outputs.tag }}
 
       # Report-only for now (continue-on-error): residual Critical/High are
@@ -78,8 +76,6 @@ jobs:
           context: ./command-service
           platforms: linux/amd64
           push: true
-          sbom: true
-          provenance: true
           tags: ${{ vars.DOCKERHUB_USERNAME }}/obsrv-command-service:${{ steps.meta.outputs.tag }}
 
       - name: Docker Scout — CVE scan (report-only)
