@@ -27,12 +27,16 @@ jobs:
           username: ${{ vars.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
+      - name: Compute image tag (sanitize ref name → valid Docker tag)
+        id: meta
+        run: echo "tag=$(echo -n '${{ github.ref_name }}' | sed 's#[^a-zA-Z0-9._-]#-#g')" >> "$GITHUB_OUTPUT"
+
       - name: Build docker image and push
         uses: docker/build-push-action@v5
         with:
           file: ./api-service/Dockerfile
           push: true
-          tags: ${{ vars.DOCKERHUB_USERNAME }}/obsrv-api-service:${{ github.ref_name }}
+          tags: ${{ vars.DOCKERHUB_USERNAME }}/obsrv-api-service:${{ steps.meta.outputs.tag }}
 
   build-command-service-image:
     runs-on: ubuntu-latest
@@ -50,13 +54,16 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       - name: Checkout code
         uses: actions/checkout@v4
+      - name: Compute image tag (sanitize ref name → valid Docker tag)
+        id: meta
+        run: echo "tag=$(echo -n '${{ github.ref_name }}' | sed 's#[^a-zA-Z0-9._-]#-#g')" >> "$GITHUB_OUTPUT"
       - name: Build docker image and push
         uses: docker/build-push-action@v5
         with:
           context: ./command-service
-          platforms: linux/amd64  
+          platforms: linux/amd64
           push: true
-          tags: ${{ vars.DOCKERHUB_USERNAME }}/obsrv-command-service:${{ github.ref_name }}
+          tags: ${{ vars.DOCKERHUB_USERNAME }}/obsrv-command-service:${{ steps.meta.outputs.tag }}
 
   aws-deploy:
     needs: [build-api-service-image, build-command-service-image]
