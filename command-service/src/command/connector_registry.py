@@ -1,5 +1,6 @@
 import json
 import os
+import shutil
 import base64
 import tarfile
 import uuid
@@ -112,8 +113,11 @@ class ConnectorRegistry:
 
     # Method to clean up the local directory
     def cleanup_download_path(self):
+        # Shell-free equivalent of `rm -rf {download_path}/*` (no shell in the
+        # distroless runtime): remove the directory contents and recreate it empty.
         if os.path.exists(self.download_path):
-            os.system(f"rm -rf {self.download_path}/*")
+            shutil.rmtree(self.download_path, ignore_errors=True)
+            os.makedirs(self.download_path, exist_ok=True)
 
     # Method to load the file data into object (ex: ui config file and metadata file)
     def load_json_file(self, extract_out_path, file_name, attribute_name):

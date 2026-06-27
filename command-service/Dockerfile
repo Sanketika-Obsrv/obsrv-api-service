@@ -1,36 +1,30 @@
-# command-service shells out to kubectl/helm (subprocess with shell=True), so it
-# needs a shell + those CLIs at runtime → use the hardened DHI python -dev variant
-# (near-zero-CVE base, retains shell + package manager) rather than a distroless runtime.
-# Build/install steps run as root; the service runs as the non-root `nonroot` user.
-FROM dhi.io/python:3.12-debian13-dev
+# Build stage — toolchain, deps (into a relocatable venv), and static CLIs.
+FROM dhi.io/python:3.12-debian13-dev AS build
 USER root
+RUN apt-get update && apt-get install -y --no-install-recommends curl gzip && rm -rf /var/lib/apt/lists/*
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    curl \
-    jq \
-    gzip \
-    && rm -rf /var/lib/apt/lists/*
-
-# kubectl + helm are invoked by the service at runtime
-RUN mkdir -p /usr/local/bin && \
-    curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl" && \
-    chmod +x kubectl && \
-    mv kubectl /usr/local/bin/
-
-RUN curl -fsSL -o /tmp/helm.tar.gz https://get.helm.sh/helm-v3.13.2-linux-amd64.tar.gz && \
-    tar -zxf /tmp/helm.tar.gz -C /tmp && \
-    mv /tmp/linux-amd64/helm /usr/local/bin/helm && \
-    rm -rf /tmp/helm.tar.gz /tmp/linux-amd64
-
-WORKDIR /app
+# Install Python deps into a venv we can copy whole into the distroless runtime.
+RUN python -m venv --copies /opt/venv
+ENV PATH="/opt/venv/bin:$PATH"
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
+
+# kubectl + helm are static Go binaries the service invokes (shell-free subprocess).
+RUN mkdir -p /out/bin && \
+    curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl" && \
+    install -m 0755 kubectl /out/bin/kubectl && \
+    curl -fsSL -o /tmp/helm.tgz https://get.helm.sh/helm-v3.13.2-linux-amd64.tar.gz && \
+    tar -zxf /tmp/helm.tgz -C /tmp && \
+    install -m 0755 /tmp/linux-amd64/helm /out/bin/helm
+
+# Runtime stage — DHI distroless python (no shell/pkg manager, non-root by default).
+FROM dhi.io/python:3.12-debian13
+COPY --from=build /opt/venv /opt/venv
+COPY --from=build /out/bin/kubectl /out/bin/helm /usr/local/bin/
+# venv on PATH; HOME=/tmp keeps helm/kubectl caches writable for the non-root user.
+ENV PATH="/opt/venv/bin:$PATH" HOME=/tmp
+WORKDIR /app
 COPY src ./src
 COPY helm-charts ./helm-charts
 WORKDIR /app/src
-
-# Run as the image's built-in non-root user. HOME=/tmp keeps helm/kubectl caches
-# (~/.cache, ~/.kube) writable for the non-root user.
-ENV HOME=/tmp
-USER nonroot
-CMD [ "uvicorn", "routes:app", "--host", "0.0.0.0" ]
+CMD ["uvicorn", "routes:app", "--host", "0.0.0.0"]
