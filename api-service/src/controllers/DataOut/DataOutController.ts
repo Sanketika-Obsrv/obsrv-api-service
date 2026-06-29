@@ -18,7 +18,7 @@ const dataOutSql = async (req: Request, res: Response, msgid: string, requestBod
     const cappedQuery = _.get(req, "body.query");
     const result = await executeSqlQuery({ query: cappedQuery });
     _.set(query_data, "data", result.data);
-    logger.info({ apiId, msgid, requestBody, message: "SQL query executed successfully" });
+    logger.info({ apiId, msgid, message: "SQL query executed successfully" });
     return ResponseHandler.successResponse(req, res, { status: 200, data: result?.data });
 };
 

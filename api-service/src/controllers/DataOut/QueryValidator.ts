@@ -297,7 +297,13 @@ export const buildSqlQuery = async (req: Request, query: string) => {
     }
 
     // Replace table names with the param values and emit SQL.
-    _.forEach(fromList, (entry: any) => { entry.table = tableToRef[entry.table]; });
+    _.forEach(fromList, (entry: any) => {
+        const originalTable = entry.table;
+        entry.table = tableToRef[originalTable];
+        if (!entry.as || _.isEmpty(entry.as)) {
+            entry.as = originalTable;
+        }
+    });
     const rewrittenQuery = parser.sqlify(ast, { database: "postgresql" }).replace(/`/g, "\"");
     _.set(req, "body.query", rewrittenQuery);
     return rewrittenQuery;
