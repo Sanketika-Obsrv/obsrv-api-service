@@ -1,3 +1,4 @@
+import { Request } from "express";
 import { IQueryTypeRules } from "../../types/QueryModels";
 import { queryRules } from "./QueryRules";
 import * as _ from "lodash";
@@ -8,6 +9,7 @@ import { druidHttpService, getDatasourceListFromDruid } from "../../connections/
 import { apiId } from "./DataOutController";
 import { Parser } from "node-sql-parser";
 import { obsrvError } from "../../types/ObsrvError";
+import { datasetService } from "../../services/DatasetService";
 const parser = new Parser();
 
 const momentFormat = "YYYY-MM-DD HH:MM:SS";
@@ -249,3 +251,54 @@ const setDatasourceRef = async (datasetId: string, payload: any): Promise<any> =
     }
     return true;
 }
+
+export const buildSqlQuery = async (req: Request, query: string) => {
+    const ast: any = parser.astify(query, { database: "postgresql" });
+    const fromList = _.castArray(_.get(ast, "from", [])).filter(Boolean);
+    const tableParams = _.get(req, "query", {}) as Record<string, any>;
+
+    const missingParams: string[] = [];
+    const tableToRef: Record<string, string> = {};
+    _.forEach(fromList, (entry: any) => {
+        const table = _.get(entry, "table");
+        const ref = tableParams[table];
+        if (!_.isString(ref) || _.isEmpty(ref)) {
+            missingParams.push(table);
+        } else {
+            tableToRef[table] = ref;
+        }
+    });
+    if (!_.isEmpty(missingParams)) {
+        const logMsg = `Missing query param(s) for table(s): ${_.uniq(missingParams).join(", ")}`;
+        const errorMsg = "Invalid request: table mapping parameter is missing.";
+        logger.error({ apiId, message: logMsg });
+        throw obsrvError("", "DATA_OUT_MISSING_TABLE_PARAM", errorMsg, "BAD_REQUEST", 400);
+    }
+
+    // Verify each mapped datasource_ref exists in postgres.
+    const datasourceRefs = _.uniq(_.values(tableToRef));
+    const existing = await datasetService.getExistingDatasourceRefs(datasourceRefs);
+    const notFound = _.difference(datasourceRefs, _.map(existing, "datasource_ref"));
+    if (!_.isEmpty(notFound)) {
+        throw obsrvError("", "DATASOURCE_NOT_FOUND", `Datasource(s) not found: ${notFound.join(", ")}`, "NOT_FOUND", 404);
+    }
+
+    // Verify each mapped datasource_ref load status in Druid.
+    const msgid = _.get(req, "body.params.msgid");
+    for (const ref of datasourceRefs) {
+        await checkSupervisorAvailability(ref, req.body, msgid);
+    }
+
+    // Verify each mapped datasource_ref exists in Druid.
+    const druidDatasources = await getDatasourceListFromDruid();
+    const notInDruid = _.difference(datasourceRefs, druidDatasources.data);
+    if (!_.isEmpty(notInDruid)) {
+        throw obsrvError("", "DATASOURCE_NOT_FOUND", `Datasource(s) not available for querying: ${notInDruid.join(", ")}`, "NOT_FOUND", 404);
+    }
+
+    // Replace table names with the param values and emit SQL.
+    _.forEach(fromList, (entry: any) => { entry.table = tableToRef[entry.table]; });
+    const rewrittenQuery = parser.sqlify(ast, { database: "postgresql" }).replace(/`/g, "\"");
+    _.set(req, "body.query", rewrittenQuery);
+    return rewrittenQuery;
+};
