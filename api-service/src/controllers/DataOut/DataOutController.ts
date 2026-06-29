@@ -3,7 +3,7 @@ import logger from "../../logger";
 import { ResponseHandler } from "../../helpers/ResponseHandler";
 import { schemaValidation } from "../../services/ValidationService";
 import validationSchema from "./DataOutValidationSchema.json";
-import { validateQuery, setQueryLimits, checkSupervisorAvailability, buildSqlQuery } from "./QueryValidator";
+import { validateQuery, setQueryLimits, buildSqlQuery } from "./QueryValidator";
 import * as _ from "lodash";
 import { executeNativeQuery, executeSqlQuery } from "../../connections/druidConnection";
 import { datasetService } from "../../services/DatasetService";
