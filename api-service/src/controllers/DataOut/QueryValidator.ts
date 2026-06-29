@@ -223,7 +223,7 @@ export const checkSupervisorAvailability = async (datasourceRef: string, request
     }
     if (datasourceAvailability !== 100) {
         const logMsg = `Segments not fully published to the metadata store yet, current load: ${datasourceAvailability}%`;
-        const errorMsg = "Data is still loading. Please try again in a few minutes.";
+        const errorMsg = "Data is still loading. Please try after some time.";
         logger.error({ apiId, requestBody: reqBody, msgid: msgId, dataset_id: dId, message: logMsg, code: errCode.notFound })
         throw obsrvError("", "DATASOURCE_NOT_FULLY_AVAILABLE", errorMsg, "RANGE_NOT_SATISFIABLE", 416)
     }
