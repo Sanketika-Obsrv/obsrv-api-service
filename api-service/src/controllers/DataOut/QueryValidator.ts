@@ -60,7 +60,7 @@ const getLimit = (queryLimit: number, maxRowLimit: number) => {
 
 const parseSqlQuery = (queryPayload: any) => {
     try {
-        const vocabulary: any = parser.astify(queryPayload?.query);
+        const vocabulary: any = parser.astify(queryPayload?.query, { database: "postgresql" });
         const isLimitIncludes = JSON.stringify(vocabulary);
         if (_.includes(isLimitIncludes, "{{LIMIT}}")) {
             return queryPayload?.query
@@ -69,9 +69,18 @@ const parseSqlQuery = (queryPayload: any) => {
         if (limit === null) {
             _.set(vocabulary, "limit.value[0].value", queryRules.common.maxResultRowLimit)
             _.set(vocabulary, "limit.value[0].type", "number")
-            let convertToSQL = parser.sqlify(vocabulary);
+            let convertToSQL = parser.sqlify(vocabulary, { database: "postgresql" });
             convertToSQL = convertToSQL.replace(/`/g, "\"");
             queryPayload.query = convertToSQL
+        } else if (Array.isArray(limit.value) && limit.value.length > 0) {
+            const limitIndex = limit.seperator === "," && limit.value.length > 1 ? 1 : 0;
+            const userLimit = limit.value[limitIndex].value;
+            if (typeof userLimit === "number" && userLimit > queryRules.common.maxResultRowLimit) {
+                limit.value[limitIndex].value = queryRules.common.maxResultRowLimit;
+                let convertToSQL = parser.sqlify(vocabulary, { database: "postgresql" });
+                convertToSQL = convertToSQL.replace(/`/g, "\"");
+                queryPayload.query = convertToSQL;
+            }
         }
         return true
     } catch (error) {
@@ -79,7 +88,7 @@ const parseSqlQuery = (queryPayload: any) => {
         return false
     }
 }
-const setQueryLimits = (queryPayload: any) => {
+export const setQueryLimits = (queryPayload: any) => {
     if (_.isObject(queryPayload?.query)) {
         const threshold = _.get(queryPayload, "query.threshold")
         if (threshold) {
@@ -196,16 +205,25 @@ const getDataSourceRef = async (datasetId: string, requestGranularity?: string) 
     return _.get(record, ["dataValues", "datasource_ref"])
 }
 
-const checkSupervisorAvailability = async (datasourceRef: string) => {
+export const checkSupervisorAvailability = async (datasourceRef: string, requestPayload?: any, messageId?: string, datasetId?: string) => {
     const { data } = await druidHttpService.get("/druid/coordinator/v1/loadstatus");
     const datasourceAvailability = _.get(data, datasourceRef)
+
+    const reqBody = requestPayload || requestBody;
+    const msgId = messageId || msgid;
+    const dId = datasetId || dataset_id;
+
     if (_.isUndefined(datasourceAvailability)) {
-        logger.error({ apiId, requestBody, msgid, dataset_id, message: `Segments not published to the metadata store yet, please check the coordinator load status`, code: errCode.notFound })
-        throw obsrvError("", "DATASOURCE_NOT_AVAILABLE", "Datasource not available for querying", "NOT_FOUND", 404)
+        const logMsg = "Segments not published to the metadata store yet, please check the coordinator load status";
+        const errorMsg = "Datasource not available for querying";
+        logger.error({ apiId, requestBody: reqBody, msgid: msgId, dataset_id: dId, message: logMsg, code: errCode.notFound })
+        throw obsrvError("", "DATASOURCE_NOT_AVAILABLE", errorMsg, "NOT_FOUND", 404)
     }
     if (datasourceAvailability !== 100) {
-        logger.error({ apiId, requestBody, msgid, dataset_id, message: `Segments not fully published to the metadata store yet, please check the coordinator load status`, code: errCode.notFound })
-        throw obsrvError("", "DATASOURCE_NOT_FULLY_AVAILABLE", "Datasource not fully available for querying", "RANGE_NOT_SATISFIABLE", 416)
+        const logMsg = `Segments not fully published to the metadata store yet, current load: ${datasourceAvailability}%`;
+        const errorMsg = "Data is still loading. Please try again in a few minutes.";
+        logger.error({ apiId, requestBody: reqBody, msgid: msgId, dataset_id: dId, message: logMsg, code: errCode.notFound })
+        throw obsrvError("", "DATASOURCE_NOT_FULLY_AVAILABLE", errorMsg, "RANGE_NOT_SATISFIABLE", 416)
     }
 }
 
