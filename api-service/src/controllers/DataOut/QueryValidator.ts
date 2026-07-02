@@ -255,17 +255,15 @@ const setDatasourceRef = async (datasetId: string, payload: any): Promise<any> =
 export const buildSqlQuery = async (req: Request, query: string) => {
     const ast: any = parser.astify(query, { database: "postgresql" });
     const fromList = _.castArray(_.get(ast, "from", [])).filter(Boolean);
-    const tableParams = _.get(req, "query", {}) as Record<string, any>;
+    const tableParams = _.omit(_.get(req, "query", {}), ["alias"]) as Record<string, any>;
+    const useAlias = String(_.get(req, "query.alias", "true")).toLowerCase() !== "false";
 
     const missingParams: string[] = [];
-    const tableToRef: Record<string, string> = {};
     _.forEach(fromList, (entry: any) => {
         const table = _.get(entry, "table");
         const ref = tableParams[table];
         if (!_.isString(ref) || _.isEmpty(ref)) {
             missingParams.push(table);
-        } else {
-            tableToRef[table] = ref;
         }
     });
     if (!_.isEmpty(missingParams)) {
@@ -275,13 +273,37 @@ export const buildSqlQuery = async (req: Request, query: string) => {
         throw obsrvError("", "DATA_OUT_MISSING_TABLE_PARAM", errorMsg, "BAD_REQUEST", 400);
     }
 
-    // Verify each mapped datasource_ref exists in postgres.
-    const datasourceRefs = _.uniq(_.values(tableToRef));
-    const existing = await datasetService.getExistingDatasourceRefs(datasourceRefs);
-    const notFound = _.difference(datasourceRefs, _.map(existing, "datasource_ref"));
-    if (!_.isEmpty(notFound)) {
-        throw obsrvError("", "DATASOURCE_NOT_FOUND", `Datasource(s) not found: ${notFound.join(", ")}`, "NOT_FOUND", 404);
+    const tableToRef: Record<string, string> = {};
+
+    if (useAlias) {
+        const aliases = _.uniq(_.map(fromList, entry => tableParams[_.get(entry, "table")]));
+        const rows = await datasetService.getDatasourceRefsByAlias(aliases);
+        const aliasToRef = _.fromPairs(_.map(rows, r => [r.datasource, r.datasource_ref]));
+
+        const notFound = _.filter(aliases, alias => !aliasToRef[alias]);
+        if (!_.isEmpty(notFound)) {
+            throw obsrvError("", "DATASOURCE_NOT_FOUND", `Datasource(s) not found: ${notFound.join(", ")}`, "NOT_FOUND", 404);
+        }
+
+        _.forEach(fromList, (entry: any) => {
+            const table = _.get(entry, "table");
+            tableToRef[table] = aliasToRef[tableParams[table]];
+        });
+    } else {
+        _.forEach(fromList, (entry: any) => {
+            const table = _.get(entry, "table");
+            tableToRef[table] = tableParams[table];
+        });
+
+        const datasourceRefs = _.uniq(_.values(tableToRef));
+        const existing = await datasetService.getExistingDatasourceRefs(datasourceRefs);
+        const notFound = _.difference(datasourceRefs, _.map(existing, "datasource_ref"));
+        if (!_.isEmpty(notFound)) {
+            throw obsrvError("", "DATASOURCE_NOT_FOUND", `Datasource(s) not found: ${notFound.join(", ")}`, "NOT_FOUND", 404);
+        }
     }
+
+    const datasourceRefs = _.uniq(_.values(tableToRef));
 
     // Verify each mapped datasource_ref load status in Druid.
     const msgid = _.get(req, "body.params.msgid");

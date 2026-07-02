@@ -82,8 +82,9 @@ const readDataset = async (datasetId: string, attributes: string[]): Promise<any
     const api_version = _.get(dataset, "api_version")
     const datasetConfigs: any = {}
     const transformations_config = await datasetService.getTransformations(datasetId, ["field_key", "transformation_function", "mode", "metadata"])
-    const datasourceConfig = await Datasource.findOne({ where: { dataset_id: datasetId, is_primary: true, type: "druid" }, attributes: ["datasource"], raw: true })
+    const datasourceConfig = await Datasource.findOne({ where: { dataset_id: datasetId, is_primary: true, type: "druid" }, attributes: ["datasource", "ingestion_spec"], raw: true })
     datasetConfigs["alias"] = _.get(datasourceConfig, "datasource")
+    datasetConfigs["ingestion_spec"] = _.get(datasourceConfig, "ingestion_spec")
     if (api_version !== "v2") {
         datasetConfigs["transformations_config"] = _.map(transformations_config, (config) => {
             const section: any = _.get(config, "metadata.section") || _.get(config, "transformation_function.category");
