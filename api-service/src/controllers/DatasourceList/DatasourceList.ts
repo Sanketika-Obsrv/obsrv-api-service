@@ -37,10 +37,10 @@ const listDatasources = async (request: Record<string, any>): Promise<Record<str
 
     const { filters = {}, fields = [] } = request || {};
     const allowedFields = _.union(liveModelFields, draftModelFields, defaultLiveFields, defaultDraftFields)
-    const requestedFields = _.uniq(_.isArray(fields) ? fields : _.compact([fields]))
-    if (_.size(requestedFields) > _.size(allowedFields)) {
+    if (_.isArray(fields) && fields.length > allowedFields.length) {
         throw obsrvError("", "DATASOURCE_LIST_INPUT_INVALID", "Fields array length exceeds the allowed limit", "BAD_REQUEST", 400)
     }
+    const requestedFields = _.uniq(_.isArray(fields) ? fields : _.compact([fields]))
     const invalidFields = _.difference(requestedFields, allowedFields)
     if (!_.isEmpty(invalidFields)) {
         throw obsrvError("", "DATASOURCE_LIST_INPUT_INVALID", `The specified fields [${invalidFields}] in the datasource cannot be found`, "BAD_REQUEST", 400)
