@@ -15,7 +15,7 @@ export const errorCode = "DATASOURCES_LIST_FAILURE"
 const liveDatasourceStatus = ["Live", "Retired"]
 const draftDatasourceStatus = ["Draft"]
 const defaultLiveFields = ["dataset_id", "datasource", "type", "status", "id", "created_by", "updated_by", "created_date", "updated_date"]
-const defaultDraftFields = ["id", "dataset_id", "name", "type", "status", "created_by", "updated_by", "created_date", "updated_date"]
+const defaultDraftFields = ["id", "dataset_id", "type", "status", "created_by", "updated_by", "created_date", "updated_date"]
 const liveModelFields = _.keys(Datasource.getAttributes())
 const draftModelFields = _.keys(DatasourceDraft.getAttributes())
 
