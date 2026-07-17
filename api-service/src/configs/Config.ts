@@ -36,7 +36,8 @@ export const config = {
     },
     "prometheus": {
       "url": process.env.prometheus_url || "http://localhost:9090"
-    }
+    },
+    "sql_query_alias_check": process.env.sql_query_alias_check !== "false"
   },
   "telemetry_service_config": {
     level: process.env.telemetry_log_level || "info",
