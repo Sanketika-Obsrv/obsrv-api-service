@@ -8,7 +8,7 @@ import { ResponseHandler } from "../../helpers/ResponseHandler";
 import logger from "../../logger";
 import { datasetService } from "../../services/DatasetService";
 import { Datasource } from "../../models/Datasource";
-import { DatasourceDraft } from "../../models/DatasourceDraft";
+import TableDraft from "../../models/Table";
 
 export const apiId = "api.datasources.list"
 export const errorCode = "DATASOURCES_LIST_FAILURE"
@@ -17,7 +17,7 @@ const draftDatasourceStatus = ["Draft"]
 const defaultLiveFields = ["dataset_id", "datasource", "type", "status", "id", "created_by", "updated_by", "created_date", "updated_date"]
 const defaultDraftFields = ["id", "dataset_id", "type", "status", "created_by", "updated_by", "created_date", "updated_date"]
 const liveModelFields = _.keys(Datasource.getAttributes())
-const draftModelFields = _.keys(DatasourceDraft.getAttributes())
+const draftModelFields = _.keys(TableDraft.getAttributes())
 
 const getDatasourceList = async (req: Request, res: Response) => {
 
