@@ -107,11 +107,11 @@ export const sqlQuery = async (req: Request, res: Response) => {
             result = createMockAxiosResponse(dataSources);
         } else {
             let requestPayload = req.body;
-            if (config.query_api.sql_query_alias_check) {
+            if (config.query_api.sql_query_alias_support) {
                 const resolvedQuery = await resolveDatasourceQuery(query, resmsgid);
                 requestPayload = resolvedQuery === query ? req.body : { ...req.body, query: resolvedQuery };
             } else {
-                logger.info({ apiId, resmsgid, message: "sql_query_alias_check disabled, passing query as-is" });
+                logger.info({ apiId, resmsgid, message: "sql_query_alias_support disabled, passing query as-is" });
             }
             result = await druidHttpService.post(`${config.query_api.druid.sql_query_path}`, requestPayload, {
                 headers: { Authorization: authorization },
