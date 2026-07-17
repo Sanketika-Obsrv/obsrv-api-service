@@ -48,6 +48,19 @@
               }
             },
             "additionalProperties": false
+          },
+          "fields": {
+            "anyOf": [
+              {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              {
+                "type": "string"
+              }
+            ]
           }
         },
         "additionalProperties": false

@@ -1,3 +1,4 @@
+import { Request } from "express";
 import { IQueryTypeRules } from "../../types/QueryModels";
 import { queryRules } from "./QueryRules";
 import * as _ from "lodash";
@@ -8,6 +9,7 @@ import { druidHttpService, getDatasourceListFromDruid } from "../../connections/
 import { apiId } from "./DataOutController";
 import { Parser } from "node-sql-parser";
 import { obsrvError } from "../../types/ObsrvError";
+import { datasetService } from "../../services/DatasetService";
 const parser = new Parser();
 
 const momentFormat = "YYYY-MM-DD HH:MM:SS";
@@ -60,7 +62,7 @@ const getLimit = (queryLimit: number, maxRowLimit: number) => {
 
 const parseSqlQuery = (queryPayload: any) => {
     try {
-        const vocabulary: any = parser.astify(queryPayload?.query);
+        const vocabulary: any = parser.astify(queryPayload?.query, { database: "postgresql" });
         const isLimitIncludes = JSON.stringify(vocabulary);
         if (_.includes(isLimitIncludes, "{{LIMIT}}")) {
             return queryPayload?.query
@@ -69,9 +71,18 @@ const parseSqlQuery = (queryPayload: any) => {
         if (limit === null) {
             _.set(vocabulary, "limit.value[0].value", queryRules.common.maxResultRowLimit)
             _.set(vocabulary, "limit.value[0].type", "number")
-            let convertToSQL = parser.sqlify(vocabulary);
+            let convertToSQL = parser.sqlify(vocabulary, { database: "postgresql" });
             convertToSQL = convertToSQL.replace(/`/g, "\"");
             queryPayload.query = convertToSQL
+        } else if (Array.isArray(limit.value) && limit.value.length > 0) {
+            const limitIndex = limit.seperator === "," && limit.value.length > 1 ? 1 : 0;
+            const userLimit = limit.value[limitIndex].value;
+            if (typeof userLimit === "number" && userLimit > queryRules.common.maxResultRowLimit) {
+                limit.value[limitIndex].value = queryRules.common.maxResultRowLimit;
+                let convertToSQL = parser.sqlify(vocabulary, { database: "postgresql" });
+                convertToSQL = convertToSQL.replace(/`/g, "\"");
+                queryPayload.query = convertToSQL;
+            }
         }
         return true
     } catch (error) {
@@ -79,7 +90,7 @@ const parseSqlQuery = (queryPayload: any) => {
         return false
     }
 }
-const setQueryLimits = (queryPayload: any) => {
+export const setQueryLimits = (queryPayload: any) => {
     if (_.isObject(queryPayload?.query)) {
         const threshold = _.get(queryPayload, "query.threshold")
         if (threshold) {
@@ -196,16 +207,25 @@ const getDataSourceRef = async (datasetId: string, requestGranularity?: string) 
     return _.get(record, ["dataValues", "datasource_ref"])
 }
 
-const checkSupervisorAvailability = async (datasourceRef: string) => {
+export const checkSupervisorAvailability = async (datasourceRef: string, requestPayload?: any, messageId?: string, datasetId?: string) => {
     const { data } = await druidHttpService.get("/druid/coordinator/v1/loadstatus");
     const datasourceAvailability = _.get(data, datasourceRef)
+
+    const reqBody = requestPayload || requestBody;
+    const msgId = messageId || msgid;
+    const dId = datasetId || dataset_id;
+
     if (_.isUndefined(datasourceAvailability)) {
-        logger.error({ apiId, requestBody, msgid, dataset_id, message: `Segments not published to the metadata store yet, please check the coordinator load status`, code: errCode.notFound })
-        throw obsrvError("", "DATASOURCE_NOT_AVAILABLE", "Datasource not available for querying", "NOT_FOUND", 404)
+        const logMsg = "Segments not published to the metadata store yet, please check the coordinator load status";
+        const errorMsg = "Datasource not available for querying";
+        logger.error({ apiId, requestBody: reqBody, msgid: msgId, dataset_id: dId, message: logMsg, code: errCode.notFound })
+        throw obsrvError("", "DATASOURCE_NOT_AVAILABLE", errorMsg, "NOT_FOUND", 404)
     }
     if (datasourceAvailability !== 100) {
-        logger.error({ apiId, requestBody, msgid, dataset_id, message: `Segments not fully published to the metadata store yet, please check the coordinator load status`, code: errCode.notFound })
-        throw obsrvError("", "DATASOURCE_NOT_FULLY_AVAILABLE", "Datasource not fully available for querying", "RANGE_NOT_SATISFIABLE", 416)
+        const logMsg = `Segments not fully published to the metadata store yet, current load: ${datasourceAvailability}%`;
+        const errorMsg = "Data is still loading. Please try after some time.";
+        logger.error({ apiId, requestBody: reqBody, msgid: msgId, dataset_id: dId, message: logMsg, code: errCode.notFound })
+        throw obsrvError("", "DATASOURCE_NOT_FULLY_AVAILABLE", errorMsg, "RANGE_NOT_SATISFIABLE", 416)
     }
 }
 
@@ -231,3 +251,140 @@ const setDatasourceRef = async (datasetId: string, payload: any): Promise<any> =
     }
     return true;
 }
+
+// Collect every CTE-declared name anywhere in the AST. These are local aliases
+// (WITH <name> AS ...), not datasources, so they must not be treated as tables.
+const collectCteNames = (node: any, acc: Set<string> = new Set()): Set<string> => {
+    if (_.isArray(node)) {
+        node.forEach((n) => collectCteNames(n, acc));
+        return acc;
+    }
+    if (!_.isObject(node)) return acc;
+    const withClause: any = _.get(node, "with");
+    if (_.isArray(withClause)) {
+        withClause.forEach((cte: any) => {
+            const name = _.get(cte, "name.value") || _.get(cte, "name");
+            if (_.isString(name)) acc.add(name);
+        });
+    }
+    _.forEach(node, (value) => collectCteNames(value, acc));
+    return acc;
+};
+
+// Recursively collect every FROM entry that references a real table name across
+// the whole AST: FROM-clause tables at any depth, derived-table subqueries, plus
+// tables inside CTE bodies, UNION/set-op branches, and WHERE/SELECT subqueries.
+// CTE-declared names are skipped so they are not demanded as table params.
+const collectTableEntries = (node: any, cteNames: Set<string>, acc: any[] = []): any[] => {
+    if (_.isArray(node)) {
+        node.forEach((n) => collectTableEntries(n, cteNames, acc));
+        return acc;
+    }
+    if (!_.isObject(node)) return acc;
+    const fromArr = _.get(node, "from");
+    if (_.isArray(fromArr)) {
+        _.forEach(fromArr, (entry: any) => {
+            const subquery = _.get(entry, "expr.ast");
+            if (subquery) {
+                collectTableEntries(subquery, cteNames, acc);
+                return;
+            }
+            const table = _.get(entry, "table");
+            if (_.isString(table) && !cteNames.has(table)) acc.push(entry);
+        });
+    }
+    // Walk every other key (with/_next/where/columns/...) to reach nested selects,
+    // but skip `from` to avoid re-visiting the entries handled above.
+    _.forEach(node, (value, key) => {
+        if (key !== "from") collectTableEntries(value, cteNames, acc);
+    });
+    return acc;
+};
+
+export const buildSqlQuery = async (req: Request, query: string) => {
+    let ast: any;
+    try {
+        ast = parser.astify(query, { database: "postgresql" });
+    } catch (error: any) {
+        logger.warn({ apiId, message: "SQL parse failed", error: error?.message });
+        throw obsrvError("", "DATA_OUT_INVALID_QUERY", "Invalid SQL query", "BAD_REQUEST", 400);
+    }
+    if (_.isArray(ast)) {
+        throw obsrvError("", "DATA_OUT_INVALID_QUERY", "Only a single SQL statement is supported", "BAD_REQUEST", 400);
+    }
+    const fromList = collectTableEntries(ast, collectCteNames(ast));
+    const tableParams = _.omit(_.get(req, "query", {}), ["alias"]) as Record<string, any>;
+    const useAlias = String(_.get(req, "query.alias", "true")).toLowerCase() !== "false";
+
+    const missingParams: string[] = [];
+    _.forEach(fromList, (entry: any) => {
+        const table = _.get(entry, "table");
+        const ref = tableParams[table];
+        if (!_.isString(ref) || _.isEmpty(ref)) {
+            missingParams.push(table);
+        }
+    });
+    if (!_.isEmpty(missingParams)) {
+        const logMsg = `Missing query param(s) for table(s): ${_.uniq(missingParams).join(", ")}`;
+        const errorMsg = "Invalid request: table mapping parameter is missing.";
+        logger.error({ apiId, message: logMsg });
+        throw obsrvError("", "DATA_OUT_MISSING_TABLE_PARAM", errorMsg, "BAD_REQUEST", 400);
+    }
+
+    const tableToRef: Record<string, string> = {};
+
+    if (useAlias) {
+        const aliases = _.uniq(_.map(fromList, entry => tableParams[_.get(entry, "table")]));
+        const rows = await datasetService.getDatasourceRefsByAlias(aliases);
+        const aliasToRef = _.fromPairs(_.map(rows, r => [r.datasource, r.datasource_ref]));
+
+        const notFound = _.filter(aliases, alias => !aliasToRef[alias]);
+        if (!_.isEmpty(notFound)) {
+            throw obsrvError("", "DATASOURCE_NOT_FOUND", `Datasource(s) not found: ${notFound.join(", ")}`, "NOT_FOUND", 404);
+        }
+
+        _.forEach(fromList, (entry: any) => {
+            const table = _.get(entry, "table");
+            tableToRef[table] = aliasToRef[tableParams[table]];
+        });
+    } else {
+        _.forEach(fromList, (entry: any) => {
+            const table = _.get(entry, "table");
+            tableToRef[table] = tableParams[table];
+        });
+
+        const datasourceRefs = _.uniq(_.values(tableToRef));
+        const existing = await datasetService.getExistingDatasourceRefs(datasourceRefs);
+        const notFound = _.difference(datasourceRefs, _.map(existing, "datasource_ref"));
+        if (!_.isEmpty(notFound)) {
+            throw obsrvError("", "DATASOURCE_NOT_FOUND", `Datasource(s) not found: ${notFound.join(", ")}`, "NOT_FOUND", 404);
+        }
+    }
+
+    const datasourceRefs = _.uniq(_.values(tableToRef));
+
+    // Verify each mapped datasource_ref load status in Druid.
+    const msgid = _.get(req, "body.params.msgid");
+    for (const ref of datasourceRefs) {
+        await checkSupervisorAvailability(ref, req.body, msgid);
+    }
+
+    // Verify each mapped datasource_ref exists in Druid.
+    const druidDatasources = await getDatasourceListFromDruid();
+    const notInDruid = _.difference(datasourceRefs, druidDatasources.data);
+    if (!_.isEmpty(notInDruid)) {
+        throw obsrvError("", "DATASOURCE_NOT_FOUND", `Datasource(s) not available for querying: ${notInDruid.join(", ")}`, "NOT_FOUND", 404);
+    }
+
+    // Replace table names with the param values and emit SQL.
+    _.forEach(fromList, (entry: any) => {
+        const originalTable = entry.table;
+        entry.table = tableToRef[originalTable];
+        if (!entry.as || _.isEmpty(entry.as)) {
+            entry.as = originalTable;
+        }
+    });
+    const rewrittenQuery = parser.sqlify(ast, { database: "postgresql" }).replace(/`/g, "\"");
+    _.set(req, "body.query", rewrittenQuery);
+    return rewrittenQuery;
+};

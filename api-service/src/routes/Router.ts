@@ -40,7 +40,7 @@ import getDatasourceList from "../controllers/DatasourceList/DatasourceList";
 export const router = express.Router();
 
 router.post("/data/in/:dataset_id", setDataToRequestObject("api.data.in"), onRequest({ entity: Entity.Data_in }), telemetryAuditStart({action: telemetryActions.ingestEvents, operationType: OperationType.CREATE}), checkRBAC.handler(), dataIn);
-router.post("/data/query/:dataset_id", setDataToRequestObject("api.data.out"), onRequest({ entity: Entity.Data_out }), checkRBAC.handler(), telemetryLogStart({action: telemetryActions.sqlQuery, operationType: OperationType.CREATE}), checkRBAC.handler(), dataOut);
+router.post("/data/query{/:dataset_id}", setDataToRequestObject("api.data.out"), onRequest({ entity: Entity.Data_out }), checkRBAC.handler(), telemetryLogStart({action: telemetryActions.sqlQuery, operationType: OperationType.CREATE}), checkRBAC.handler(), dataOut);
 router.post("/datasets/create", setDataToRequestObject("api.datasets.create"), onRequest({ entity: Entity.Management }),telemetryAuditStart({action: telemetryActions.createDataset, operationType: OperationType.CREATE}), checkRBAC.handler(),DatasetCreate)
 router.patch("/datasets/update", setDataToRequestObject("api.datasets.update"), onRequest({ entity: Entity.Management }),telemetryAuditStart({action: telemetryActions.updateDataset, operationType: OperationType.UPDATE}), checkRBAC.handler(), DatasetUpdate)
 router.get("/datasets/read/:dataset_id", setDataToRequestObject("api.datasets.read"), onRequest({ entity: Entity.Management }), telemetryAuditStart({action: telemetryActions.readDataset, operationType: OperationType.GET}), checkRBAC.handler(), DatasetRead)

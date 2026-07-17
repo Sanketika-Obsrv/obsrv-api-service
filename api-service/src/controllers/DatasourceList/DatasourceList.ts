@@ -7,11 +7,17 @@ import httpStatus from "http-status";
 import { ResponseHandler } from "../../helpers/ResponseHandler";
 import logger from "../../logger";
 import { datasetService } from "../../services/DatasetService";
+import { Datasource } from "../../models/Datasource";
+import { DatasourceDraft } from "../../models/DatasourceDraft";
 
 export const apiId = "api.datasources.list"
 export const errorCode = "DATASOURCES_LIST_FAILURE"
 const liveDatasourceStatus = ["Live", "Retired"]
 const draftDatasourceStatus = ["Draft"]
+const defaultLiveFields = ["dataset_id", "datasource", "type", "status", "id", "created_by", "updated_by", "created_date", "updated_date"]
+const defaultDraftFields = ["id", "dataset_id", "type", "status", "created_by", "updated_by", "created_date", "updated_date"]
+const liveModelFields = _.keys(Datasource.getAttributes())
+const draftModelFields = _.keys(DatasourceDraft.getAttributes())
 
 const getDatasourceList = async (req: Request, res: Response) => {
 
@@ -29,13 +35,24 @@ const getDatasourceList = async (req: Request, res: Response) => {
 
 const listDatasources = async (request: Record<string, any>): Promise<Record<string, any>> => {
 
-    const { filters = {} } = request || {};
+    const { filters = {}, fields = [] } = request || {};
+    const allowedFields = _.union(liveModelFields, draftModelFields, defaultLiveFields, defaultDraftFields)
+    if (_.isArray(fields) && fields.length > allowedFields.length) {
+        throw obsrvError("", "DATASOURCE_LIST_INPUT_INVALID", "Fields array length exceeds the allowed limit", "BAD_REQUEST", 400)
+    }
+    const requestedFields = _.uniq(_.isArray(fields) ? fields : _.compact([fields]))
+    const invalidFields = _.difference(requestedFields, allowedFields)
+    if (!_.isEmpty(invalidFields)) {
+        throw obsrvError("", "DATASOURCE_LIST_INPUT_INVALID", `The specified fields [${invalidFields}] in the datasource cannot be found`, "BAD_REQUEST", 400)
+    }
+    const liveFields = _.union(defaultLiveFields, _.intersection(requestedFields, liveModelFields))
+    const draftFields = _.union(defaultDraftFields, _.intersection(requestedFields, draftModelFields))
     const dsStatus = _.get(filters, "status");
     const status = _.isArray(dsStatus) ? dsStatus : _.compact([dsStatus])
     const draftFilters = _.set(_.cloneDeep(filters), "status", _.isEmpty(status) ? draftDatasourceStatus : _.intersection(status, draftDatasourceStatus));
     const liveFilters = _.set(_.cloneDeep(filters), "status", _.isEmpty(status) ? liveDatasourceStatus : _.intersection(status, liveDatasourceStatus));
-    const liveDatasourceList = await datasetService.findDatasources(liveFilters, ["dataset_id", "datasource", "type", "status", "id", "type", "created_by", "updated_by", "created_date", "updated_date"]);
-    const draftDatasourceList = await datasetService.findDraftDatasources(draftFilters, ["id", "dataset_id","name", "type", "status", "created_by", "updated_by", "created_date", "updated_date"]);
+    const liveDatasourceList = await datasetService.findDatasources(liveFilters, liveFields);
+    const draftDatasourceList = await datasetService.findDraftDatasources(draftFilters, draftFields);
     return _.compact(_.concat(liveDatasourceList, draftDatasourceList));
 
 }

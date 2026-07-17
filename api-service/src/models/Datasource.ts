@@ -58,6 +58,15 @@ export const Datasource = sequelize.define("datasources", {
     metadata: {
         type: DataTypes.JSON,
         defaultValue: {}
+    },
+    version: {
+        type: DataTypes.INTEGER
+    },
+    is_primary: {
+        type: DataTypes.BOOLEAN
+    },
+    name: {
+        type: DataTypes.STRING
     }
 }, {
     tableName: "datasources",

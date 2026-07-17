@@ -130,6 +130,22 @@ class DatasetService {
         }
     }
 
+    getExistingDatasourceRefs = async (datasourceRefs: string[]): Promise<Record<string, any>[]> => {
+        return Datasource.findAll({
+            where: { datasource_ref: { [Op.in]: datasourceRefs }, status: "Live" },
+            attributes: ["datasource_ref"],
+            raw: true
+        }) as unknown as Record<string, any>[];
+    }
+
+    getDatasourceRefsByAlias = async (aliases: string[]): Promise<Record<string, any>[]> => {
+        return Datasource.findAll({
+            where: { datasource: { [Op.in]: aliases }, status: "Live" },
+            attributes: ["datasource", "datasource_ref"],
+            raw: true
+        }) as unknown as Record<string, any>[];
+    }
+
     updateDatasource = async (payload: Record<string, any>, where: Record<string, any>): Promise<Record<string, any>> => {
         return Datasource.update(payload, { where });
     }
