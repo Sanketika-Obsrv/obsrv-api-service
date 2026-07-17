@@ -51,8 +51,10 @@ const resolveDatasourceQuery = async (query: string, resmsgid?: string): Promise
         }
 
         const refSet = new Set(_.map(rows, "datasource_ref"));
-        const aliasToRef: Record<string, string> = {};
-        rows.forEach((r) => { if (r.datasource) aliasToRef[r.datasource] = r.datasource_ref; });
+        // Map (not a plain object) so table names that collide with Object.prototype
+        // keys (constructor, toString, ...) are only matched when actually present.
+        const aliasToRef = new Map<string, string>();
+        rows.forEach((r) => { if (r.datasource) aliasToRef.set(r.datasource, r.datasource_ref); });
 
         let changed = false;
         _.forEach(fromList, (entry: any) => {
@@ -61,7 +63,7 @@ const resolveDatasourceQuery = async (query: string, resmsgid?: string): Promise
                 logger.info({ apiId, resmsgid, table: name, message: `Table '${name}' already a datasource_ref, keeping as-is` });
                 return;
             }
-            const ref = aliasToRef[name];
+            const ref = aliasToRef.get(name);
             if (!ref) {                                // unknown -> keep
                 logger.warn({ apiId, resmsgid, table: name, message: `Table '${name}' is neither a datasource alias nor a datasource_ref, keeping as-is` });
                 return;
@@ -77,7 +79,10 @@ const resolveDatasourceQuery = async (query: string, resmsgid?: string): Promise
             return query;
         }
 
-        return parser.sqlify(ast, { database: "postgresql" }).replace(/`/g, "\"");
+        // postgresql dialect emits double-quoted identifiers, so no backtick
+        // post-processing is needed (a global replace could corrupt backticks
+        // inside string literals).
+        return parser.sqlify(ast, { database: "postgresql" });
     } catch (error: any) {
         // Never let resolution break querying — fall back to the original query.
         logger.warn({ apiId, resmsgid, message: "Datasource resolution skipped, passing query as-is", error: error?.message });
@@ -107,7 +112,7 @@ export const sqlQuery = async (req: Request, res: Response) => {
             result = createMockAxiosResponse(dataSources);
         } else {
             let requestPayload = req.body;
-            if (config.query_api.sql_query_alias_support) {
+            if (config.query_api.sql_query_alias_support === "true") {
                 const resolvedQuery = await resolveDatasourceQuery(query, resmsgid);
                 requestPayload = resolvedQuery === query ? req.body : { ...req.body, query: resolvedQuery };
             } else {

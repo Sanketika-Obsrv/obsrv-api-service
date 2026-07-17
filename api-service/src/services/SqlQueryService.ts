@@ -32,19 +32,14 @@ export const collectTableEntries = (node: any, cteNames: Set<string>, acc: any[]
     const fromArr = _.get(node, "from");
     if (_.isArray(fromArr)) {
         _.forEach(fromArr, (entry: any) => {
-            const subquery = _.get(entry, "expr.ast");
-            if (subquery) {
-                collectTableEntries(subquery, cteNames, acc);
-                return;
-            }
             const table = _.get(entry, "table");
             if (_.isString(table) && !cteNames.has(table)) acc.push(entry);
         });
     }
-    // Walk every other key (with/_next/where/columns/...) to reach nested selects,
-    // but skip `from` to avoid re-visiting the entries handled above.
-    _.forEach(node, (value, key) => {
-        if (key !== "from") collectTableEntries(value, cteNames, acc);
-    });
+    // Walk every key (including `from`) to reach nested selects wherever they
+    // live: derived tables (`expr.ast`), JOIN `ON` subqueries (`entry.on`),
+    // WHERE/SELECT subqueries, CTE bodies and set-op branches. FROM entries hold
+    // no nested `from` of their own, so real tables are never pushed twice.
+    _.forEach(node, (value) => collectTableEntries(value, cteNames, acc));
     return acc;
 };
