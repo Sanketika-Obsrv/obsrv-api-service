@@ -1,9 +1,10 @@
-fastapi==0.103.0
+fastapi>=0.109.1
+starlette>=0.40.0
 uvicorn==0.20.0
 dataclasses-json==0.5.7
 # pydantic==1.10.5
 pyyaml==6.0.1
-urllib3==2.0.7
+urllib3>=2.6.3
 # protobuf==3.20.*
 # pyhelm==2.14.5
 # kubernetes==28.1.0
@@ -16,5 +17,5 @@ tenacity==8.2.2
 kafka-python-ng==2.2.2
 boto3
 prometheus-client
-confluent-kafka==2.5.3
+confluent-kafka>=2.8.0
 requests

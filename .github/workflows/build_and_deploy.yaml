@@ -20,12 +20,36 @@ jobs:
           username: ${{ vars.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
+      - name: Login to dhi.io (Docker Hardened Images)
+        uses: docker/login-action@v3
+        with:
+          registry: dhi.io
+          username: ${{ vars.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Compute image tag (sanitize ref name → valid Docker tag)
+        id: meta
+        run: echo "tag=$(echo -n '${{ github.ref_name }}' | sed 's#[^a-zA-Z0-9._-]#-#g')" >> "$GITHUB_OUTPUT"
+
       - name: Build docker image and push
         uses: docker/build-push-action@v5
         with:
-          file: ./api-service/Dockerfile  
+          file: ./api-service/Dockerfile
           push: true
-          tags: ${{ vars.DOCKERHUB_USERNAME }}/obsrv-api-service:${{ github.ref_name }}
+          tags: ${{ vars.DOCKERHUB_USERNAME }}/obsrv-api-service:${{ steps.meta.outputs.tag }}
+
+      # Report-only for now (continue-on-error): residual Critical/High are
+      # upstream-pending (helm-vendored / DHI base). Flip to a blocking gate
+      # (remove continue-on-error, set exit-code: true) once VEX exceptions are
+      # attached for the documented upstream CVEs.
+      - name: Docker Scout — CVE scan (report-only)
+        uses: docker/scout-action@v1
+        continue-on-error: true
+        with:
+          command: cves
+          image: ${{ vars.DOCKERHUB_USERNAME }}/obsrv-api-service:${{ steps.meta.outputs.tag }}
+          only-severities: critical,high
+          sarif-file: scout-api-service.sarif.json
 
   build-command-service-image:
     runs-on: ubuntu-latest
@@ -35,15 +59,33 @@ jobs:
         with:
           username: ${{ vars.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Login to dhi.io (Docker Hardened Images)
+        uses: docker/login-action@v3
+        with:
+          registry: dhi.io
+          username: ${{ vars.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
       - name: Checkout code
         uses: actions/checkout@v4
+      - name: Compute image tag (sanitize ref name → valid Docker tag)
+        id: meta
+        run: echo "tag=$(echo -n '${{ github.ref_name }}' | sed 's#[^a-zA-Z0-9._-]#-#g')" >> "$GITHUB_OUTPUT"
       - name: Build docker image and push
         uses: docker/build-push-action@v5
         with:
           context: ./command-service
-          platforms: linux/amd64  
+          platforms: linux/amd64
           push: true
-          tags: ${{ vars.DOCKERHUB_USERNAME }}/obsrv-command-service:${{ github.ref_name }}
+          tags: ${{ vars.DOCKERHUB_USERNAME }}/obsrv-command-service:${{ steps.meta.outputs.tag }}
+
+      - name: Docker Scout — CVE scan (report-only)
+        uses: docker/scout-action@v1
+        continue-on-error: true
+        with:
+          command: cves
+          image: ${{ vars.DOCKERHUB_USERNAME }}/obsrv-command-service:${{ steps.meta.outputs.tag }}
+          only-severities: critical,high
+          sarif-file: scout-command-service.sarif.json
 
   aws-deploy:
     needs: [build-api-service-image, build-command-service-image]

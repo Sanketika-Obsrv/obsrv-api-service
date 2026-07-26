@@ -27,24 +27,25 @@ class FlinkCommand(ICommand):
         return self._install_flink_jobs()
 
     def _restart_pods(self, release_name, namespace, job_name):
-        restart_cmd = f"kubectl delete pods --selector app=flink,component={release_name}-jobmanager --namespace {namespace} && kubectl delete pods --selector app=flink,component={release_name}-taskmanager --namespace {namespace}".format(
-            namespace=namespace, release_name=release_name
-        )
-        # Run the helm command
-        helm_install_result = subprocess.run(
-            restart_cmd,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            shell=True,
-        )
-        if helm_install_result.returncode == 0:
-            print(f"Job {job_name} re-deployment succeeded...")
-            return True
-        else:
-            print(
-                f"Error re-installing job {job_name}: {helm_install_result.stderr.decode()}"
+        # Shell-free (no shell in the distroless runtime): run the two kubectl
+        # deletes as separate list-arg subprocess calls instead of one `&&` shell line.
+        selectors = [
+            f"app=flink,component={release_name}-jobmanager",
+            f"app=flink,component={release_name}-taskmanager",
+        ]
+        for selector in selectors:
+            result = subprocess.run(
+                ["kubectl", "delete", "pods", "--selector", selector, "--namespace", namespace],
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
             )
-            return False
+            if result.returncode != 0:
+                print(
+                    f"Error re-installing job {job_name}: {result.stderr.decode()}"
+                )
+                return False
+        print(f"Job {job_name} re-deployment succeeded...")
+        return True
 
     def _install_flink_jobs(self):
         result = ActionResponse(status="OK", status_code=200)
