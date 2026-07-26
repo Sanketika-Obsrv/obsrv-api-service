@@ -1,4 +1,4 @@
-FROM --platform=linux/amd64 node:20-alpine
+FROM --platform=linux/amd64 public.ecr.aws/docker/library/node:20-alpine
 RUN apk add libcrypto3=3.3.0-r2 libssl3=3.3.0-r2
 RUN apk upgrade
 RUN mkdir -p /opt/obsrv-api-service

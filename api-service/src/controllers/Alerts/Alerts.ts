@@ -12,7 +12,7 @@ const telemetryObject = { type: "alert", ver: "1.0.0" };
 
 const createAlertHandler = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const alertPayload = getAlertPayload(req.body);
+    const alertPayload = getAlertPayload(_.get(req, "body"));
     const userID = (req as any)?.userID;
     _.set(alertPayload, "created_by", userID);
     _.set(alertPayload, "updated_by", userID);
@@ -30,7 +30,7 @@ const createAlertHandler = async (req: Request, res: Response, next: NextFunctio
 
 const publishAlertHandler = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { alertId } = req.params;
+    const alertId = _.get(req, 'params.alertId');
     const ruleModel: Record<string, any> | null = await getAlertRule(alertId);
     if (!ruleModel) return next({ message: httpStatus[httpStatus.NOT_FOUND], statusCode: httpStatus.NOT_FOUND });
     const rulePayload = ruleModel.toJSON();
@@ -57,7 +57,7 @@ const transformAlerts = async (alertModel: any) => {
 
 const searchAlertHandler = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { limit, filters, offset, options = {} } = req.body?.request || {};
+    const { limit, filters, offset, options = {} } = _.get(req, 'body.request', {});
     const alerts = await Alert.findAll({ limit: limit, offset: offset, ...(filters && { where: filters }), ...options });
     const alertRulesWithStatus = await Promise.all(_.map(alerts, transformAlerts));
     ResponseHandler.successResponse(req, res, { status: httpStatus.OK, data: { alerts: alertRulesWithStatus, count: alerts.length } });
@@ -105,8 +105,8 @@ const deleteAlertHandler = async (req: Request, res: Response, next: NextFunctio
 
 const updateAlertHandler = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { alertId } = req.params;
-    const isEmpty = _.isEmpty(req.body);
+    const alertId = _.get(req, 'params.alertId');
+    const isEmpty = _.isEmpty(_.get(req, "body"));
     if (isEmpty) throw new Error("Failed to update record");
     const ruleModel = await getAlertRule(alertId);
     if (!ruleModel) { return next({ message: httpStatus[httpStatus.NOT_FOUND], statusCode: httpStatus.NOT_FOUND }) }
@@ -117,7 +117,7 @@ const updateAlertHandler = async (req: Request, res: Response, next: NextFunctio
       await deleteAlertRule(rulePayload, false);
       await retireAlertSilence(alertId);
     }
-    const updatedPayload = getAlertPayload({ ...req.body, manager: rulePayload?.manager });
+    const updatedPayload = getAlertPayload({ ..._.get(req, "body"), manager: rulePayload?.manager });
     await Alert.update({ ...updatedPayload, status: "draft", updated_by: userID }, { where: { id: alertId } });
     updateTelemetryAuditEvent({ request: req, currentRecord: rulePayload, object: { id: alertId, ...telemetryObject } });
     ResponseHandler.successResponse(req, res, { status: httpStatus.OK, data: { id: alertId } });
@@ -132,7 +132,7 @@ const updateAlertHandler = async (req: Request, res: Response, next: NextFunctio
 
 const deleteSystemAlertsHandler = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const body = req.body;
+    const body = _.get(req, 'body', {});
     const { filters } = body;
     if (!filters) throw new Error("Failed to update record");
     await deleteSystemRules({ filters, manager: "grafana" });

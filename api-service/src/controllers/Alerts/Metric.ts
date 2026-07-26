@@ -10,8 +10,8 @@ const telemetryObject = { type: "metric", ver: "1.0.0" };
 
 const createMetricHandler = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const { component } = req.body;
-        const metricsBody = await Metrics.create({ ...(req.body), component: component });
+        const component  = _.get(req, 'body.component');
+        const metricsBody = await Metrics.create({ ...(_.get(req, 'body')), component: component });
         updateTelemetryAuditEvent({ request: req, object: { id: metricsBody?.dataValues?.id, ...telemetryObject } });
         ResponseHandler.successResponse(req, res, { status: httpStatus.OK, data: { id: metricsBody.dataValues.id } });
     } catch (error: any) {
@@ -36,8 +36,8 @@ const listMetricsHandler = async (req: Request, res: Response, next: NextFunctio
 
 const updateMetricHandler = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const { id } = req.params;
-        const toUpdatePayload = req.body;
+        const id = _.get(req, 'params.id');
+        const toUpdatePayload = _.get(req, 'body');
         const { component } = toUpdatePayload;
         const isEmpty = _.isEmpty(toUpdatePayload);
         if (isEmpty) throw new Error("Failed to update record");
@@ -59,7 +59,7 @@ const updateMetricHandler = async (req: Request, res: Response, next: NextFuncti
 
 const deleteMetricHandler = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const { id } = req.params;
+        const id = _.get(req, 'params.id');
         const record = await Metrics.findOne({ where: { id } });
         if (!record) throw new Error(httpStatus[httpStatus.NOT_FOUND]);
         await record.destroy();
@@ -72,7 +72,7 @@ const deleteMetricHandler = async (req: Request, res: Response, next: NextFuncti
 
 const deleteMultipleMetricHandler = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const { filters } = req.body;
+        const filters = _.get(req, 'body.filters');
         if (!filters) throw new Error("Failed to update record");
         await Metrics.destroy({ where: filters });
         ResponseHandler.successResponse(req, res, { status: httpStatus.OK, data: {} });

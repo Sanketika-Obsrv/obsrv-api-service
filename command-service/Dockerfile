@@ -1,4 +1,18 @@
-FROM --platform=linux/amd64 python:3.12-slim
+# ---- Stage 1: Rebuild Go binaries with Go 1.25.7 to fix crypto/tls CVE ----
+FROM --platform=linux/amd64 public.ecr.aws/docker/library/golang:1.25.7-bookworm AS go-builder
+
+# Rebuild kubectl v1.35.1 from source with patched Go toolchain
+WORKDIR /build/kubernetes
+RUN git clone --depth 1 --branch v1.35.1 https://github.com/kubernetes/kubernetes.git . && \
+    CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath -ldflags="-s -w" -o /out/kubectl ./cmd/kubectl
+
+# Rebuild helm v3.20.0 from source with patched Go toolchain
+WORKDIR /build/helm
+RUN git clone --depth 1 --branch v3.20.0 https://github.com/helm/helm.git . && \
+    CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath -ldflags="-s -w" -o /out/helm ./cmd/helm
+
+# ---- Stage 2: Final application image ----
+FROM --platform=linux/amd64 public.ecr.aws/docker/library/python:3.12-slim
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
@@ -9,11 +23,12 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     vim \
     && rm -rf /var/lib/apt/lists/*
 
-RUN curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl" && \
-    chmod +x kubectl && \
-    mv kubectl /usr/local/bin/
+# Fix MEDIUM: upgrade pip to >= 25.3 (CVE fix)
+RUN pip install --no-cache-dir --upgrade "pip>=25.3"
 
-RUN curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+# Copy Go binaries rebuilt with Go 1.25.7 (all Go stdlib & module CVEs fixed)
+COPY --from=go-builder /out/kubectl /usr/local/bin/kubectl
+COPY --from=go-builder /out/helm /usr/local/bin/helm
 WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt

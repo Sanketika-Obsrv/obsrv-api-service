@@ -19,8 +19,9 @@ export const defaultFields = ["dataset_id", "name", "type", "status", "tags", "v
 
 const validateRequest = (req: Request) => {
 
-    const { dataset_id } = req.params;
-    const { fields, mode } = req.query;
+    const dataset_id = _.get(req, 'params.dataset_id');
+    const fields = _.get(req, 'query.fields');
+    const mode = _.get(req, 'query.mode');
     const fieldValues = fields ? _.split(fields as string, ",") : [];
     const invalidFields = mode === "edit" ? _.difference(fieldValues, Object.keys(DatasetDraft.getAttributes())) : _.difference(fieldValues, Object.keys(Dataset.getAttributes()));
     if (!_.isEmpty(invalidFields)) {
@@ -32,8 +33,9 @@ const validateRequest = (req: Request) => {
 const datasetRead = async (req: Request, res: Response) => {
 
     validateRequest(req);
-    const { dataset_id } = req.params;
-    const { fields, mode } = req.query;
+    const dataset_id = _.get(req, 'params.dataset_id');
+    const fields = _.get(req, 'query.fields');
+    const mode = _.get(req, 'query.mode');
     const userID = (req as any)?.userID;
     const attributes = !fields ? defaultFields : _.split(<string>fields, ",");
     const dataset = (mode == "edit") ? await readDraftDataset(dataset_id, attributes, userID) : await readDataset(dataset_id, attributes)

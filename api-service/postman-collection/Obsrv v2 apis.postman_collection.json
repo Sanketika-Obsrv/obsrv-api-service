@@ -7483,7 +7483,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"manager\": \"grafana\",\n    \"name\": \"functional-metrics-slack\",\n    \"type\": \"slack\",\n    \"config\": {\n        \"channel\": \"grafana-alerts\",\n        \"webhookUrl\": \"https://hooks.slack.com/services/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\"\n    }\n}",
+							"raw": "{\n    \"manager\": \"grafana\",\n    \"name\": \"functional-metrics-slack\",\n    \"type\": \"slack\",\n    \"config\": {\n        \"channel\": \"grafana-alerts\",\n        \"webhookUrl\": \"https://hooks.slack.com/services/****/****/*****\"\n    }\n}",
 							"options": {
 								"raw": {
 									"language": "json"

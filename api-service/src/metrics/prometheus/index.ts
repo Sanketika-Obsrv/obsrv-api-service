@@ -25,6 +25,7 @@ const metricsScrapeHandler = async (req: any, res: any, next: NextFunction) => {
     try {
         res.set("Content-Type", register.contentType);
         const metrics = await register.metrics()
+        res.setHeader('STRICT-TRANSPORT-SECURITY', 'max-age=31536000; includeSubDomains');
         res.status(200).send(metrics);
     } catch (error) {
         next(error)
