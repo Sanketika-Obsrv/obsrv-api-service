@@ -19,7 +19,7 @@ RUN apk add --no-cache \
     bash
 
 RUN mkdir -p /usr/local/bin && \
-    curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/${TARGETARCH}/kubectl" && \
+    curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/${TARGETARCH:-amd64}/kubectl" && \
     chmod +x kubectl && \
     mv kubectl /usr/local/bin/
 
