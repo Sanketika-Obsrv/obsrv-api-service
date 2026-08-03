@@ -10,7 +10,7 @@ ARG RUNTIME_IMAGE=dhi.io/node:24-alpine3.24
 # Stage 1 - build (tsc -> dist)
 FROM ${BUILD_IMAGE} AS build
 WORKDIR /opt/api-service
-COPY api-service/package.json api-service/package-lock.json ./
+COPY api-service/package.json ./
 RUN npm install
 COPY api-service/ .
 RUN rm -rf postman-collection \
