@@ -4,6 +4,7 @@
 ARG BASE_IMAGE=dhi.io/python:3.12-alpine3.24-dev
 FROM ${BASE_IMAGE}
 ARG TARGETARCH
+ARG HELM_VERSION=v3.13.2
 
 RUN apk add --no-cache \
     build-base \
@@ -19,11 +20,15 @@ RUN apk add --no-cache \
     bash
 
 RUN mkdir -p /usr/local/bin && \
-    curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/${TARGETARCH:-amd64}/kubectl" && \
-    chmod +x kubectl && \
-    mv kubectl /usr/local/bin/
+    curl -fsSLo /usr/local/bin/kubectl "https://dl.k8s.io/release/$(curl -fsSL https://dl.k8s.io/release/stable.txt)/bin/linux/${TARGETARCH:-amd64}/kubectl" && \
+    chmod +x /usr/local/bin/kubectl && \
+    kubectl version --client
 
-RUN curl -fsSL https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+RUN cd /tmp && curl -fsSLO "https://get.helm.sh/helm-${HELM_VERSION}-linux-${TARGETARCH:-amd64}.tar.gz" \
+    && tar -zxf "helm-${HELM_VERSION}-linux-${TARGETARCH:-amd64}.tar.gz" \
+    && mv "linux-${TARGETARCH:-amd64}/helm" /usr/local/bin/helm \
+    && rm -rf /tmp/helm-* "/tmp/linux-${TARGETARCH:-amd64}" \
+    && helm version
 
 WORKDIR /app
 COPY requirements.txt .
