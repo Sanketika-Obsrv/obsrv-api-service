@@ -10,12 +10,17 @@
 # libs (librdkafka, libpq -- not their -dev/-headers counterparts) and copies compiled Python
 # packages + kubectl/helm binaries from the build stage. No compiler, no headers, no apk
 # build tools in the shipped image.
+# Pinned explicitly (not resolved from stable.txt at build time) so a future kubectl/helm
+# release can't silently change API/cluster-version support underneath this image with no
+# diff to review. Bump deliberately -- check for CVEs against the new version first.
 ARG BASE_IMAGE=dhi.io/python:3.12-alpine3.24-dev
 ARG TARGETARCH
-ARG HELM_VERSION=v3.13.2
+ARG KUBECTL_VERSION=v1.31.0
+ARG HELM_VERSION=v3.21.3
 
 FROM ${BASE_IMAGE} AS build
 ARG TARGETARCH
+ARG KUBECTL_VERSION
 ARG HELM_VERSION
 
 RUN apk add --no-cache \
@@ -29,12 +34,20 @@ RUN apk add --no-cache \
     tar \
     gzip
 
+# Checksum-verified: dl.k8s.io/get.helm.sh publish a .sha256 alongside each binary/tarball --
+# without verifying it, a compromised or MITM'd response yields a trojaned binary that
+# chmod +x and `kubectl/helm version` both accept silently.
 RUN mkdir -p /usr/local/bin && \
-    curl -fsSLo /usr/local/bin/kubectl "https://dl.k8s.io/release/$(curl -fsSL https://dl.k8s.io/release/stable.txt)/bin/linux/${TARGETARCH:-amd64}/kubectl" && \
+    curl -fsSLo /usr/local/bin/kubectl "https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/linux/${TARGETARCH:-amd64}/kubectl" && \
+    curl -fsSL "https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/linux/${TARGETARCH:-amd64}/kubectl.sha256" -o /tmp/kubectl.sha256 && \
+    echo "$(cat /tmp/kubectl.sha256)  /usr/local/bin/kubectl" | sha256sum -c - && \
+    rm -f /tmp/kubectl.sha256 && \
     chmod +x /usr/local/bin/kubectl && \
     kubectl version --client
 
 RUN cd /tmp && curl -fsSLO "https://get.helm.sh/helm-${HELM_VERSION}-linux-${TARGETARCH:-amd64}.tar.gz" \
+    && curl -fsSLO "https://get.helm.sh/helm-${HELM_VERSION}-linux-${TARGETARCH:-amd64}.tar.gz.sha256sum" \
+    && sha256sum -c "helm-${HELM_VERSION}-linux-${TARGETARCH:-amd64}.tar.gz.sha256sum" \
     && tar -zxf "helm-${HELM_VERSION}-linux-${TARGETARCH:-amd64}.tar.gz" \
     && mv "linux-${TARGETARCH:-amd64}/helm" /usr/local/bin/helm \
     && rm -rf /tmp/helm-* "/tmp/linux-${TARGETARCH:-amd64}" \
