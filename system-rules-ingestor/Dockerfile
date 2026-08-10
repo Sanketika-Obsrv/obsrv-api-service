@@ -1,6 +1,12 @@
-FROM --platform=linux/amd64 node:20.10-alpine
+# DHI-hardened system-rules-ingestor (node batch job).
+# Build deps on the -dev variant (has npm), run on the minimal hardened node runtime.
+FROM dhi.io/node:22-alpine3.22-dev AS build
 WORKDIR /opt/app
-COPY ./package.json .
-RUN yarn install --silent
+COPY package.json package-lock.json* ./
+RUN npm install --omit=dev --no-audit --no-fund
 COPY . .
-CMD ["yarn", "run", "start"]
+
+FROM dhi.io/node:22-alpine3.22
+WORKDIR /opt/app
+COPY --from=build /opt/app /opt/app
+CMD ["node", "index.js"]

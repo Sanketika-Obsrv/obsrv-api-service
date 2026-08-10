@@ -1,9 +1,30 @@
-FROM --platform=linux/amd64 node:24.3.0-alpine
-RUN mkdir -p /opt/api-service
-COPY ./api-service  ./opt/api-service
+# DHI hardened build. Dev variant (shell + npm + toolchain) for install/build; minimal
+# shell-less non-root runtime. Runtime actually runs `ts-node/register` against the raw
+# src/*.ts (see CMD below) -- NOT a tsc-compiled dist/ build. ts-node + typescript ship as
+# runtime deps and the app type-checks at container start, not at build time. This is
+# intentional for now: a tsc build wouldn't carry over assets loaded via fs.readFileSync
+# (e.g. src/configs/alertsConfig.json) or the top-level swagger-doc/ dir, both of which
+# `tsc` only copies for statically-imported files -- switching to dist/ needs an explicit
+# asset-copy step first, not just a CMD change.
+# Build context is the REPO ROOT (CI: `-f api-service/Dockerfile .`), so COPY paths are
+# prefixed with api-service/.
+ARG BUILD_IMAGE=dhi.io/node:24-alpine3.24-dev
+ARG RUNTIME_IMAGE=dhi.io/node:24-alpine3.24
+
+# Stage 1 - install deps (keeps the build/dev toolchain out of the final image layers)
+FROM ${BUILD_IMAGE} AS build
 WORKDIR /opt/api-service
-RUN rm -rf postman-collection
+# package-lock.json is gitignored (not in the CI git context), so copy only package.json.
+COPY api-service/package.json ./
 RUN npm install
-COPY . .
+COPY api-service/ .
+RUN rm -rf postman-collection
+
+# Stage 2 - runtime (DHI hardened, non-root). Runs ts-node like the original image; ts-node +
+# typescript are devDependencies needed at runtime, so node_modules is copied intact (no prune).
+FROM ${RUNTIME_IMAGE}
+WORKDIR /opt/api-service
+COPY --chown=node:node --from=build /opt/api-service .
+USER node
 EXPOSE 3000
-CMD ["npm", "run", "start"]
+CMD ["node", "-r", "ts-node/register", "./src/app.ts"]
