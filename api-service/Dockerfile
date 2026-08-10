@@ -1,7 +1,11 @@
 # DHI hardened build. Dev variant (shell + npm + toolchain) for install/build; minimal
-# shell-less non-root runtime. dataset-api compiles TS -> dist/ (tsc) and starts via plain
-# `node` — no shell/npm/ts-node needed at runtime (tsconfig has no path aliases, so no
-# tsconfig-paths at runtime either).
+# shell-less non-root runtime. Runtime actually runs `ts-node/register` against the raw
+# src/*.ts (see CMD below) -- NOT a tsc-compiled dist/ build. ts-node + typescript ship as
+# runtime deps and the app type-checks at container start, not at build time. This is
+# intentional for now: a tsc build wouldn't carry over assets loaded via fs.readFileSync
+# (e.g. src/configs/alertsConfig.json) or the top-level swagger-doc/ dir, both of which
+# `tsc` only copies for statically-imported files -- switching to dist/ needs an explicit
+# asset-copy step first, not just a CMD change.
 # Build context is the REPO ROOT (CI: `-f api-service/Dockerfile .`), so COPY paths are
 # prefixed with api-service/.
 ARG BUILD_IMAGE=dhi.io/node:24-alpine3.24-dev
