@@ -1,4 +1,3 @@
-import axios from "axios";
 import { NextFunction, Request, Response } from "express";
 import { config } from "../configs/Config";
 import { ResponseHandler } from "../helpers/ResponseHandler";

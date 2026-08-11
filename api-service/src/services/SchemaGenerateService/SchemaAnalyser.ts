@@ -7,7 +7,7 @@ export class SchemaAnalyser {
     private cardinalCols = ["uuid"]
 
     private schemas: Map<string, any>[];
-    private minimumSchemas: number = 1
+    private minimumSchemas = 1
 
 
     constructor(schemas: Map<string, any>[]) {
@@ -66,7 +66,7 @@ export class SchemaAnalyser {
                 path: _.replace(Object.keys(occurance.absolutePath)[0], "$.", ""),
             }
         }
-        const minimumOccurance: number = 1
+        const minimumOccurance = 1
         if (_.size(occurance.dataType) > minimumOccurance) {
             const isUnresolvable: boolean = _.uniq(_.values(occurance.dataType)).length === 1;
             const highestValueKey = !isUnresolvable ? Object.keys(occurance.dataType).reduce((a, b) => occurance.dataType[a] > occurance.dataType[b] ? a : b) : undefined
@@ -122,7 +122,7 @@ export class SchemaAnalyser {
      * 
      */
     private findOptionalPropConflicts(occurance: Occurance): Conflict {
-        const maxOccurance: number = 1
+        const maxOccurance = 1
         const requiredCount = _.map(occurance.property, (value) => {
             return value
         })[0]

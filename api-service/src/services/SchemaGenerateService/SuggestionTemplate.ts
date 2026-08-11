@@ -27,7 +27,7 @@ export class SuggestionTemplate {
         })
     }
 
-    private getSchemaMessageTemplate(object: Conflict, arrival_format: boolean = false): Suggestion | [] {
+    private getSchemaMessageTemplate(object: Conflict, arrival_format = false): Suggestion | [] {
         if (_.isEmpty(object)) return <Suggestion>{}
         let message, arrival_format_message, advice;
         if (object.type === constants.SCHEMA_RESOLUTION_TYPE.NULL_FIELD) {

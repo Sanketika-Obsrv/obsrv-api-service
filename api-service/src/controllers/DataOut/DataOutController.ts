@@ -12,7 +12,7 @@ import { obsrvError } from "../../types/ObsrvError";
 export const apiId = "api.data.out";
 export const query_data = { "data": {} };
 
-const dataOutSql = async (req: Request, res: Response, msgid: string, requestBody: any) => {
+const dataOutSql = async (req: Request, res: Response, msgid: string) => {
     await buildSqlQuery(req, _.get(req, "body.query"));
     setQueryLimits(req.body);
     const cappedQuery = _.get(req, "body.query");
@@ -61,7 +61,7 @@ const dataOut = async (req: Request, res: Response) => {
 
     const query = _.get(req, "body.query");
     if (_.isString(query)) {
-        return dataOutSql(req, res, msgid, requestBody);
+        return dataOutSql(req, res, msgid);
     }
     return dataOutNative(req, res, msgid, requestBody);
 };

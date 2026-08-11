@@ -249,7 +249,7 @@ const getNotificationChannel = async (channels: string[]) => {
         return Notification.findOne({ where: { id } })
             .then(response => response?.toJSON())
             .then(channelMetadata => {
-                const { name, type } = channelMetadata;
+                const { name } = channelMetadata;
                 return name;
             })
             .catch(() => null);

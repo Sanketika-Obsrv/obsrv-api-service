@@ -1,5 +1,5 @@
-import { DataTypes } from 'sequelize';
-import { sequelize } from '../connections/databaseConnection';
+import { DataTypes } from "sequelize";
+import { sequelize } from "../connections/databaseConnection";
 
 export const TableDraft = sequelize.define("table_draft", {
     id: {

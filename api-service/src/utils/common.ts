@@ -30,7 +30,7 @@ export const getFileKey = (key: string): string => {
 };
 
 export const isValidDateRange = (
-    fromDate: moment.Moment, toDate: moment.Moment, allowedRange: number = 0
+    fromDate: moment.Moment, toDate: moment.Moment, allowedRange = 0
 ): boolean => {
     const differenceInDays = Math.abs(fromDate.diff(toDate, "days"));
     const isValidDates = differenceInDays > allowedRange ? false : true;

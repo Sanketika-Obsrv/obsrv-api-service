@@ -3,7 +3,7 @@ import { IValidator } from "../types/DatasetModels";
 import { ValidationStatus } from "../types/ValidationModels";
 
 export class RequestsValidator implements IValidator {
-    private schemaBasePath: string = "/src/resources/";
+    private schemaBasePath = "/src/resources/";
     private reqSchemaMap = new Map<string, any>();
     // private validator: Ajv;
 

@@ -69,7 +69,7 @@ const datasetUpdate = async (req: Request, res: Response) => {
 const mergeDraftDataset = (datasetModel: Model<any, any> | null, datasetReq: any): Record<string, any> => {
 
     const prev_dataset_config = _.get(datasetModel, ["dataset_config"])
-    const currentSchema = _.get(datasetModel, 'data_schema')
+    const currentSchema = _.get(datasetModel, "data_schema")
     const fieldsRemoved = (datasetReq.data_schema) ? getMissingFieldsInNewSchema(datasetReq.data_schema, currentSchema) : []
     const dataset: Record<string, any> = {
         version_key: Date.now().toString(),
@@ -91,25 +91,25 @@ const mergeDraftDataset = (datasetModel: Model<any, any> | null, datasetReq: any
     if (fieldsRemoved.length > 0) {
         const keys_config = _.get(dataset["dataset_config"] ? dataset["dataset_config"] : prev_dataset_config, ["keys_config"])
         let modified = false;
-        if (_.includes(fieldsRemoved, keys_config['data_key'])) {
+        if (_.includes(fieldsRemoved, keys_config["data_key"])) {
             modified = true;
-            keys_config['data_key'] = '';
+            keys_config["data_key"] = "";
         }
-        if (_.includes(fieldsRemoved, keys_config['partition_key'])) {
+        if (_.includes(fieldsRemoved, keys_config["partition_key"])) {
             modified = true;
-            keys_config['partition_key'] = '';
+            keys_config["partition_key"] = "";
         }
-        if (_.includes(fieldsRemoved, keys_config['timestamp_key'])) {
+        if (_.includes(fieldsRemoved, keys_config["timestamp_key"])) {
             modified = true;
-            keys_config['timestamp_key'] = '';
+            keys_config["timestamp_key"] = "";
         }
         if (modified) {
             if (dataset["dataset_config"]) {
-                _.set(dataset["dataset_config"], 'keys_config', keys_config)
+                _.set(dataset["dataset_config"], "keys_config", keys_config)
             } else {
                 const keys_config = _.get(prev_dataset_config, ["keys_config"])
                 dataset["dataset_config"] = { ...prev_dataset_config }
-                _.set(dataset["dataset_config"], 'keys_config', keys_config)
+                _.set(dataset["dataset_config"], "keys_config", keys_config)
             }
         }
     }
@@ -121,14 +121,14 @@ const getMissingFieldsInNewSchema = (newSchema: any, oldSchema: any) => {
     const getRemovedPropertiesFieldsNested = (oldProperties: Record<string, any>, newProperties: Record<string, any>, path: string[] = []): string[] => {
         let removedFields: string[] = [];
         for (const key in oldProperties) {
-            const fullPath = [...path, key].join('.');
+            const fullPath = [...path, key].join(".");
             if (!(key in newProperties)) {
                 removedFields.push(fullPath);
-                if (typeof oldProperties[key] === 'object' && oldProperties[key].properties) {
+                if (typeof oldProperties[key] === "object" && oldProperties[key].properties) {
                     removedFields = removedFields.concat(getRemovedPropertiesFieldsNested(oldProperties[key].properties || {}, {}, [...path, key]));
                 }
             }
-            else if (typeof oldProperties[key] === 'object' && typeof newProperties[key] === 'object') {
+            else if (typeof oldProperties[key] === "object" && typeof newProperties[key] === "object") {
                 removedFields = removedFields.concat(
                     getRemovedPropertiesFieldsNested(
                         oldProperties[key].properties || {},
