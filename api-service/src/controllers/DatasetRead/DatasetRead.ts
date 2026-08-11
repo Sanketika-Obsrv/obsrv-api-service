@@ -17,12 +17,15 @@ export const errorCode = "DATASET_READ_FAILURE"
 // TODO: Move this to a config
 export const defaultFields = ["dataset_id", "name", "type", "status", "tags", "version", "api_version", "dataset_config"]
 
+const configFields = ["connectors_config", "transformations_config"];
+
 const validateRequest = (req: Request) => {
 
     const { dataset_id } = req.params;
     const { fields, mode } = req.query;
     const fieldValues = fields ? _.split(fields as string, ",") : [];
-    const invalidFields = mode === "edit" ? _.difference(fieldValues, Object.keys(DatasetDraft.getAttributes())) : _.difference(fieldValues, Object.keys(Dataset.getAttributes()));
+    const allowedFields = mode === "edit" ? _.keys(DatasetDraft.getAttributes()) : _.keys(Dataset.getAttributes());
+    const invalidFields = _.difference(fieldValues, [...allowedFields, ...configFields]);
     if (!_.isEmpty(invalidFields)) {
         throw obsrvError(dataset_id, "DATASET_INVALID_FIELDS", `The specified fields [${invalidFields}] in the dataset cannot be found.`, "BAD_REQUEST", 400);
     }

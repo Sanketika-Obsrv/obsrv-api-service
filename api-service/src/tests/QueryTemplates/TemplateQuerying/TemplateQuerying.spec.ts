@@ -9,6 +9,8 @@ import nock from "nock";
 import { config } from "../../../configs/Config";
 import { templateQueryApiFixtures } from "./Fixtures";
 import { druidHttpService } from "../../../connections/druidConnection";
+import { userService } from "../../../services/UserService";
+import { buildRbacToken, NO_ACCESS_ROLE } from "../../helpers/rbacTestHelper";
 const apiId = "api.query.template.query";
 const msgid = "4a7f14c3-d61e-4d4f-be78-181834eeff6d"
 
@@ -29,6 +31,7 @@ describe("QUERY TEMPLATE API", () => {
     afterEach(() => {
         chai.spy.restore();
         nock.cleanAll();
+        config.is_RBAC_enabled = "false";
     });
 
     it("Query template Success: Query successfully executed for sql template", (done) => {
@@ -220,6 +223,22 @@ describe("QUERY TEMPLATE API", () => {
                 res.body.error.code.should.be.eq("INTERNAL_SERVER_ERROR");
                 res.body.params.msgid.should.be.eq(msgid);
                 res.body.params.should.have.property("resmsgid");
+                done();
+            });
+    })
+
+    it("Query template failure: RBAC enabled and user lacks a valid role", (done) => {
+        config.is_RBAC_enabled = "true";
+        chai.spy.on(userService, "getUser", () => {
+            return Promise.resolve({ roles: [NO_ACCESS_ROLE] })
+        })
+        chai
+            .request(app)
+            .post("/v2/template/query/sql1")
+            .set("Authorization", `Bearer ${buildRbacToken()}`)
+            .send(templateQueryApiFixtures.VALID_REQUEST_BODY)
+            .end((err, res) => {
+                res.should.have.status(403);
                 done();
             });
     })

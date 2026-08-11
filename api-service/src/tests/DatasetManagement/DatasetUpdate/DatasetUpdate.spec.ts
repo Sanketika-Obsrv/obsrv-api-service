@@ -10,6 +10,9 @@ import { TestInputsForDatasetUpdate, msgid, requestStructure, validVersionKey } 
 import { DatasetTransformationsDraft } from "../../../models/TransformationDraft";
 import { apiId, invalidInputErrCode } from "../../../controllers/DatasetUpdate/DatasetUpdate"
 import { sequelize } from "../../../connections/databaseConnection";
+import { userService } from "../../../services/UserService";
+import { config } from "../../../configs/Config";
+import { buildRbacToken, NO_ACCESS_ROLE } from "../../helpers/rbacTestHelper";
 
 
 chai.use(spies);
@@ -20,6 +23,7 @@ describe("DATASET UPDATE API", () => {
 
     afterEach(() => {
         chai.spy.restore();
+        config.is_RBAC_enabled = "false";
     });
 
     it("Dataset updation success: When minimal request payload provided", (done) => {
@@ -347,4 +351,20 @@ describe("DATASET UPDATE API", () => {
                 });
         });
     })
+
+    it("Dataset updation failure: RBAC enabled and user lacks a valid role", (done) => {
+        config.is_RBAC_enabled = "true";
+        chai.spy.on(userService, "getUser", () => {
+            return Promise.resolve({ roles: [NO_ACCESS_ROLE] })
+        })
+        chai
+            .request(app)
+            .patch("/v2/datasets/update")
+            .set("Authorization", `Bearer ${buildRbacToken()}`)
+            .send(TestInputsForDatasetUpdate.MINIMAL_DATASET_UPDATE_REQUEST)
+            .end((err, res) => {
+                res.should.have.status(httpStatus.FORBIDDEN);
+                done();
+            });
+    });
 })

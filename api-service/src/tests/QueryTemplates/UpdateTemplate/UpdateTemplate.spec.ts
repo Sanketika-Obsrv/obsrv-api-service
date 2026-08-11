@@ -5,6 +5,9 @@ import spies from "chai-spies";
 import { describe, it } from "mocha";
 import { updateTemplateFixtures } from "./Fixtures"
 import { QueryTemplate } from "../../../models/QueryTemplate";
+import { userService } from "../../../services/UserService";
+import { config } from "../../../configs/Config";
+import { buildRbacToken, NO_ACCESS_ROLE } from "../../helpers/rbacTestHelper";
 const apiId = "api.query.template.update"
 const msgid = "4a7f14c3-d61e-4d4f-be78-181834eeff6d";
 chai.use(spies);
@@ -15,6 +18,7 @@ describe("UPDATE QUERY TEMPLATE API", () => {
 
     afterEach(() => {
         chai.spy.restore();
+        config.is_RBAC_enabled = "false";
     });
 
     it("Update template success: should update query template", (done) => {
@@ -142,6 +146,22 @@ describe("UPDATE QUERY TEMPLATE API", () => {
                 res.body.params.msgid.should.be.eq(msgid)
                 res.body.error.message.should.be.eq("Failed to update query template");
                 res.body.error.code.should.be.eq("QUERY_TEMPLATE_UPDATE_FAILED")
+                done();
+            });
+    })
+
+    it("Update template failure: RBAC enabled and user lacks a valid role", (done) => {
+        config.is_RBAC_enabled = "true";
+        chai.spy.on(userService, "getUser", () => {
+            return Promise.resolve({ roles: [NO_ACCESS_ROLE] })
+        })
+        chai
+            .request(app)
+            .patch("/v2/template/update/sql11template1")
+            .set("Authorization", `Bearer ${buildRbacToken()}`)
+            .send(updateTemplateFixtures.VALID_REQUEST_BODY)
+            .end((err, res) => {
+                res.should.have.status(403);
                 done();
             });
     })
