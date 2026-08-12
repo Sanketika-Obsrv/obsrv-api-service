@@ -77,7 +77,7 @@ const readDraftDataset = async (datasetId: string, attributes: string[], userID:
 }
 
 const readDataset = async (datasetId: string, attributes: string[]): Promise<any> => {
-    const attrs = _.union(attributes, ["api_version"])
+    const attrs = _.union(_.difference(attributes, configFields), ["api_version"])
     const dataset = await datasetService.getDataset(datasetId, attrs, true);
     if (!dataset) {
         return;
