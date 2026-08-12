@@ -7,6 +7,9 @@ import { describe, it } from "mocha";
 import _ from "lodash";
 import { TestInputsForDatasetStatusTransition } from "./Fixtures";
 import { DatasetDraft } from "../../../models/DatasetDraft";
+import { userService } from "../../../services/UserService";
+import { config } from "../../../configs/Config";
+import { buildRbacToken, NO_ACCESS_ROLE } from "../../helpers/rbacTestHelper";
 
 
 chai.use(spies);
@@ -19,6 +22,7 @@ describe("DATASET STATUS TRANSITION API", () => {
 
     afterEach(() => {
         chai.spy.restore();
+        config.is_RBAC_enabled = "false";
     });
 
     it("Dataset status transition failure: Invalid request payload provided", (done) => {
@@ -54,6 +58,22 @@ describe("DATASET STATUS TRANSITION API", () => {
                 res.body.params.status.should.be.eq("FAILED")
                 res.body.error.code.should.be.eq("DATASET_API_VERSION_MISMATCH")
                 res.body.error.message.should.be.eq("Draft dataset api version is not v2. Perform a read api call with mode=edit to migrate the dataset")
+                done();
+            });
+    });
+
+    it("Dataset status transition failure: RBAC enabled and user lacks a valid role", (done) => {
+        config.is_RBAC_enabled = "true";
+        chai.spy.on(userService, "getUser", () => {
+            return Promise.resolve({ roles: [NO_ACCESS_ROLE] })
+        })
+        chai
+            .request(app)
+            .post("/v2/datasets/status-transition")
+            .set("Authorization", `Bearer ${buildRbacToken()}`)
+            .send(TestInputsForDatasetStatusTransition.VALID_SCHEMA_FOR_LIVE)
+            .end((err, res) => {
+                res.should.have.status(httpStatus.FORBIDDEN);
                 done();
             });
     });

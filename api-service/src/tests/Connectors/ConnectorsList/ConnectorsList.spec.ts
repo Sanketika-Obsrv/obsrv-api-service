@@ -6,6 +6,9 @@ import httpStatus from "http-status";
 import { describe, it } from "mocha";
 import { TestInputsForConnectorsList } from "./Fixtures";
 import { ConnectorRegistry } from "../../../models/ConnectorRegistry";
+import { userService } from "../../../services/UserService";
+import { config } from "../../../configs/Config";
+import { buildRbacToken, NO_ACCESS_ROLE } from "../../helpers/rbacTestHelper";
 
 chai.use(spies);
 chai.should();
@@ -18,7 +21,8 @@ const msgid = "4a7f14c3-d61e-4d4f-be78-181834eeff6d"
 describe("Connector List Api", () => {
     afterEach(() => {
         chai.spy.restore();
-    }); 
+        config.is_RBAC_enabled = "false";
+    });
 
     it("Connectors list Success: With all the filters provided", (done) => {
         chai.spy.on(ConnectorRegistry, "findAll", () => {
@@ -128,5 +132,19 @@ describe("Connector List Api", () => {
             });
     });
 
-    
+    it("Connectors list failure: RBAC enabled and user lacks a valid role", (done) => {
+        config.is_RBAC_enabled = "true";
+        chai.spy.on(userService, "getUser", () => {
+            return Promise.resolve({ roles: [NO_ACCESS_ROLE] })
+        })
+        chai
+            .request(app)
+            .post("/v2/connectors/list")
+            .set("Authorization", `Bearer ${buildRbacToken()}`)
+            .send(TestInputsForConnectorsList.REQUEST_WITHOUT_FILTERS)
+            .end((err, res) => {
+                res.should.have.status(httpStatus.FORBIDDEN);
+                done();
+            });
+    });
 })

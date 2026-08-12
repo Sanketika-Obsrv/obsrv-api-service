@@ -8,6 +8,9 @@ import _ from "lodash";
 import { apiId, code } from "../../../controllers/GenerateSignedURL/GenerateSignedURL";
 import { TestInputsForGenerateURL } from "./Fixtures";
 import { cloudProvider } from "../../../services/CloudServices";
+import { userService } from "../../../services/UserService";
+import { config } from "../../../configs/Config";
+import { buildRbacToken, NO_ACCESS_ROLE } from "../../helpers/rbacTestHelper";
 
 chai.use(spies);
 chai.should();
@@ -19,6 +22,7 @@ describe("FILES GENERATE-URL API", () => {
 
     afterEach(() => {
         chai.spy.restore();
+        config.is_RBAC_enabled = "false";
     });
 
     it("Files sample url generated successfully to download with more than one file", (done) => {
@@ -127,6 +131,22 @@ describe("FILES GENERATE-URL API", () => {
                 res.body.params.status.should.be.eq("FAILED")
                 res.body.error.code.should.be.eq(code)
                 res.body.error.message.should.be.eq("Failed to generate sample urls")
+                done();
+            });
+    });
+
+    it("Files generate-url failure: RBAC enabled and user lacks a valid role", (done) => {
+        config.is_RBAC_enabled = "true";
+        chai.spy.on(userService, "getUser", () => {
+            return Promise.resolve({ roles: [NO_ACCESS_ROLE] })
+        })
+        chai
+            .request(app)
+            .post(path)
+            .set("Authorization", `Bearer ${buildRbacToken()}`)
+            .send(TestInputsForGenerateURL.VALID_REQUEST_SCHEMA_WITH_ONE_FILE)
+            .end((err, res) => {
+                res.should.have.status(httpStatus.FORBIDDEN);
                 done();
             });
     });

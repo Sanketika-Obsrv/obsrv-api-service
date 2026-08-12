@@ -8,6 +8,8 @@ import chaiSpies from "chai-spies"
 import { describe, it } from "mocha";
 import { Datasource } from "../../../models/Datasource";
 import { druidHttpService } from "../../../connections/druidConnection";
+import { userService } from "../../../services/UserService";
+import { buildRbacToken, NO_ACCESS_ROLE } from "../../helpers/rbacTestHelper";
 chai.use(chaiSpies)
 chai.should();
 chai.use(chaiHttp);
@@ -18,8 +20,14 @@ const listDruidDatasources = config?.query_api?.druid?.list_datasources_path;
 const nativeQueryEndpointDruid = config?.query_api?.druid?.native_query_path;
 const sqlQueryEndpoint = config?.query_api?.druid?.sql_query_path;
 
-const response = [{ dataValues: { datasource_ref: "test.1_rollup_week", metadata: { aggregated: true, granularity: "week" } } }]
-const invalidResponse = [{ dataValues: { datasource_ref: "test.1_rollup_week", metadata: { aggregated: true, granularity: "n/a" } } }]
+// nativeRequestValidation calls Datasource.findOne directly (single row, flat with raw:true).
+const nativeDatasource = { dataset_id: "telemetry-events", datasource_ref: "test.1_rollup_week" }
+// The alias-lookup path in buildSqlQuery (SQL tests) calls Datasource.findAll (array, flat rows).
+const response = [{ datasource: "test", datasource_ref: "test.1_rollup_week" }]
+// dataValues-wrapped shape: used to force the getDataSourceRef() fallback (no top-level
+// dataset_id/datasource_ref, so nativeRequestValidation's destructure comes back empty).
+const invalidDatasourceFindOne = { dataValues: { datasource_ref: "test.1_rollup_week", metadata: { aggregated: true, granularity: "n/a" } } }
+const invalidResponse = [invalidDatasourceFindOne]
 const msgid = "e180ecac-8f41-4f21-9a21-0b3a1a368917";
 
 describe("QUERY API TESTS", () => {
@@ -27,12 +35,13 @@ describe("QUERY API TESTS", () => {
     afterEach(() => {
         chai.spy.restore()
         nock.cleanAll();
+        config.is_RBAC_enabled = "false";
     })
 
     it("Query api failure: Datasource not found in druid", (done) => {
-        chai.spy.on(Datasource, "findAll", () => {
+        chai.spy.on(Datasource, "findOne", () => {
             return Promise.resolve(
-                response
+                nativeDatasource
             )
         })
         chai.spy.on(druidHttpService, "get", () => {
@@ -59,8 +68,8 @@ describe("QUERY API TESTS", () => {
     });
 
     it("Query api failure: Datasource not found in live table", (done) => {
-        chai.spy.on(Datasource, "findAll", () => {
-            return Promise.resolve([])
+        chai.spy.on(Datasource, "findOne", () => {
+            return Promise.resolve(null)
         })
         chai
             .request(app)
@@ -71,16 +80,16 @@ describe("QUERY API TESTS", () => {
                 res.body.params.status.should.be.eq("FAILED");
                 res.body.responseCode.should.be.eq("NOT_FOUND");
                 res.body.params.msgid.should.be.eq(msgid);
-                res.body.error.message.should.be.eq("Datasource telemetry-events not available for querying");
-                res.body.error.code.should.be.eq("DATASOURCE_NOT_FOUND");
+                res.body.error.message.should.be.eq("Dataset with id/alias name 'telemetry-events' not found");
+                res.body.error.code.should.be.eq("DATASET_NOT_FOUND");
                 done();
             });
     });
 
     it("Query api failure: Datasource not available in druid", (done) => {
-        chai.spy.on(Datasource, "findAll", () => {
+        chai.spy.on(Datasource, "findOne", () => {
             return Promise.resolve(
-                response
+                nativeDatasource
             )
         })
         chai.spy.on(druidHttpService, "get", () => {
@@ -104,9 +113,9 @@ describe("QUERY API TESTS", () => {
     });
 
     it("Query api failure: Datasource not fully loaded in druid", (done) => {
-        chai.spy.on(Datasource, "findAll", () => {
+        chai.spy.on(Datasource, "findOne", () => {
             return Promise.resolve(
-                response
+                nativeDatasource
             )
         })
         chai.spy.on(druidHttpService, "get", () => {
@@ -123,13 +132,16 @@ describe("QUERY API TESTS", () => {
                 res.body.params.status.should.be.eq("FAILED");
                 res.body.responseCode.should.be.eq("RANGE_NOT_SATISFIABLE");
                 res.body.params.msgid.should.be.eq(msgid);
-                res.body.error.message.should.be.eq("Datasource not fully available for querying");
+                res.body.error.message.should.be.eq("Data is still loading. Please try after some time.");
                 res.body.error.code.should.be.eq("DATASOURCE_NOT_FULLY_AVAILABLE");
                 done();
             });
     });
 
     it("Query api failure: Datasource not found", (done) => {
+        chai.spy.on(Datasource, "findOne", () => {
+            return Promise.resolve(invalidDatasourceFindOne)
+        })
         chai.spy.on(Datasource, "findAll", () => {
             return Promise.resolve(
                 invalidResponse
@@ -151,8 +163,8 @@ describe("QUERY API TESTS", () => {
     });
 
     it("Query api failure : when druid is down, it should raise error when native query endpoint is called", (done) => {
-        chai.spy.on(Datasource, "findAll", () => {
-            return Promise.resolve(response)
+        chai.spy.on(Datasource, "findOne", () => {
+            return Promise.resolve(nativeDatasource)
         })
         chai.spy.on(druidHttpService, "get", () => {
             return Promise.resolve({
@@ -199,6 +211,7 @@ describe("QUERY API TESTS", () => {
         chai
             .request(app)
             .post("/v2/data/query/telemetry-events")
+            .query({ test: "test" })
             .send(JSON.parse(TestQueries.VALID_SQL_QUERY))
             .end((err, res) => {
                 res.should.have.status(500);
@@ -213,8 +226,8 @@ describe("QUERY API TESTS", () => {
     });
 
     it("Query api success : it should fetch information from druid data source for native query", (done) => {
-        chai.spy.on(Datasource, "findAll", () => {
-            return Promise.resolve(response)
+        chai.spy.on(Datasource, "findOne", () => {
+            return Promise.resolve(nativeDatasource)
         })
         chai.spy.on(druidHttpService, "get", () => {
             return Promise.resolve({
@@ -245,8 +258,8 @@ describe("QUERY API TESTS", () => {
     });
 
     it("Query api success : it should fetch information from druid data source for native query for valid interval", (done) => {
-        chai.spy.on(Datasource, "findAll", () => {
-            return Promise.resolve(response)
+        chai.spy.on(Datasource, "findOne", () => {
+            return Promise.resolve(nativeDatasource)
         })
         chai.spy.on(druidHttpService, "get", () => {
             return Promise.resolve({
@@ -294,6 +307,7 @@ describe("QUERY API TESTS", () => {
         chai
             .request(app)
             .post("/v2/data/query/telemetry-events")
+            .query({ test: "test" })
             .send(JSON.parse(TestQueries.VALID_SQL_QUERY))
             .end((err, res) => {
                 res.should.have.status(200);
@@ -342,6 +356,7 @@ describe("QUERY API TESTS", () => {
         chai
             .request(app)
             .post("/v2/data/query/telemetry-events")
+            .query({ "telemetry-events": "test" })
             .send(JSON.parse(TestQueries.VALID_SQL_QUERY_WITHOUT_LIMIT))
             .end((err, res) => {
                 res.should.have.status(200);
@@ -355,15 +370,9 @@ describe("QUERY API TESTS", () => {
     });
 
     it("it should set threshold to number when it is NaN in sql query", (done) => {
-        chai.spy.on(Datasource, "findAll", () => {
-            return Promise.resolve(response)
-        })
-        nock(druidHost + ":" + druidPort)
-            .get(listDruidDatasources)
-            .reply(200, ["telemetry-events.1_rollup_week"])
-        nock(druidHost + ":" + druidPort)
-            .post(nativeQueryEndpointDruid)
-            .reply(200);
+        chai.spy.on(Datasource, "findOne", () => {
+            return Promise.resolve(nativeDatasource)
+        });
         chai
             .request(app)
             .post("/v2/data/query/telemetry-events")
@@ -379,6 +388,22 @@ describe("QUERY API TESTS", () => {
                 res.body.error.code.should.be.eq("DATA_OUT_INVALID_DATE_RANGE")
                 res.body.params.msgid.should.be.eq(msgid);
                 res.body.params.should.have.property("resmsgid");
+                done();
+            });
+    });
+
+    it("Query api failure: RBAC enabled and user lacks a valid role", (done) => {
+        config.is_RBAC_enabled = "true";
+        chai.spy.on(userService, "getUser", () => {
+            return Promise.resolve({ roles: [NO_ACCESS_ROLE] })
+        })
+        chai
+            .request(app)
+            .post("/v2/data/query/telemetry-events")
+            .set("Authorization", `Bearer ${buildRbacToken()}`)
+            .send(JSON.parse(TestQueries.VALID_QUERY))
+            .end((err, res) => {
+                res.should.have.status(403);
                 done();
             });
     });

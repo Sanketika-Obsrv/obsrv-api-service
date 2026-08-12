@@ -4,6 +4,9 @@ import chaiHttp from "chai-http";
 import spies from "chai-spies";
 import { describe, it } from "mocha";
 import { QueryTemplate } from "../../../models/QueryTemplate";
+import { userService } from "../../../services/UserService";
+import { config } from "../../../configs/Config";
+import { buildRbacToken, NO_ACCESS_ROLE } from "../../helpers/rbacTestHelper";
 const apiId = "api.query.template.read"
 
 chai.use(spies);
@@ -14,6 +17,7 @@ describe("READ QUERY TEMPLATE API", () => {
 
     afterEach(() => {
         chai.spy.restore();
+        config.is_RBAC_enabled = "false";
     });
 
     it("Read template success: Read template successful", (done) => {
@@ -85,6 +89,21 @@ describe("READ QUERY TEMPLATE API", () => {
                 res.body.params.status.should.be.eq("FAILED")
                 res.body.error.message.should.be.eq("Failed to read query template");
                 res.body.error.code.should.be.eq("QUERY_TEMPLATE_READ_FAILED")
+                done();
+            });
+    })
+
+    it("Read template failure: RBAC enabled and user lacks a valid role", (done) => {
+        config.is_RBAC_enabled = "true";
+        chai.spy.on(userService, "getUser", () => {
+            return Promise.resolve({ roles: [NO_ACCESS_ROLE] })
+        })
+        chai
+            .request(app)
+            .get("/v2/template/read/sql1")
+            .set("Authorization", `Bearer ${buildRbacToken()}`)
+            .end((err, res) => {
+                res.should.have.status(403);
                 done();
             });
     })

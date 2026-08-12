@@ -5,8 +5,8 @@
   "main": "dist/app.js",
   "scripts": {
     "start": "ts-node ./src/app.ts",
-    "test": "source .env.test && nyc mocha ./src/tests/**/*.spec.ts --exit",
-    "actions:test": "nyc mocha ./src/tests/**/*.spec.ts --exit",
+    "test": "source .env.test && nyc mocha",
+    "actions:test": "nyc mocha",
     "build": "rm -rf dist && tsc --declaration -P . && cp package.json ./dist/package.json",
     "package": "npm run build && cd dist && npm pack . && cd ..",
     "lint": "eslint . --ext .ts",

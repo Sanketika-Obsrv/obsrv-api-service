@@ -16,6 +16,10 @@ import { DatasetTransformationsDraft } from "../../../models/TransformationDraft
 import { DatasetSourceConfigDraft } from "../../../models/DatasetSourceConfigDraft";
 import { sequelize } from "../../../connections/databaseConnection";
 import { DatasourceDraft } from "../../../models/DatasourceDraft";
+import { Datasource } from "../../../models/Datasource";
+import { userService } from "../../../services/UserService";
+import { config } from "../../../configs/Config";
+import jwt from "jsonwebtoken";
 
 chai.use(spies);
 chai.should();
@@ -40,6 +44,9 @@ describe("DATASET READ API", () => {
         chai.spy.on(DatasetSourceConfig, "findAll", () => {
             return Promise.resolve([])
         })
+        chai.spy.on(Datasource, "findOne", () => {
+            return Promise.resolve(null)
+        })
         chai
             .request(app)
             .get("/v2/datasets/read/sb-telemetry?fields=name,version,connectors_config,transformations_config")
@@ -51,7 +58,7 @@ describe("DATASET READ API", () => {
                 res.body.result.should.be.a("object")
                 res.body.result.name.should.be.eq("sb-telemetry")
                 const result = JSON.stringify(res.body.result)
-                result.should.be.eq(JSON.stringify({ "name": "sb-telemetry", "version": 1, "connectors_config": [], "transformations_config": [] }))
+                result.should.be.eq(JSON.stringify({ "name": "sb-telemetry", "version": 1, "transformations_config": [], "connectors_config": [] }))
                 done();
             });
     });
@@ -90,6 +97,9 @@ describe("DATASET READ API", () => {
         chai.spy.on(Dataset, "findOne", () => {
             return Promise.resolve(TestInputsForDatasetRead.LIVE_SCHEMA)
         })
+        chai.spy.on(Datasource, "findOne", () => {
+            return Promise.resolve(TestInputsForDatasetRead.DATASOURCE_SCHEMA)
+        })
         chai
             .request(app)
             .get("/v2/datasets/read/sb-telemetry")
@@ -101,7 +111,7 @@ describe("DATASET READ API", () => {
                 res.body.result.should.be.a("object")
                 res.body.result.status.should.be.eq("Live")
                 const result = JSON.stringify(res.body.result)
-                result.should.be.eq(JSON.stringify({ ...TestInputsForDatasetRead.LIVE_SCHEMA, connectors_config: TestInputsForDatasetRead.CONNECTORS_SCHEMA_V2, transformations_config: TestInputsForDatasetRead.TRANSFORMATIONS_SCHEMA }))
+                result.should.be.eq(JSON.stringify({ ...TestInputsForDatasetRead.LIVE_SCHEMA, alias: TestInputsForDatasetRead.DATASOURCE_SCHEMA.datasource, ingestion_spec: TestInputsForDatasetRead.DATASOURCE_SCHEMA.ingestion_spec, connectors_config: TestInputsForDatasetRead.CONNECTORS_SCHEMA_V2.map((c: any) => ({ ...c, version: "v2" })), transformations_config: TestInputsForDatasetRead.TRANSFORMATIONS_SCHEMA }))
                 done();
             });
     });
@@ -142,6 +152,81 @@ describe("DATASET READ API", () => {
                 result.should.be.eq(JSON.stringify(TestInputsForDatasetRead.DRAFT_SCHEMA))
                 done();
             });
+    });
+
+    describe("RBAC enabled", () => {
+        // testSetup.js forces is_RBAC_enabled=false globally so the rest of the suite doesn't
+        // need real auth tokens; these two tests flip it back on locally to cover the
+        // hasValidRole gate in readDraftDataset that's otherwise dead code in the suite.
+        afterEach(() => {
+            config.is_RBAC_enabled = "false";
+        });
+
+        it("Dataset read failure: RBAC enabled and user lacks a valid role on mode=edit", (done) => {
+            config.is_RBAC_enabled = "true";
+            // "viewer" has general_access (passes the route-level RBAC_middleware check for
+            // api.datasets.read) but isn't dataset_manager/admin/dataset_creator, so it should
+            // fail readDraftDataset's own hasValidRole gate specifically.
+            const token = jwt.sign({ sub: "user123" }, "test-secret");
+            chai.spy.on(DatasetDraft, "findOne", () => {
+                return Promise.resolve()
+            })
+            chai.spy.on(Dataset, "findOne", () => {
+                return Promise.resolve(TestInputsForDatasetRead.LIVE_SCHEMA)
+            })
+            chai.spy.on(userService, "getUser", () => {
+                return Promise.resolve({ roles: ["viewer"] })
+            })
+            chai
+                .request(app)
+                .get("/v2/datasets/read/sb-telemetry?mode=edit")
+                .set("Authorization", `Bearer ${token}`)
+                .end((err, res) => {
+                    res.should.have.status(httpStatus.FORBIDDEN);
+                    res.body.params.status.should.be.eq("FAILED")
+                    res.body.error.message.should.include("Access denied. User does not have permission to perform this action")
+                    done();
+                });
+        });
+
+        it("Dataset read success: RBAC enabled and user has a valid role on mode=edit", (done) => {
+            config.is_RBAC_enabled = "true";
+            const token = jwt.sign({ sub: "user123" }, "test-secret");
+            chai.spy.on(DatasetDraft, "findOne", () => {
+                return Promise.resolve()
+            })
+            chai.spy.on(Dataset, "findOne", () => {
+                return Promise.resolve(TestInputsForDatasetRead.LIVE_SCHEMA)
+            })
+            chai.spy.on(DatasetTransformations, "findAll", () => {
+                return Promise.resolve(TestInputsForDatasetRead.TRANSFORMATIONS_SCHEMA)
+            })
+            chai.spy.on(DatasetSourceConfig, "findAll", () => {
+                return Promise.resolve([])
+            })
+            chai.spy.on(ConnectorInstances, "findAll", () => {
+                return Promise.resolve(TestInputsForDatasetRead.CONNECTORS_SCHEMA_V2)
+            })
+            chai.spy.on(Dataset, "findAll", () => {
+                return Promise.resolve(TestInputsForDatasetRead.MASTER_DATASET_SCHEMA)
+            })
+            chai.spy.on(DatasetDraft, "create", () => {
+                return Promise.resolve({ dataValues: TestInputsForDatasetRead.DRAFT_SCHEMA })
+            })
+            chai.spy.on(userService, "getUser", () => {
+                return Promise.resolve({ roles: ["dataset_manager"] })
+            })
+            chai
+                .request(app)
+                .get("/v2/datasets/read/sb-telemetry?mode=edit")
+                .set("Authorization", `Bearer ${token}`)
+                .end((err, res) => {
+                    res.should.have.status(httpStatus.OK);
+                    res.body.params.status.should.be.eq("SUCCESS")
+                    res.body.result.name.should.be.eq("sb-telemetry")
+                    done();
+                });
+        });
     });
 
     it("Dataset read success: Creating draft on mode=edit if no draft found in v1", (done) => {

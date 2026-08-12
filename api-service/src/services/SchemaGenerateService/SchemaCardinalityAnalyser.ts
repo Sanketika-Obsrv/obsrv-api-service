@@ -21,7 +21,7 @@ export class SchemaCardinalityAnalyser {
         return generateRollupSummary(this.uniqueValues)
     }
 
-    private generateUniqueValues(data: any, schema: FieldSchema, currentPath: string = "") {
+    private generateUniqueValues(data: any, schema: FieldSchema, currentPath = "") {
         if (!_.isUndefined(data) && !_.isUndefined(schema) && _.isArray(data)) {
             for (const item of data) {
                 if (schema?.type === "object" && !_.isUndefined(schema.properties)) {

@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import * as _ from "lodash"
 import { ResponseHandler } from "../../helpers/ResponseHandler";
-import dayjs from 'dayjs';
+import dayjs from "dayjs";
 import logger from "../../logger";
 import { schemaValidation } from "../../services/ValidationService";
 import validationSchema from "./DatasetMetrics.json";
@@ -17,10 +17,10 @@ const datasetMetrics = async (req: Request, res: Response) => {
     const timePeriod = _.get(req, "body.request.query_time_period") || config?.data_observability?.default_query_time_period;
 
     const { category }: any = req.body.request;
-    const defaultThreshold = (typeof config?.data_observability?.default_freshness_threshold === 'number' ? config?.data_observability?.default_freshness_threshold : 5) * 60 * 1000; // 5 minutes in milliseconds
-    const dateFormat = 'YYYY-MM-DDTHH:mm:ss';
-    const endDate = dayjs().add(1, 'day').format(dateFormat);
-    const startDate = dayjs(endDate).subtract(timePeriod, 'day').format(dateFormat);
+    const defaultThreshold = (typeof config?.data_observability?.default_freshness_threshold === "number" ? config?.data_observability?.default_freshness_threshold : 5) * 60 * 1000; // 5 minutes in milliseconds
+    const dateFormat = "YYYY-MM-DDTHH:mm:ss";
+    const endDate = dayjs().add(1, "day").format(dateFormat);
+    const startDate = dayjs(endDate).subtract(timePeriod, "day").format(dateFormat);
     const intervals = `${startDate}/${endDate}`;
     const isValidSchema = schemaValidation(requestBody, validationSchema);
     const results = [];

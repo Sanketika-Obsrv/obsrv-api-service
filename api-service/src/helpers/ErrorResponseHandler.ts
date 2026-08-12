@@ -7,7 +7,7 @@ export class ErrorResponseHandler {
   constructor(serviceName: string) {
     this.serviceName = serviceName;
   }
-  public handleError(req: Request, res: Response, next: NextFunction, error: any, audit: boolean = true): any {
+  public handleError(req: Request, res: Response, next: NextFunction, error: any, audit = true): any {
     console.error("Error in " + this.serviceName)
     console.error(JSON.stringify({
       "ts": Date.now(),
