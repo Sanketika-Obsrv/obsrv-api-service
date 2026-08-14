@@ -27,4 +27,9 @@ WORKDIR /opt/api-service
 COPY --chown=node:node --from=build /opt/api-service .
 USER node
 EXPOSE 3000
+# Exec-form + node's own net module: the runtime image is shell-less (no /bin/sh, no curl/wget),
+# so this can't be a shell-form/curl healthcheck. A bare TCP connect is enough to confirm the
+# server is accepting connections (no reliance on a specific route existing).
+HEALTHCHECK --interval=30s --timeout=5s --start-period=15s --retries=3 \
+  CMD ["node", "-e", "var s=require('net').connect(3000,'127.0.0.1');s.on('connect',function(){s.end();process.exit(0)});s.on('error',function(){process.exit(1)})"]
 CMD ["node", "-r", "ts-node/register", "./src/app.ts"]

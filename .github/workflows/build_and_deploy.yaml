@@ -1,5 +1,7 @@
 name: Build and Deploy
 run-name: Workflow run for ${{ github.ref }}
+permissions:
+  contents: read
 on:
   push:
     tags:
