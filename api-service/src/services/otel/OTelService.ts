@@ -3,12 +3,12 @@ import * as logsAPI from "@opentelemetry/api-logs";
 import { OTLPLogExporter } from "@opentelemetry/exporter-logs-otlp-http";
 import { OTLPMetricExporter } from "@opentelemetry/exporter-metrics-otlp-http";
 import { OTLPTraceExporter } from "@opentelemetry/exporter-trace-otlp-http";
-import { Resource } from "@opentelemetry/resources";
+import { resourceFromAttributes } from "@opentelemetry/resources";
 import { BatchLogRecordProcessor, LoggerProvider } from "@opentelemetry/sdk-logs";
 import { MeterProvider, PeriodicExportingMetricReader } from "@opentelemetry/sdk-metrics";
 import { BatchSpanProcessor } from "@opentelemetry/sdk-trace-base";
 import { NodeTracerProvider } from "@opentelemetry/sdk-trace-node";
-import { SemanticResourceAttributes } from "@opentelemetry/semantic-conventions";
+import { ATTR_SERVICE_NAME } from "@opentelemetry/semantic-conventions";
 import logger from "../../logger";
 import * as _ from "lodash";
 import { config } from "../../configs/Config";
@@ -45,9 +45,8 @@ export class OTelService {
 
         const tracerProvider = new NodeTracerProvider({
             resource: this.createServiceResource("obsrv-api-service"),
+            spanProcessors: [new BatchSpanProcessor(traceExporter)],
         });
-
-        tracerProvider.addSpanProcessor(new BatchSpanProcessor(traceExporter));
 
         return tracerProvider;
     }
@@ -59,14 +58,13 @@ export class OTelService {
 
         const meterProvider = new MeterProvider({
             resource: this.createServiceResource("obsrv-api-service"),
+            readers: [
+                new PeriodicExportingMetricReader({
+                    exporter: metricExporter,
+                    exportIntervalMillis: 10000,
+                }),
+            ],
         });
-
-        meterProvider.addMetricReader(
-            new PeriodicExportingMetricReader({
-                exporter: metricExporter,
-                exportIntervalMillis: 10000,
-            })
-        );
 
         return meterProvider;
     }
@@ -78,19 +76,18 @@ export class OTelService {
 
         const loggerProvider = new LoggerProvider({
             resource: this.createServiceResource("obsrv-api-service"),
+            processors: [
+                new BatchLogRecordProcessor({ exporter: logExporter }),
+            ],
         });
-
-        loggerProvider.addLogRecordProcessor(
-            new BatchLogRecordProcessor(logExporter)
-        );
 
         return loggerProvider;
     }
 
     // Helper method to create a Resource with service name
     private static createServiceResource(serviceName: string) {
-        return new Resource({
-            [SemanticResourceAttributes.SERVICE_NAME]: serviceName,
+        return resourceFromAttributes({
+            [ATTR_SERVICE_NAME]: serviceName,
         });
     }
 

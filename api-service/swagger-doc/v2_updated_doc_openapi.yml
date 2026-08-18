@@ -4075,12 +4075,12 @@ paths:
                           test-connector/api-service/user_uploads/telemetry_10d595.json
                         fileName: telemetry.json
                         preSignedUrl: >-
-                          https://test-connector.s3.us-east-2.amazonaws.com/test-connector/api-service/user_uploads/telemetry_10d595.json?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIA2SANCC6IV26VYMEG%2F20240716%2Fus-east-2%2Fs3%2Faws4_request&X-Amz-Date=20240716T025619Z&X-Amz-Expires=600&X-Amz-Signature=49bbe1fe3fb1a16a0baa07ecd7331d9f6500c476287d225077f1a5dbccddeb50&X-Amz-SignedHeaders=host&x-id=PutObject
+                          https://test-connector.s3.us-east-2.amazonaws.com/test-connector/api-service/user_uploads/telemetry_10d595.json?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIAIOSFODNN7EXAMPLE%2F20240716%2Fus-east-2%2Fs3%2Faws4_request&X-Amz-Date=20240716T025619Z&X-Amz-Expires=600&X-Amz-Signature=49bbe1fe3fb1a16a0baa07ecd7331d9f6500c476287d225077f1a5dbccddeb50&X-Amz-SignedHeaders=host&x-id=PutObject
                       - filePath: >-
                           test-connector/api-service/user_uploads/school_data_33109a.json
                         fileName: school_data.json
                         preSignedUrl: >-
-                          https://test-connector.s3.us-east-2.amazonaws.com/test-connector/api-service/user_uploads/school_data_33109a.json?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIA2SANCC6IV26VYMEG%2F20240716%2Fus-east-2%2Fs3%2Faws4_request&X-Amz-Date=20240716T025619Z&X-Amz-Expires=600&X-Amz-Signature=5ece002651b6437caa0193b5241a9172faec600093e4dca7f831645004c38cf5&X-Amz-SignedHeaders=host&x-id=PutObject
+                          https://test-connector.s3.us-east-2.amazonaws.com/test-connector/api-service/user_uploads/school_data_33109a.json?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIAIOSFODNN7EXAMPLE%2F20240716%2Fus-east-2%2Fs3%2Faws4_request&X-Amz-Date=20240716T025619Z&X-Amz-Expires=600&X-Amz-Signature=5ece002651b6437caa0193b5241a9172faec600093e4dca7f831645004c38cf5&X-Amz-SignedHeaders=host&x-id=PutObject
                 example-1:
                   summary: 'Success: Generate get url'
                   value:
@@ -4096,12 +4096,12 @@ paths:
                       - filePath: test-connector/api-service/user_uploads/telemetry.json
                         fileName: telemetry.json
                         preSignedUrl: >-
-                          https://test-connector.s3.us-east-2.amazonaws.com/test-connector/api-service/user_uploads/telemetry.json?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIA2SANCC6IV26VYMEG%2F20240716%2Fus-east-2%2Fs3%2Faws4_request&X-Amz-Date=20240716T040140Z&X-Amz-Expires=600&X-Amz-Signature=f14978e897a7a15f23afb1ef9496d187a2f21abfb71c55a568461be4c5688cc6&X-Amz-SignedHeaders=host&x-id=GetObject
+                          https://test-connector.s3.us-east-2.amazonaws.com/test-connector/api-service/user_uploads/telemetry.json?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIAIOSFODNN7EXAMPLE%2F20240716%2Fus-east-2%2Fs3%2Faws4_request&X-Amz-Date=20240716T040140Z&X-Amz-Expires=600&X-Amz-Signature=f14978e897a7a15f23afb1ef9496d187a2f21abfb71c55a568461be4c5688cc6&X-Amz-SignedHeaders=host&x-id=GetObject
                       - filePath: >-
                           test-connector/api-service/user_uploads/school_data.json
                         fileName: school_data.json
                         preSignedUrl: >-
-                          https://test-connector.s3.us-east-2.amazonaws.com/test-connector/api-service/user_uploads/school_data.json?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIA2SANCC6IV26VYMEG%2F20240716%2Fus-east-2%2Fs3%2Faws4_request&X-Amz-Date=20240716T040140Z&X-Amz-Expires=600&X-Amz-Signature=e02f34103615f7dcc206c3afc8365ebfe9b58a00eb4c0200aa986bce58406cbd&X-Amz-SignedHeaders=host&x-id=GetObject
+                          https://test-connector.s3.us-east-2.amazonaws.com/test-connector/api-service/user_uploads/school_data.json?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIAIOSFODNN7EXAMPLE%2F20240716%2Fus-east-2%2Fs3%2Faws4_request&X-Amz-Date=20240716T040140Z&X-Amz-Expires=600&X-Amz-Signature=e02f34103615f7dcc206c3afc8365ebfe9b58a00eb4c0200aa986bce58406cbd&X-Amz-SignedHeaders=host&x-id=GetObject
         '400':
           description: Bad Request
           content:
