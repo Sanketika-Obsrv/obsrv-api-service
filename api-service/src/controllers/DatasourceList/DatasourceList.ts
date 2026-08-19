@@ -8,7 +8,7 @@ import { ResponseHandler } from "../../helpers/ResponseHandler";
 import logger from "../../logger";
 import { datasetService } from "../../services/DatasetService";
 import { Datasource } from "../../models/Datasource";
-import { DatasourceDraft } from "../../models/DatasourceDraft";
+import { TableDraft } from "../../models/Table";
 
 export const apiId = "api.datasources.list"
 export const errorCode = "DATASOURCES_LIST_FAILURE"
@@ -17,7 +17,8 @@ const draftDatasourceStatus = ["Draft"]
 const defaultLiveFields = ["dataset_id", "datasource", "type", "status", "id", "created_by", "updated_by", "created_date", "updated_date"]
 const defaultDraftFields = ["id", "dataset_id", "type", "status", "created_by", "updated_by", "created_date", "updated_date"]
 const liveModelFields = _.keys(Datasource.getAttributes())
-const draftModelFields = _.keys(DatasourceDraft.getAttributes())
+// Draft datasources are read from the table_draft table, so restrict draft fields to that model
+const draftModelFields = _.keys(TableDraft.getAttributes())
 
 const getDatasourceList = async (req: Request, res: Response) => {
 
@@ -49,10 +50,13 @@ const listDatasources = async (request: Record<string, any>): Promise<Record<str
     const draftFields = _.union(defaultDraftFields, _.intersection(requestedFields, draftModelFields))
     const dsStatus = _.get(filters, "status");
     const status = _.isArray(dsStatus) ? dsStatus : _.compact([dsStatus])
-    const draftFilters = _.set(_.cloneDeep(filters), "status", _.isEmpty(status) ? draftDatasourceStatus : _.intersection(status, draftDatasourceStatus));
-    const liveFilters = _.set(_.cloneDeep(filters), "status", _.isEmpty(status) ? liveDatasourceStatus : _.intersection(status, liveDatasourceStatus));
-    const liveDatasourceList = await datasetService.findDatasources(liveFilters, liveFields);
-    const draftDatasourceList = await datasetService.findDraftDatasources(draftFilters, draftFields);
+    const draftStatus = _.isEmpty(status) ? draftDatasourceStatus : _.intersection(status, draftDatasourceStatus)
+    const liveStatus = _.isEmpty(status) ? liveDatasourceStatus : _.intersection(status, liveDatasourceStatus)
+    const draftFilters = _.set(_.cloneDeep(filters), "status", draftStatus);
+    const liveFilters = _.set(_.cloneDeep(filters), "status", liveStatus);
+    // Skip a query entirely when the requested status cannot match it, avoiding a needless db call
+    const liveDatasourceList = _.isEmpty(liveStatus) ? [] : await datasetService.findDatasources(liveFilters, liveFields);
+    const draftDatasourceList = _.isEmpty(draftStatus) ? [] : await datasetService.findDraftDatasources(draftFilters, draftFields);
     return _.compact(_.concat(liveDatasourceList, draftDatasourceList));
 
 }
