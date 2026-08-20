@@ -4,6 +4,9 @@ import chaiHttp from "chai-http";
 import spies from "chai-spies";
 import { describe, it } from "mocha";
 import { QueryTemplate } from "../../../models/QueryTemplate";
+import { userService } from "../../../services/UserService";
+import { config } from "../../../configs/Config";
+import { buildRbacToken, NO_ACCESS_ROLE } from "../../helpers/rbacTestHelper";
 const apiId = "api.query.template.delete"
 
 chai.use(spies);
@@ -14,6 +17,7 @@ describe("DELETE QUERY TEMPLATE API", () => {
 
     afterEach(() => {
         chai.spy.restore();
+        config.is_RBAC_enabled = "false";
     });
 
     it("Delete template success: Read template successful", (done) => {
@@ -78,6 +82,21 @@ describe("DELETE QUERY TEMPLATE API", () => {
                 res.body.params.should.have.property("resmsgid");
                 res.body.error.message.should.be.eq("Failed to delete query template");
                 res.body.error.code.should.be.eq("QUERY_TEMPLATE_DELETE_FAILED")
+                done();
+            });
+    })
+
+    it("Delete template failure: RBAC enabled and user lacks a valid role", (done) => {
+        config.is_RBAC_enabled = "true";
+        chai.spy.on(userService, "getUser", () => {
+            return Promise.resolve({ roles: [NO_ACCESS_ROLE] })
+        })
+        chai
+            .request(app)
+            .delete("/v2/template/delete/sql1")
+            .set("Authorization", `Bearer ${buildRbacToken()}`)
+            .end((err, res) => {
+                res.should.have.status(403);
                 done();
             });
     })

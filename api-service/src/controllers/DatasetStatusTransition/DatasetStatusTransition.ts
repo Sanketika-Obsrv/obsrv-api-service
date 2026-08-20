@@ -50,7 +50,7 @@ const validateDataset = (dataset: any, datasetId: any, action: string) => {
 const datasetStatusTransition = async (req: Request, res: Response) => {
 
     const { dataset_id, status } = _.get(req.body, "request");
-    const userToken = req.get('authorization') as string;
+    const userToken = req.get("authorization") as string;
     validateRequest(req, dataset_id);
 
     const dataset: Record<string, any> = (_.includes(liveDatasetActions, status)) ? await datasetService.getDataset(dataset_id, ["id", "status", "type", "api_version", "name"], true) : await datasetService.getDraftDataset(dataset_id, ["id", "dataset_id", "status", "type", "api_version"])

@@ -48,12 +48,12 @@ export const getDataObservability = async (dataset_id: string, intervals: string
         axios.request({ url: prometheusEndpoint, method: "GET", params: totalQueryCallsAtDatasetLevel })
     ]);
 
-    const totalApiCalls = _.map(_.get(totalApiCallsResponse, 'data.data.result'), payload => {
-        return _.floor(_.get(payload, 'values[0][1]'), 3) || 0
+    const totalApiCalls = _.map(_.get(totalApiCallsResponse, "data.data.result"), payload => {
+        return _.floor(_.get(payload, "values[0][1]"), 3) || 0
     })
 
-    const totalApiCallsAtDatasetLevel = _.map(_.get(totalCallsAtDatasetLevelResponse, 'data.data.result'), payload => {
-        return _.floor(_.get(payload, 'values[0][1]'), 3) || 0
+    const totalApiCallsAtDatasetLevel = _.map(_.get(totalCallsAtDatasetLevelResponse, "data.data.result"), payload => {
+        return _.floor(_.get(payload, "values[0][1]"), 3) || 0
     })
 
     const importanceScore = (totalApiCallsAtDatasetLevel[0] / totalApiCalls[0]) * 100;
@@ -92,12 +92,12 @@ export const getDataObservability = async (dataset_id: string, intervals: string
 
 export const getDataVolume = async (dataset_id: string, volume_by_days: number, dateFormat: string) => {
     const currentHourIntervals = dayjs().subtract(1, "hour").startOf("hour").toISOString() + "/" + dayjs().startOf("hour").toISOString();
-    const currentDayIntervals = dayjs().subtract(1, 'day').startOf('day').format(dateFormat) + '/' + dayjs().endOf('day').format(dateFormat);
-    const currentWeekIntervals = dayjs().subtract(1, 'week').startOf('week').format(dateFormat) + '/' + dayjs().endOf('week').format(dateFormat);
-    const previousHourIntervals = dayjs().subtract(2, "hour").startOf("hour").toISOString() + '/' + dayjs().startOf("hour").toISOString();
-    const previousDayIntervals = dayjs().subtract(2, 'day').startOf('day').format(dateFormat) + '/' + dayjs().subtract(1, 'day').endOf('day').format(dateFormat);
-    const previousWeekIntervals = dayjs().subtract(2, 'week').startOf('week').format(dateFormat) + '/' + dayjs().subtract(1, 'week').endOf('week').format(dateFormat);
-    const nDaysIntervals = dayjs().subtract(volume_by_days, 'day').startOf('day').format(dateFormat) + '/' + dayjs().endOf('day').format(dateFormat);
+    const currentDayIntervals = dayjs().subtract(1, "day").startOf("day").format(dateFormat) + "/" + dayjs().endOf("day").format(dateFormat);
+    const currentWeekIntervals = dayjs().subtract(1, "week").startOf("week").format(dateFormat) + "/" + dayjs().endOf("week").format(dateFormat);
+    const previousHourIntervals = dayjs().subtract(2, "hour").startOf("hour").toISOString() + "/" + dayjs().startOf("hour").toISOString();
+    const previousDayIntervals = dayjs().subtract(2, "day").startOf("day").format(dateFormat) + "/" + dayjs().subtract(1, "day").endOf("day").format(dateFormat);
+    const previousWeekIntervals = dayjs().subtract(2, "week").startOf("week").format(dateFormat) + "/" + dayjs().subtract(1, "week").endOf("week").format(dateFormat);
+    const nDaysIntervals = dayjs().subtract(volume_by_days, "day").startOf("day").format(dateFormat) + "/" + dayjs().endOf("day").format(dateFormat);
 
     const currentHourPayload = generateTimeseriesQueryEventsPerHour(currentHourIntervals, dataset_id);
     const currentDayPayload = generateTimeseriesQuery(currentDayIntervals, dataset_id);

@@ -7,6 +7,9 @@ import { describe, it } from "mocha";
 import _ from "lodash";
 import { TestInputsForDatasetStatusTransition } from "./Fixtures";
 import { DatasetDraft } from "../../../models/DatasetDraft";
+import { userService } from "../../../services/UserService";
+import { config } from "../../../configs/Config";
+import { buildRbacToken, NO_ACCESS_ROLE } from "../../helpers/rbacTestHelper";
 
 chai.use(spies);
 chai.should();
@@ -18,6 +21,7 @@ describe("DATASET STATUS TRANSITION READY TO PUBLISH", () => {
 
     afterEach(() => {
         chai.spy.restore();
+        config.is_RBAC_enabled = "false";
     });
 
     it("Dataset status transition success: When the action is make dataset ready to publish", (done) => {
@@ -127,6 +131,22 @@ describe("DATASET STATUS TRANSITION READY TO PUBLISH", () => {
                 res.body.params.msgid.should.be.eq(msgid)
                 expect(res.body.error.message).to.match(/^#required must have(.+)/)
                 res.body.error.code.should.be.eq("DATASET_CONFIGS_INVALID")
+                done();
+            });
+    });
+
+    it("Dataset status transition ready to publish failure: RBAC enabled and user lacks a valid role", (done) => {
+        config.is_RBAC_enabled = "true";
+        chai.spy.on(userService, "getUser", () => {
+            return Promise.resolve({ roles: [NO_ACCESS_ROLE] })
+        })
+        chai
+            .request(app)
+            .post("/v2/datasets/status-transition")
+            .set("Authorization", `Bearer ${buildRbacToken()}`)
+            .send(TestInputsForDatasetStatusTransition.VALID_REQUEST_FOR_READY_FOR_PUBLISH)
+            .end((err, res) => {
+                res.should.have.status(httpStatus.FORBIDDEN);
                 done();
             });
     });

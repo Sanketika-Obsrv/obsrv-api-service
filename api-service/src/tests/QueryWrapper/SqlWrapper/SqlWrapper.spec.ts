@@ -7,6 +7,9 @@ import _ from "lodash";
 import { TestInputsForSqlWrapper } from "./Fixtures";
 import httpStatus from "http-status";
 import { druidHttpService } from "../../../connections/druidConnection";
+import { userService } from "../../../services/UserService";
+import { config } from "../../../configs/Config";
+import { buildRbacToken, NO_ACCESS_ROLE } from "../../helpers/rbacTestHelper";
 
 const apiId = "api.obsrv.data.sql-query";
 chai.use(spies);
@@ -19,6 +22,7 @@ describe("SQL QUERY WRAPPER API", () => {
 
     afterEach(() => {
         chai.spy.restore();
+        config.is_RBAC_enabled = "false";
     });
 
     it("Sql query wrapper success: Should return response on query successfully", (done) => {
@@ -89,6 +93,22 @@ describe("SQL QUERY WRAPPER API", () => {
                 res.body.params.status.should.be.eq("FAILED")
                 res.body.error.code.should.be.eq("SQL_QUERY_FAILURE")
                 res.body.error.message.should.be.eq("Failed to query to druid")
+                done();
+            });
+    })
+
+    it("Sql query wrapper failure: RBAC enabled and user lacks a valid role", (done) => {
+        config.is_RBAC_enabled = "true";
+        chai.spy.on(userService, "getUser", () => {
+            return Promise.resolve({ roles: [NO_ACCESS_ROLE] })
+        })
+        chai
+            .request(app)
+            .post(path)
+            .set("Authorization", `Bearer ${buildRbacToken()}`)
+            .send(TestInputsForSqlWrapper.VALID_QUERY)
+            .end((err, res) => {
+                res.should.have.status(httpStatus.FORBIDDEN);
                 done();
             });
     })

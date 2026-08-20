@@ -1,9 +1,9 @@
-fastapi==0.103.0
+fastapi==0.141.1
 uvicorn==0.20.0
 dataclasses-json==0.5.7
 # pydantic==1.10.5
 pyyaml==6.0.1
-urllib3==2.0.7
+urllib3==2.7.0
 # protobuf==3.20.*
 # pyhelm==2.14.5
 # kubernetes==28.1.0

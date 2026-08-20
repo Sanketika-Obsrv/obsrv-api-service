@@ -12,6 +12,9 @@ import { sequelize } from "../../../connections/databaseConnection";
 import { DatasourceDraft } from "../../../models/DatasourceDraft";
 import { Dataset } from "../../../models/Dataset";
 import { Datasource } from "../../../models/Datasource";
+import { userService } from "../../../services/UserService";
+import { config } from "../../../configs/Config";
+import { buildRbacToken, NO_ACCESS_ROLE } from "../../helpers/rbacTestHelper";
 
 chai.use(spies);
 chai.should();
@@ -23,6 +26,7 @@ describe("DATASET STATUS TRANSITION LIVE", () => {
 
     afterEach(() => {
         chai.spy.restore();
+        config.is_RBAC_enabled = "false";
     });
 
     it("Dataset status transition success: When the action is to set dataset live", (done) => {
@@ -41,11 +45,14 @@ describe("DATASET STATUS TRANSITION LIVE", () => {
         chai.spy.on(DatasourceDraft, "upsert", () => {
             return Promise.resolve({})
         })
-        const t = chai.spy.on(sequelize, "transaction", () => {
-            return Promise.resolve(sequelize.transaction)
+        chai.spy.on(Datasource, "findAll", () => {
+            return Promise.resolve([])
         })
-        chai.spy.on(t, "commit", () => {
-            return Promise.resolve({})
+        chai.spy.on(sequelize, "transaction", () => {
+            return Promise.resolve({
+                commit: () => Promise.resolve({}),
+                rollback: () => Promise.resolve({})
+            })
         })
         chai.spy.on(commandHttpService, "post", () => {
             return Promise.resolve({})
@@ -329,6 +336,22 @@ describe("DATASET STATUS TRANSITION LIVE", () => {
                 res.body.params.status.should.be.eq("FAILED")
                 res.body.error.code.should.be.eq("DATASET_LIVE_FAILURE")
                 res.body.error.message.should.be.eq("Transition failed for dataset: telemetry status:Draft with status transition to Live")
+                done();
+            });
+    });
+
+    it("Dataset status transition live failure: RBAC enabled and user lacks a valid role", (done) => {
+        config.is_RBAC_enabled = "true";
+        chai.spy.on(userService, "getUser", () => {
+            return Promise.resolve({ roles: [NO_ACCESS_ROLE] })
+        })
+        chai
+            .request(app)
+            .post("/v2/datasets/status-transition")
+            .set("Authorization", `Bearer ${buildRbacToken()}`)
+            .send(TestInputsForDatasetStatusTransition.VALID_SCHEMA_FOR_LIVE)
+            .end((err, res) => {
+                res.should.have.status(httpStatus.FORBIDDEN);
                 done();
             });
     });

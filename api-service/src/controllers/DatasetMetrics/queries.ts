@@ -391,12 +391,12 @@ export const generateTotalQueryCallsQuery = (time_period: string) => ({
     end: dayjs().unix(),
     query: `sum(sum_over_time(node_total_api_calls{entity="data-out"}[${time_period}]))`,
     step: `${time_period}`,
-    start: dayjs().subtract(1, 'day').unix()
+    start: dayjs().subtract(1, "day").unix()
 });
 
 export const generateDatasetQueryCallsQuery = (dataset: string, time_period: string) => ({
   end: dayjs().unix(),
   step: `${time_period}`,
   query: `sum(sum_over_time(node_total_api_calls{dataset_id="${dataset}",entity="data-out"}[${time_period}]))`,
-  start: dayjs().subtract(1, 'day').unix(),
+  start: dayjs().subtract(1, "day").unix(),
 });

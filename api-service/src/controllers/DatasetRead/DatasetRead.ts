@@ -17,12 +17,15 @@ export const errorCode = "DATASET_READ_FAILURE"
 // TODO: Move this to a config
 export const defaultFields = ["dataset_id", "name", "type", "status", "tags", "version", "api_version", "dataset_config"]
 
+const configFields = ["connectors_config", "transformations_config"];
+
 const validateRequest = (req: Request) => {
 
     const { dataset_id } = req.params;
     const { fields, mode } = req.query;
     const fieldValues = fields ? _.split(fields as string, ",") : [];
-    const invalidFields = mode === "edit" ? _.difference(fieldValues, Object.keys(DatasetDraft.getAttributes())) : _.difference(fieldValues, Object.keys(Dataset.getAttributes()));
+    const allowedFields = mode === "edit" ? _.keys(DatasetDraft.getAttributes()) : _.keys(Dataset.getAttributes());
+    const invalidFields = _.difference(fieldValues, [...allowedFields, ...configFields]);
     if (!_.isEmpty(invalidFields)) {
         throw obsrvError(dataset_id, "DATASET_INVALID_FIELDS", `The specified fields [${invalidFields}] in the dataset cannot be found.`, "BAD_REQUEST", 400);
     }
@@ -61,7 +64,7 @@ const readDraftDataset = async (datasetId: string, attributes: string[], userID:
         if (_.lowerCase(config.is_RBAC_enabled) !== "false") {
             const user = await userService.getUser({ id: userID }, ["roles", "user_name"]);
             const userRoles = _.get(user, "roles");
-            const hasValidRole = _.some(userRoles, (role: string) => ['dataset_manager', 'admin', 'dataset_creator'].includes(role));
+            const hasValidRole = _.some(userRoles, (role: string) => ["dataset_manager", "admin", "dataset_creator"].includes(role));
             if (!hasValidRole) {
                 throw obsrvError(datasetId, "UNAUTHORIZED_ACCESS", "Access denied. User does not have permission to perform this action", "FORBIDDEN", 403);
             }
@@ -74,7 +77,7 @@ const readDraftDataset = async (datasetId: string, attributes: string[], userID:
 }
 
 const readDataset = async (datasetId: string, attributes: string[]): Promise<any> => {
-    const attrs = _.union(attributes, ["api_version"])
+    const attrs = _.union(_.difference(attributes, configFields), ["api_version"])
     const dataset = await datasetService.getDataset(datasetId, attrs, true);
     if (!dataset) {
         return;

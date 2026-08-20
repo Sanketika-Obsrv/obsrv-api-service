@@ -5,6 +5,9 @@ import spies from "chai-spies";
 import { describe, it } from "mocha";
 import { QueryTemplate } from "../../../models/QueryTemplate";
 import { listTemplateFixtures } from "./Fixtures";
+import { userService } from "../../../services/UserService";
+import { config } from "../../../configs/Config";
+import { buildRbacToken, NO_ACCESS_ROLE } from "../../helpers/rbacTestHelper";
 const apiId = "api.query.template.list"
 const msgid = "4a7f14c3-d61e-4d4f-be78-181834eeff6d";
 chai.use(spies);
@@ -15,6 +18,7 @@ describe("LIST QUERY TEMPLATE API", () => {
 
     afterEach(() => {
         chai.spy.restore();
+        config.is_RBAC_enabled = "false";
     });
 
     it("List templates success: should list all templates", (done) => {
@@ -149,6 +153,22 @@ describe("LIST QUERY TEMPLATE API", () => {
                 res.body.params.msgid.should.be.eq(msgid)
                 res.body.error.message.should.be.eq("Failed to list query templates");
                 res.body.error.code.should.be.eq("QUERY_TEMPLATE_LIST_FAILED")
+                done();
+            });
+    })
+
+    it("List templates failure: RBAC enabled and user lacks a valid role", (done) => {
+        config.is_RBAC_enabled = "true";
+        chai.spy.on(userService, "getUser", () => {
+            return Promise.resolve({ roles: [NO_ACCESS_ROLE] })
+        })
+        chai
+            .request(app)
+            .post("/v2/template/list")
+            .set("Authorization", `Bearer ${buildRbacToken()}`)
+            .send(listTemplateFixtures.WITH_EMPTY_REQUEST_BODY)
+            .end((err, res) => {
+                res.should.have.status(403);
                 done();
             });
     })
