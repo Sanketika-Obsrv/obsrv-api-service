@@ -19,19 +19,21 @@ export const defaultFields = ["dataset_id", "name", "type", "status", "tags", "v
 
 const configFields = ["connectors_config", "transformations_config"];
 
+// Upper bound for the caller-supplied fields list, derived from the models rather than the request
+const maxRequestedFields = _.union(_.keys(Dataset.getAttributes()), _.keys(DatasetDraft.getAttributes()), configFields).length
+
 const validateRequest = (req: Request) => {
 
     const { dataset_id } = req.params;
     const { fields, mode } = req.query;
     const fieldValues = fields ? _.split(fields as string, ",") : [];
     const allowedFields = mode === "edit" ? _.keys(DatasetDraft.getAttributes()) : _.keys(Dataset.getAttributes());
-    const permittedFields = [...allowedFields, ...configFields];
-    // Bound the caller-supplied field list: the name check below rejects unknown fields but not a
-    // request repeating valid ones, which readDataset/readDraftDataset would then iterate
-    if (fieldValues.length > permittedFields.length) {
+    // The name check below rejects unknown fields but not a request repeating valid ones, which
+    // readDataset/readDraftDataset would then iterate
+    if (fieldValues.length > maxRequestedFields) {
         throw obsrvError(dataset_id, "DATASET_INVALID_FIELDS", "Fields list length exceeds the allowed limit", "BAD_REQUEST", 400);
     }
-    const invalidFields = _.difference(fieldValues, permittedFields);
+    const invalidFields = _.difference(fieldValues, [...allowedFields, ...configFields]);
     if (!_.isEmpty(invalidFields)) {
         throw obsrvError(dataset_id, "DATASET_INVALID_FIELDS", `The specified fields [${invalidFields}] in the dataset cannot be found.`, "BAD_REQUEST", 400);
     }
@@ -44,7 +46,8 @@ const datasetRead = async (req: Request, res: Response) => {
     const { dataset_id } = req.params;
     const { fields, mode } = req.query;
     const userID = (req as any)?.userID;
-    const attributes = !fields ? defaultFields : _.split(<string>fields, ",");
+    // slice gives readDataset/readDraftDataset a length bound that does not derive from user input
+    const attributes = !fields ? defaultFields : _.split(<string>fields, ",").slice(0, maxRequestedFields);
     const dataset = (mode == "edit") ? await readDraftDataset(dataset_id, attributes, userID) : await readDataset(dataset_id, attributes)
     if (!dataset) {
         throw obsrvError(dataset_id, "DATASET_NOT_FOUND", `Dataset with the given dataset_id:${dataset_id} not found`, "NOT_FOUND", 404);

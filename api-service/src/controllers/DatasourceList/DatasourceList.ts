@@ -55,7 +55,8 @@ const listDatasources = async (request: Record<string, any>): Promise<Record<str
     if (_.isArray(dsStatus) && dsStatus.length > allowedStatus.length) {
         throw obsrvError("", "DATASOURCE_LIST_INPUT_INVALID", "Status array length exceeds the allowed limit", "BAD_REQUEST", 400)
     }
-    const status = _.isArray(dsStatus) ? dsStatus : _.compact([dsStatus])
+    // slice gives the intersections below a length bound that does not derive from user input
+    const status = _.isArray(dsStatus) ? dsStatus.slice(0, allowedStatus.length) : _.compact([dsStatus])
     const draftStatus = _.isEmpty(status) ? draftDatasourceStatus : _.intersection(status, draftDatasourceStatus)
     const liveStatus = _.isEmpty(status) ? liveDatasourceStatus : _.intersection(status, liveDatasourceStatus)
     const draftFilters = _.set(_.cloneDeep(filters), "status", draftStatus);
