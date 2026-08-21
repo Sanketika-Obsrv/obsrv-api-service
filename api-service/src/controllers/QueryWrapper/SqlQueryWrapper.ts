@@ -5,12 +5,90 @@ import logger from "../../logger";
 import { ResponseHandler } from "../../helpers/ResponseHandler";
 import { ErrorObject } from "../../types/ResponseModel";
 import { druidHttpService } from "../../connections/druidConnection";
-import { getDatasourceList } from "../../services/DatasourceService";
+import { getDatasourceList, getLiveDatasourcesByNames } from "../../services/DatasourceService";
 import { AxiosResponse } from "axios";
+import { Parser } from "node-sql-parser";
+import { collectCteNames, collectTableEntries } from "../../services/SqlQueryService";
 
 const apiId = "api.obsrv.data.sql-query";
 const errorCode = "SQL_QUERY_FAILURE"
-export const result_data = {"data": {}};
+export const result_data = { "data": {} };
+const parser = new Parser();
+
+// Rewrites table names to datasource_refs ONLY when a name matches a datasource
+// alias that is not itself already a datasource_ref. Any other case (name already
+// a datasource_ref, name unknown, parse failure) returns the ORIGINAL query
+// string verbatim so nothing about the pydruid/Superset request is altered.
+const resolveDatasourceQuery = async (query: string, resmsgid?: string): Promise<string> => {
+    try {
+        if (!_.isString(query) || _.isEmpty(query)) return query;
+
+        let ast: any;
+        try {
+            ast = parser.astify(query, { database: "postgresql" });
+        } catch {
+            // node-sql-parser can't parse this SQL (Druid-specific syntax etc.) -> pass through untouched.
+            logger.info({ apiId, resmsgid, message: "Query not parseable for alias check, passing query as-is" });
+            return query;
+        }
+        if (_.isArray(ast)) {
+            logger.info({ apiId, resmsgid, message: "Multi-statement query, passing query as-is" });
+            return query; // multi-statement -> leave as-is
+        }
+
+        const fromList = collectTableEntries(ast, collectCteNames(ast));
+        const tableNames = _.uniq(_.map(fromList, (e) => e.table).filter(_.isString));
+        if (_.isEmpty(tableNames)) {
+            logger.info({ apiId, resmsgid, message: "No table references found, passing query as-is" });
+            return query;
+        }
+
+        // Only hit Postgres once we know the query actually references tables.
+        const rows = await getLiveDatasourcesByNames(tableNames);
+        if (_.isEmpty(rows)) {
+            logger.warn({ apiId, resmsgid, tableNames, message: "No matching datasource/datasource_ref exists, passing query as-is" });
+            return query;
+        }
+
+        const refSet = new Set(_.map(rows, "datasource_ref"));
+        // Map (not a plain object) so table names that collide with Object.prototype
+        // keys (constructor, toString, ...) are only matched when actually present.
+        const aliasToRef = new Map<string, string>();
+        rows.forEach((r) => { if (r.datasource) aliasToRef.set(r.datasource, r.datasource_ref); });
+
+        let changed = false;
+        _.forEach(fromList, (entry: any) => {
+            const name = entry.table;
+            if (refSet.has(name)) {                    // already a datasource_ref -> keep
+                logger.info({ apiId, resmsgid, table: name, message: `Table '${name}' already a datasource_ref, keeping as-is` });
+                return;
+            }
+            const ref = aliasToRef.get(name);
+            if (!ref) {                                // unknown -> keep
+                logger.warn({ apiId, resmsgid, table: name, message: `Table '${name}' is neither a datasource alias nor a datasource_ref, keeping as-is` });
+                return;
+            }
+            entry.table = ref;                         // alias -> replace with datasource_ref
+            if (!entry.as || _.isEmpty(entry.as)) entry.as = name; // preserve name for column refs
+            changed = true;
+            logger.info({ apiId, resmsgid, alias: name, datasource_ref: ref, message: `Resolved alias '${name}' to datasource_ref '${ref}'` });
+        });
+
+        if (!changed) {                                // the only scenario we rewrite is alias->ref
+            logger.info({ apiId, resmsgid, message: "No alias to resolve, passing query as-is" });
+            return query;
+        }
+
+        // postgresql dialect emits double-quoted identifiers, so no backtick
+        // post-processing is needed (a global replace could corrupt backticks
+        // inside string literals).
+        return parser.sqlify(ast, { database: "postgresql" });
+    } catch (error: any) {
+        // Never let resolution break querying — fall back to the original query.
+        logger.warn({ apiId, resmsgid, message: "Datasource resolution skipped, passing query as-is", error: error?.message });
+        return query;
+    }
+};
 
 export const sqlQuery = async (req: Request, res: Response) => {
     const resmsgid = _.get(res, "resmsgid");
@@ -33,7 +111,14 @@ export const sqlQuery = async (req: Request, res: Response) => {
             const dataSources = await fetchDruidDataSources();
             result = createMockAxiosResponse(dataSources);
         } else {
-            result = await druidHttpService.post(`${config.query_api.druid.sql_query_path}`, req.body, {
+            let requestPayload = req.body;
+            if (config.query_api.sql_query_alias_support === "true") {
+                const resolvedQuery = await resolveDatasourceQuery(query, resmsgid);
+                requestPayload = resolvedQuery === query ? req.body : { ...req.body, query: resolvedQuery };
+            } else {
+                logger.info({ apiId, resmsgid, message: "sql_query_alias_support disabled, passing query as-is" });
+            }
+            result = await druidHttpService.post(`${config.query_api.druid.sql_query_path}`, requestPayload, {
                 headers: { Authorization: authorization },
             });
         }
@@ -62,14 +147,14 @@ const fetchDruidDataSources = async (): Promise<{ TABLE_NAME: string }[]> => {
 
 const isTableSchemaQuery = (sqlQuery?: string): boolean => {
     return (
-      sqlQuery
-        ?.trim()
-        .replace(/\s+/g, " ")
-        .toUpperCase() ===
-      "SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = 'DRUID'"
+        sqlQuery
+            ?.trim()
+            .replace(/\s+/g, " ")
+            .toUpperCase() ===
+        "SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = 'DRUID'"
     );
-  };
-  
+};
+
 
 const createMockAxiosResponse = (data: any): AxiosResponse => {
     return {
