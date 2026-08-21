@@ -14,6 +14,8 @@ export const apiId = "api.datasources.list"
 export const errorCode = "DATASOURCES_LIST_FAILURE"
 const liveDatasourceStatus = ["Live", "Retired"]
 const draftDatasourceStatus = ["Draft"]
+// Mirrors the filters.status enum in RequestValidationSchema.json
+const allowedStatus = ["Draft", "Live", "Retired", "Purged"]
 const defaultLiveFields = ["dataset_id", "datasource", "type", "status", "id", "created_by", "updated_by", "created_date", "updated_date"]
 const defaultDraftFields = ["id", "dataset_id", "type", "status", "created_by", "updated_by", "created_date", "updated_date"]
 const liveModelFields = _.keys(Datasource.getAttributes())
@@ -49,6 +51,10 @@ const listDatasources = async (request: Record<string, any>): Promise<Record<str
     const liveFields = _.union(defaultLiveFields, _.intersection(requestedFields, liveModelFields))
     const draftFields = _.union(defaultDraftFields, _.intersection(requestedFields, draftModelFields))
     const dsStatus = _.get(filters, "status");
+    // Bound the caller-supplied status list before the intersections below iterate it
+    if (_.isArray(dsStatus) && dsStatus.length > allowedStatus.length) {
+        throw obsrvError("", "DATASOURCE_LIST_INPUT_INVALID", "Status array length exceeds the allowed limit", "BAD_REQUEST", 400)
+    }
     const status = _.isArray(dsStatus) ? dsStatus : _.compact([dsStatus])
     const draftStatus = _.isEmpty(status) ? draftDatasourceStatus : _.intersection(status, draftDatasourceStatus)
     const liveStatus = _.isEmpty(status) ? liveDatasourceStatus : _.intersection(status, liveDatasourceStatus)

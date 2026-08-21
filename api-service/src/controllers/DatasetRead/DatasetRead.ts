@@ -25,7 +25,13 @@ const validateRequest = (req: Request) => {
     const { fields, mode } = req.query;
     const fieldValues = fields ? _.split(fields as string, ",") : [];
     const allowedFields = mode === "edit" ? _.keys(DatasetDraft.getAttributes()) : _.keys(Dataset.getAttributes());
-    const invalidFields = _.difference(fieldValues, [...allowedFields, ...configFields]);
+    const permittedFields = [...allowedFields, ...configFields];
+    // Bound the caller-supplied field list: the name check below rejects unknown fields but not a
+    // request repeating valid ones, which readDataset/readDraftDataset would then iterate
+    if (fieldValues.length > permittedFields.length) {
+        throw obsrvError(dataset_id, "DATASET_INVALID_FIELDS", "Fields list length exceeds the allowed limit", "BAD_REQUEST", 400);
+    }
+    const invalidFields = _.difference(fieldValues, permittedFields);
     if (!_.isEmpty(invalidFields)) {
         throw obsrvError(dataset_id, "DATASET_INVALID_FIELDS", `The specified fields [${invalidFields}] in the dataset cannot be found.`, "BAD_REQUEST", 400);
     }
