@@ -118,7 +118,7 @@ export const config = {
   "command_service_config": {
     "host": process.env.command_service_host || "http://localhost",
     "port": parseInt(process.env.command_service_port || "8000"),
-    "paths": JSON.parse(process.env.command_service_paths || '{"dataset":"/system/v1/dataset/command","connector":"/connector/v1/register","analyzePII":"/system/data/v1/analyze/pii"}')
+    "paths": JSON.parse(process.env.command_service_paths || "{\"dataset\":\"/system/v1/dataset/command\",\"connector\":\"/connector/v1/register\",\"analyzePII\":\"/system/data/v1/analyze/pii\"}")
   },
   "flink_job_configs": {
     "pipeline_merged_job_manager_url": process.env.pipeline_merged_job_manager_url || "http://localhost:8081",
@@ -135,12 +135,12 @@ export const config = {
   },
   "user_token_public_key": process.env.user_token_public_key || "",
   "is_RBAC_enabled": process.env.is_rbac_enabled || "true",
-  "telemetry_log": process.env.telemetry_log || '{"enable":true,"response_data":false}',
+  "telemetry_log": process.env.telemetry_log || "{\"enable\":true,\"response_data\":false}",
   "otel": {
     "enable": process.env.otel_enable || "false",
     "collector_endpoint": process.env.otel_collector_endpoint || "http://localhost:4318"
   },
-  "storage_types": process.env.storage_types || '{"lake_house":true,"realtime_store":true}',
+  "storage_types": process.env.storage_types || "{\"lake_house\":true,\"realtime_store\":true}",
   "data_observability": {
     "default_freshness_threshold": process.env.default_freshness_threshold ? parseInt(process.env.default_freshness_threshold) : 5, // in minutes
     "data_out_query_time_period": process.env.data_out_query_time_period || "1d",

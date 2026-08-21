@@ -8,13 +8,51 @@ global:
   image:
     registry: "sanketikahub"
 
-registry: "bitnami"
+registry: "dhi.io"
 repository: "kubectl"
-tag: "latest"
+# This container's own command (templates/cronjob.yaml) runs `/bin/sh -c "kubectl get ...;
+# kubectl exec ..."` directly -- it needs a real shell, so the distroless dhi.io/kubectl tier
+# (no /bin/sh, verified) is NOT usable here; only the "-dev" tier has a shell. Compared all
+# available -dev tiers via `trivy image` before picking one -- dhi.io/kubectl only ships
+# debian13 bases by default, but alpine3.22 bases also exist for 1.34/1.35 (not yet for 1.36):
+#   bitnami/kubectl@sha256:1a86ba5...  (original)          = 0 CRIT / 17 HIGH
+#   dhi.io/kubectl:1.34-debian13-dev                        = 4 CRIT / 13 HIGH / 54 MED / 54 LOW
+#   dhi.io/kubectl:1.35-debian13-dev / 1.36-debian13-dev    = 4 CRIT /  7 HIGH / 42 MED / 48 LOW
+#   dhi.io/kubectl:1.34-alpine3.22-dev                      = 0 CRIT /  2 HIGH /  0 MED /  0 LOW
+#   dhi.io/kubectl:1.35-alpine3.22-dev  (this, kubectl v1.35.7) = 0 CRIT / 2 HIGH / 0 MED / 0 LOW
+# Alpine base is drastically smaller/cleaner than Debian here. The 2 remaining HIGHs
+# (golang.org/x/net, golang.org/x/text -- DoS-class) are Go-toolchain-level, same unfixable
+# class seen elsewhere in this work; nothing else. Verified shell present:
+# `docker run --entrypoint /bin/sh dhi.io/kubectl:1.35-alpine3.22-dev -c "kubectl version
+# --client"` -> works.
+# No digest pin (unlike the previous bitnami entry): DHI continuously rebuilds/repatches
+# images under the same version tag as new CVE fixes land -- that's the actual point of using
+# a DHI base. Pinning by digest here would freeze out those patches instead of tracking them,
+# the opposite of what we want. `1.35-alpine3.22-dev` is a real versioned tag (not a rolling
+# `:latest`), so it's stable enough to track without a digest.
+tag: "1.35-alpine3.22-dev"
 digest: ""
 
-imagePullPolicy: IfNotPresent
-imagePullSecrets: []
+imagePullPolicy: Always
+# dhi.io is a private registry -- unlike bitnami's public Docker Hub image, pulling this
+# needs a real imagePullSecret at deploy time (no Dockerfile/CI rehost step happens for this
+# chart, it's helm-installed with this image reference as-is).
+#
+# NOT `registry-secret-name` -- that name is reflected org-wide into every namespace but its
+# dhi.io entry is the literal unfilled placeholder from obsrv-automation/helmcharts/images.yaml
+# ("your_registry_username:your_registry_token", confirmed by decoding the live secret in the
+# `spark` namespace). It silently works for public Docker Hub images (bitnami, sanketikahub)
+# but fails outright for dhi.io, which requires real auth on every pull -- this is what caused
+# a live ImagePullBackOff after switching to dhi.io.
+#
+# `obsrv-docker-secret` (present in `obsrv`/`management-api`/`management-console` namespaces)
+# has real `sanketikahub` credentials for both Docker Hub and dhi.io -- confirmed by decoding
+# it. Copied into `spark` (`kubectl get secret obsrv-docker-secret -n obsrv -o json | ... |
+# kubectl apply -n spark -f -`) and pointed here. If this chart is reinstalled on a fresh
+# cluster, that secret needs to exist in the target namespace first -- it is not currently
+# reflected there automatically.
+imagePullSecrets:
+  - name: obsrv-docker-secret
 
 commonLabels: {}
 
@@ -24,14 +62,27 @@ podAnnotations: {}
 
 podSecurityContext:
   runAsNonRoot: true
-  runAsUser: 1001
-  fsGroup: 1001
+  # bitnami/kubectl is a stateless CLI (no data-dir ownership requirement like a database
+  # image) -- confirmed `docker run --user 65532 bitnami/kubectl:latest version --client`
+  # works fine, so a high uid (avoids colliding with any real host user) is safe here.
+  runAsUser: 65532
+  fsGroup: 65532
+  seccompProfile:
+    type: RuntimeDefault
 
-securityContext: {}
-  # readOnlyRootFilesystem: false
-  # capabilities:
-  #   drop:
-  #   - ALL
+securityContext:
+  allowPrivilegeEscalation: false
+  seccompProfile:
+    type: RuntimeDefault
+  capabilities:
+    drop:
+    - ALL
+  # Not readOnlyRootFilesystem: kubectl writes its cache/http-cache dir under $HOME on every
+  # invocation (not just an optional optimization) -- without a live cluster to verify a
+  # writable-emptyDir workaround against, leaving this off is safer than guessing.
+  # automountServiceAccountToken intentionally left on (not set to false): this job's whole
+  # purpose is `kubectl exec` against the API server using this pod's own SA token -- disabling
+  # automount would break the job outright, not just tighten security.
 
 # This block is an interface for k8s service spec.
 service:
@@ -119,8 +170,12 @@ sidecars: {}
 
 ### NOTE: This section isn't to be changed and must be in sync with the spark helm chart
 ######## Spark Configuration Start ########
-## Defaults taken from Bitnami Spark Helm Chart
-python_path: /opt/bitnami/python/bin/python
+## The `spark` chart's own image moved from Bitnami's layout (/opt/bitnami/...) to a plain
+## Apache Spark layout (/opt/spark/...) when it was rebuilt as sanketikahub/spark:2.2.0 -- these
+## paths are stale bitnami paths and were confirmed broken against the live spark-master pod
+## (`kubectl exec spark-master-0 -- ls /opt/bitnami/` -> "No such file or directory";
+## spark-submit actually lives at /opt/spark/bin/spark-submit, python at /usr/local/bin/python3).
+python_path: /usr/local/bin/python3
 
 spark:
   host: http://spark-master-svc.spark.svc.cluster.local:8998/batches/
@@ -128,9 +183,9 @@ spark:
     host: spark://spark-master-0.spark-headless.spark.svc.cluster.local:7077
     port: 7077
   driver:
-    extraJavaOptions: -Dlog4j.configuration=file:/opt/bitnami/spark/conf/log4j.properties
+    extraJavaOptions: -Dlog4j.configuration=file:/opt/spark/conf/log4j.properties
   executor:
-    extraJavaOptions: -Dlog4j.configuration=file:/opt/bitnami/spark/conf/log4j.properties
+    extraJavaOptions: -Dlog4j.configuration=file:/opt/spark/conf/log4j.properties
 ######## Spark Configuration End ########
 
 

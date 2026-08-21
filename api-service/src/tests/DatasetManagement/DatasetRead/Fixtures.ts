@@ -102,6 +102,7 @@ export const TestInputsForDatasetRead = {
         }
     },
     MASTER_DATASET_SCHEMA:[{"dataset_id":"master_dataset", "dataset_config":{"cache_config":{"redis_db":16}}}],
+    DATASOURCE_SCHEMA: { "datasource": "sb-telemetry-events", "ingestion_spec": { "type": "kafka", "dataSchema": {}, "ioConfig": {}, "tuningConfig": {} } },
     TRANSFORMATIONS_SCHEMA: [{ "field_key": "eid", "transformation_function": { "type": "mask", "expr": "eid", "datatype": "string", "category": "pii" }, "mode": "Strict" }],
     TRANSFORMATIONS_SCHEMA_V1: [
         {

@@ -15,6 +15,9 @@ import { commandHttpService } from "../../../connections/commandServiceConnectio
 import { druidHttpService } from "../../../connections/druidConnection";
 import { sequelize } from "../../../connections/databaseConnection";
 import { datasetService } from "../../../services/DatasetService";
+import { userService } from "../../../services/UserService";
+import { config } from "../../../configs/Config";
+import { buildRbacToken, NO_ACCESS_ROLE } from "../../helpers/rbacTestHelper";
 
 chai.use(spies);
 chai.should();
@@ -26,6 +29,7 @@ describe("DATASET STATUS TRANSITION RETIRE", () => {
 
     afterEach(() => {
         chai.spy.restore();
+        config.is_RBAC_enabled = "false";
     });
 
     it("Dataset status transition success: When the action is to Retire dataset", (done) => {
@@ -237,6 +241,22 @@ describe("DATASET STATUS TRANSITION RETIRE", () => {
                 res.body.params.msgid.should.be.eq(msgid)
                 res.body.error.message.should.be.eq("Failed to retire dataset as it is in use. Please retire or delete dependent datasets before retiring this dataset")
                 res.body.error.code.should.be.eq("DATASET_IN_USE")
+                done();
+            });
+    });
+
+    it("Dataset status transition retire failure: RBAC enabled and user lacks a valid role", (done) => {
+        config.is_RBAC_enabled = "true";
+        chai.spy.on(userService, "getUser", () => {
+            return Promise.resolve({ roles: [NO_ACCESS_ROLE] })
+        })
+        chai
+            .request(app)
+            .post("/v2/datasets/status-transition")
+            .set("Authorization", `Bearer ${buildRbacToken()}`)
+            .send(TestInputsForDatasetStatusTransition.VALID_SCHEMA_FOR_RETIRE)
+            .end((err, res) => {
+                res.should.have.status(httpStatus.FORBIDDEN);
                 done();
             });
     });

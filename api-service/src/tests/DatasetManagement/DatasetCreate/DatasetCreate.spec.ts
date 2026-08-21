@@ -9,6 +9,11 @@ import { DatasetDraft } from "../../../models/DatasetDraft";
 import { sequelize } from "../../../connections/databaseConnection";
 import { apiId } from "../../../controllers/DatasetCreate/DatasetCreate"
 import { Dataset } from "../../../models/Dataset";
+import { Datasource } from "../../../models/Datasource";
+import TableDraft from "../../../models/Table";
+import { userService } from "../../../services/UserService";
+import { config } from "../../../configs/Config";
+import { buildRbacToken, NO_ACCESS_ROLE } from "../../helpers/rbacTestHelper";
 
 chai.use(spies);
 chai.should();
@@ -20,6 +25,7 @@ describe("DATASET CREATE API", () => {
 
     afterEach(() => {
         chai.spy.restore();
+        config.is_RBAC_enabled = "false";
     });
 
     for (const fixture of DATASET_CREATE_SUCCESS_FIXTURES) {
@@ -28,6 +34,12 @@ describe("DATASET CREATE API", () => {
                 return Promise.resolve(null)
             })
             chai.spy.on(Dataset, "findOne", () => {
+                return Promise.resolve(null)
+            })
+            chai.spy.on(Datasource, "findOne", () => {
+                return Promise.resolve(null)
+            })
+            chai.spy.on(TableDraft, "findOne", () => {
                 return Promise.resolve(null)
             })
             chai.spy.on(DatasetDraft, "create", () => {
@@ -59,7 +71,13 @@ describe("DATASET CREATE API", () => {
             chai.spy.on(Dataset, "findOne", () => {
                 return Promise.resolve(null)
             })
-            
+            chai.spy.on(Datasource, "findOne", () => {
+                return Promise.resolve(null)
+            })
+            chai.spy.on(TableDraft, "findOne", () => {
+                return Promise.resolve(null)
+            })
+
             chai
                 .request(app)
                 .post("/v2/datasets/create")
@@ -111,6 +129,22 @@ describe("DATASET CREATE API", () => {
                 res.body.params.msgid.should.be.eq(msgid)
                 res.body.error.message.should.be.eq("Dataset Already exists with id:sb-ddd")
                 res.body.error.code.should.be.eq("DATASET_EXISTS")
+                done();
+            });
+    });
+
+    it("Dataset creation failure: RBAC enabled and user lacks a valid role", (done) => {
+        config.is_RBAC_enabled = "true";
+        chai.spy.on(userService, "getUser", () => {
+            return Promise.resolve({ roles: [NO_ACCESS_ROLE] })
+        })
+        chai
+            .request(app)
+            .post("/v2/datasets/create")
+            .set("Authorization", `Bearer ${buildRbacToken()}`)
+            .send(TestInputsForDatasetCreate.DATASET_WITH_DUPLICATE_DENORM_KEY)
+            .end((err, res) => {
+                res.should.have.status(httpStatus.FORBIDDEN);
                 done();
             });
     });

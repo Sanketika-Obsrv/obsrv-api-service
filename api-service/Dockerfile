@@ -27,4 +27,11 @@ WORKDIR /opt/api-service
 COPY --chown=node:node --from=build /opt/api-service .
 USER node
 EXPOSE 3000
+# Exec-form + node's own net module: the runtime image is shell-less (no /bin/sh, no curl/wget),
+# so this can't be a shell-form/curl healthcheck. A bare TCP connect is enough to confirm the
+# server is accepting connections (no reliance on a specific route existing).
+# Port read from process.env.api_port (Config.ts's actual env var, matching app.listen) with a
+# 3000 fallback -- NOT process.env.PORT, which this app never sets or reads.
+HEALTHCHECK --interval=30s --timeout=5s --start-period=15s --retries=3 \
+  CMD ["node", "-e", "var p=process.env.api_port||3000;var s=require('net').connect(p,'127.0.0.1');s.on('connect',function(){s.end();process.exit(0)});s.on('error',function(){process.exit(1)})"]
 CMD ["node", "-r", "ts-node/register", "./src/app.ts"]

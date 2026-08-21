@@ -22,7 +22,7 @@ const errCode = {
     invalidDateRange: "DATA_OUT_INVALID_DATE_RANGE"
 }
 
-export const validateQuery = async (requestPayload: any, datasetId: string, datasourceRef: string = "") => {
+export const validateQuery = async (requestPayload: any, datasetId: string, datasourceRef = "") => {
     requestBody = requestPayload;
     datasourceId = datasourceRef;
     dataset_id = datasetId;
@@ -153,14 +153,14 @@ const getIntervals = (payload: any) => {
 };
 
 const isValidDateRange = (
-    fromDate: moment.Moment, toDate: moment.Moment, allowedRange: number = 0
+    fromDate: moment.Moment, toDate: moment.Moment, allowedRange = 0
 ): boolean => {
     const differenceInDays = Math.abs(fromDate.diff(toDate, "days"));
     const isValidDates = differenceInDays > allowedRange ? false : true;
     return isValidDates;
 };
 
-const validateDateRange = (fromDate: moment.Moment, toDate: moment.Moment, allowedRange: number = 0) => {
+const validateDateRange = (fromDate: moment.Moment, toDate: moment.Moment, allowedRange = 0) => {
     const isValidDates = isValidDateRange(fromDate, toDate, allowedRange);
     if (isValidDates) {
         return true

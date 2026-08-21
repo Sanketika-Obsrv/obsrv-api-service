@@ -11,6 +11,9 @@ import { DatasetTransformationsDraft } from "../../../models/TransformationDraft
 import { DatasetSourceConfigDraft } from "../../../models/DatasetSourceConfigDraft";
 import { DatasourceDraft } from "../../../models/DatasourceDraft";
 import { sequelize } from "../../../connections/databaseConnection";
+import { userService } from "../../../services/UserService";
+import { config } from "../../../configs/Config";
+import { buildRbacToken, NO_ACCESS_ROLE } from "../../helpers/rbacTestHelper";
 
 
 chai.use(spies);
@@ -23,6 +26,7 @@ describe("DATASET STATUS TRANSITION DELETE", () => {
 
     afterEach(() => {
         chai.spy.restore();
+        config.is_RBAC_enabled = "false";
     });
 
     it("Dataset status transition success: When the action is to Delete draft datasets", (done) => {
@@ -80,6 +84,22 @@ describe("DATASET STATUS TRANSITION DELETE", () => {
                 res.body.params.msgid.should.be.eq(msgid)
                 res.body.error.message.should.be.eq("Dataset not found for dataset: telemetry.1")
                 res.body.error.code.should.be.eq("DATASET_NOT_FOUND")
+                done();
+            });
+    });
+
+    it("Dataset status transition delete failure: RBAC enabled and user lacks a valid role", (done) => {
+        config.is_RBAC_enabled = "true";
+        chai.spy.on(userService, "getUser", () => {
+            return Promise.resolve({ roles: [NO_ACCESS_ROLE] })
+        })
+        chai
+            .request(app)
+            .post("/v2/datasets/status-transition")
+            .set("Authorization", `Bearer ${buildRbacToken()}`)
+            .send(TestInputsForDatasetStatusTransition.VALID_SCHEMA_FOR_DELETE)
+            .end((err, res) => {
+                res.should.have.status(httpStatus.FORBIDDEN);
                 done();
             });
     });

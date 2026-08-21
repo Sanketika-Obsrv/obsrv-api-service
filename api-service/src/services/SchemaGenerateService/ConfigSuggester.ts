@@ -43,7 +43,7 @@ export class ConfigSuggestor {
     private processingConfig(conflicts: ConflictTypes[]): any {
         let dedupKeys = _.filter(conflicts, (o) => _.upperCase(o.formats.resolution["type"]) === "DEDUP").map(v => v.formats.property)
         let matchedDedupFields = []
-        const dedupOrderProperty: string = "cardinality"
+        const dedupOrderProperty = "cardinality"
         const dedupOrder: any = "desc"
         if (!_.isUndefined(this.rollupInfo.summary)) {
             for (const key of Object.keys(this.rollupInfo.summary)) {
