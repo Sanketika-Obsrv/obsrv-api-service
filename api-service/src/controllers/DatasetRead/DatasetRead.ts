@@ -24,8 +24,9 @@ const maxRequestedFields = _.union(_.keys(Dataset.getAttributes()), _.keys(Datas
 
 const validateRequest = (req: Request) => {
 
-    const { dataset_id } = req.params;
-    const { fields, mode } = req.query;
+    const dataset_id = _.get(req, 'params.dataset_id');
+    const fields = _.get(req, 'query.fields');
+    const mode = _.get(req, 'query.mode');
     const fieldValues = fields ? _.split(fields as string, ",") : [];
     const allowedFields = mode === "edit" ? _.keys(DatasetDraft.getAttributes()) : _.keys(Dataset.getAttributes());
     // The name check below rejects unknown fields but not a request repeating valid ones, which
@@ -43,8 +44,9 @@ const validateRequest = (req: Request) => {
 const datasetRead = async (req: Request, res: Response) => {
 
     validateRequest(req);
-    const { dataset_id } = req.params;
-    const { fields, mode } = req.query;
+    const dataset_id = _.get(req, 'params.dataset_id');
+    const fields = _.get(req, 'query.fields');
+    const mode = _.get(req, 'query.mode');
     const userID = (req as any)?.userID;
     // slice gives readDataset/readDraftDataset a length bound that does not derive from user input
     const attributes = !fields ? defaultFields : _.split(<string>fields, ",").slice(0, maxRequestedFields);

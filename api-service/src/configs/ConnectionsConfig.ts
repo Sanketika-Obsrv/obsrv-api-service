@@ -2,13 +2,12 @@
 const env = process.env;
 
 export const connectionConfig = {
-    postgres: {
-        host: env.postgres_host || "localhost",
-        port: env.postgres_port || 5432,
-        database: env.postgres_database || "obsrv",
-        username: env.postgres_username || "postgres",
-        password: env.postgres_password || "postgres",
-    },
+    postgres: Object.freeze({
+        host: env['postgres_host'] || "localhost",
+        port: env['postgres_port'] || 5432,
+        database: env['postgres_database'] || "obsrv",
+        credentials: `${env['postgres_username'] || "postgres"}::${env['postgres_password'] || "postgres"}`
+    }),
     kafka: {
         "config": {
             "brokers": [`${env.kafka_host || "localhost"}:${env.kafka_port || 9092}`],

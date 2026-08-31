@@ -11,11 +11,11 @@ const telemetryObject = { type: "notificationChannel", ver: "1.0.0" };
 
 const createHandler = async (request: Request, response: Response, next: NextFunction) => {
     try {
-        const payload = request.body;
+        const body = _.get(request, "body");
         const userID = (request as any)?.userID;
-        _.set(payload, "created_by", userID);
-        _.set(payload, "updated_by", userID);
-        const notificationBody = await Notification.create(payload);
+        _.set(body, "created_by", userID);
+        _.set(body, "updated_by", userID);
+        const notificationBody = await Notification.create(body);
         updateTelemetryAuditEvent({ request, object: { id: notificationBody?.dataValues?.id, ...telemetryObject } });
         ResponseHandler.successResponse(request, response, { status: httpStatus.OK, data: { id: notificationBody.dataValues.id } })
     } catch (err) {
@@ -26,8 +26,8 @@ const createHandler = async (request: Request, response: Response, next: NextFun
 
 const updateHandler = async (request: Request, response: Response, next: NextFunction) => {
     try {
-        const { id } = request.params;
-        const updatedPayload = request.body;
+        const id = _.get(request, 'params.id');
+        const updatedPayload = _.get(request, 'body');
         const notificationPayloadModel = await Notification.findOne({ where: { id } });
         const notificationPayload = notificationPayloadModel?.toJSON();
         if (!notificationPayload) return next({ message: httpStatus[httpStatus.NOT_FOUND], statusCode: httpStatus.NOT_FOUND });
@@ -47,7 +47,7 @@ const updateHandler = async (request: Request, response: Response, next: NextFun
 
 const listHandler = async (request: Request, response: Response, next: NextFunction) => {
     try {
-        const { limit, filters, offset } = request.body?.request || {};
+        const { limit, filters, offset } = _.get(request.body, 'request', {});
         const notifications = await Notification.findAll({ limit: limit, offset: offset, ...(filters && { where: filters }) });
         const count = _.get(notifications, "length");
         ResponseHandler.successResponse(request, response, { status: httpStatus.OK, data: { notifications, ...(count && { count }) } });
@@ -59,7 +59,7 @@ const listHandler = async (request: Request, response: Response, next: NextFunct
 
 const fetchHandler = async (request: Request, response: Response, next: NextFunction) => {
     try {
-        const { id } = request.params;
+        const id = _.get(request, 'params.id');
         const notificationPayloadModel = await Notification.findOne({ where: { id } });
         const notificationPayload = notificationPayloadModel?.toJSON();
         if (!notificationPayloadModel) return next({ message: httpStatus[httpStatus.NOT_FOUND], statusCode: httpStatus.NOT_FOUND });
@@ -73,7 +73,7 @@ const fetchHandler = async (request: Request, response: Response, next: NextFunc
 
 const retireHandler = async (request: Request, response: Response, next: NextFunction) => {
     try {
-        const { id } = request.params;
+        const id = _.get(request, 'params.id');
         const notificationPayloadModel = await Notification.findOne({ where: { id } })
         const notificationPayload = notificationPayloadModel?.toJSON();
         if (!notificationPayload) return next({ message: httpStatus[httpStatus.NOT_FOUND], statusCode: httpStatus.NOT_FOUND });
@@ -90,7 +90,7 @@ const retireHandler = async (request: Request, response: Response, next: NextFun
 
 const publishHandler = async (request: Request, response: Response, next: NextFunction) => {
     try {
-        const { id } = request.params;
+        const id = _.get(request, 'params.id');
         const notificationPayloadModel = await Notification.findOne({ where: { id } })
         const notificationPayload = notificationPayloadModel?.toJSON();
         if (!notificationPayload) return next({ message: httpStatus[httpStatus.NOT_FOUND], statusCode: httpStatus.NOT_FOUND });
@@ -108,7 +108,7 @@ const publishHandler = async (request: Request, response: Response, next: NextFu
 
 const testNotifationChannelHandler = async (request: Request, response: Response, next: NextFunction) => {
     try {
-        const { message = "Hello Obsrv", payload = {} } = request.body;
+        const { message = "Hello Obsrv", payload = {} } = _.get(request, 'body');
         const { id } = payload;
         if (id) {
             const notificationPayloadModel = await Notification.findOne({ where: { id } })

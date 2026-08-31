@@ -26,6 +26,7 @@ const dataMetrics = async (req: Request, res: Response) => {
         const { url, method, headers = {}, body = {}, params = {}, ...rest } = query;
         const apiResponse = await axios.request({ url, method, headers, params, data: body, ...rest })
         const data = _.get(apiResponse, "data");
+        res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
         return res.json(data);
     }
     else {
