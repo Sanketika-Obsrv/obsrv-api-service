@@ -346,8 +346,13 @@ export const getMetricData = ( ast: any, data: any) => {
 }
 
 export const getDatasetId = async (data: any) => {
+    // SQL metadata/introspection queries (e.g. SCHEMATA, TABLES, COLUMNS - sent by any
+    // JDBC/ODBC/BI client on connect) aren't real datasets, so this legitimately returns
+    // null. Reading .dataset_id off it unconditionally used to crash here on every such
+    // query, which was inflating the data-out API failure rate even though the query
+    // itself had already succeeded.
     const data_response = await datasetService.getDatasetIdWithDatasource(data, ["dataset_id"]);
-    return data_response.dataset_id;
+    return data_response?.dataset_id || null;
 }
 
 export const setLogEdata =  async ( request: Request, response: Response ) => {
