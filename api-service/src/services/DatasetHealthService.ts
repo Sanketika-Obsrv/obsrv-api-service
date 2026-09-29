@@ -124,7 +124,7 @@ export const getProcessingHealth = async (dataset: any): Promise<{ components: a
   denormFailure.health = getProcessingComponentHealth(denormFailure, count, processingDefaultThreshold?.denormFailureCount)
 
   const transformFailure = await queryMetrics(dataset_id, prometheusQueries.transformationFailure)
-  denormFailure.health = getProcessingComponentHealth(transformFailure, count, processingDefaultThreshold?.transformFailureCount)
+  transformFailure.health = getProcessingComponentHealth(transformFailure, count, processingDefaultThreshold?.transformFailureCount)
 
   const components = [
     {
