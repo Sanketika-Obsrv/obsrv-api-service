@@ -2,6 +2,7 @@ import _ from "lodash";
 import { Op } from "sequelize";
 import { datasetService } from "./DatasetService";
 import { flattenEvent } from "../utils/flattenEvent";
+import { obsrvError } from "../types/ObsrvError";
 
 class DenormPreviewService {
 
@@ -10,6 +11,10 @@ class DenormPreviewService {
         const dataset = (mode === "edit")
             ? await datasetService.getDraftDataset(datasetId, ["sample_data", "denorm_config"])
             : await datasetService.getDataset(datasetId, ["sample_data", "denorm_config"], true);
+
+        if (!dataset) {
+            throw obsrvError(datasetId, "DATASET_NOT_FOUND", `Dataset with the given dataset_id:${datasetId} not found`, "NOT_FOUND", 404);
+        }
 
         const baseEvent = flattenEvent(_.get(dataset, "sample_data.mergedEvent") || {});
         const denormFields: Array<Record<string, any>> = _.get(dataset, "denorm_config.denorm_fields") || [];

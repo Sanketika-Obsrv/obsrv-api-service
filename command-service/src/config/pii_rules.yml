@@ -20,7 +20,7 @@ keys:
     code: 'en'
     resourceKey: pii.descriptions.m004
   phone:
-    rule: '(?<![a-zA-Z0-9])phone(?![a-zA-Z0-9])|(?<![a-zA-Z0-9])number(?![a-zA-Z0-9])|(?<![a-zA-Z0-9])no(?![a-zA-Z0-9])|(?<![a-zA-Z0-9])no\.(?![a-zA-Z0-9])|(?<![a-zA-Z0-9])num(?![a-zA-Z0-9])|(?<![a-zA-Z0-9])mobile(?![a-zA-Z0-9])|(?<![a-zA-Z0-9])contact(?![a-zA-Z0-9])'
+    rule: '(?<![a-zA-Z0-9])phone(?![a-zA-Z0-9])|(?<![a-zA-Z0-9])number(?![a-zA-Z0-9])|(?<![a-zA-Z0-9])num(?![a-zA-Z0-9])|(?<![a-zA-Z0-9])mobile(?![a-zA-Z0-9])|(?<![a-zA-Z0-9])contact(?![a-zA-Z0-9])'
     locale: ''
     code: 'en'
     resourceKey: pii.descriptions.m005
@@ -43,7 +43,7 @@ values:
       resourceKey: pii.descriptions.m008
   financial:
     credit_card: 
-      rule: '((?:(?:\d{4}[- ]?){3}\d{4}|\d{15,16}))(?![\d])'
+      rule: '((?:(?:[0-9]{4}[- ]?){3}[0-9]{4}|[0-9]{15,16}))(?![0-9])'
       locale: ''
       code: 'en'
       resourceKey: pii.descriptions.m009

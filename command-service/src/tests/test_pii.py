@@ -44,6 +44,14 @@ def test_credit_card_value_is_detected(service):
     assert any(r["field"] == "payment_card" and r["type"] == "financial" for r in results)
 
 
+def test_no_suffix_fields_are_not_falsely_flagged_as_phone(service):
+    event = {"no_of_items": 3, "is_no": True, "employee_no": "E123"}
+    types = _types_by_field(service.detect_pii_fields(event))
+    assert "no_of_items" not in types
+    assert "is_no" not in types
+    assert "employee_no" not in types
+
+
 def test_error_fallback_matches_declared_str_types(service, monkeypatch):
     def boom(*args, **kwargs):
         raise ValueError("synthetic failure")

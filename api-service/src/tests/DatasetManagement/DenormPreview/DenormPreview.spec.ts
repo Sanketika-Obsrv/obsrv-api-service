@@ -113,4 +113,30 @@ describe("DENORM PREVIEW API", () => {
             });
     });
 
+    it("Failure: Returns 404 when the dataset does not exist", (done) => {
+        chai.spy.on(DatasetDraft, "findOne", () => {
+            return Promise.resolve(null)
+        })
+        chai
+            .request(app)
+            .get("/v2/datasets/denorm-preview/does-not-exist?mode=edit")
+            .end((err, res) => {
+                res.should.have.status(httpStatus.NOT_FOUND);
+                res.body.error.message.should.be.eq("Dataset with the given dataset_id:does-not-exist not found")
+                res.body.error.code.should.be.eq("DATASET_NOT_FOUND")
+                done();
+            });
+    });
+
+    it("Failure: Returns 400 when mode is repeated in the query string (becomes an array)", (done) => {
+        chai
+            .request(app)
+            .get("/v2/datasets/denorm-preview/telemetry?mode=edit&mode=edit")
+            .end((err, res) => {
+                res.should.have.status(httpStatus.BAD_REQUEST);
+                res.body.error.code.should.be.eq("DENORM_PREVIEW_INVALID_MODE")
+                done();
+            });
+    });
+
 })
