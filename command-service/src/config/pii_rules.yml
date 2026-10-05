@@ -1,31 +1,31 @@
 keys:
   address:
-    rule: '\baddress\b|\blocation\b|\bloc\b|\baddr\b|\badd\b'
+    rule: '(?<![a-zA-Z0-9])address(?![a-zA-Z0-9])|(?<![a-zA-Z0-9])location(?![a-zA-Z0-9])|(?<![a-zA-Z0-9])loc(?![a-zA-Z0-9])|(?<![a-zA-Z0-9])addr(?![a-zA-Z0-9])|(?<![a-zA-Z0-9])add(?![a-zA-Z0-9])'
     locale: ''
     code: 'en'
     resourceKey: pii.descriptions.m001
   financial:
-    rule: '\bcredit\b|\bdebit\b|\baccount\b|\btransaction\b|\btxn\b|\biban\b|\bswift\b'
+    rule: '(?<![a-zA-Z0-9])credit(?![a-zA-Z0-9])|(?<![a-zA-Z0-9])debit(?![a-zA-Z0-9])|(?<![a-zA-Z0-9])account(?![a-zA-Z0-9])|(?<![a-zA-Z0-9])transaction(?![a-zA-Z0-9])|(?<![a-zA-Z0-9])txn(?![a-zA-Z0-9])|(?<![a-zA-Z0-9])iban(?![a-zA-Z0-9])|(?<![a-zA-Z0-9])swift(?![a-zA-Z0-9])'
     locale: ''
     code: 'en'
     resourceKey: pii.descriptions.m002
   id:
-    rule: '\bid\b'
+    rule: '(?<![a-zA-Z0-9])id(?![a-zA-Z0-9])'
     locale: ''
     code: 'en'
     resourceKey: pii.descriptions.m003
   internet:
-    rule: '\bemail\b|\bip\b'
+    rule: '(?<![a-zA-Z0-9])email(?![a-zA-Z0-9])|(?<![a-zA-Z0-9])ip(?![a-zA-Z0-9])'
     locale: ''
     code: 'en'
     resourceKey: pii.descriptions.m004
   phone:
-    rule: '\bphone\b|\bnumber\b|\bno\b|\bno\.\b|\bnum\b|\bmobile\b|\bcontact\b'
+    rule: '(?<![a-zA-Z0-9])phone(?![a-zA-Z0-9])|(?<![a-zA-Z0-9])number(?![a-zA-Z0-9])|(?<![a-zA-Z0-9])no(?![a-zA-Z0-9])|(?<![a-zA-Z0-9])no\.(?![a-zA-Z0-9])|(?<![a-zA-Z0-9])num(?![a-zA-Z0-9])|(?<![a-zA-Z0-9])mobile(?![a-zA-Z0-9])|(?<![a-zA-Z0-9])contact(?![a-zA-Z0-9])'
     locale: ''
     code: 'en'
     resourceKey: pii.descriptions.m005
   name:
-    rule: '\bname\b'
+    rule: '(?<![a-zA-Z0-9])name(?![a-zA-Z0-9])'
     locale: ''
     code: 'en'
     resourceKey: pii.descriptions.m006
@@ -43,7 +43,7 @@ values:
       resourceKey: pii.descriptions.m008
   financial:
     credit_card: 
-      rule: '((?:(?:\\d{4}[- ]?){3}\\d{4}|\\d{15,16}))(?![\\d])'
+      rule: '((?:(?:\d{4}[- ]?){3}\d{4}|\d{15,16}))(?![\d])'
       locale: ''
       code: 'en'
       resourceKey: pii.descriptions.m009

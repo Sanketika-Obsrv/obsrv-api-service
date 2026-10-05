@@ -27,7 +27,7 @@ class DetectPIIService:
         except Exception as err:
             pii_error: PIIError = {
                 "errorCode": 500,
-                "errorMsg": type(err),
-                "errorTrace": err.args,
+                "errorMsg": type(err).__name__,
+                "errorTrace": str(err.args),
             }
             return pii_error
