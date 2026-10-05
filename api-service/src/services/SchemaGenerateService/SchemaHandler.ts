@@ -96,6 +96,8 @@ export class SchemaHandler {
         const propType = _.get(fieldData, "type")
         if(types){
             const storeFormat = _.get(dataMappingPaths, propType);
+            // propType can be "null" (e.g. NULL_FIELD resolution) which has no store format mapping
+            if (!storeFormat) return;
             _.set(schema, `${property}.arrival_format`, _.first(storeFormat.split(".")));
             _.set(schema, `${property}.data_type`, _.get(DataMappings, storeFormat));
         }
