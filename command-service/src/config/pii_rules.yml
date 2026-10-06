@@ -30,6 +30,7 @@ keys:
     code: 'en'
     resourceKey: pii.descriptions.m006
 values:
+  name: {}
   address:
     india:
       rule: '(?:\bAN\b|\bAP\b|\bAD\b|\bAR\b|\bAS\b|\bBH\b|\bCH\b|\bCT\b|\bDN\b|\bDL\b|\bGA\b|\bGJ\b|\bHR\b|\bHP\b|\bJK\b|\bJH\b|\bKA\b|\bKL\b|\bLD\b|\bMP\b|\bMH\b|\bMN\b|\bME\b|\bMI\b|\bNL\b|\bOR\b|\bPY\b|\bPB\b|\bRJ\b|\bSK\b|\bTN\b|\bTS\b|\bTR\b|\bUP\b|\bUT\b|\bWB\b)'

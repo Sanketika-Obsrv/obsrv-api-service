@@ -60,6 +60,28 @@ def test_generic_number_fields_are_not_falsely_flagged_as_phone(service):
     assert "serial_num" not in types
 
 
+def test_camelcase_fields_are_detected(service):
+    event = {
+        "customerEmail": "x",
+        "customerPhoneNumber": "x",
+        "userID": "x",
+        "CustomerAddress": "x",
+    }
+    types = _types_by_field(service.detect_pii_fields(event))
+    assert types["customerEmail"] == "internet"
+    assert types["customerPhoneNumber"] == "phone"
+    assert types["userID"] == "id"
+    assert types["CustomerAddress"] == "address"
+
+
+def test_name_fields_are_detected(service):
+    event = {"customer_name": "Jane Doe", "full_name": "John Smith", "fullName": "Alex Lee"}
+    types = _types_by_field(service.detect_pii_fields(event))
+    assert types["customer_name"] == "name"
+    assert types["full_name"] == "name"
+    assert types["fullName"] == "name"
+
+
 def test_error_fallback_matches_declared_str_types(service, monkeypatch):
     def boom(*args, **kwargs):
         raise ValueError("synthetic failure")

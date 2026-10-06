@@ -23,6 +23,7 @@ class DetectPIIService:
                     "internet", field, str(event_data[field])
                 )
                 results += self.model.detect_pii("phone", field, str(event_data[field]))
+                results += self.model.detect_pii("name", field, str(event_data[field]))
             return results
         except Exception as err:
             pii_error: PIIError = {
