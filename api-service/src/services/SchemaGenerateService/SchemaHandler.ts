@@ -84,6 +84,8 @@ export class SchemaHandler {
         const types = _.get(fieldData, type);
         types && types.map((item: any) => {
             const storeFormat = _.get(dataMappingPaths, item.type);
+            // item.type can be "null" (e.g. a oneof conflict candidate), which has no store format mapping
+            if (!storeFormat) return;
             arrivalSuggestions.push({ type: _.first(storeFormat.split(".")) });
         })
         if (arrivalSuggestions.length > 0)
