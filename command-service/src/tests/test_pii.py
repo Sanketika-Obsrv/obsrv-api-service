@@ -52,6 +52,14 @@ def test_no_suffix_fields_are_not_falsely_flagged_as_phone(service):
     assert "employee_no" not in types
 
 
+def test_generic_number_fields_are_not_falsely_flagged_as_phone(service):
+    event = {"order_number": "ORD123", "invoice_number": "INV456", "serial_num": "SN789"}
+    types = _types_by_field(service.detect_pii_fields(event))
+    assert "order_number" not in types
+    assert "invoice_number" not in types
+    assert "serial_num" not in types
+
+
 def test_error_fallback_matches_declared_str_types(service, monkeypatch):
     def boom(*args, **kwargs):
         raise ValueError("synthetic failure")
