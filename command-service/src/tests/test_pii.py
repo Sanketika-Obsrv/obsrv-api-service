@@ -74,6 +74,26 @@ def test_camelcase_fields_are_detected(service):
     assert types["CustomerAddress"] == "address"
 
 
+def test_technical_ids_are_not_falsely_flagged_as_personal_id(service):
+    event = {
+        "dataset_id": "ds1",
+        "connector_id": "c1",
+        "batch_id": "b1",
+        "request_id": "r1",
+        "tenant_id": "t1",
+    }
+    types = _types_by_field(service.detect_pii_fields(event))
+    assert types == {}
+
+
+def test_personal_id_fields_still_detected_alongside_technical_ones(service):
+    event = {"customer_id": "x", "patient_id": "x", "dataset_id": "x"}
+    types = _types_by_field(service.detect_pii_fields(event))
+    assert types["customer_id"] == "id"
+    assert types["patient_id"] == "id"
+    assert "dataset_id" not in types
+
+
 def test_name_fields_are_detected(service):
     event = {"customer_name": "Jane Doe", "full_name": "John Smith", "fullName": "Alex Lee"}
     types = _types_by_field(service.detect_pii_fields(event))
