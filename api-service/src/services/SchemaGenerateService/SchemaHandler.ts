@@ -45,6 +45,9 @@ export class SchemaHandler {
             ...{
                 type: resolution.value || _.first(conflict.schema.values),
                 oneof: conflict.schema.values.map(key => {
+                    // "null" has no store format mapping -- report it as-is instead of
+                    // looking it up, same as setNulltype does for the all-null case
+                    if (key === "null") return { type: "null" };
                     const storeFormat = _.get(dataMappingPaths, key);
                     return { type: _.get(DataMappings, storeFormat) }
                 }),

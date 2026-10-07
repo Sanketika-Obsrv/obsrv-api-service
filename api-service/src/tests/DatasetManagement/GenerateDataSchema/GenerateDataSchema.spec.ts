@@ -33,4 +33,26 @@ describe("GENERATE DATA SCHEMA API", () => {
                 done();
             });
     });
+
+    it("should preserve nullability when a field is null in some records but typed in others", (done) => {
+        chai
+            .request(app)
+            .post("/v2/datasets/dataschema")
+            .send(TestInputsForGenerateDataSchema.SAMPLE_WITH_MIXED_NULL_AND_TYPED_FIELD)
+            .end((err, res) => {
+                res.should.have.status(httpStatus.OK);
+                const schema = res.body.result.schema;
+                const discountCode = schema.properties.discount_code;
+                // majority type still wins for the actual resolution
+                discountCode.type.should.be.eq("string");
+                discountCode.data_type.should.be.eq("string");
+                // but the fact that nulls were observed isn't silently dropped
+                const oneofTypes = discountCode.oneof.map((entry: any) => entry.type);
+                oneofTypes.should.include("string");
+                oneofTypes.should.include("null");
+                // fields without a conflict are unaffected
+                schema.properties.amount.data_type.should.be.eq("integer");
+                done();
+            });
+    });
 });
