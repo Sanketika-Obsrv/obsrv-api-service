@@ -2,6 +2,7 @@ export default {
     "createDataset": "dataset:create",
     "updateDataset": "dataset:update",
     "readDataset": "dataset:read",
+    "denormPreviewDataset": "dataset:denorm-preview",
     "listDatasets": "dataset:list",
     "createDatasource": "datasource:create",
     "updateDatasource": "datasource:update",
