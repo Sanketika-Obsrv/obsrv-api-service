@@ -61,13 +61,17 @@ class REPIIModel(PIIModel):
 
     def detect_entity_in_fieldname(self, entity, value) -> List[PIIReason]:
         matches = []
+        key_rule = self.pii_rules["keys"].get(entity)
+        if not key_rule:
+            # Some entities (e.g. "id") are only detected by value pattern, not by field name
+            return matches
         normalized = self._normalize_field_name(value)
-        rule_matches = list(re.findall(self.pii_rules["keys"][entity]["rule"], normalized))
+        rule_matches = list(re.findall(key_rule["rule"], normalized))
         if len(rule_matches) != 0:
             reason: PIIReason = {
-                "code": self.pii_rules["keys"][entity]["code"],
-                "resourceKey": self.pii_rules["keys"][entity]["resourceKey"],
-                "region": self.pii_rules["keys"][entity]["locale"],
+                "code": key_rule["code"],
+                "resourceKey": key_rule["resourceKey"],
+                "region": key_rule["locale"],
                 "score": 1 / len(rule_matches),
             }
             matches.append(reason)

@@ -9,14 +9,6 @@ keys:
     locale: ''
     code: 'en'
     resourceKey: pii.descriptions.m002
-  id:
-    # Excludes <noun>_id for common technical/system identifiers (dataset_id, connector_id, ...)
-    # so this stays a generic personal-identifier catch-all (customer_id, patient_id, ...) without
-    # flooding suggestions with platform-internal IDs. Not exhaustive by design.
-    rule: '(?<!dataset_)(?<!connector_)(?<!template_)(?<!alert_)(?<!batch_)(?<!request_)(?<!tenant_)(?<!session_)(?<!schema_)(?<!event_)(?<!job_)(?<!task_)(?<!query_)(?<!trace_)(?<!span_)(?<!message_)(?<!record_)(?<!config_)(?<!version_)(?<!source_)(?<!sink_)(?<!pipeline_)(?<!topic_)(?<!connection_)(?<!workflow_)(?<!correlation_)(?<!denorm_)(?<!master_)(?<!dedup_)(?<![a-zA-Z0-9])id(?![a-zA-Z0-9])'
-    locale: ''
-    code: 'en'
-    resourceKey: pii.descriptions.m003
   internet:
     rule: '(?<![a-zA-Z0-9])email(?![a-zA-Z0-9])|(?<![a-zA-Z0-9])ip(?![a-zA-Z0-9])'
     locale: ''

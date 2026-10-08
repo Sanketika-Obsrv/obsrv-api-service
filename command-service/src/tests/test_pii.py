@@ -14,13 +14,11 @@ def _types_by_field(results):
 
 def test_prefixed_fields_are_detected(service):
     event = {
-        "customer_id": "CUST02912",
         "customer_email": "lallageorge@example.com",
         "customer_phone_number": "+910191540224",
         "customer_address": "H.No. 20, Sandhu Road, Dhule 002683",
     }
     types = _types_by_field(service.detect_pii_fields(event))
-    assert types["customer_id"] == "id"
     assert types["customer_email"] == "internet"
     assert types["customer_phone_number"] == "phone"
     assert types["customer_address"] == "address"
@@ -64,34 +62,42 @@ def test_camelcase_fields_are_detected(service):
     event = {
         "customerEmail": "x",
         "customerPhoneNumber": "x",
-        "userID": "x",
         "CustomerAddress": "x",
     }
     types = _types_by_field(service.detect_pii_fields(event))
     assert types["customerEmail"] == "internet"
     assert types["customerPhoneNumber"] == "phone"
-    assert types["userID"] == "id"
     assert types["CustomerAddress"] == "address"
 
 
-def test_technical_ids_are_not_falsely_flagged_as_personal_id(service):
+def test_id_fields_are_not_flagged_by_field_name_alone(service):
+    # The generic "id" key-name rule was removed entirely (dataset_id/connector_id/etc. were
+    # being false-flagged, and there's no reliable way to distinguish a personal identifier
+    # from a technical one by field name alone). "id" is now only detected by value pattern
+    # (aadhaar/pan/ssn below), regardless of what the field is called.
     event = {
         "dataset_id": "ds1",
         "connector_id": "c1",
-        "batch_id": "b1",
-        "request_id": "r1",
-        "tenant_id": "t1",
+        "customer_id": "CUST02912",
+        "patient_id": "P123",
+        "userID": "U1",
     }
     types = _types_by_field(service.detect_pii_fields(event))
     assert types == {}
 
 
-def test_personal_id_fields_still_detected_alongside_technical_ones(service):
-    event = {"customer_id": "x", "patient_id": "x", "dataset_id": "x"}
+def test_id_value_patterns_are_detected_regardless_of_field_name(service):
+    event = {
+        "ssn_like_value": "123-45-6789",
+        "aadhaar_like_value": "1234 5678 9012",
+        "pan_like_value": "ABCD1234E",
+        "unrelated_field": "just some text",
+    }
     types = _types_by_field(service.detect_pii_fields(event))
-    assert types["customer_id"] == "id"
-    assert types["patient_id"] == "id"
-    assert "dataset_id" not in types
+    assert types["ssn_like_value"] == "id"
+    assert types["aadhaar_like_value"] == "id"
+    assert types["pan_like_value"] == "id"
+    assert "unrelated_field" not in types
 
 
 def test_name_fields_are_detected(service):
