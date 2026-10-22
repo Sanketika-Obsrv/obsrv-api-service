@@ -347,7 +347,7 @@ export const getMetricData = ( ast: any, data: any) => {
 
 export const getDatasetId = async (data: any) => {
     const data_response = await datasetService.getDatasetIdWithDatasource(data, ["dataset_id"]);
-    return data_response.dataset_id;
+    return data_response?.dataset_id ?? null;
 }
 
 export const setLogEdata =  async ( request: Request, response: Response ) => {
