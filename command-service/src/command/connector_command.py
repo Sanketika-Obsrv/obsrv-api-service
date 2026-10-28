@@ -147,7 +147,7 @@ class ConnectorCommand(ICommand):
         result = None
         release_name = connector_instance.connector_id
         namespace = self.connector_job_config["flink"]["namespace"]
-        job_name = release_name.replace(".", "-")
+        job_name = release_name.replace(".", "-").replace("_", "-")
         helm_ls_cmd = ["helm", "ls", "--namespace", namespace]
 
         helm_ls_result = subprocess.run(
@@ -248,7 +248,7 @@ class ConnectorCommand(ICommand):
         err = None
         result = None
         release_name = "{}-{}".format(
-            (dataset_id + "_" + connector_instance.connector_id).lower().replace("_", "-")[:54],
+            (dataset_id + "_" + connector_instance.connector_id).lower().replace("_", "-").replace(".", "-")[:46],
             "".join(choice(ascii_lowercase) for i in range(6))
         )
         connector_source = connector_instance.connector_source
