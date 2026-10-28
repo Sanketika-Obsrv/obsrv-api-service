@@ -248,7 +248,7 @@ class ConnectorCommand(ICommand):
         err = None
         result = None
         release_name = "{}-{}".format(
-            (dataset_id + "_" + connector_instance.connector_id).lower().replace("_", "-").replace(".", "-")[:46],
+            (dataset_id + "_" + connector_instance.connector_id).lower().replace("_", "-").replace(".", "-")[:45],
             "".join(choice(ascii_lowercase) for i in range(6))
         )
         connector_source = connector_instance.connector_source
