@@ -89,7 +89,17 @@ export class SchemaInference {
 
     private validateEpoch(schema: any, sample: any, path: any) {
         Object.entries(sample).map(([key, value]) => {
-            if (value && typeof value == "object") {
+            if (Array.isArray(value)) {
+                // Array items share one schema definition at items.properties (not properties,
+                // which "typeof value == 'object'" below would have used for a plain object) --
+                // check each sample item against that same path instead of one index-numbered
+                // path per item, which wouldn't match where the inferred schema actually put it.
+                for (const item of value) {
+                    if (item && typeof item === "object") {
+                        this.validateEpoch(schema, item, `${path}.${key}.items.properties`);
+                    }
+                }
+            } else if (value && typeof value == "object") {
                 this.validateEpoch(schema, value, `${path}.${key}.properties`)
             }
             const { isValidTimestamp, type } = this.isValidTimestamp(value);
