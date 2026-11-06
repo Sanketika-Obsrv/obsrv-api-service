@@ -120,8 +120,8 @@ def analyze_pii(request: DatasetRequest) -> DatasetResponse:
     except Exception as err:
         result: PIIError = {
             "errorCode": 500,
-            "errorMsg": type(err),
-            "errorTrace": err.args,
+            "errorMsg": type(err).__name__,
+            "errorTrace": str(err.args),
         }
     else:
         result: List[PIIResult] | PIIError = pii_service.detect_pii_fields(event_data)
