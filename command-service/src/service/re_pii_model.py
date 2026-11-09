@@ -1,3 +1,4 @@
+import math
 import re
 from typing import List
 
@@ -31,7 +32,12 @@ class REPIIModel(PIIModel):
         reasons += self.detect_entity(entity, value)
         reasons += self.detect_entity_in_fieldname(entity, field)
         if len(reasons) != 0:
-            score = 1 / len(reasons)
+            # Corroborating reasons should raise confidence, not dilute it -- a field that
+            # matches both the value pattern AND the field-name pattern is more likely to be
+            # PII than one matching only one, not less. Noisy-OR combination: each reason's
+            # own score is an independent probability of being PII; 1 - prod(1 - s_i) is the
+            # combined probability, monotonically non-decreasing as reasons are added.
+            score = 1 - math.prod(1 - reason["score"] for reason in reasons)
             result: PIIResult = {
                 "field": field,
                 "type": entity,
