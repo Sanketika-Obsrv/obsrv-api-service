@@ -42,7 +42,17 @@ export const sqlQuery = async (req: Request, res: Response) => {
         ResponseHandler.flatResponse(req, res, result)
     } catch (error: any) {
         const code = _.get(error, "code") || errorCode
-        const errorMessage = { message: _.get(error, "message") || "Failed to query to druid", code }
+        // Axios errors carry the real upstream HTTP status in error.response.status (e.g. a
+        // bad/nonexistent table genuinely returns 400 from Druid) - dropping it here meant
+        // every query failure, regardless of cause, was reported as a generic 500.
+        const statusCode = _.get(error, "response.status") || 500
+        const errCode = statusCode >= 400 && statusCode < 500 ? "BAD_REQUEST" : "INTERNAL_SERVER_ERROR"
+        const errorMessage = {
+            message: _.get(error, "response.data.message") || _.get(error, "message") || "Failed to query to druid",
+            code,
+            statusCode,
+            errCode
+        }
         logger.error(error, apiId, code, resmsgid)
         ResponseHandler.errorResponse(errorMessage, req, res);
     }
