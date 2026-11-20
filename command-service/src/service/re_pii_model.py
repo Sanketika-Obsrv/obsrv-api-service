@@ -7,6 +7,11 @@ from model.data_models import PIIModel, PIIReason, PIIResult
 
 
 class REPIIModel(PIIModel):
+    # Marks a boundary between a lowercase/digit char and the uppercase char that
+    # follows it, so camelCase/PascalCase field names (customerEmail, UserID) get
+    # the same word boundaries the key rules already expect from snake_case ones.
+    _CAMEL_BOUNDARY_RE = re.compile(r"(?<=[a-z0-9])(?=[A-Z])")
+
     def __init__(self):
         def join(loader, node):
             seq = loader.construct_sequence(node)
@@ -15,6 +20,10 @@ class REPIIModel(PIIModel):
         yaml.add_constructor("!join", join)
         with open("config/pii_rules.yml", "r") as f:
             self.pii_rules = yaml.load(f, Loader=yaml.FullLoader)
+
+    @classmethod
+    def _normalize_field_name(cls, field: str) -> str:
+        return cls._CAMEL_BOUNDARY_RE.sub("_", field).lower()
 
     def detect_pii(self, entity, field, value) -> List[PIIResult]:
         results = []
@@ -52,12 +61,17 @@ class REPIIModel(PIIModel):
 
     def detect_entity_in_fieldname(self, entity, value) -> List[PIIReason]:
         matches = []
-        rule_matches = list(re.findall(self.pii_rules["keys"][entity]["rule"], value))
+        key_rule = self.pii_rules["keys"].get(entity)
+        if not key_rule:
+            # Some entities (e.g. "id") are only detected by value pattern, not by field name
+            return matches
+        normalized = self._normalize_field_name(value)
+        rule_matches = list(re.findall(key_rule["rule"], normalized))
         if len(rule_matches) != 0:
             reason: PIIReason = {
-                "code": self.pii_rules["keys"][entity]["code"],
-                "resourceKey": self.pii_rules["keys"][entity]["resourceKey"],
-                "region": self.pii_rules["keys"][entity]["locale"],
+                "code": key_rule["code"],
+                "resourceKey": key_rule["resourceKey"],
+                "region": key_rule["locale"],
                 "score": 1 / len(rule_matches),
             }
             matches.append(reason)

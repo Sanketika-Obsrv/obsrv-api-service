@@ -4,6 +4,7 @@ import DatasetCreate from "../controllers/DatasetCreate/DatasetCreate";
 import dataOut from "../controllers/DataOut/DataOutController";
 import DatasetUpdate from "../controllers/DatasetUpdate/DatasetUpdate";
 import DatasetRead from "../controllers/DatasetRead/DatasetRead";
+import denormPreview from "../controllers/DenormPreview/DenormPreviewController";
 import DatasetList from "../controllers/DatasetList/DatasetList"
 import { dataExhaust } from "../controllers/DataExhaust/DataExhaustController";
 import { onRequest } from "../metrics/prometheus/helpers";
@@ -44,6 +45,7 @@ router.post("/data/query{/:dataset_id}", setDataToRequestObject("api.data.out"),
 router.post("/datasets/create", setDataToRequestObject("api.datasets.create"), onRequest({ entity: Entity.Management }),telemetryAuditStart({action: telemetryActions.createDataset, operationType: OperationType.CREATE}), checkRBAC.handler(),DatasetCreate)
 router.patch("/datasets/update", setDataToRequestObject("api.datasets.update"), onRequest({ entity: Entity.Management }),telemetryAuditStart({action: telemetryActions.updateDataset, operationType: OperationType.UPDATE}), checkRBAC.handler(), DatasetUpdate)
 router.get("/datasets/read/:dataset_id", setDataToRequestObject("api.datasets.read"), onRequest({ entity: Entity.Management }), telemetryAuditStart({action: telemetryActions.readDataset, operationType: OperationType.GET}), checkRBAC.handler(), DatasetRead)
+router.get("/datasets/denorm-preview/:dataset_id", setDataToRequestObject("api.datasets.denorm-preview"), onRequest({ entity: Entity.Management }), telemetryAuditStart({action: telemetryActions.denormPreviewDataset, operationType: OperationType.GET}), checkRBAC.handler(), denormPreview)
 router.post("/datasets/list", setDataToRequestObject("api.datasets.list"), onRequest({ entity: Entity.Management }), telemetryAuditStart({action: telemetryActions.listDatasets, operationType: OperationType.LIST}), checkRBAC.handler(), DatasetList)
 router.get("/data/exhaust/:dataset_id", setDataToRequestObject("api.data.exhaust"), onRequest({ entity: Entity.Management }), telemetryAuditStart({action: telemetryActions.datasetExhaust, operationType: OperationType.GET}), checkRBAC.handler(), dataExhaust);
 router.post("/template/create", setDataToRequestObject("api.query.template.create"), checkRBAC.handler(), createQueryTemplate);
