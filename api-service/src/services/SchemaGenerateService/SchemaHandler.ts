@@ -45,6 +45,9 @@ export class SchemaHandler {
             ...{
                 type: resolution.value || _.first(conflict.schema.values),
                 oneof: conflict.schema.values.map(key => {
+                    // "null" has no store format mapping -- report it as-is instead of
+                    // looking it up, same as setNulltype does for the all-null case
+                    if (key === "null") return { type: "null" };
                     const storeFormat = _.get(dataMappingPaths, key);
                     return { type: _.get(DataMappings, storeFormat) }
                 }),
@@ -84,6 +87,8 @@ export class SchemaHandler {
         const types = _.get(fieldData, type);
         types && types.map((item: any) => {
             const storeFormat = _.get(dataMappingPaths, item.type);
+            // item.type can be "null" (e.g. a oneof conflict candidate), which has no store format mapping
+            if (!storeFormat) return;
             arrivalSuggestions.push({ type: _.first(storeFormat.split(".")) });
         })
         if (arrivalSuggestions.length > 0)
@@ -96,6 +101,8 @@ export class SchemaHandler {
         const propType = _.get(fieldData, "type")
         if(types){
             const storeFormat = _.get(dataMappingPaths, propType);
+            // propType can be "null" (e.g. NULL_FIELD resolution) which has no store format mapping
+            if (!storeFormat) return;
             _.set(schema, `${property}.arrival_format`, _.first(storeFormat.split(".")));
             _.set(schema, `${property}.data_type`, _.get(DataMappings, storeFormat));
         }
