@@ -154,3 +154,13 @@ def test_card_number_value_needs_its_own_digit_boundary(service):
     long_id = _types_per_field(service.detect_pii_fields({"v": "1234567890123456789"}))
     assert "financial" in flagged.get("v", set())
     assert "financial" not in long_id.get("v", set())
+
+
+def test_nested_name_under_a_non_person_object_is_not_flagged(service):
+    telemetry = ["pdata.name", "object.name", "device.name", "app.name", "context.pdata.name",
+                 "edata.item.name", "product.name", "org.name", "channel.name", "course.name",
+                 "batch.name", "content.name", "collection.name"]
+    people = ["user.name", "guardian.name", "student.name", "name.first", "name_1"]
+    types = _types_per_field(service.detect_pii_fields({f: "x" for f in telemetry + people}))
+    assert [f for f in telemetry if "name" in types.get(f, set())] == []
+    assert [f for f in people if "name" not in types.get(f, set())] == []

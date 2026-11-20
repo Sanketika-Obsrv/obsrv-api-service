@@ -20,9 +20,9 @@ keys:
     locale: ''
     code: 'en'
     resourceKey: pii.descriptions.m005
-  # Person-name compounds only, or a path segment that is exactly "name" (student.name).
+  # Person-name keywords (also across a dot: student.name), or a bare "name" at the top level.
   name:
-    rule: '(?<![a-zA-Z])(first|last|middle|full|given|sur|maiden|customer|cust|user|person|employee|emp|contact|student|guardian|parent|father|mother|teacher|patient|holder|nominee|social|professional)(_?\d+)?[_-]?name(?![a-zA-Z])|(?<![a-zA-Z])[fl]name(?![a-zA-Z])|(?:^|\.)name_?\d*(?=\.|$)'
+    rule: '(?<![a-zA-Z])(first|last|middle|full|given|sur|maiden|customer|cust|user|person|employee|emp|contact|student|guardian|parent|father|mother|teacher|patient|holder|nominee|social|professional)(_?\d+)?[._-]?name(?![a-zA-Z])|(?<![a-zA-Z])[fl]name(?![a-zA-Z])|^name_?\d*(?=\.|$)'
     locale: ''
     code: 'en'
     resourceKey: pii.descriptions.m006
