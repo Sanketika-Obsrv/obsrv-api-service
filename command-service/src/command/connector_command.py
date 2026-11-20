@@ -8,6 +8,7 @@ from config import Config
 from model.data_models import Action, ActionResponse, CommandPayload, DatasetStatusType
 from model.db_models import ConnectorInstance
 from service.db_service import DatabaseService
+from util.helm_naming import sanitize_helm_name
 import time
 from random import choice
 from string import ascii_lowercase
@@ -101,7 +102,7 @@ class ConnectorCommand(ICommand):
                 helm_uninstall_cmd = [
                     "helm",
                     "uninstall",
-                    connector[0].replace(".", "-").replace("_", "-"),
+                    sanitize_helm_name(connector[0], disambiguate=True),
                     "--namespace",
                     flink_namespace,
                 ]
@@ -147,7 +148,7 @@ class ConnectorCommand(ICommand):
         result = None
         release_name = connector_instance.connector_id
         namespace = self.connector_job_config["flink"]["namespace"]
-        job_name = release_name.replace(".", "-").replace("_", "-")
+        job_name = sanitize_helm_name(release_name, disambiguate=True)
         helm_ls_cmd = ["helm", "ls", "--namespace", namespace]
 
         helm_ls_result = subprocess.run(

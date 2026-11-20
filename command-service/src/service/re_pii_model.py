@@ -47,20 +47,23 @@ class REPIIModel(PIIModel):
             results.append(result)
         return results
 
+    # Default confidence for a single rule match, used when a rule has no explicit "score".
+    # Not derived from match count: a rule matching the same field twice (e.g. "name" hitting
+    # both halves of "first_name_last_name") is not twice as confident as matching once --
+    # 1/len(rule_matches) inverted that, scoring repeated evidence lower than single evidence.
+    _DEFAULT_RULE_SCORE = 0.8
+
     def detect_entity(self, entity, value) -> List[PIIReason]:
         matches = []
         for rule in list(self.pii_rules["values"][entity].keys()):
-            rule_matches = list(
-                re.findall(self.pii_rules["values"][entity][rule]["rule"], value)
-            )
+            rule_def = self.pii_rules["values"][entity][rule]
+            rule_matches = list(re.findall(rule_def["rule"], value))
             if len(rule_matches) != 0:
                 reason: PIIReason = {
-                    "code": self.pii_rules["values"][entity][rule]["code"],
-                    "resourceKey": self.pii_rules["values"][entity][rule][
-                        "resourceKey"
-                    ],
-                    "region": self.pii_rules["values"][entity][rule]["locale"],
-                    "score": 1 / len(rule_matches),
+                    "code": rule_def["code"],
+                    "resourceKey": rule_def["resourceKey"],
+                    "region": rule_def["locale"],
+                    "score": rule_def.get("score", self._DEFAULT_RULE_SCORE),
                 }
                 matches.append(reason)
         return matches
@@ -78,7 +81,7 @@ class REPIIModel(PIIModel):
                 "code": key_rule["code"],
                 "resourceKey": key_rule["resourceKey"],
                 "region": key_rule["locale"],
-                "score": 1 / len(rule_matches),
+                "score": key_rule.get("score", self._DEFAULT_RULE_SCORE),
             }
             matches.append(reason)
         return matches

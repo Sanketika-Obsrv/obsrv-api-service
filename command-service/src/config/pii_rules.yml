@@ -8,8 +8,12 @@ keys:
     locale: ''
     code: 'en'
     resourceKey: pii.descriptions.m001
+  # Narrowed to compound forms that actually carry a credential-shaped value. The bare nouns
+  # (account, transaction, credit, debit, swift) matched ordinary business fields with no PII
+  # in them at all -- transaction_id, account_balance, credit_limit are identifiers/amounts,
+  # not account numbers.
   financial:
-    rule: '(?<![a-zA-Z])credit(?![a-zA-Z])|(?<![a-zA-Z])debit(?![a-zA-Z])|(?<![a-zA-Z])account(?![a-zA-Z])|(?<![a-zA-Z])transaction(?![a-zA-Z])|(?<![a-zA-Z])txn(?![a-zA-Z])|(?<![a-zA-Z])iban(?![a-zA-Z])|(?<![a-zA-Z])swift(?![a-zA-Z])'
+    rule: '(?<![a-zA-Z])account[_-]?(number|no)(?![a-zA-Z])|(?<![a-zA-Z])card[_-]?number(?![a-zA-Z])|(?<![a-zA-Z])iban(?![a-zA-Z])|(?<![a-zA-Z])swift[_-]?code(?![a-zA-Z])'
     locale: ''
     code: 'en'
     resourceKey: pii.descriptions.m002
@@ -23,8 +27,13 @@ keys:
     locale: ''
     code: 'en'
     resourceKey: pii.descriptions.m005
+  # "name" alone has no value pattern to corroborate or veto it (see values.name below), so it
+  # was flagging every *_name field in the platform's own metadata -- dataset_name, table_name,
+  # job_name, file_name, event_name, column_name -- none of which are a person's name. Excluded
+  # those specific platform-metadata compounds; a real person-name field like customer_name or
+  # full_name still matches.
   name:
-    rule: '(?<![a-zA-Z])name(?![a-zA-Z])'
+    rule: '(?<!dataset_)(?<!table_)(?<!job_)(?<!file_)(?<!event_)(?<!column_)(?<![a-zA-Z])name(?![a-zA-Z])'
     locale: ''
     code: 'en'
     resourceKey: pii.descriptions.m006
