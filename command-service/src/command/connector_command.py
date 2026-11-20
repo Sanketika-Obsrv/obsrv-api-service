@@ -8,7 +8,7 @@ from config import Config
 from model.data_models import Action, ActionResponse, CommandPayload, DatasetStatusType
 from model.db_models import ConnectorInstance
 from service.db_service import DatabaseService
-from util.helm_naming import sanitize_helm_name
+from util.helm_naming import flink_release_name, sanitize_helm_name
 import time
 from random import choice
 from string import ascii_lowercase
@@ -96,13 +96,14 @@ class ConnectorCommand(ICommand):
         flink_namespace = self.connector_job_config["flink"]["namespace"]
         registered_connectors = self._get_registered_connectors(runtime="flink")
         print("Registered flink connectors: ", registered_connectors)
+        flink_releases = self._list_helm_releases(flink_namespace)
         for connector in registered_connectors:
             if connector[1] == 0:
                 ### Uninstall the helm chart
                 helm_uninstall_cmd = [
                     "helm",
                     "uninstall",
-                    sanitize_helm_name(connector[0], disambiguate=True),
+                    flink_release_name(connector[0], flink_releases),
                     "--namespace",
                     flink_namespace,
                 ]
@@ -117,6 +118,10 @@ class ConnectorCommand(ICommand):
                     print(f"Successfully uninstalled deployment '{connector[0]}'...")
                 else:
                     print(f"Error uninstalling deployment '{connector}': {helm_uninstall_result.stderr.decode()}")
+
+    def _list_helm_releases(self, namespace):
+        result = subprocess.run(["helm", "ls", "--all", "--short", "--namespace", namespace], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        return set(result.stdout.decode().split()) if result.returncode == 0 else set()
 
     def _install_jobs(self, dataset_id, active_connectors, is_masterdata):
         result = None
@@ -148,12 +153,12 @@ class ConnectorCommand(ICommand):
         result = None
         release_name = connector_instance.connector_id
         namespace = self.connector_job_config["flink"]["namespace"]
-        job_name = sanitize_helm_name(release_name, disambiguate=True)
-        helm_ls_cmd = ["helm", "ls", "--namespace", namespace]
+        helm_ls_cmd = ["helm", "ls", "--all", "--short", "--namespace", namespace]
 
         helm_ls_result = subprocess.run(
             helm_ls_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE
         )
+        job_name = flink_release_name(release_name, set(helm_ls_result.stdout.decode().split()))
 
         if helm_ls_result.returncode == 0 and self._get_live_instances(runtime="flink", connector_instance=connector_instance):
             connector_source = connector_instance.connector_source
@@ -249,7 +254,7 @@ class ConnectorCommand(ICommand):
         err = None
         result = None
         release_name = "{}-{}".format(
-            (dataset_id + "_" + connector_instance.connector_id).lower().replace("_", "-").replace(".", "-")[:45],
+            sanitize_helm_name(f"{dataset_id}_{connector_instance.connector_id}", max_length=45),
             "".join(choice(ascii_lowercase) for i in range(6))
         )
         connector_source = connector_instance.connector_source

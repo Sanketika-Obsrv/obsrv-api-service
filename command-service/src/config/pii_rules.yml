@@ -1,19 +1,12 @@
 keys:
-  # Boundary excludes letters only, not digits -- a trailing digit (name1, address1,
-  # phone2) must not block a keyword match. For phone/internet/financial a miss here is
-  # rescued by a value-pattern match; name/address have no value pattern at all, so a
-  # digit-blocking boundary there is an unrescuable, silent false negative.
+  # Field names arrive normalized (see re_pii_model.py); rationale in docs/adr/0002-pii-detection-rules.md.
   address:
     rule: '(?<![a-zA-Z])address(?![a-zA-Z])|(?<![a-zA-Z])location(?![a-zA-Z])|(?<![a-zA-Z])addr(?![a-zA-Z])'
     locale: ''
     code: 'en'
     resourceKey: pii.descriptions.m001
-  # Narrowed to compound forms that actually carry a credential-shaped value. The bare nouns
-  # (account, transaction, credit, debit, swift) matched ordinary business fields with no PII
-  # in them at all -- transaction_id, account_balance, credit_limit are identifiers/amounts,
-  # not account numbers.
   financial:
-    rule: '(?<![a-zA-Z])account[_-]?(number|no)(?![a-zA-Z])|(?<![a-zA-Z])card[_-]?number(?![a-zA-Z])|(?<![a-zA-Z])iban(?![a-zA-Z])|(?<![a-zA-Z])swift[_-]?code(?![a-zA-Z])'
+    rule: '(?<![a-zA-Z])account[_-]?(number|no)(?![a-zA-Z])|(?<![a-zA-Z])card[_-]?number(?![a-zA-Z])|(?<![a-zA-Z])(credit|debit)[_-]?card(?![a-zA-Z])|(?<![a-zA-Z])iban(?![a-zA-Z])|(?<![a-zA-Z])swift[_-]?code(?![a-zA-Z])'
     locale: ''
     code: 'en'
     resourceKey: pii.descriptions.m002
@@ -27,13 +20,9 @@ keys:
     locale: ''
     code: 'en'
     resourceKey: pii.descriptions.m005
-  # "name" alone has no value pattern to corroborate or veto it (see values.name below), so it
-  # was flagging every *_name field in the platform's own metadata -- dataset_name, table_name,
-  # job_name, file_name, event_name, column_name -- none of which are a person's name. Excluded
-  # those specific platform-metadata compounds; a real person-name field like customer_name or
-  # full_name still matches.
+  # Person-name compounds only, or a path segment that is exactly "name" (student.name).
   name:
-    rule: '(?<!dataset_)(?<!table_)(?<!job_)(?<!file_)(?<!event_)(?<!column_)(?<![a-zA-Z])name(?![a-zA-Z])'
+    rule: '(?<![a-zA-Z])(first|last|middle|full|given|sur|maiden|customer|user|person|employee|contact)[_-]?name(?![a-zA-Z])|(?:^|\.)name\d*(?=\.|$)'
     locale: ''
     code: 'en'
     resourceKey: pii.descriptions.m006
@@ -51,7 +40,7 @@ values:
       code: 'en'
       resourceKey: pii.descriptions.m008
   financial:
-    credit_card:
+    credit_card: 
       rule: '((?:(?:[0-9]{4}[- ]?){3}[0-9]{4}|[0-9]{15,16}))(?![0-9])'
       locale: ''
       code: 'en'

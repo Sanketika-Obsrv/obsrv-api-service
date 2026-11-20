@@ -1,4 +1,5 @@
 import math
+import os
 import re
 from typing import List
 
@@ -8,10 +9,10 @@ from model.data_models import PIIModel, PIIReason, PIIResult
 
 
 class REPIIModel(PIIModel):
-    # Marks a boundary between a lowercase/digit char and the uppercase char that
-    # follows it, so camelCase/PascalCase field names (customerEmail, UserID) get
-    # the same word boundaries the key rules already expect from snake_case ones.
+    _RULES_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "config", "pii_rules.yml")
     _CAMEL_BOUNDARY_RE = re.compile(r"(?<=[a-z0-9])(?=[A-Z])")
+    # "." is kept: flattened keys use it for nesting, and the name rule matches on segments.
+    _SEPARATOR_RE = re.compile(r"[^a-z0-9.]+")
 
     def __init__(self):
         def join(loader, node):
@@ -19,12 +20,12 @@ class REPIIModel(PIIModel):
             return "".join([str(i) for i in seq])
 
         yaml.add_constructor("!join", join)
-        with open("config/pii_rules.yml", "r") as f:
+        with open(self._RULES_PATH, "r") as f:
             self.pii_rules = yaml.load(f, Loader=yaml.FullLoader)
 
     @classmethod
     def _normalize_field_name(cls, field: str) -> str:
-        return cls._CAMEL_BOUNDARY_RE.sub("_", field).lower()
+        return cls._SEPARATOR_RE.sub("_", cls._CAMEL_BOUNDARY_RE.sub("_", field).lower())
 
     def detect_pii(self, entity, field, value) -> List[PIIResult]:
         results = []
@@ -32,11 +33,7 @@ class REPIIModel(PIIModel):
         reasons += self.detect_entity(entity, value)
         reasons += self.detect_entity_in_fieldname(entity, field)
         if len(reasons) != 0:
-            # Corroborating reasons should raise confidence, not dilute it -- a field that
-            # matches both the value pattern AND the field-name pattern is more likely to be
-            # PII than one matching only one, not less. Noisy-OR combination: each reason's
-            # own score is an independent probability of being PII; 1 - prod(1 - s_i) is the
-            # combined probability, monotonically non-decreasing as reasons are added.
+            # Noisy-OR: more matching reasons never lower the score; see docs/adr/0002-pii-detection-rules.md.
             score = 1 - math.prod(1 - reason["score"] for reason in reasons)
             result: PIIResult = {
                 "field": field,
@@ -47,10 +44,7 @@ class REPIIModel(PIIModel):
             results.append(result)
         return results
 
-    # Default confidence for a single rule match, used when a rule has no explicit "score".
-    # Not derived from match count: a rule matching the same field twice (e.g. "name" hitting
-    # both halves of "first_name_last_name") is not twice as confident as matching once --
-    # 1/len(rule_matches) inverted that, scoring repeated evidence lower than single evidence.
+    # Used when a rule has no explicit "score"; see docs/adr/0002-pii-detection-rules.md.
     _DEFAULT_RULE_SCORE = 0.8
 
     def detect_entity(self, entity, value) -> List[PIIReason]:
