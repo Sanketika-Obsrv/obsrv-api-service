@@ -33,8 +33,7 @@ def test_name_fields_are_detected(service):
 
 
 def test_platform_metadata_name_fields_are_not_flagged(service):
-    # "name" has no value pattern to corroborate or veto it, so it was flagging every
-    # *_name field in the platform's own metadata, not just person names.
+    # Platform metadata *_name fields are not person names.
     event = {
         "dataset_name": "x", "table_name": "x", "job_name": "x",
         "file_name": "x", "event_name": "x", "column_name": "x",
@@ -52,8 +51,7 @@ def test_real_name_fields_still_flagged_alongside_metadata_exclusions(service):
 
 
 def test_financial_rule_no_longer_flags_ordinary_business_fields(service):
-    # account/transaction/credit/debit/swift as bare nouns matched transaction_id,
-    # account_balance, credit_limit -- identifiers and amounts, not account numbers.
+    # Bare business nouns are ids and amounts, not account numbers.
     event = {"transaction_id": "x", "account_balance": "x", "credit_limit": "x"}
     types = _types_by_field(service.detect_pii_fields(event))
     assert types == {}
@@ -69,8 +67,7 @@ def test_financial_rule_still_flags_real_account_identifiers(service):
 
 
 def test_repeated_matches_within_one_rule_do_not_lower_the_score(service):
-    # 1/len(rule_matches) meant a field matching the same rule twice (both halves of
-    # "first_name_last_name" hit the name rule) scored lower than matching once.
+    # Matching one rule twice must not lower the score.
     double_match = service.detect_pii_fields({"first_name_last_name": "x"})
     single_match = service.detect_pii_fields({"first_name": "x"})
 
@@ -135,3 +132,25 @@ def test_credit_and_debit_card_field_names_are_financial(service):
     event = {"credit_card": "xxxx", "debitCard": "xxxx", "credit-card": "xxxx"}
     types = _types_per_field(service.detect_pii_fields(event))
     assert all("financial" in types[f] for f in event), types
+
+
+def test_common_person_name_fields_are_flagged(service):
+    fields = ["student_name", "guardian_name", "father_name", "mother_name", "teacher_name",
+              "patient_name", "account_holder_name", "cust_name", "emp_name", "fname", "lname", "name_1",
+              "STUDENT_NAME", "STUDENT_GUARDIAN_1_NAME", "STUDENT_SOCIAL_NAME",
+              "PROFESSIONAL_NAME", "PROFESSIONAL_SOCIAL_NAME"]
+    types = _types_per_field(service.detect_pii_fields({f: "x" for f in fields}))
+    assert [f for f in fields if "name" not in types.get(f, set())] == []
+
+
+def test_name_lookalikes_are_not_flagged(service):
+    fields = ["filename", "file_name", "hostname", "name_field", "dataset_name", "rename_flag"]
+    types = _types_per_field(service.detect_pii_fields({f: "x" for f in fields}))
+    assert [f for f in fields if "name" in types.get(f, set())] == []
+
+
+def test_card_number_value_needs_its_own_digit_boundary(service):
+    flagged = _types_per_field(service.detect_pii_fields({"v": "4111111111111111"}))
+    long_id = _types_per_field(service.detect_pii_fields({"v": "1234567890123456789"}))
+    assert "financial" in flagged.get("v", set())
+    assert "financial" not in long_id.get("v", set())

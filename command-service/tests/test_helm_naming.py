@@ -2,8 +2,7 @@ from util.helm_naming import FLINK_RELEASE_MAX_LENGTH, flink_release_name, sanit
 
 
 def test_dots_and_underscores_both_sanitized():
-    # The bug this fixes: connector_command.py's Flink uninstall/install paths only stripped
-    # dots and underscores inline, with no lowercasing and no leading/trailing-separator strip.
+    # Flink paths stripped separators inline, without lowercasing or trimming.
     assert sanitize_helm_name("postgres_connector.1.0") == "postgres-connector-1-0"
 
 
@@ -16,23 +15,19 @@ def test_consecutive_separators_collapse_to_one_hyphen():
 
 
 def test_case_insensitive():
-    # connector_command.py:150's job_name had no .lower() -- an uppercase connector_id
-    # produced an invalid (uppercase) Helm release name.
+    # An uppercase connector id produced an invalid release name.
     assert sanitize_helm_name("Postgres_Connector.1.0") == "postgres-connector-1-0"
 
 
 def test_disambiguate_keeps_colliding_ids_distinct():
-    # postgres.connector and postgres_connector both sanitize to postgres-connector without
-    # disambiguation -- "helm upgrade --install" with no random suffix on the Flink path
-    # means the second install silently overwrites the first connector's deployment.
+    # Ids that collapse to the same name must stay distinct.
     a = sanitize_helm_name("postgres.connector", disambiguate=True)
     b = sanitize_helm_name("postgres_connector", disambiguate=True)
     assert a != b
 
 
 def test_disambiguate_is_deterministic():
-    # Install and uninstall independently recompute this name for the same connector id and
-    # must agree -- a random suffix would break that.
+    # Install, uninstall and cleanup recompute the name and must agree.
     assert sanitize_helm_name("Postgres_Connector.1.0", disambiguate=True) == \
         sanitize_helm_name("Postgres_Connector.1.0", disambiguate=True)
 

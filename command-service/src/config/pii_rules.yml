@@ -22,7 +22,7 @@ keys:
     resourceKey: pii.descriptions.m005
   # Person-name compounds only, or a path segment that is exactly "name" (student.name).
   name:
-    rule: '(?<![a-zA-Z])(first|last|middle|full|given|sur|maiden|customer|user|person|employee|contact)[_-]?name(?![a-zA-Z])|(?:^|\.)name\d*(?=\.|$)'
+    rule: '(?<![a-zA-Z])(first|last|middle|full|given|sur|maiden|customer|cust|user|person|employee|emp|contact|student|guardian|parent|father|mother|teacher|patient|holder|nominee|social|professional)(_?\d+)?[_-]?name(?![a-zA-Z])|(?<![a-zA-Z])[fl]name(?![a-zA-Z])|(?:^|\.)name_?\d*(?=\.|$)'
     locale: ''
     code: 'en'
     resourceKey: pii.descriptions.m006
@@ -41,7 +41,7 @@ values:
       resourceKey: pii.descriptions.m008
   financial:
     credit_card: 
-      rule: '((?:(?:[0-9]{4}[- ]?){3}[0-9]{4}|[0-9]{15,16}))(?![0-9])'
+      rule: '(?<![0-9])((?:(?:[0-9]{4}[- ]?){3}[0-9]{4}|[0-9]{15,16}))(?![0-9])'
       locale: ''
       code: 'en'
       resourceKey: pii.descriptions.m009

@@ -97,6 +97,10 @@ class ConnectorCommand(ICommand):
         registered_connectors = self._get_registered_connectors(runtime="flink")
         print("Registered flink connectors: ", registered_connectors)
         flink_releases = self._list_helm_releases(flink_namespace)
+        if flink_releases is None:
+            # Without the release list the old-vs-new name can't be resolved; don't uninstall a guess.
+            print(f"Skipping Flink connector cleanup: could not list Helm releases in '{flink_namespace}'")
+            registered_connectors = []
         for connector in registered_connectors:
             if connector[1] == 0:
                 ### Uninstall the helm chart
@@ -121,7 +125,10 @@ class ConnectorCommand(ICommand):
 
     def _list_helm_releases(self, namespace):
         result = subprocess.run(["helm", "ls", "--all", "--short", "--namespace", namespace], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        return set(result.stdout.decode().split()) if result.returncode == 0 else set()
+        if result.returncode != 0:
+            print(f"Error listing Helm releases in '{namespace}': {result.stderr.decode()}")
+            return None
+        return set(result.stdout.decode().split())
 
     def _install_jobs(self, dataset_id, active_connectors, is_masterdata):
         result = None
