@@ -47,37 +47,8 @@ async def publish_dataset(request: Request):
     result: ActionResponse = command_executor.execute_command(
         payload=data, ts=start_time
     )
-    if result.status_code == status.HTTP_404_NOT_FOUND:
-        helper.onFailedRequest(
-            entity="dataset",
-            id=request.id,
-            endpoint=system_dataset_endpoint,
-            dataset_id=data.dataset_id,
-            status=404,
-        )
-        response = get_response_object(
-            dataset_id=data.dataset_id,
-            request_id=request.id,
-            response_code="ERROR",
-            status_code=status.HTTP_404_NOT_FOUND,
-            message=result.error_message,
-        )
-    elif result.status_code == status.HTTP_500_INTERNAL_SERVER_ERROR:
-        helper.onFailedRequest(
-            entity="dataset",
-            id=request.id,
-            endpoint=system_dataset_endpoint,
-            dataset_id=data.dataset_id,
-            status=500,
-        )
-        response = get_response_object(
-            dataset_id=data.dataset_id,
-            request_id=request.id,
-            response_code="ERROR",
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            message=result.error_message,
-        )
-    else:
+    # Only a 200 is success; any other status is forwarded as an error.
+    if result.status_code == status.HTTP_200_OK:
         helper.onSuccessRequest(
             entity="dataset",
             id=request.id,
@@ -90,6 +61,21 @@ async def publish_dataset(request: Request):
             response_code="OK",
             status_code=status.HTTP_200_OK,
             message="PUBLISH_DATASET_SUCCESSFUL",
+        )
+    else:
+        helper.onFailedRequest(
+            entity="dataset",
+            id=request.id,
+            endpoint=system_dataset_endpoint,
+            dataset_id=data.dataset_id,
+            status=result.status_code,
+        )
+        response = get_response_object(
+            dataset_id=data.dataset_id,
+            request_id=request.id,
+            response_code="ERROR",
+            status_code=result.status_code,
+            message=result.error_message,
         )
     return response
 
@@ -120,8 +106,8 @@ def analyze_pii(request: DatasetRequest) -> DatasetResponse:
     except Exception as err:
         result: PIIError = {
             "errorCode": 500,
-            "errorMsg": type(err),
-            "errorTrace": err.args,
+            "errorMsg": type(err).__name__,
+            "errorTrace": str(err.args),
         }
     else:
         result: List[PIIResult] | PIIError = pii_service.detect_pii_fields(event_data)

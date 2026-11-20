@@ -3,6 +3,7 @@
         "general_access": [
             "api.datasets.list",
             "api.datasets.read",
+            "api.datasets.denorm-preview",
             "api.datasets.export",
             "api.dataset.health",
             "api.data.out",
