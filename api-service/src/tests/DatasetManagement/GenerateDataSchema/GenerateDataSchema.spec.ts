@@ -55,4 +55,36 @@ describe("GENERATE DATA SCHEMA API", () => {
                 done();
             });
     });
+
+    const sampleWith = (records: Record<string, any>[]) => ({
+        id: "api.datasets.dataschema",
+        ver: "v2",
+        ts: "2024-04-10T16:10:50+05:30",
+        params: { msgid: "6c9f36e5-f83f-4f6f-a0a1-3a3a56a1b2c3" },
+        request: { data: records, config: { dataset: "test_dataset" } }
+    });
+
+    const cases: Array<[string, Record<string, any>[]]> = [
+        ["a null/string tie with null first", [{ c: null }, { c: "a" }]],
+        ["a null/string tie with string first", [{ c: "a" }, { c: null }]],
+        ["a null majority", [{ c: null }, { c: null }, { c: "a" }]],
+        ["a string majority", [{ c: "a" }, { c: null }, { c: "b" }]]
+    ];
+
+    cases.forEach(([name, records]) => {
+        it(`should resolve a field to its non-null type for ${name}`, (done) => {
+            chai
+                .request(app)
+                .post("/v2/datasets/dataschema")
+                .send(sampleWith(records))
+                .end((err, res) => {
+                    res.should.have.status(httpStatus.OK);
+                    const field = res.body.result.schema.properties.c;
+                    field.type.should.be.eq("string");
+                    field.data_type.should.be.eq("string");
+                    field.oneof.map((entry: any) => entry.type).should.include("null");
+                    done();
+                });
+        });
+    });
 });

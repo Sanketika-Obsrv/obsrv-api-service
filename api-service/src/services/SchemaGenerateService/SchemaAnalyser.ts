@@ -68,16 +68,17 @@ export class SchemaAnalyser {
         }
         const minimumOccurance = 1
         if (_.size(occurance.dataType) > minimumOccurance) {
-            const isUnresolvable: boolean = _.uniq(_.values(occurance.dataType)).length === 1;
-            const highestValueKey = !isUnresolvable ? Object.keys(occurance.dataType).reduce((a, b) => occurance.dataType[a] > occurance.dataType[b] ? a : b) : undefined
+            // "null" marks nullability, not a type to resolve to.
+            const typeCounts = _.omit(occurance.dataType, "null");
+            const typeNames = _.keys(typeCounts);
+            const isUnresolvable: boolean = typeNames.length > 1 && _.uniq(_.values(typeCounts)).length === 1;
+            const highestValueKey = !isUnresolvable ? typeNames.reduce((a, b) => typeCounts[a] > typeCounts[b] ? a : b) : undefined
             return {
                 type: constants.SCHEMA_RESOLUTION_TYPE.DATA_TYPE,
                 property: _.replace(Object.keys(occurance.path)[0], "$.", ""),
                 conflicts: occurance.dataType,
                 resolution: { "value": highestValueKey, "type": constants.SCHEMA_RESOLUTION_TYPE.DATA_TYPE },
-                // Keep "null" in values when the field is null in some records and typed in
-                // others, so that information isn't silently dropped -- resolution.value still
-                // picks the majority type above, this only affects what's reported as observed
+                // Includes "null" so oneof records that the field can be null.
                 values: _.keys(occurance.dataType),
                 severity: constants.SEVERITY["MUST-FIX"],
                 path: _.replace(Object.keys(occurance.absolutePath)[0], "$.", ""),

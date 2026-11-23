@@ -43,10 +43,9 @@ export class SchemaHandler {
         return _.set(schema, `${absolutePath}`, {
             ...schema[absolutePath],
             ...{
-                type: resolution.value || _.first(conflict.schema.values),
+                type: resolution.value || _.first(_.without(conflict.schema.values, "null")),
                 oneof: conflict.schema.values.map(key => {
-                    // "null" has no store format mapping -- report it as-is instead of
-                    // looking it up, same as setNulltype does for the all-null case
+                    // "null" has no store format mapping; keep it as the nullability marker.
                     if (key === "null") return { type: "null" };
                     const storeFormat = _.get(dataMappingPaths, key);
                     return { type: _.get(DataMappings, storeFormat) }
