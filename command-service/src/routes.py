@@ -27,7 +27,7 @@ from service.detect_pii_service import DetectPIIService
 
 app = FastAPI()
 command_executor = CommandExecutor()
-pii_service = DetectPIIService()
+pii_service = DetectPIIService(command_executor.db_service)
 registry = CollectorRegistry()
 helper = Helper(registry)
 
@@ -110,7 +110,9 @@ def analyze_pii(request: DatasetRequest) -> DatasetResponse:
             "errorTrace": str(err.args),
         }
     else:
-        result: List[PIIResult] | PIIError = pii_service.detect_pii_fields(event_data)
+        result: List[PIIResult] | PIIError = pii_service.detect_pii_fields(
+            event_data, pii_service.denorm_out_fields(request.dataset_id)
+        )
     finally:
         if type(result) == list:
             helper.onSuccessRequest(

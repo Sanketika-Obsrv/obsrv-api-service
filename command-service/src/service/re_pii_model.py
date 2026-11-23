@@ -27,11 +27,11 @@ class REPIIModel(PIIModel):
     def _normalize_field_name(cls, field: str) -> str:
         return cls._SEPARATOR_RE.sub("_", cls._CAMEL_BOUNDARY_RE.sub("_", field).lower())
 
-    def detect_pii(self, entity, field, value) -> List[PIIResult]:
+    def detect_pii(self, entity, field, value, key=None) -> List[PIIResult]:
         results = []
         reasons = []
         reasons += self.detect_entity(entity, value)
-        reasons += self.detect_entity_in_fieldname(entity, field)
+        reasons += self.detect_entity_in_fieldname(entity, key or field)
         if len(reasons) != 0:
             # Noisy-OR: more matching reasons never lower the score; see docs/adr/0002-pii-detection-rules.md.
             score = 1 - math.prod(1 - reason["score"] for reason in reasons)

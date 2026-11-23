@@ -164,3 +164,35 @@ def test_nested_name_under_a_non_person_object_is_not_flagged(service):
     types = _types_per_field(service.detect_pii_fields({f: "x" for f in telemetry + people}))
     assert [f for f in telemetry if "name" in types.get(f, set())] == []
     assert [f for f in people if "name" not in types.get(f, set())] == []
+
+
+class _FakeDB:
+    def __init__(self, row=None, error=None):
+        self.row, self.error = row, error
+
+    def execute_select_one(self, sql, params):
+        if self.error:
+            raise self.error
+        return self.row
+
+
+def _detect_with_denorm(event, db):
+    svc = DetectPIIService(db_service=db)
+    return _types_per_field(svc.detect_pii_fields(event, svc.denorm_out_fields("orders")))
+
+
+def test_denorm_joined_name_is_checked_as_a_master_field():
+    db = _FakeDB({"denorm_config": {"denorm_fields": [{"denorm_out_field": "customer_details", "dataset_id": "customers"}]}})
+    event = {"customer_details.name": "x", "customer_details.email": "a@b.com",
+             "customer_details.object.name": "x", "object.name": "x"}
+    types = _detect_with_denorm(event, db)
+    assert "name" in types["customer_details.name"]
+    assert "internet" in types["customer_details.email"]
+    assert "name" not in types.get("customer_details.object.name", set())
+    assert "name" not in types.get("object.name", set())
+
+
+def test_denorm_lookup_failure_falls_back_to_plain_rules():
+    types = _detect_with_denorm({"customer_details.name": "x", "first_name": "x"}, _FakeDB(error=RuntimeError("db down")))
+    assert "name" not in types.get("customer_details.name", set())
+    assert "name" in types["first_name"]

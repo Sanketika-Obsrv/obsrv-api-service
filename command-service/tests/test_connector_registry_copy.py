@@ -30,8 +30,8 @@ def test_stream_copy_recreates_the_tree_without_kubectl_cp(tmp_path, monkeypatch
     assert ["kubectl", "exec", "pod/spark-0", "-n", "spark", "--", "mkdir", "-p", "/data/connectors/pg-1.0.0/lib"] in commands
     streamed = {cmd[-1]: data for cmd, data in calls if data is not None}
     assert streamed == {
-        "cat > '/data/connectors/pg-1.0.0/main.py'": b"print(1)",
-        "cat > '/data/connectors/pg-1.0.0/lib/connector.jar'": b"\x00jar",
+        "/data/connectors/pg-1.0.0/main.py": b"print(1)",
+        "/data/connectors/pg-1.0.0/lib/connector.jar": b"\x00jar",
     }
 
 
@@ -40,3 +40,13 @@ def test_stream_copy_reports_failure_when_a_file_cannot_be_written(tmp_path, mon
     registry, _ = _registry(monkeypatch, fail_on="cat >")
 
     assert registry.stream_copy_to_pod(str(tmp_path), "spark", "spark-0", "/data/connectors/pg-1.0.0") is False
+
+
+def test_stream_copy_passes_the_path_as_an_argument_not_shell_text(tmp_path, monkeypatch):
+    (tmp_path / "it's.py").write_bytes(b"x")
+    registry, calls = _registry(monkeypatch)
+
+    assert registry.stream_copy_to_pod(str(tmp_path), "spark", "spark-0", "/data/c")
+
+    cat = next(cmd for cmd, data in calls if data is not None)
+    assert cat[-4:] == ["-c", 'cat > "$1"', "sh", "/data/c/it's.py"]

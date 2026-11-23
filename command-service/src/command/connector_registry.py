@@ -432,7 +432,8 @@ class ConnectorRegistry:
             for name in files:
                 local_file = os.path.join(root, name)
                 remote_file = f"{remote_root}/{name}"
-                cat_cmd = ["kubectl", "exec", "-i", f"pod/{pod}", "-n", namespace, "--", "sh", "-c", f"cat > '{remote_file}'"]
+                # Path goes in as $1, never into the script text, so a quote in a file name can't break out.
+                cat_cmd = ["kubectl", "exec", "-i", f"pod/{pod}", "-n", namespace, "--", "sh", "-c", 'cat > "$1"', "sh", remote_file]
                 with open(local_file, "rb") as f:
                     cat_result = subprocess.run(cat_cmd, stdin=f, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
                 if cat_result.returncode != 0:
