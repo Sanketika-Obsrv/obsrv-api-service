@@ -167,7 +167,8 @@ class DatasetService {
             ], raw: true, where: filters, attributes, order: [["updated_date", "DESC"]]
         });
         const updatedDatasets = _.map(datasets, (dataset) => ({ ...dataset, alias: _.get(dataset, "datasources.datasource"), datasource_ref: _.get(dataset, "datasources.datasource_ref") }))
-        return updatedDatasets;
+        // The join returns one row per primary Druid datasource; list each dataset once.
+        return _.uniqBy(updatedDatasets, "dataset_id");
     }
 
     updateDraftDataset = async (draftDataset: Record<string, any>): Promise<Record<string, any>> => {
@@ -397,8 +398,11 @@ class DatasetService {
             await DatasetDraft.update(draftDataset, { where: { id: draftDataset.id }, transaction })
             let datasource_ref: any
             if (indexingConfig.olap_store_enabled) {
-                const existingDatasource = await Datasource.findAll({ where: { dataset_id: draftDataset.dataset_id }, raw: true }) as unknown as Record<string, any>
-                const getDatasetDatasource = _.find(existingDatasource, datasource => !_.get(datasource, "metadata.aggregated") && _.get(datasource, "metadata.granularity") === "day")
+                // Only Druid records; otherwise the lakehouse record can be picked and turned into a second primary Druid datasource.
+                const existingDatasource = await Datasource.findAll({ where: { dataset_id: draftDataset.dataset_id, type: "druid" }, raw: true }) as unknown as Record<string, any>
+                // Reuse the current primary first, so datasets migrated from older versions don't get a new primary next to the old one.
+                const getDatasetDatasource = _.find(existingDatasource, datasource => datasource.is_primary === true)
+                    || _.find(existingDatasource, datasource => !_.get(datasource, "metadata.aggregated") && _.get(datasource, "metadata.granularity") === "day")
                 if (!_.isEmpty(getDatasetDatasource)) {
                     datasource_ref = await this.updateDruidDataSource(draftDataset, transaction, getDatasetDatasource);
                 }
