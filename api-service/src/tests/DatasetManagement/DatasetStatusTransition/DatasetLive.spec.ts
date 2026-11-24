@@ -74,6 +74,66 @@ describe("DATASET STATUS TRANSITION LIVE", () => {
             });
     });
 
+    const publishWithExistingDatasources = (records: Record<string, any>[], upserted: Record<string, any>[]) => {
+        chai.spy.on(DatasetDraft, "findOne", () => {
+            return Promise.resolve(TestInputsForDatasetStatusTransition.DRAFT_DATASET_SCHEMA_FOR_PUBLISH)
+        })
+        chai.spy.on(Dataset, "findAll", () => {
+            return Promise.resolve([{ "id": "master-dataset", "status": "Live", "dataset_config": { "cache_config": { "redis_db": 21 } }, "api_version": "v2" }])
+        })
+        chai.spy.on(DatasetDraft, "update", () => {
+            return Promise.resolve({})
+        })
+        chai.spy.on(Dataset, "findOne", () => {
+            return Promise.resolve({ "data_schema": { "email": { "data_type": "string", "arrival_format": "string" } } })
+        })
+        chai.spy.on(DatasourceDraft, "upsert", (record: Record<string, any>) => {
+            upserted.push(_.cloneDeep(record))
+            return Promise.resolve({})
+        })
+        chai.spy.on(Datasource, "findAll", (options: Record<string, any>) => {
+            const type = _.get(options, "where.type")
+            return Promise.resolve(_.cloneDeep(type ? _.filter(records, { type }) : records))
+        })
+        chai.spy.on(sequelize, "transaction", () => {
+            return Promise.resolve({
+                commit: () => Promise.resolve({}),
+                rollback: () => Promise.resolve({})
+            })
+        })
+        chai.spy.on(commandHttpService, "post", () => {
+            return Promise.resolve({})
+        })
+        return chai.request(app).post("/v2/datasets/status-transition").send(TestInputsForDatasetStatusTransition.VALID_SCHEMA_FOR_LIVE)
+    }
+
+    const lakehouseRecord = { "id": "telemetry_events_datalake", "datasource": "telemetry_datalake", "dataset_id": "telemetry", "datasource_ref": "telemetry_events", "type": "datalake", "is_primary": true, "metadata": { "aggregated": false, "granularity": "day" } }
+
+    it("Dataset status transition success: Publish reuses the existing primary Druid datasource of a migrated dataset", (done) => {
+        const upserted: Record<string, any>[] = []
+        const migratedPrimary = { "id": "telemetry_telemetry.1_day", "datasource": "telemetry.1_day", "dataset_id": "telemetry", "datasource_ref": "telemetry.1_day", "type": "druid", "is_primary": true, "metadata": {} }
+        publishWithExistingDatasources([lakehouseRecord, migratedPrimary], upserted)
+            .end((err, res) => {
+                res.should.have.status(httpStatus.OK);
+                upserted.length.should.be.eq(1)
+                upserted[0].id.should.be.eq("telemetry_telemetry.1_day")
+                upserted[0].type.should.be.eq("druid")
+                done();
+            });
+    });
+
+    it("Dataset status transition success: Publish does not turn the lakehouse datasource into a Druid datasource", (done) => {
+        const upserted: Record<string, any>[] = []
+        publishWithExistingDatasources([lakehouseRecord], upserted)
+            .end((err, res) => {
+                res.should.have.status(httpStatus.OK);
+                upserted.length.should.be.eq(1)
+                upserted[0].id.should.be.eq("telemetry_events_druid")
+                upserted[0].type.should.be.eq("druid")
+                done();
+            });
+    });
+
     it("Dataset status transition success: When the action is to set dataset live v1 by creating hudi spec", (done) => {
         chai.spy.on(DatasetDraft, "findOne", () => {
             return Promise.resolve(TestInputsForDatasetStatusTransition.DRAFT_DATASET_SCHEMA_FOR_PUBLISH_HUDI)

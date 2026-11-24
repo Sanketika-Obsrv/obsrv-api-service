@@ -154,4 +154,29 @@ describe("DATASET LIST API", () => {
             });
     });
 
+    it("Dataset list success: Dataset with two primary Druid datasources is listed once", (done) => {
+        stubMetricsEnrichmentDeps();
+        const live = TestInputsForDatasetList.VALID_LIVE_DATASET_SCHEMA
+        chai.spy.on(Dataset, "findAll", () => {
+            return Promise.resolve([
+                { ...live, "datasources.datasource": "sb-telemetry_druid", "datasources.datasource_ref": "sb-telemetry_events" },
+                { ...live, "datasources.datasource": "sb-telemetry.1_day", "datasources.datasource_ref": "sb-telemetry.1_day" }
+            ])
+        })
+        chai.spy.on(DatasetDraft, "findAll", () => {
+            return Promise.resolve([])
+        })
+        chai
+            .request(app)
+            .post("/v2/datasets/list")
+            .send(TestInputsForDatasetList.REQUEST_WITHOUT_FILTERS)
+            .end((err, res) => {
+                res.should.have.status(httpStatus.OK);
+                res.body.params.status.should.be.eq("SUCCESS")
+                res.body.result.count.should.be.eq(1)
+                res.body.result.data[0].dataset_id.should.be.eq(live.dataset_id)
+                done();
+            });
+    });
+
 })
