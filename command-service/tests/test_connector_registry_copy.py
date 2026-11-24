@@ -4,13 +4,20 @@ from command import connector_registry
 from command.connector_registry import ConnectorRegistry
 
 
-def _registry(monkeypatch, fail_on=None):
+def _registry(monkeypatch, fail_on=None, short_by=0, run_kwargs=None):
     calls = []
+    written = {}
 
     def fake_run(cmd, stdin=None, **kwargs):
-        calls.append((cmd, stdin.read() if stdin else None))
+        data = stdin.read() if stdin else None
+        calls.append((cmd, data))
+        if run_kwargs is not None:
+            run_kwargs.append(kwargs)
+        if data is not None:
+            written[cmd[-1]] = len(data)
         failed = fail_on is not None and fail_on in " ".join(cmd)
-        return SimpleNamespace(returncode=1 if failed else 0, stdout=b"", stderr=b"boom")
+        stdout = f"{written.get(cmd[-1], 0) - short_by}\n" if 'wc -c < "$1"' in cmd else ""
+        return SimpleNamespace(returncode=1 if failed else 0, stdout=stdout, stderr="boom")
 
     monkeypatch.setattr(connector_registry.subprocess, "run", fake_run)
     # __init__ opens a DB connection and reads config; stream_copy_to_pod uses neither.
@@ -50,3 +57,32 @@ def test_stream_copy_passes_the_path_as_an_argument_not_shell_text(tmp_path, mon
 
     cat = next(cmd for cmd, data in calls if data is not None)
     assert cat[-4:] == ["-c", 'cat > "$1"', "sh", "/data/c/it's.py"]
+    size = next(cmd for cmd, _ in calls if 'wc -c < "$1"' in cmd)
+    assert size[-4:] == ["-c", 'wc -c < "$1"', "sh", "/data/c/it's.py"]
+
+
+def test_stream_copy_fails_when_the_pod_received_fewer_bytes(tmp_path, monkeypatch, capsys):
+    (tmp_path / "connector.jar").write_bytes(b"abcdefgh")
+    registry, _ = _registry(monkeypatch, short_by=5)
+
+    assert registry.stream_copy_to_pod(str(tmp_path), "spark", "spark-0", "/data/c") is False
+    assert "expected 8 bytes, got 3" in capsys.readouterr().out
+
+
+def test_stream_copy_fails_when_the_size_check_cannot_run(tmp_path, monkeypatch):
+    (tmp_path / "connector.jar").write_bytes(b"abcdefgh")
+    registry, _ = _registry(monkeypatch, fail_on="wc -c")
+
+    assert registry.stream_copy_to_pod(str(tmp_path), "spark", "spark-0", "/data/c") is False
+
+
+def test_stream_copy_checks_every_file_and_decodes_errors(tmp_path, monkeypatch):
+    (tmp_path / "lib").mkdir()
+    (tmp_path / "main.py").write_bytes(b"print(1)")
+    (tmp_path / "lib" / "connector.jar").write_bytes(b"\x00jar")
+    run_kwargs = []
+    registry, calls = _registry(monkeypatch, run_kwargs=run_kwargs)
+
+    assert registry.stream_copy_to_pod(str(tmp_path), "spark", "spark-0", "/data/c")
+    assert sum('wc -c < "$1"' in cmd for cmd, _ in calls) == 2
+    assert all(kwargs.get("text") is True for kwargs in run_kwargs)
