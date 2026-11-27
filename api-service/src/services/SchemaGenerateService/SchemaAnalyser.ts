@@ -68,8 +68,11 @@ export class SchemaAnalyser {
         }
         const minimumOccurance = 1
         if (_.size(occurance.dataType) > minimumOccurance) {
-            const isUnresolvable: boolean = _.uniq(_.values(occurance.dataType)).length === 1;
-            const highestValueKey = !isUnresolvable ? Object.keys(occurance.dataType).reduce((a, b) => occurance.dataType[a] > occurance.dataType[b] ? a : b) : undefined
+            // "null" marks nullability, not a type to resolve to.
+            const typeCounts = _.omit(occurance.dataType, "null");
+            const typeNames = _.keys(typeCounts);
+            const isUnresolvable: boolean = typeNames.length > 1 && _.uniq(_.values(typeCounts)).length === 1;
+            const highestValueKey = !isUnresolvable ? typeNames.reduce((a, b) => typeCounts[a] > typeCounts[b] ? a : b) : undefined
             return {
                 type: constants.SCHEMA_RESOLUTION_TYPE.DATA_TYPE,
                 property: _.replace(Object.keys(occurance.path)[0], "$.", ""),
