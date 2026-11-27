@@ -78,8 +78,7 @@ export class SchemaAnalyser {
                 property: _.replace(Object.keys(occurance.path)[0], "$.", ""),
                 conflicts: occurance.dataType,
                 resolution: { "value": highestValueKey, "type": constants.SCHEMA_RESOLUTION_TYPE.DATA_TYPE },
-                // Includes "null" so oneof records that the field can be null.
-                values: _.keys(occurance.dataType),
+                values: _.without(_.keys(occurance.dataType), "null"),
                 severity: constants.SEVERITY["MUST-FIX"],
                 path: _.replace(Object.keys(occurance.absolutePath)[0], "$.", ""),
             }

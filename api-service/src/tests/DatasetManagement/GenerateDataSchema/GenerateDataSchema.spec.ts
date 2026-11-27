@@ -34,7 +34,7 @@ describe("GENERATE DATA SCHEMA API", () => {
             });
     });
 
-    it("should preserve nullability when a field is null in some records but typed in others", (done) => {
+    it("should resolve to the typed majority when a field is null in some records", (done) => {
         chai
             .request(app)
             .post("/v2/datasets/dataschema")
@@ -46,10 +46,8 @@ describe("GENERATE DATA SCHEMA API", () => {
                 // majority type still wins for the actual resolution
                 discountCode.type.should.be.eq("string");
                 discountCode.data_type.should.be.eq("string");
-                // but the fact that nulls were observed isn't silently dropped
-                const oneofTypes = discountCode.oneof.map((entry: any) => entry.type);
-                oneofTypes.should.include("string");
-                oneofTypes.should.include("null");
+                // "null" is not offered as a type the console could switch the field to
+                discountCode.oneof.map((entry: any) => entry.type).should.not.include("null");
                 // fields without a conflict are unaffected
                 schema.properties.amount.data_type.should.be.eq("integer");
                 done();
@@ -82,7 +80,7 @@ describe("GENERATE DATA SCHEMA API", () => {
                     const field = res.body.result.schema.properties.c;
                     field.type.should.be.eq("string");
                     field.data_type.should.be.eq("string");
-                    field.oneof.map((entry: any) => entry.type).should.include("null");
+                    (field.oneof || []).map((entry: any) => entry.type).should.not.include("null");
                     done();
                 });
         });

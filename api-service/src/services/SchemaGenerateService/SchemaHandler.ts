@@ -43,10 +43,8 @@ export class SchemaHandler {
         return _.set(schema, `${absolutePath}`, {
             ...schema[absolutePath],
             ...{
-                type: resolution.value || _.first(_.without(conflict.schema.values, "null")),
+                type: resolution.value || _.first(conflict.schema.values),
                 oneof: conflict.schema.values.map(key => {
-                    // "null" has no store format mapping; keep it as the nullability marker.
-                    if (key === "null") return { type: "null" };
                     const storeFormat = _.get(dataMappingPaths, key);
                     return { type: _.get(DataMappings, storeFormat) }
                 }),
@@ -86,7 +84,7 @@ export class SchemaHandler {
         const types = _.get(fieldData, type);
         types && types.map((item: any) => {
             const storeFormat = _.get(dataMappingPaths, item.type);
-            // item.type can be "null" (e.g. a oneof conflict candidate), which has no store format mapping
+            // item.type can be "null", which has no store format mapping
             if (!storeFormat) return;
             arrivalSuggestions.push({ type: _.first(storeFormat.split(".")) });
         })
