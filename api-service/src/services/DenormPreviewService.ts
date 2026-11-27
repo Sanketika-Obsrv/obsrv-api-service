@@ -3,6 +3,7 @@ import { Op } from "sequelize";
 import { datasetService } from "./DatasetService";
 import { flattenEvent } from "../utils/flattenEvent";
 import { obsrvError } from "../types/ObsrvError";
+import { DatasetStatus } from "../types/DatasetModels";
 
 class DenormPreviewService {
 
@@ -25,7 +26,7 @@ class DenormPreviewService {
 
         const masterIds = _.uniq(_.map(denormFields, (field) => _.get(field, "dataset_id")));
         const masters = await datasetService.findDatasets(
-            { dataset_id: { [Op.in]: masterIds }, type: "master" },
+            { dataset_id: { [Op.in]: masterIds }, type: "master", status: DatasetStatus.Live },
             ["dataset_id", "sample_data"]
         );
         const mastersById = _.keyBy(masters, "dataset_id");
@@ -39,8 +40,8 @@ class DenormPreviewService {
             }
             const master = mastersById[_.get(field, "dataset_id")];
             const masterEvent = _.get(master, "sample_data.mergedEvent");
-            // Missing, not live, or no sample_data: report it so the console can say what PII detection didn't cover.
-            if (_.isEmpty(masterEvent)) {
+            // Missing, not live, or no real sample (empty or a $schema placeholder): report it so the console can say what PII detection didn't cover.
+            if (_.isEmpty(masterEvent) || _.has(masterEvent, "$schema")) {
                 unavailableDenormFields.push(outField);
                 continue;
             }

@@ -165,6 +165,61 @@ describe("DENORM PREVIEW API", () => {
             });
     });
 
+    it("Success: Looks up only live master datasets, so a retired master is reported as unavailable", (done) => {
+        chai.spy.on(DatasetDraft, "findOne", () => {
+            return Promise.resolve({
+                sample_data: { mergedEvent: { customer_id: "CUST001" } },
+                denorm_config: { denorm_fields: [{ denorm_key: "customer_id", denorm_out_field: "customer_details", dataset_id: "customers" }] }
+            })
+        })
+        let where: any;
+        chai.spy.on(Dataset, "findAll", (options: any) => {
+            where = options.where;
+            return Promise.resolve([])
+        })
+        chai
+            .request(app)
+            .get("/v2/datasets/denorm-preview/telemetry?mode=edit")
+            .end((err, res) => {
+                res.should.have.status(httpStatus.OK);
+                where.status.should.be.eq("Live");
+                where.type.should.be.eq("master");
+                res.body.result.unavailable_denorm_fields.should.be.deep.eq(["customer_details"])
+                done();
+            });
+    });
+
+    it("Success: Reports a master whose sample_data is a $schema placeholder as unavailable", (done) => {
+        chai.spy.on(DatasetDraft, "findOne", () => {
+            return Promise.resolve({
+                sample_data: { mergedEvent: { customer_id: "CUST001" } },
+                denorm_config: { denorm_fields: [{ denorm_key: "customer_id", denorm_out_field: "customer_details", dataset_id: "customers" }] }
+            })
+        })
+        chai.spy.on(Dataset, "findAll", () => {
+            return Promise.resolve([{ dataset_id: "customers", sample_data: { mergedEvent: { $schema: "https://json-schema.org/draft/2020-12/schema", properties: { email: { type: "string" } } } } }])
+        })
+        chai
+            .request(app)
+            .get("/v2/datasets/denorm-preview/telemetry?mode=edit")
+            .end((err, res) => {
+                res.should.have.status(httpStatus.OK);
+                res.body.result.should.be.deep.eq({ event: { customer_id: "CUST001" }, unavailable_denorm_fields: ["customer_details"] })
+                done();
+            });
+    });
+
+    it("Failure: Returns 400 for an unknown mode", (done) => {
+        chai
+            .request(app)
+            .get("/v2/datasets/denorm-preview/telemetry?mode=foo")
+            .end((err, res) => {
+                res.should.have.status(httpStatus.BAD_REQUEST);
+                res.body.error.code.should.be.eq("DENORM_PREVIEW_INVALID_MODE")
+                done();
+            });
+    });
+
     it("Failure: Returns 404 when the dataset does not exist", (done) => {
         chai.spy.on(DatasetDraft, "findOne", () => {
             return Promise.resolve(null)
