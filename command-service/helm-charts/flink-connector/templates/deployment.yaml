@@ -30,6 +30,9 @@ spec:
         app.kubernetes.io/component: {{ printf "%s-%s" $jobName $component }}
         app.kubernetes.io/connector: {{ .Values.connector_id }}
         component: {{ printf "%s-%s" $jobName $component }}
+        {{- if and (eq .Values.checkpoint_store_type "azure") (eq (.Values.global.azure_auth_type | default "credentials") "serviceAccount") }}
+        azure.workload.identity/use: "true"
+        {{- end }}
       annotations:
         checksum/config: {{ .Files.Glob "configs/*" | toYaml | sha256sum }}
         checksum/job-config: {{ $jobData | toYaml | sha256sum }}
@@ -68,6 +71,10 @@ spec:
                 metrics.reporter.prom.port: {{ .Values.taskmanager.prom_port }}
                 jobmanager.rpc.address: {{ $jobName }}-jobmanager
                 taskmanager.rpc.port: {{ .Values.taskmanager.rpc_port }}
+                {{- if and (eq .Values.checkpoint_store_type "azure") (eq (.Values.global.azure_auth_type | default "credentials") "serviceAccount") }}
+                fs.azure.account.auth.type: Custom
+                fs.azure.account.oauth.provider.type: org.sunbird.obsrv.azure.WorkloadIdentityTokenProvider
+                {{- end }}
                 {{- with .Values.flink_conf }}
                 {{- toYaml . | nindent 16 }}
                 {{- end }}
@@ -117,6 +124,9 @@ spec:
         app.kubernetes.io/name: {{ include "common.names.name" . }}
         app.kubernetes.io/component: {{ printf "%s-%s" $jobName $component }}
         app.kubernetes.io/connector: {{ .Values.connector_id }}
+        {{- if and (eq .Values.checkpoint_store_type "azure") (eq (.Values.global.azure_auth_type | default "credentials") "serviceAccount") }}
+        azure.workload.identity/use: "true"
+        {{- end }}
       annotations:
         checksum/config: {{ .Files.Glob "configs/*" | toYaml | sha256sum }}
         checksum/job-config: {{ $jobData | toYaml | sha256sum }}
@@ -155,6 +165,10 @@ spec:
                 jobmanager.rpc.address: {{ $jobName }}-jobmanager
                 blob.server.port: {{ .Values.jobmanager.blob_port }}
                 queryable-state.server.ports: {{ .Values.jobmanager.query_port }}
+                {{- if and (eq .Values.checkpoint_store_type "azure") (eq (.Values.global.azure_auth_type | default "credentials") "serviceAccount") }}
+                fs.azure.account.auth.type: Custom
+                fs.azure.account.oauth.provider.type: org.sunbird.obsrv.azure.WorkloadIdentityTokenProvider
+                {{- end }}
                 {{- with .Values.flink_conf }}
                 {{- toYaml . | nindent 16 }}
                 {{- end }}
@@ -209,7 +223,7 @@ spec:
               /data/connectors/{{ index $jobData "source" }}/{{ index $jobData "main_program" }} \
               --config.file.path /data/flink/conf/connectors-scala-config.conf \
               --connector.instance.id {{ . }} \
-              {{- if eq $.Values.checkpoint_store_type "azure" }}
+              {{- if and (eq $.Values.checkpoint_store_type "azure") (ne ($.Values.global.azure_auth_type | default "credentials") "serviceAccount") }}
               "-Dfs.azure.account.key.{{ $.Values.global.azure_storage_account_name }}.blob.core.windows.net={{ $.Values.global.azure_storage_account_key }}" \
               {{- end }}
               {{- if and (eq $.Values.checkpoint_store_type "s3") (ne $.Values.s3_auth_type "serviceAccount") }}
