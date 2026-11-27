@@ -418,6 +418,39 @@ class ConnectorRegistry:
             return self.copy_connector_to_spark(connector_source)
 
 
+    # See docs/adr/0003-connector-copy-to-spark.md.
+    def stream_copy_to_pod(self, local_dir: str, namespace: str, pod: str, remote_dir: str) -> bool:
+        for root, dirs, files in os.walk(local_dir):
+            rel_root = os.path.relpath(root, local_dir)
+            remote_root = remote_dir if rel_root == "." else f"{remote_dir}/{rel_root}"
+
+            mkdir_cmd = ["kubectl", "exec", f"pod/{pod}", "-n", namespace, "--", "mkdir", "-p", remote_root]
+            mkdir_result = subprocess.run(mkdir_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+            if mkdir_result.returncode != 0:
+                print(f"Connector Registry | failed to mkdir {remote_root} on {pod}: {mkdir_result.stderr}")
+                return False
+
+            for name in files:
+                local_file = os.path.join(root, name)
+                remote_file = f"{remote_root}/{name}"
+                cat_cmd = ["kubectl", "exec", "-i", f"pod/{pod}", "-n", namespace, "--", "sh", "-c", 'cat > "$1"', "sh", remote_file]
+                with open(local_file, "rb") as f:
+                    cat_result = subprocess.run(cat_cmd, stdin=f, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+                if cat_result.returncode != 0:
+                    print(f"Connector Registry | failed to stream {local_file} to {remote_file} on {pod}: {cat_result.stderr}")
+                    return False
+
+                size_cmd = ["kubectl", "exec", f"pod/{pod}", "-n", namespace, "--", "sh", "-c", 'wc -c < "$1"', "sh", remote_file]
+                size_result = subprocess.run(size_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+                expected_size = str(os.path.getsize(local_file))
+                remote_size = size_result.stdout.strip()
+                if size_result.returncode != 0 or remote_size != expected_size:
+                    print(f"Connector Registry | size check failed for {remote_file} on {pod}: expected {expected_size} bytes, got {remote_size or 'none'} {size_result.stderr}")
+                    return False
+
+        print(f"Connector Registry | streamed {local_dir} to {namespace}/{pod}:{remote_dir}")
+        return True
+
     def copy_connector_to_spark(self, connector_source: str):
         print(f"Connector Registry | copying {connector_source} to spark")
         spark_namespace = self.config.find("connector_jobs")["spark"]["namespace"]
@@ -468,16 +501,10 @@ class ConnectorRegistry:
 
         ## copy the connector to the spark pod under /data/connectors/{source}
         source_path = os.path.join(self.extraction_path, connector_source)
-        copy_cmd = [
-            "kubectl",
-            "cp",
-            f"{source_path}",
-            f"{spark_namespace}/{spark_pod}:/data/connectors/{connector_source}",
-        ]
-
-        copy_result = subprocess.run(copy_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        print(f"Connector Registry | copy_result:  {copy_result}")
-        if copy_result.returncode != 0:
+        copy_success = self.stream_copy_to_pod(
+            source_path, spark_namespace, spark_pod, f"/data/connectors/{connector_source}"
+        )
+        if not copy_success:
             return RegistryResponse(
                 status="failure",
                 message="failed to copy the connector to spark",

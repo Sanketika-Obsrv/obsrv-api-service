@@ -27,3 +27,25 @@ jobs:
           npm install
           npm run actions:test
           npm run lint
+
+  command-service-test-cases:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: |
+          cd command-service
+          pip install -r requirements-dev.txt
+
+      - name: Run test cases
+        run: |
+          cd command-service
+          python -m pytest tests/ -v

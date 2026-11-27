@@ -1,35 +1,33 @@
 keys:
+  # Field names arrive normalized (see re_pii_model.py); rationale in docs/adr/0002-pii-detection-rules.md.
   address:
-    rule: '\baddress\b|\blocation\b|\bloc\b|\baddr\b|\badd\b'
+    rule: '(?<![a-zA-Z])address(?![a-zA-Z])|(?<![a-zA-Z])location(?![a-zA-Z])|(?<![a-zA-Z])addr(?![a-zA-Z])'
     locale: ''
     code: 'en'
     resourceKey: pii.descriptions.m001
   financial:
-    rule: '\bcredit\b|\bdebit\b|\baccount\b|\btransaction\b|\btxn\b|\biban\b|\bswift\b'
+    rule: '(?<![a-zA-Z])account[_-]?(number|no)(?![a-zA-Z])|(?<![a-zA-Z])card[_-]?number(?![a-zA-Z])|(?<![a-zA-Z])(credit|debit)[_-]?card(?![a-zA-Z])|(?<![a-zA-Z])iban(?![a-zA-Z])|(?<![a-zA-Z])swift[_-]?code(?![a-zA-Z])'
     locale: ''
     code: 'en'
     resourceKey: pii.descriptions.m002
-  id:
-    rule: '\bid\b'
-    locale: ''
-    code: 'en'
-    resourceKey: pii.descriptions.m003
   internet:
-    rule: '\bemail\b|\bip\b'
+    rule: '(?<![a-zA-Z])email(?![a-zA-Z])|(?<![a-zA-Z])ip(?![a-zA-Z])'
     locale: ''
     code: 'en'
     resourceKey: pii.descriptions.m004
   phone:
-    rule: '\bphone\b|\bnumber\b|\bno\b|\bno\.\b|\bnum\b|\bmobile\b|\bcontact\b'
+    rule: '(?<![a-zA-Z])phone(?![a-zA-Z])|(?<![a-zA-Z])mobile(?![a-zA-Z])|(?<![a-zA-Z])contact(?![a-zA-Z])'
     locale: ''
     code: 'en'
     resourceKey: pii.descriptions.m005
+  # Person-name keywords (also across a dot: student.name), or a bare "name" at the top level.
   name:
-    rule: '\bname\b'
+    rule: '(?<![a-zA-Z])(first|last|middle|full|given|sur|maiden|customer|cust|user|person|employee|emp|contact|student|guardian|parent|father|mother|teacher|patient|holder|nominee|social|professional)(_?\d+)?[._-]?name(?![a-zA-Z])|(?<![a-zA-Z])[fl]name(?![a-zA-Z])|^name_?\d*(?=\.|$)'
     locale: ''
     code: 'en'
     resourceKey: pii.descriptions.m006
 values:
+  name: {}
   address:
     india:
       rule: '(?:\bAN\b|\bAP\b|\bAD\b|\bAR\b|\bAS\b|\bBH\b|\bCH\b|\bCT\b|\bDN\b|\bDL\b|\bGA\b|\bGJ\b|\bHR\b|\bHP\b|\bJK\b|\bJH\b|\bKA\b|\bKL\b|\bLD\b|\bMP\b|\bMH\b|\bMN\b|\bME\b|\bMI\b|\bNL\b|\bOR\b|\bPY\b|\bPB\b|\bRJ\b|\bSK\b|\bTN\b|\bTS\b|\bTR\b|\bUP\b|\bUT\b|\bWB\b)'
@@ -43,7 +41,7 @@ values:
       resourceKey: pii.descriptions.m008
   financial:
     credit_card: 
-      rule: '((?:(?:\\d{4}[- ]?){3}\\d{4}|\\d{15,16}))(?![\\d])'
+      rule: '(?<![0-9])((?:(?:[0-9]{4}[- ]?){3}[0-9]{4}|[0-9]{15,16}))(?![0-9])'
       locale: ''
       code: 'en'
       resourceKey: pii.descriptions.m009
