@@ -32,7 +32,7 @@ describe("DENORM PREVIEW API", () => {
                 res.should.have.status(httpStatus.OK);
                 res.body.id.should.be.eq(apiId);
                 res.body.params.status.should.be.eq("SUCCESS")
-                res.body.result.should.be.deep.eq({ customer_id: "CUST001", "customer.email": "a@b.com" })
+                res.body.result.should.be.deep.eq({ event: { customer_id: "CUST001", "customer.email": "a@b.com" }, unavailable_denorm_fields: [] })
                 done();
             });
     });
@@ -54,16 +54,17 @@ describe("DENORM PREVIEW API", () => {
             .get("/v2/datasets/denorm-preview/telemetry?mode=edit")
             .end((err, res) => {
                 res.should.have.status(httpStatus.OK);
-                res.body.result.should.be.deep.eq({
+                res.body.result.event.should.be.deep.eq({
                     customer_id: "CUST001",
                     "customer_details.email": "a@b.com",
                     "customer_details.phone": "+911234567890"
                 })
+                res.body.result.unavailable_denorm_fields.should.be.deep.eq([])
                 done();
             });
     });
 
-    it("Success: Skips a master dataset that has no sample_data, without failing", (done) => {
+    it("Success: Reports a master dataset with no sample_data as unavailable, without failing", (done) => {
         chai.spy.on(Dataset, "findOne", () => {
             return Promise.resolve({
                 sample_data: { mergedEvent: { customer_id: "CUST001" } },
@@ -78,7 +79,7 @@ describe("DENORM PREVIEW API", () => {
             .get("/v2/datasets/denorm-preview/telemetry")
             .end((err, res) => {
                 res.should.have.status(httpStatus.OK);
-                res.body.result.should.be.deep.eq({ customer_id: "CUST001" })
+                res.body.result.should.be.deep.eq({ event: { customer_id: "CUST001" }, unavailable_denorm_fields: ["customer_details"] })
                 done();
             });
     });
@@ -103,12 +104,63 @@ describe("DENORM PREVIEW API", () => {
             .get("/v2/datasets/denorm-preview/telemetry?mode=edit")
             .end((err, res) => {
                 res.should.have.status(httpStatus.OK);
-                res.body.result.should.be.deep.eq({
+                res.body.result.event.should.be.deep.eq({
                     customer_id: "CUST001",
                     vendor_id: "CUST001",
                     "customer_details.email": "a@b.com",
                     "vendor_details.email": "a@b.com"
                 })
+                res.body.result.unavailable_denorm_fields.should.be.deep.eq([])
+                done();
+            });
+    });
+
+    it("Success: Reports a master dataset that is not live (draft-only) as unavailable", (done) => {
+        chai.spy.on(DatasetDraft, "findOne", () => {
+            return Promise.resolve({
+                sample_data: { mergedEvent: { customer_id: "CUST001", school_id: "SCH001" } },
+                denorm_config: {
+                    denorm_fields: [
+                        { denorm_key: "customer_id", denorm_out_field: "customer_details", dataset_id: "customers" },
+                        { denorm_key: "school_id", denorm_out_field: "school", dataset_id: "schools-draft-only" }
+                    ]
+                }
+            })
+        })
+        chai.spy.on(Dataset, "findAll", () => {
+            return Promise.resolve([{ dataset_id: "customers", sample_data: { mergedEvent: { email: "a@b.com" } } }])
+        })
+        chai
+            .request(app)
+            .get("/v2/datasets/denorm-preview/telemetry?mode=edit")
+            .end((err, res) => {
+                res.should.have.status(httpStatus.OK);
+                res.body.result.event.should.be.deep.eq({
+                    customer_id: "CUST001",
+                    school_id: "SCH001",
+                    "customer_details.email": "a@b.com"
+                })
+                res.body.result.unavailable_denorm_fields.should.be.deep.eq(["school"])
+                done();
+            });
+    });
+
+    it("Success: Ignores a denorm field with no denorm_out_field", (done) => {
+        chai.spy.on(DatasetDraft, "findOne", () => {
+            return Promise.resolve({
+                sample_data: { mergedEvent: { customer_id: "CUST001" } },
+                denorm_config: { denorm_fields: [{ denorm_key: "customer_id", dataset_id: "customers" }] }
+            })
+        })
+        chai.spy.on(Dataset, "findAll", () => {
+            return Promise.resolve([{ dataset_id: "customers", sample_data: { mergedEvent: { email: "a@b.com" } } }])
+        })
+        chai
+            .request(app)
+            .get("/v2/datasets/denorm-preview/telemetry?mode=edit")
+            .end((err, res) => {
+                res.should.have.status(httpStatus.OK);
+                res.body.result.should.be.deep.eq({ event: { customer_id: "CUST001" }, unavailable_denorm_fields: [] })
                 done();
             });
     });

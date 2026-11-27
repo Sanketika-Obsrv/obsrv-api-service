@@ -16,8 +16,8 @@ const denormPreview = async (req: Request, res: Response) => {
     if (mode !== undefined && (typeof mode !== "string" || !allowedModes.includes(mode))) {
         throw obsrvError(dataset_id, "DENORM_PREVIEW_INVALID_MODE", "The specified mode is invalid", "BAD_REQUEST", 400);
     }
-    const event = await denormPreviewService.getDenormPreviewEvent(dataset_id, mode);
-    ResponseHandler.successResponse(req, res, { status: httpStatus.OK, data: event });
+    const preview = await denormPreviewService.getDenormPreviewEvent(dataset_id, mode);
+    ResponseHandler.successResponse(req, res, { status: httpStatus.OK, data: preview });
 }
 
 export default denormPreview;
